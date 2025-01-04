@@ -56,8 +56,14 @@ extension GBLoginView {
                 .overlay {
                     SignInWithAppleButton { request in
                         
+                        request.requestedScopes = [.fullName, .email]
                     } onCompletion: { result in
-                        
+                        switch result {
+                        case .success(let authorization):
+                            handleAuthorization(authorization)
+                        case .failure(let fail):
+                            print("FAIL \(fail)")
+                        }
                     }
                     .blendMode(.overlay)
                 }
@@ -120,4 +126,36 @@ extension GBLoginView {
 
 #Preview {
     GBLoginView()
+}
+
+// 비즈니스 로직 옮길 예정
+extension GBLoginView {
+    
+    func handleAuthorization(_ authorization: ASAuthorization) {
+        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
+            // 사용자 ID
+            let userID = appleIDCredential.user
+            print("User ID: \(userID)")
+
+            // 사용자 이메일 (최초 로그인 시만)
+            let email = appleIDCredential.email
+            print("Email: \(email ?? "No Email")")
+
+            // 사용자 이름 (최초 로그인 시만)
+            if let fullName = appleIDCredential.fullName {
+                let givenName = fullName.givenName ?? ""
+                let familyName = fullName.familyName ?? ""
+                print("Full Name: \(givenName) \(familyName)")
+            }
+            
+            // 인증 코드 (서버 검증에 사용)
+            let authorizationCode = appleIDCredential.authorizationCode
+            print("Authorization Code: \(String(data: authorizationCode ?? Data(), encoding: .utf8) ?? "")")
+            
+            // ID Token (서버 검증에 사용)
+            let identityToken = appleIDCredential.identityToken
+            print("Identity Token: \(String(data: identityToken ?? Data(), encoding: .utf8) ?? "")")
+        }
+    }
+
 }
