@@ -6,13 +6,53 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		7B29EF782D297A36005A8495 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF772D297A36005A8495 /* Alamofire */; };
+		7B29EF7B2D297A4D005A8495 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF7A2D297A4D005A8495 /* KakaoSDKAuth */; };
+		7B29EF7D2D297A4D005A8495 /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF7C2D297A4D005A8495 /* KakaoSDKCommon */; };
+		7B29EF7F2D297A4D005A8495 /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF7E2D297A4D005A8495 /* KakaoSDKUser */; };
+		7B29EF822D297A66005A8495 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF812D297A66005A8495 /* ComposableArchitecture */; };
+		7B29EF852D297A96005A8495 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF842D297A96005A8495 /* RealmSwift */; };
+		7B29EF862D297AA8005A8495 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF842D297A96005A8495 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		7B29EF8A2D297AC1005A8495 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF892D297AC1005A8495 /* Kingfisher */; };
+		7B29EF8D2D297ACC005A8495 /* PopupView in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF8C2D297ACC005A8495 /* PopupView */; };
+		7B29EF902D297AEC005A8495 /* TCACoordinators in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF8F2D297AEC005A8495 /* TCACoordinators */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		7B29EF872D297AA8005A8495 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				7B29EF862D297AA8005A8495 /* RealmSwift in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		7B29EF292D297812005A8495 /* Goolbitg-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Goolbitg-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		7B29EF922D297BC6005A8495 /* Exceptions for "Goolbitg-iOS" folder in "Goolbitg-iOS" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 7B29EF282D297812005A8495 /* Goolbitg-iOS */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7B29EF2B2D297812005A8495 /* Goolbitg-iOS */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7B29EF922D297BC6005A8495 /* Exceptions for "Goolbitg-iOS" folder in "Goolbitg-iOS" target */,
+			);
 			path = "Goolbitg-iOS";
 			sourceTree = "<group>";
 		};
@@ -23,6 +63,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B29EF8D2D297ACC005A8495 /* PopupView in Frameworks */,
+				7B29EF852D297A96005A8495 /* RealmSwift in Frameworks */,
+				7B29EF822D297A66005A8495 /* ComposableArchitecture in Frameworks */,
+				7B29EF8A2D297AC1005A8495 /* Kingfisher in Frameworks */,
+				7B29EF7F2D297A4D005A8495 /* KakaoSDKUser in Frameworks */,
+				7B29EF782D297A36005A8495 /* Alamofire in Frameworks */,
+				7B29EF7D2D297A4D005A8495 /* KakaoSDKCommon in Frameworks */,
+				7B29EF902D297AEC005A8495 /* TCACoordinators in Frameworks */,
+				7B29EF7B2D297A4D005A8495 /* KakaoSDKAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,6 +104,7 @@
 				7B29EF252D297812005A8495 /* Sources */,
 				7B29EF262D297812005A8495 /* Frameworks */,
 				7B29EF272D297812005A8495 /* Resources */,
+				7B29EF872D297AA8005A8495 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -65,6 +115,15 @@
 			);
 			name = "Goolbitg-iOS";
 			packageProductDependencies = (
+				7B29EF772D297A36005A8495 /* Alamofire */,
+				7B29EF7A2D297A4D005A8495 /* KakaoSDKAuth */,
+				7B29EF7C2D297A4D005A8495 /* KakaoSDKCommon */,
+				7B29EF7E2D297A4D005A8495 /* KakaoSDKUser */,
+				7B29EF812D297A66005A8495 /* ComposableArchitecture */,
+				7B29EF842D297A96005A8495 /* RealmSwift */,
+				7B29EF892D297AC1005A8495 /* Kingfisher */,
+				7B29EF8C2D297ACC005A8495 /* PopupView */,
+				7B29EF8F2D297AEC005A8495 /* TCACoordinators */,
 			);
 			productName = "Goolbitg-iOS";
 			productReference = 7B29EF292D297812005A8495 /* Goolbitg-iOS.app */;
@@ -94,6 +153,15 @@
 			);
 			mainGroup = 7B29EF202D297812005A8495;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				7B29EF762D297A36005A8495 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				7B29EF792D297A4D005A8495 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
+				7B29EF802D297A66005A8495 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				7B29EF832D297A96005A8495 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				7B29EF882D297AC1005A8495 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				7B29EF8B2D297ACC005A8495 /* XCRemoteSwiftPackageReference "PopupView" */,
+				7B29EF8E2D297AEC005A8495 /* XCRemoteSwiftPackageReference "TCACoordinators" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7B29EF2A2D297812005A8495 /* Products */;
 			projectDirPath = "";
@@ -249,17 +317,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Goolbitg-iOS/Goolbitg-iOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Goolbitg-iOS/Preview Content\"";
 				DEVELOPMENT_TEAM = H25F4B7J4U;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Goolbitg-iOS/Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -267,9 +338,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "LittleTail.Goolbitg-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -278,17 +353,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Goolbitg-iOS/Goolbitg-iOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Goolbitg-iOS/Preview Content\"";
 				DEVELOPMENT_TEAM = H25F4B7J4U;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Goolbitg-iOS/Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -296,9 +374,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "LittleTail.Goolbitg-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -324,6 +406,113 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		7B29EF762D297A36005A8495 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.10.2;
+			};
+		};
+		7B29EF792D297A4D005A8495 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kakao/kakao-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.23.0;
+			};
+		};
+		7B29EF802D297A66005A8495 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.17.0;
+			};
+		};
+		7B29EF832D297A96005A8495 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = 10.54.0;
+			};
+		};
+		7B29EF882D297AC1005A8495 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.1.3;
+			};
+		};
+		7B29EF8B2D297ACC005A8495 /* XCRemoteSwiftPackageReference "PopupView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exyte/PopupView";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.1.4;
+			};
+		};
+		7B29EF8E2D297AEC005A8495 /* XCRemoteSwiftPackageReference "TCACoordinators" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/johnpatrickmorgan/TCACoordinators";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.10.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		7B29EF772D297A36005A8495 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7B29EF762D297A36005A8495 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		7B29EF7A2D297A4D005A8495 /* KakaoSDKAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7B29EF792D297A4D005A8495 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKAuth;
+		};
+		7B29EF7C2D297A4D005A8495 /* KakaoSDKCommon */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7B29EF792D297A4D005A8495 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKCommon;
+		};
+		7B29EF7E2D297A4D005A8495 /* KakaoSDKUser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7B29EF792D297A4D005A8495 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKUser;
+		};
+		7B29EF812D297A66005A8495 /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7B29EF802D297A66005A8495 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+		7B29EF842D297A96005A8495 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7B29EF832D297A96005A8495 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
+		};
+		7B29EF892D297AC1005A8495 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7B29EF882D297AC1005A8495 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+		7B29EF8C2D297ACC005A8495 /* PopupView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7B29EF8B2D297ACC005A8495 /* XCRemoteSwiftPackageReference "PopupView" */;
+			productName = PopupView;
+		};
+		7B29EF8F2D297AEC005A8495 /* TCACoordinators */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7B29EF8E2D297AEC005A8495 /* XCRemoteSwiftPackageReference "TCACoordinators" */;
+			productName = TCACoordinators;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 7B29EF212D297812005A8495 /* Project object */;
 }
