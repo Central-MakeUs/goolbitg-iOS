@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B29EF4E2D297935005A8495 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 7B29EF4D2D297935005A8495 /* .gitignore */; };
 		7B29EF782D297A36005A8495 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF772D297A36005A8495 /* Alamofire */; };
 		7B29EF7B2D297A4D005A8495 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF7A2D297A4D005A8495 /* KakaoSDKAuth */; };
 		7B29EF7D2D297A4D005A8495 /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF7C2D297A4D005A8495 /* KakaoSDKCommon */; };
@@ -35,6 +36,7 @@
 
 /* Begin PBXFileReference section */
 		7B29EF292D297812005A8495 /* Goolbitg-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Goolbitg-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B29EF4D2D297935005A8495 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -81,6 +83,7 @@
 		7B29EF202D297812005A8495 = {
 			isa = PBXGroup;
 			children = (
+				7B29EF4D2D297935005A8495 /* .gitignore */,
 				7B29EF2B2D297812005A8495 /* Goolbitg-iOS */,
 				7B29EF2A2D297812005A8495 /* Products */,
 			);
@@ -177,6 +180,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B29EF4E2D297935005A8495 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

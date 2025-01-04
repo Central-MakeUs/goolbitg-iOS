@@ -6,12 +6,24 @@
 //
 
 import SwiftUI
+import KakaoSDKCommon
+import KakaoSDKAuth
 
 @main
 struct Goolbitg_iOSApp: App {
+    
+    init() {
+        KakaoSDK.initSDK(appKey: SecretKeys.kakaoNative)
+    }
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            GBLoginView()
+                .onOpenURL { url in
+                    if AuthApi.isKakaoTalkLoginUrl(url) {
+                        _ = AuthController.handleOpenUrl(url: url)
+                    }
+                }
         }
     }
 }
