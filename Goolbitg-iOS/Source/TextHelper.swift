@@ -19,7 +19,7 @@ enum TextHelper {
     static let authAlertAccessSub = "습관화를 위한 중요 알림을 받을 수 있어요"
     static let authCameraAccess = "카메라 활용 동의"
     static let authCameraAccessSub = "‘살까말까’ 이미지 촬영 시 필요해요"
-    static let authDeviceAppAccess = "기기 및 앱 접근 권한"
-    static let authDeviceAppAccessSub = "소비 전 같이 생각할 수 틈을 위한\n알림 발송을 위해 필요해요"
+    static let authAlbumAccess = "앨범 접근 허용 동의"
+    static let authAlbumAccessSub = "‘살까말까’ 이미지 업로드 시 필요해요"
     static let authStart = "시작하기"
 }

@@ -10,7 +10,7 @@ import Foundation
 enum AuthListEnum: CaseIterable, Equatable {
     case alert
     case camera
-    case device
+    case image
     
     var title: String {
         switch self {
@@ -18,8 +18,8 @@ enum AuthListEnum: CaseIterable, Equatable {
             return TextHelper.authAlertAccess
         case .camera:
             return TextHelper.authCameraAccess
-        case .device:
-            return TextHelper.authDeviceAppAccess
+        case .image:
+            return TextHelper.authAlbumAccess
         }
     }
     
@@ -29,8 +29,8 @@ enum AuthListEnum: CaseIterable, Equatable {
             return TextHelper.authAlertAccessSub
         case .camera:
             return TextHelper.authCameraAccessSub
-        case .device:
-            return TextHelper.authDeviceAppAccessSub
+        case .image:
+            return TextHelper.authAlbumAccessSub
         }
     }
     
@@ -40,7 +40,7 @@ enum AuthListEnum: CaseIterable, Equatable {
             return ImageHelper.alertLogo
         case .camera:
             return ImageHelper.cameraLogo
-        case .device:
+        case .image:
             return ImageHelper.lockLogo
         }
     }

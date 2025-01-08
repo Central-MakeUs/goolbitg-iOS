@@ -26,11 +26,11 @@ enum ImageHelper {
             return UIImage(named: "KakaoLogo") ?? UIImage(resource: .kakaoLogo)
             
         case .alertLogo:
-            return UIImage(named: "alertLogo") ?? UIImage(resource: .alertLogo)
+            return UIImage(named: "alertLogoV2") ?? UIImage(resource: .alertLogoV2)
         case .cameraLogo:
-            return UIImage(named: "cameraLogo") ?? UIImage(resource: .cameraLogo)
+            return UIImage(named: "cameraLogoV2") ?? UIImage(resource: .cameraLogoV2)
         case .lockLogo:
-            return UIImage(named: "deviceLock") ?? UIImage(resource: .deviceLock)
+            return UIImage(named: "imageAuth") ?? UIImage(resource: .imageAuth)
         }
     }
 }

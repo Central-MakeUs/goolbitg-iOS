@@ -13,6 +13,8 @@ struct AuthPageView: View {
     
     // MARK: feature 로 이동할 로직입니다.
     @Dependency(\.pushNotiManager) var pushManager
+    @Dependency(\.cameraManager) var cameraManager
+    @Dependency(\.albumAuthManager) var albumAuthManager
     
     var body: some View {
         WithPerceptionTracking {
@@ -29,11 +31,11 @@ extension AuthPageView {
             headerView
                 .padding(.top, 40)
                 .padding(.horizontal, 20)
-                
             Spacer()
             
             authRequestListView
-                .padding(.bottom, 120)
+              
+            Spacer()
             
             startButtonView
                 .padding(.horizontal, 20)
@@ -45,6 +47,10 @@ extension AuthPageView {
                         if result {
                             pushManager.getDeviceToken()
                         }
+                        
+                        let request = await cameraManager.requestAuth()
+                        
+                        let reqeust2 = await albumAuthManager.requestAlbumPermission()
                     }
                 }
         }
@@ -68,7 +74,7 @@ extension AuthPageView {
     }
     
     private var authRequestListView: some View {
-        VStack(spacing: 34) {
+        VStack(spacing: 36) {
             ForEach(AuthListEnum.allCases, id: \.self) { item in
                 makeAuthReqeustView(
                     image: item.image.image,
@@ -110,17 +116,20 @@ extension AuthPageView {
         subText: String
     ) -> some View {
         VStack (spacing: 0) {
+            
             Image(uiImage: image)
                 .padding(.bottom, 14)
+            
             Text(headerText)
                 .font(PretendardFont.boldFont.asFont(size: 16))
                 .foregroundStyle(GBColor.grey200.asColor)
                 .padding(.bottom, 4)
+            
             Text(subText)
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
                 .font(PretendardFont.midFont.asFont(size: 14))
-                .foregroundStyle(GBColor.grey200.asColor.opacity(0.4))
+                .foregroundStyle(GBColor.grey300.asColor)
                 .fixedSize()
         }
     }
