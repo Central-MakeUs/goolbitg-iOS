@@ -17,6 +17,7 @@ struct AuthPageView: View {
     var body: some View {
         WithPerceptionTracking {
             contentView
+                .background(GBColor.background1.asColor)
         }
     }
 }
@@ -32,7 +33,7 @@ extension AuthPageView {
             Spacer()
             
             authRequestListView
-                .padding(.bottom, 100)
+                .padding(.bottom, 120)
             
             startButtonView
                 .padding(.horizontal, 20)
@@ -53,12 +54,14 @@ extension AuthPageView {
         VStack(spacing: 15) {
             HStack {
                 Text(TextHelper.authHeader)
-                    .font(Font.system(size: 30, weight: .bold))
+                    .font(PretendardFont.extraBold.asFont(size: 24))
+                    .foregroundStyle(GBColor.white.asColor)
                 Spacer()
             }
             HStack {
                 Text(TextHelper.authHeaderSub)
-                    .font(Font.system(size: 19))
+                    .font(PretendardFont.midFont.asFont(size: 19))
+                    .foregroundStyle(GBColor.grey300.asColor)
                 Spacer()
             }
         }
@@ -87,8 +90,16 @@ extension AuthPageView {
             }
             .padding(.vertical, 18)
         }
-        .background(.black)
-        .clipShape(RoundedRectangle(cornerRadius: 5))
+        .background {
+            Rectangle()
+                .fill(
+                    .linearGradient(colors: [
+                        GBColor.primary600.asColor,
+                        GBColor.primary400.asColor
+                    ], startPoint: .topLeading, endPoint: .bottomTrailing)
+                )
+        }
+        .clipShape(Capsule())
     }
 }
 
@@ -102,12 +113,14 @@ extension AuthPageView {
             Image(uiImage: image)
                 .padding(.bottom, 14)
             Text(headerText)
-                .font(Font.system(size: 16, weight: .bold))
-                .padding(.bottom, 5)
+                .font(PretendardFont.boldFont.asFont(size: 16))
+                .foregroundStyle(GBColor.grey200.asColor)
+                .padding(.bottom, 4)
             Text(subText)
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
-                .font(Font.system(size: 14))
+                .font(PretendardFont.midFont.asFont(size: 14))
+                .foregroundStyle(GBColor.grey200.asColor.opacity(0.4))
                 .fixedSize()
         }
     }
