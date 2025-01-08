@@ -11,6 +11,9 @@ import ComposableArchitecture
 /// 권환 가져오는 뷰
 struct AuthPageView: View {
     
+    // MARK: feature 로 이동할 로직입니다.
+    @Dependency(\.pushNotiManager) var pushManager
+    
     var body: some View {
         WithPerceptionTracking {
             contentView
@@ -35,7 +38,13 @@ extension AuthPageView {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 10)
                 .asButton {
-                    
+                    Task {
+                        // 허용 가정하고 푸시 테스트
+                       let result = try await pushManager.requestNotificationPermission()
+                        if result {
+                            pushManager.getDeviceToken()
+                        }
+                    }
                 }
         }
     }
