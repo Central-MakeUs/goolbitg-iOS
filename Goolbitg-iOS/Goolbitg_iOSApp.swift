@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 import KakaoSDKCommon
 import KakaoSDKAuth
 
@@ -20,7 +21,9 @@ struct Goolbitg_iOSApp: App {
     
     var body: some Scene {
         WindowGroup {
-            AuthRequestView()
+            AuthRequestView(store: Store(initialState: AuthRequestFeature.State(), reducer: {
+                AuthRequestFeature()
+            }))
 //            AuthPageView()
 //            GBLoginView()
                 .onOpenURL { url in

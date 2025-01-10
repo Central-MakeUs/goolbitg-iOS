@@ -11,11 +11,7 @@ import PopupView
 
 struct AuthRequestView: View {
     
-    // 비즈니스 로직을 옮길 예정
-    @State var nickName: String = ""
-    @State private var date = Date()
-    @State private var isShowDate = false
-    @State private var isActionButtonState = false
+    @Perception.Bindable var store: StoreOf<AuthRequestFeature>
     
     var body: some View {
         WithPerceptionTracking {
@@ -88,7 +84,7 @@ extension AuthRequestView {
             
             HStack (spacing: 0) {
                 PlaceholderTextField(
-                    text: $nickName,
+                    text: $store.nickName.sending(\.nickNameText),
                     placeholder: TextHelper.authRequestNickNamePlaceHolder,
                     placeholderColor: GBColor.grey400.asColor,
                     edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18)
@@ -125,7 +121,7 @@ extension AuthRequestView {
             
             HStack {
                 PlaceholderTextField(
-                    text: $nickName,
+                    text: $store.birthDayYear.sending(\.yearText),
                     placeholder: TextHelper.authRequestBirthDayPlaceHolderYear,
                     placeholderColor: GBColor.grey400.asColor,
                     edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18)
@@ -141,7 +137,7 @@ extension AuthRequestView {
                 )
                 
                 PlaceholderTextField(
-                    text: $nickName,
+                    text: $store.birthDayMonth.sending(\.monthText),
                     placeholder: TextHelper.authRequestBirthDayPlaceHolderMonth,
                     placeholderColor: GBColor.grey400.asColor,
                     edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18)
@@ -157,7 +153,7 @@ extension AuthRequestView {
                 )
                 
                 PlaceholderTextField(
-                    text: $nickName,
+                    text: $store.birthDayDay.sending(\.dayText),
                     placeholder: TextHelper.authRequestBirthDayPlaceHolderDay,
                     placeholderColor: GBColor.grey400.asColor,
                     edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18)
@@ -226,7 +222,7 @@ extension AuthRequestView {
     
     private var startButtonView: some View {
         VStack {
-            if !isActionButtonState {
+            if !store.isActionButtonState {
                 HStack {
                     Text(TextHelper.authStart)
                 }
@@ -261,5 +257,7 @@ extension AuthRequestView {
 }
 
 #Preview {
-    AuthRequestView()
+    AuthRequestView(store: Store(initialState: AuthRequestFeature.State(), reducer: {
+        AuthRequestFeature()
+    }))
 }
