@@ -20,7 +20,8 @@ struct Goolbitg_iOSApp: App {
     
     var body: some Scene {
         WindowGroup {
-            AuthPageView()
+            AuthRequestView()
+//            AuthPageView()
 //            GBLoginView()
                 .onOpenURL { url in
                     if AuthApi.isKakaoTalkLoginUrl(url) {

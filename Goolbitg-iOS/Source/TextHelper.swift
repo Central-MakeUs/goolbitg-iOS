@@ -22,4 +22,21 @@ enum TextHelper {
     static let authAlbumAccess = "앨범 접근 허용 동의"
     static let authAlbumAccessSub = "‘살까말까’ 이미지 업로드 시 필요해요"
     static let authStart = "시작하기"
+    
+    // MARK: AUTH Request View Text for GB
+    static let authRequestHeaderTitle = "저희 굴비잇기를 위해\n이용할 정보를 작성해주세요"
+    static let authRequestHeaderSub = "맞춤형 소비습관 형성 패턴을\n분석할 때 활용하고 있어요"
+    
+    static let authRequestNickNameTitle = "닉네임"
+    static let authRequestNickNamePlaceHolder = "6자 이내로 작성해 주세요"
+    static let authRequestDuplicatedCheck = "중복검사"
+    
+    static let authRequestBirthDayTitle = "생년월일"
+    static let authRequestBirthDayPlaceHolderYear = "YYYY"
+    static let authRequestBirthDayPlaceHolderMonth = "MM"
+    static let authRequestBirthDayPlaceHolderDay = "DD"
+    
+    static let authRequestGenderTitle = "성별"
+    static let authRequestGenderMale = "남자"
+    static let authRequestGenderFemale = "여성"
 }
