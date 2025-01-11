@@ -14,12 +14,7 @@ struct PlaceholderTextField: View {
     let edge: UIEdgeInsets
     let onCommit: (() -> Void)?
     
-    init(text: Binding<String>,
-         placeholder: String,
-         placeholderColor: Color,
-         edge: UIEdgeInsets = UIEdgeInsets(),
-         onCommit: (() -> Void)? = nil)
-    {
+    init(text: Binding<String>, placeholder: String, placeholderColor: Color, edge: UIEdgeInsets, onCommit: (() -> Void)? = nil) {
         self._text = text
         self.placeholder = placeholder
         self.placeholderColor = placeholderColor
@@ -35,7 +30,7 @@ struct PlaceholderTextField: View {
             HStack {
                 if text.isEmpty {
                     Text(placeholder)
-                        .foregroundColor(placeholderColor)
+                        .foregroundStyle(placeholderColor)
                     Spacer()
                 }
             }

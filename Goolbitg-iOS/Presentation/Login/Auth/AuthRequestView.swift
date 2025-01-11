@@ -120,15 +120,18 @@ extension AuthRequestView {
             sectionTopTextView(text: TextHelper.authRequestBirthDayTitle, required: true)
             
             HStack {
-                PlaceholderTextField(
+                DisablePasteTextField(
                     text: $store.birthDayYear.sending(\.yearText),
+                    isFocused: $store.isYearFocused.sending(\.yearFocused),
                     placeholder: TextHelper.authRequestBirthDayPlaceHolderYear,
                     placeholderColor: GBColor.grey400.asColor,
-                    edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18)
+                    edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
+                    keyboardType: .numberPad
                 ) { // onCommit
                     
                 }
-                .frame(maxWidth: .infinity, maxHeight: 48)
+                .frame(maxWidth: .infinity)
+                .frame(height: 48)
                 .background(GBColor.grey600.asColor)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
                 .overlay(
@@ -136,15 +139,18 @@ extension AuthRequestView {
                         .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
                 )
                 
-                PlaceholderTextField(
+                DisablePasteTextField(
                     text: $store.birthDayMonth.sending(\.monthText),
+                    isFocused: $store.isMonthFocused.sending(\.monthFocused),
                     placeholder: TextHelper.authRequestBirthDayPlaceHolderMonth,
                     placeholderColor: GBColor.grey400.asColor,
-                    edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18)
+                    edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
+                    keyboardType: .numberPad
                 ) { // onCommit
                     
                 }
-                .frame(maxWidth: .infinity, maxHeight: 48)
+                .frame(maxWidth: .infinity)
+                .frame(height: 48)
                 .background(GBColor.grey600.asColor)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
                 .overlay(
@@ -152,15 +158,18 @@ extension AuthRequestView {
                         .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
                 )
                 
-                PlaceholderTextField(
+                DisablePasteTextField(
                     text: $store.birthDayDay.sending(\.dayText),
+                    isFocused: $store.isDayFocused.sending(\.dayFocused),
                     placeholder: TextHelper.authRequestBirthDayPlaceHolderDay,
                     placeholderColor: GBColor.grey400.asColor,
-                    edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18)
+                    edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
+                    keyboardType: .numberPad
                 ) { // onCommit
                     
                 }
-                .frame(maxWidth: .infinity, maxHeight: 48)
+                .frame(maxWidth: .infinity)
+                .frame(height: 48)
                 .background(GBColor.grey600.asColor)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
                 .overlay(
@@ -176,31 +185,46 @@ extension AuthRequestView {
         VStack {
             sectionTopTextView(text: TextHelper.authRequestGenderTitle, required: true)
             HStack (spacing: 16) {
-                
                 VStack {
                     Text(TextHelper.authRequestGenderMale)
                         .font(FontHelper.btn3.font)
-                        .foregroundStyle(GBColor.grey200.asColor)
+                        .foregroundStyle (
+                            store.currentGender == .male ? GBColor.black.asColor : GBColor.grey200.asColor
+                        )
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 51)
-                .background(GBColor.grey500.asColor)
+                .background {
+                    if case .male = store.currentGender {
+                        GBColor.white.asColor
+                    } else {
+                        GBColor.grey500.asColor
+                    }
+                }
                 .clipShape(Capsule())
                 .asButton {
-                    
+                    store.send(.viewEvent(.maleTaped))
                 }
                 
                 VStack {
                     Text(TextHelper.authRequestGenderFemale)
                         .font(FontHelper.btn3.font)
-                        .foregroundStyle(GBColor.grey200.asColor)
+                        .foregroundStyle(
+                            store.currentGender == .female ? GBColor.black.asColor : GBColor.grey200.asColor
+                        )
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 51)
-                .background(GBColor.grey500.asColor)
+                .background {
+                    if case .female = store.currentGender {
+                        GBColor.white.asColor
+                    } else {
+                        GBColor.grey500.asColor
+                    }
+                }
                 .clipShape(Capsule())
                 .asButton {
-                    
+                    store.send(.viewEvent(.femaleTapped))
                 }
             }
         }
