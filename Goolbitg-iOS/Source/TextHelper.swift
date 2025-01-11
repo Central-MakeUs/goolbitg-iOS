@@ -8,6 +8,8 @@
 import Foundation
 
 enum TextHelper {
+    
+    
     // MARK: LOGIN
     static let kakaoLogin = "카카오톡으로 시작하기"
     static let appleLogin = "Apple로 로그인"
@@ -21,7 +23,10 @@ enum TextHelper {
     static let authCameraAccessSub = "‘살까말까’ 이미지 촬영 시 필요해요"
     static let authAlbumAccess = "앨범 접근 허용 동의"
     static let authAlbumAccessSub = "‘살까말까’ 이미지 업로드 시 필요해요"
+    
+    // MARK: Common
     static let authStart = "시작하기"
+    static let nextTitle = "다음으로"
     
     // MARK: AUTH Request View Text for GB
     static let authRequestHeaderTitle = "저희 굴비잇기를 위해\n이용할 정보를 작성해주세요"
@@ -39,4 +44,10 @@ enum TextHelper {
     static let authRequestGenderTitle = "성별"
     static let authRequestGenderMale = "남자"
     static let authRequestGenderFemale = "여성"
+    
+    // MARK: Shopping Check List
+    static let shoppingCheckListHeaderTitle = "쇼핑중독 체크리스트"
+    static let shoppingCheckListHeaderSub = "본인이 생각하는 소비습관을"
+    static let shoppingCheckListPointText = "모두"
+    static let shoppingCheckListPointTrailingText = "선택해 주세요"
 }

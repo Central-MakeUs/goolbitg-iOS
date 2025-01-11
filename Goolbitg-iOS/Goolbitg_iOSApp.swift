@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import KakaoSDKCommon
 import KakaoSDKAuth
+import TipKit
 
 @main
 struct Goolbitg_iOSApp: App {
@@ -21,9 +22,12 @@ struct Goolbitg_iOSApp: App {
     
     var body: some Scene {
         WindowGroup {
-            AuthRequestView(store: Store(initialState: AuthRequestFeature.State(), reducer: {
-                AuthRequestFeature()
+            ShoppingCheckListView(store: Store(initialState: ShoppingCheckListViewFeature.State(), reducer: {
+                ShoppingCheckListViewFeature()
             }))
+//            AuthRequestView(store: Store(initialState: AuthRequestFeature.State(), reducer: {
+//                AuthRequestFeature()
+//            }))
 //            AuthPageView()
 //            GBLoginView()
                 .onOpenURL { url in

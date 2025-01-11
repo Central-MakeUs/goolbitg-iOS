@@ -16,6 +16,9 @@ enum ImageHelper {
     case cameraLogo
     case lockLogo
     
+    case checked
+    case unChecked
+    
     var image: UIImage {
         switch self {
         case .appLogo:
@@ -31,6 +34,10 @@ enum ImageHelper {
             return UIImage(named: "cameraLogoV2") ?? UIImage(resource: .cameraLogoV2)
         case .lockLogo:
             return UIImage(named: "imageAuth") ?? UIImage(resource: .imageAuth)
+        case .checked:
+            return UIImage(named: "checked") ?? UIImage(resource: .checked)
+        case .unChecked:
+            return UIImage(named: "unchecked") ?? UIImage(resource: .unchecked)
         }
     }
 }

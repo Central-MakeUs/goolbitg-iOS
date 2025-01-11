@@ -22,6 +22,19 @@ enum GBColor {
     case primary100
     case primary50
     
+    case main
+    case main90
+    case main80
+    case main70
+    case main60
+    case main50
+    case main40
+    case main30
+    case main20
+    case main15
+    case main10
+    case main5
+    
     /// 회색 계열
     case grey900
     case grey800
@@ -81,9 +94,9 @@ enum GBColor {
         case .grey600:
             return UIColor(hexCode: "#2F2F2F")
         case .grey500:
-            return UIColor(hexCode: "#464646")
-        case .grey400:
             return UIColor(hexCode: "#616161")
+        case .grey400:
+            return UIColor(hexCode: "#464646")
         case .grey300:
             return UIColor(hexCode: "#9E9E9E")
         case .grey200:
@@ -109,6 +122,32 @@ enum GBColor {
             return UIColor(hexCode: "#000000")
         case .white:
             return UIColor(hexCode: "#FFFFFF")
+            
+            
+        case .main:
+            return UIColor(hexCode: "#4BB329", alpha: 1)
+        case .main90:
+            return UIColor(hexCode: "#4BB329", alpha: 0.9)
+        case .main80:
+            return UIColor(hexCode: "#4BB329", alpha: 0.8)
+        case .main70:
+            return UIColor(hexCode: "#4BB329", alpha: 0.7)
+        case .main60:
+            return UIColor(hexCode: "#4BB329", alpha: 0.6)
+        case .main50:
+            return UIColor(hexCode: "#4BB329", alpha: 0.5)
+        case .main40:
+            return UIColor(hexCode: "#4BB329", alpha: 0.4)
+        case .main30:
+            return UIColor(hexCode: "#4BB329", alpha: 0.3)
+        case .main20:
+            return UIColor(hexCode: "#4BB329", alpha: 0.2)
+        case .main15:
+            return UIColor(hexCode: "#4BB329", alpha: 0.15)
+        case .main10:
+            return UIColor(hexCode: "#4BB329", alpha: 0.10)
+        case .main5:
+            return UIColor(hexCode: "#4BB329", alpha: 0.05)
         }
     }
     
