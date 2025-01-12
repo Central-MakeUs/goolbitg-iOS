@@ -10,9 +10,21 @@ import ComposableArchitecture
 
 struct ComsumptionHabitsView: View {
     
+    @Perception.Bindable var store: StoreOf<ComsumptionHabitsViewFeature>
+    
+    @State private var showToolTip = false
+    @State private var showNextButton = false
+    
     var body: some View {
         WithPerceptionTracking {
             contentView
+                .onTapGesture {
+                    endTextEditing()
+                }
+                .onChange(of: store.ifNextButtonState) { newValue in
+                    showNextButton = newValue
+                }
+                .ignoresSafeArea(.keyboard)
         }
     }
 }
@@ -22,17 +34,191 @@ extension ComsumptionHabitsView {
         VStack{
             
             headerView
+                .padding(.top, SpacingHelper.xxl.pixel / 2)
+                .padding(.horizontal, SpacingHelper.md.pixel)
+                .padding(.bottom, SpacingHelper.xl.pixel)
             
+            mainContentView
+                .padding(.horizontal, SpacingHelper.md.pixel)
+               
+            
+            Spacer()
+            
+            if showNextButton {
+                GBButton(
+                    isActionButtonState: $store.ifNextButtonState.sending(\.dummyButtonState),
+                    title: "다음으로"
+                ) {
+                    store.send(.viewEvent(.nextButtonTapped))
+                }
+                .padding(.horizontal, SpacingHelper.md.pixel)
+                .padding(.bottom, 14)
+            }
         }
+        .frame(maxWidth: .infinity)
+        .background(GBColor.background1.asColor)
     }
     
     private var headerView: some View {
-        VStack {
-            HStack {
+        ZStack (alignment: .top) {
+            HStack(spacing: 8) {
                 Text("소비 습관 점수")
+                    .font(FontHelper.h1.font)
+                
+                Image(uiImage: ImageHelper.infoTip.image)
+                    .resizable()
+                    .aspectRatio(1, contentMode: .fit)
+                    .frame(width: 24)
+                    .asButton {
+                        withAnimation {
+                            showToolTip.toggle()
+                        }
+                    }
+                    .overlay {
+                        if showToolTip {
+                            GBToolTipView(
+                                description: "평균 수입에 대한 평균 저축률을 기반으로\n소비 점수를 계산해주고 있어요",
+                                arrowAlignment: .TopCenter,
+                                padding: UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16),
+                                backgroundColor: GBColor.background1.asColor
+                            )
+                            .offset(y: 60)
+                            .animation(.spring, value: showToolTip)
+                            .onAppear {
+                                store.send(.viewEvent(.showToolTopEvent))
+                            }
+                        }
+                    }
+                    .onChange(of: store.closeToolTipTrigger) { _ in
+                        withAnimation {
+                            showToolTip = false
+                        }
+                    }
+                
+                Spacer()
+            }
+            .padding(.bottom, SpacingHelper.lg.pixel)
+            .zIndex(1)
+            
+            HStack {
+                Text("본인의 평균 수입과 저축으로\n과소비 지수를 측정해드려요!")
+                    .font(FontHelper.body1.font)
+                    .foregroundStyle(GBColor.grey300.asColor)
+                
+                Spacer()
+            }
+            .padding(.top, 50)
+        }
+        
+    }
+    
+    private var mainContentView: some View {
+        VStack(spacing: 0) {
+            monthGetTextFieldView
+            
+            monthSavingTestFieldView
+        }
+    }
+    
+    private var monthGetTextFieldView: some View {
+        VStack (spacing: 0) {
+            sectionTopTextView(text: "월 평균 수입", required: true)
+                .padding(.bottom, SpacingHelper.sm.pixel)
+            
+            ZStack (alignment: .leadingFirstTextBaseline){
+                DisablePasteTextField(
+                    text: $store.monthGetText.sending(\.monthGetText),
+                    isFocused: $store.getisFocused.sending(\.getFocused),
+                    placeholder: "₩ 월 평균 수입 금액을 작성해 주세요",
+                    placeholderColor: GBColor.grey500.asColor,
+                    edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
+                    keyboardType: .numberPad,
+                    ifLeadingEdge: 20
+                ) {
+                    
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 48)
+                .background(GBColor.grey600.asColor)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
+                )
+                .padding(.bottom, SpacingHelper.xl.pixel)
+                
+                if store.monthTextGetWonState {
+                    Text("₩")
+                        .padding(.leading, 20)
+                }
             }
         }
     }
+    
+    private var monthSavingTestFieldView: some View {
+        VStack (spacing: 0) {
+            sectionTopTextView(text: "월 평균 저축", required: true)
+                .padding(.bottom, SpacingHelper.sm.pixel)
+            
+            ZStack (alignment: .leading ) {
+                DisablePasteTextField(
+                    text: $store.monthSavingText.sending(\.monthSavingText),
+                    isFocused: $store.savingIsFocused.sending(\.savingFocused),
+                    placeholder: "₩ 월 평균 저축 금액을 작성해 주세요",
+                    placeholderColor: GBColor.grey500.asColor,
+                    edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
+                    keyboardType: .numberPad,
+                    ifLeadingEdge: 20
+                ) {
+                    
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 48)
+                .background(GBColor.grey600.asColor)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
+                )
+                
+                if store.monthTextSavingWonState {
+                    Text("₩")
+                        .padding(.leading, 20)
+                }
+            }
+            .padding(.bottom, 8)
+            
+            if store.ifMoreGetting {
+                HStack {
+                    Text("월 평균 수입보다 큰 금액을 작성할 수 없습니다")
+                        .foregroundStyle(GBColor.error.asColor)
+                        .font(FontHelper.caption1.font)
+                    
+                    Spacer()
+                }
+            }
+        }
+    }
+    
+    private func sectionTopTextView(text: String, required: Bool) -> some View {
+        HStack(spacing: 3) {
+            Text(text)
+                .font(FontHelper.caption1.font)
+                .foregroundStyle(GBColor.white.asColor)
+            if required {
+                Text("*")
+                    .font(FontHelper.caption1.font)
+                    .foregroundStyle(GBColor.error.asColor)
+            }
+            Spacer()
+        }
+    }
+}
+
+#Preview {
+    ComsumptionHabitsView(store: Store(initialState: ComsumptionHabitsViewFeature.State(), reducer: {
+        ComsumptionHabitsViewFeature()
+    }))
 }
 
 

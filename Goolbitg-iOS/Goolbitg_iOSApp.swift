@@ -22,9 +22,12 @@ struct Goolbitg_iOSApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ShoppingCheckListView(store: Store(initialState: ShoppingCheckListViewFeature.State(), reducer: {
-                ShoppingCheckListViewFeature()
+            ComsumptionHabitsView(store: Store(initialState: ComsumptionHabitsViewFeature.State(), reducer: {
+                ComsumptionHabitsViewFeature()
             }))
+//            ShoppingCheckListView(store: Store(initialState: ShoppingCheckListViewFeature.State(), reducer: {
+//                ShoppingCheckListViewFeature()
+//            }))
 //            AuthRequestView(store: Store(initialState: AuthRequestFeature.State(), reducer: {
 //                AuthRequestFeature()
 //            }))

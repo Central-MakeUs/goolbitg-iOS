@@ -19,6 +19,8 @@ enum ImageHelper {
     case checked
     case unChecked
     
+    case infoTip
+    
     var image: UIImage {
         switch self {
         case .appLogo:
@@ -38,6 +40,9 @@ enum ImageHelper {
             return UIImage(named: "checked") ?? UIImage(resource: .checked)
         case .unChecked:
             return UIImage(named: "unchecked") ?? UIImage(resource: .unchecked)
+            
+        case .infoTip:
+            return UIImage(named: "infoTip") ?? UIImage(resource: .infoTip)
         }
     }
 }

@@ -15,7 +15,28 @@ struct DisablePasteTextField: View {
     let placeholderColor: Color
     let edge: UIEdgeInsets
     let keyboardType: UIKeyboardType
+    var ifLeadingEdge: CGFloat?
     let onCommit: (() -> Void)?
+    
+    init(
+        text: Binding<String>,
+        isFocused: Binding<Bool>,
+        placeholder: String,
+        placeholderColor: Color,
+        edge: UIEdgeInsets,
+        keyboardType: UIKeyboardType,
+        ifLeadingEdge: CGFloat? = nil,
+        onCommit: ( () -> Void)?
+    ) {
+        self._text = text
+        self._isFocused = isFocused
+        self.placeholder = placeholder
+        self.placeholderColor = placeholderColor
+        self.edge = edge
+        self.keyboardType = keyboardType
+        self.ifLeadingEdge = ifLeadingEdge
+        self.onCommit = onCommit
+    }
     
     var body: some View {
         VStack {
@@ -25,16 +46,17 @@ struct DisablePasteTextField: View {
                 keyboardType: keyboardType,
                 onCommit: onCommit
             )
-            .background(
-                HStack {
-                    if text.isEmpty {
-                        Text(placeholder)
-                            .foregroundStyle(placeholderColor)
-                        Spacer()
-                    }
-                }
-            )
+            .padding(.leading, ifLeadingEdge ?? 0)
         }
+        .background(
+            HStack {
+                if text.isEmpty {
+                    Text(placeholder)
+                        .foregroundStyle(placeholderColor)
+                    Spacer()
+                }
+            }
+        )
         .padding(EdgeInsets(top: edge.top, leading: edge.left, bottom: edge.right, trailing: edge.right))
     }
     

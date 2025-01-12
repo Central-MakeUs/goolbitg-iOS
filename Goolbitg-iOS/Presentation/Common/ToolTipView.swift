@@ -13,22 +13,19 @@ struct GBToolTipView: View {
     var showCancelButton: Bool
     var padding: UIEdgeInsets
     let backgroundColor: Color
-    var onTapGesture: (() -> ())
     
     init(
         description: String,
         arrowAlignment: GBToolTipArrowAlignment = .BottomCenter,
         showCancelButton: Bool = false,
         padding: UIEdgeInsets = .init(top: 8, left: 8, bottom: 8, right: 8),
-        backgroundColor: Color = GBColor.black.asColor.opacity(0.8),
-        onTapGesture: @escaping () -> Void
+        backgroundColor: Color = GBColor.black.asColor.opacity(0.8)
     ) {
         self.description = description
         self.arrowAlignment = arrowAlignment
         self.showCancelButton = showCancelButton
         self.padding = padding
         self.backgroundColor = backgroundColor
-        self.onTapGesture = onTapGesture
     }
     
     var body: some View {
@@ -51,9 +48,6 @@ struct GBToolTipView: View {
             }
         }
         .contentShape(Rectangle())
-        .onTapGesture {
-            onTapGesture()
-        }
     }
     
     private var topLeftView: some View {
@@ -151,11 +145,11 @@ struct GBToolTipView: View {
     
     private var titleView: some View {
         ZStack {
-
-            VisualEffectView(effect: UIBlurEffect(style: .systemMaterialDark))
+        
+            BlurView(style: .systemThickMaterialDark)
                 .clipShape(RoundedRectangle(cornerRadius: 5))
+                .opacity(0.9)
                 .zIndex(2)
-                
             
             RoundedRectBorder(aligment: arrowAlignment)
                 .stroke(.white.opacity(0.7), lineWidth: 0.5)
@@ -310,15 +304,23 @@ struct TriangleBorder: Shape {
     }
 }
 
-
-struct VisualEffectView: UIViewRepresentable {
-    var effect: UIVisualEffect?
+struct BlurView: UIViewRepresentable {
+    
+    let style: UIBlurEffect.Style
+    
+    init(style: UIBlurEffect.Style) {
+        self.style = style
+    }
+    
     
     func makeUIView(context: Context) -> UIVisualEffectView {
-        UIVisualEffectView()
+        
+        let blurEffect = UIBlurEffect(style: style)
+        
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        
+        return blurView
     }
     
-    func updateUIView(_ uiView: UIVisualEffectView, context: UIViewRepresentableContext<Self>) {
-        uiView.effect = effect
-    }
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {}
 }
