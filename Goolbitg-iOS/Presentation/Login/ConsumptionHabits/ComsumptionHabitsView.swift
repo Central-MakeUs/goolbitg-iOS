@@ -47,7 +47,7 @@ extension ComsumptionHabitsView {
             if showNextButton {
                 GBButton(
                     isActionButtonState: $store.ifNextButtonState.sending(\.dummyButtonState),
-                    title: "다음으로"
+                    title: TextHelper.nextTitle
                 ) {
                     store.send(.viewEvent(.nextButtonTapped))
                 }
@@ -62,7 +62,7 @@ extension ComsumptionHabitsView {
     private var headerView: some View {
         ZStack (alignment: .top) {
             HStack(spacing: 8) {
-                Text("소비 습관 점수")
+                Text(TextHelper.ConsumptionScore)
                     .font(FontHelper.h1.font)
                 
                 Image(uiImage: ImageHelper.infoTip.image)
@@ -77,7 +77,7 @@ extension ComsumptionHabitsView {
                     .overlay {
                         if showToolTip {
                             GBToolTipView(
-                                description: "평균 수입에 대한 평균 저축률을 기반으로\n소비 점수를 계산해주고 있어요",
+                                description: TextHelper.ConsumptionToolTip,
                                 arrowAlignment: .TopCenter,
                                 padding: UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16),
                                 backgroundColor: GBColor.background1.asColor
@@ -101,7 +101,7 @@ extension ComsumptionHabitsView {
             .zIndex(1)
             
             HStack {
-                Text("본인의 평균 수입과 저축으로\n과소비 지수를 측정해드려요!")
+                Text(TextHelper.consumptionOverconsumptionIndexMeasurement)
                     .font(FontHelper.body1.font)
                     .foregroundStyle(GBColor.grey300.asColor)
                 
@@ -122,14 +122,14 @@ extension ComsumptionHabitsView {
     
     private var monthGetTextFieldView: some View {
         VStack (spacing: 0) {
-            sectionTopTextView(text: "월 평균 수입", required: true)
+            sectionTopTextView(text: TextHelper.consumptionAverageMonthlyIncome, required: true)
                 .padding(.bottom, SpacingHelper.sm.pixel)
             
             ZStack (alignment: .leadingFirstTextBaseline){
                 DisablePasteTextField(
                     text: $store.monthGetText.sending(\.monthGetText),
                     isFocused: $store.getisFocused.sending(\.getFocused),
-                    placeholder: "₩ 월 평균 수입 금액을 작성해 주세요",
+                    placeholder: TextHelper.consumptionAverageMonthlyIncomeWrite,
                     placeholderColor: GBColor.grey500.asColor,
                     edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
                     keyboardType: .numberPad,
@@ -157,14 +157,14 @@ extension ComsumptionHabitsView {
     
     private var monthSavingTestFieldView: some View {
         VStack (spacing: 0) {
-            sectionTopTextView(text: "월 평균 저축", required: true)
+            sectionTopTextView(text: TextHelper.consumptionAverageMonthlySavings, required: true)
                 .padding(.bottom, SpacingHelper.sm.pixel)
             
             ZStack (alignment: .leading ) {
                 DisablePasteTextField(
                     text: $store.monthSavingText.sending(\.monthSavingText),
                     isFocused: $store.savingIsFocused.sending(\.savingFocused),
-                    placeholder: "₩ 월 평균 저축 금액을 작성해 주세요",
+                    placeholder: TextHelper.consumptionAverageMonthlySavingsWrite,
                     placeholderColor: GBColor.grey500.asColor,
                     edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
                     keyboardType: .numberPad,
@@ -190,7 +190,7 @@ extension ComsumptionHabitsView {
             
             if store.ifMoreGetting {
                 HStack {
-                    Text("월 평균 수입보다 큰 금액을 작성할 수 없습니다")
+                    Text(TextHelper.consumptionAverageMonthlyIncomeBigger)
                         .foregroundStyle(GBColor.error.asColor)
                         .font(FontHelper.caption1.font)
                     

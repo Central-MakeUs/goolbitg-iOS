@@ -50,4 +50,16 @@ enum TextHelper {
     static let shoppingCheckListHeaderSub = "본인이 생각하는 소비습관을"
     static let shoppingCheckListPointText = "모두"
     static let shoppingCheckListPointTrailingText = "선택해 주세요"
+    
+    // MARK: 소비습관 체크
+    static let ConsumptionScore = "소비 습관 점수"
+    static let ConsumptionToolTip = "평균 수입에 대한 평균 저축률을 기반으로\n소비 점수를 계산해주고 있어요"
+    static let consumptionOverconsumptionIndexMeasurement = "본인의 평균 수입과 저축으로\n과소비 지수를 측정해드려요!"
+    static let consumptionAverageMonthlyIncome = "월 평균 수입"
+    static let consumptionAverageMonthlyIncomeWrite = "₩ 월 평균 수입 금액을 작성해 주세요"
+    
+    static let consumptionAverageMonthlySavings = "월 평균 저축"
+    static let consumptionAverageMonthlySavingsWrite = "₩ 월 평균 저축 금액을 작성해 주세요"
+    
+    static let consumptionAverageMonthlyIncomeBigger = "월 평균 수입보다 큰 금액을 작성할 수 없습니다"
 }
