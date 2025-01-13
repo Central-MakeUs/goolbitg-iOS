@@ -102,7 +102,7 @@ extension AuthRequestView {
                 
                 VStack {
                     Text(TextHelper.authRequestDuplicatedCheck)
-                        .font(FontHelper.btn2.font)
+                        .font(FontHelper.btn3.font)
                         .foregroundStyle(GBColor.black.asColor)
                         .padding(16)
                 }
