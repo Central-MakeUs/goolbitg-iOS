@@ -172,7 +172,7 @@ extension SelectExpenditureDateView {
     }
     
     private var weakExpendingTimeView: some View {
-        VStack {
+        VStack(spacing: 0) {
             HStack {
                 Text(TextHelper.expenditureWeakTime)
                     .font(FontHelper.caption1.font)
