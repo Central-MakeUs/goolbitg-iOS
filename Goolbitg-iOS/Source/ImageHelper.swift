@@ -21,6 +21,8 @@ enum ImageHelper {
     
     case infoTip
     
+    case chevronDown
+    
     var image: UIImage {
         switch self {
         case .appLogo:
@@ -43,6 +45,9 @@ enum ImageHelper {
             
         case .infoTip:
             return UIImage(named: "infoTip") ?? UIImage(resource: .infoTip)
+            
+        case .chevronDown:
+            return UIImage(named: "chevronDown") ?? UIImage(resource: .chevronDown)
         }
     }
 }

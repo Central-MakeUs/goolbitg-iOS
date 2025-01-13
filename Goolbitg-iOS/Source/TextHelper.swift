@@ -27,6 +27,7 @@ enum TextHelper {
     // MARK: Common
     static let authStart = "시작하기"
     static let nextTitle = "다음으로"
+    static let skipTitle = "건너뛰기"
     
     // MARK: AUTH Request View Text for GB
     static let authRequestHeaderTitle = "저희 굴비잇기를 위해\n이용할 정보를 작성해주세요"
@@ -62,4 +63,11 @@ enum TextHelper {
     static let consumptionAverageMonthlySavingsWrite = "₩ 월 평균 저축 금액을 작성해 주세요"
     
     static let consumptionAverageMonthlyIncomeBigger = "월 평균 수입보다 큰 금액을 작성할 수 없습니다"
+    
+    // MARK: 지출 요일/시간 입력
+    static let expenditureSelectMainTitle = "지출 요일/시간 선택"
+    static let expenditureWriteYourTimeAndDay = "본인이 무슨 시간 무슨 요일에\n지출이 많은지 작성해보세요"
+    static let expenditureWeakDay = "주 지출 요일"
+    static let expenditureWeakTime = "주 지출 시간"
+    static let expenditureUsuallySelectDay = "주로 소비하는 요일을 선택해 주세요"
 }

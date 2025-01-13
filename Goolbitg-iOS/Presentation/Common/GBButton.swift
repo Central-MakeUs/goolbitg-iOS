@@ -52,3 +52,32 @@ struct GBButton: View {
     }
 }
 
+struct GBButtonV2: View {
+    
+    let title: String
+    let onSubmit: () -> Void?
+    
+    var body: some View {
+        HStack {
+            Text(title)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 56)
+        .background {
+            Rectangle()
+                .fill(
+                    .linearGradient(colors: [
+                        GBColor.primary600.asColor,
+                        GBColor.primary400.asColor
+                    ], startPoint: .topLeading, endPoint: .bottomTrailing)
+                )
+        }
+        .clipShape(Capsule())
+        .font(FontHelper.btn1.font)
+        .foregroundStyle(GBColor.white.asColor)
+        .clipShape(Capsule())
+        .asButton {
+            onSubmit()
+        }
+    }
+}
