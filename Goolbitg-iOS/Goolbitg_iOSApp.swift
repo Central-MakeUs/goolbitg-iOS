@@ -22,9 +22,9 @@ struct Goolbitg_iOSApp: App {
     
     var body: some Scene {
         WindowGroup {
-            SelectExpenditureDateView(store: Store(initialState: ExpressExpenditureDateViewFeature.State(), reducer: {
-                ExpressExpenditureDateViewFeature()
-            }))
+//            SelectExpenditureDateView(store: Store(initialState: ExpressExpenditureDateViewFeature.State(), reducer: {
+//                ExpressExpenditureDateViewFeature()
+//            }))
 //            ComsumptionHabitsView(store: Store(initialState: ComsumptionHabitsViewFeature.State(), reducer: {
 //                ComsumptionHabitsViewFeature()
 //            }))
@@ -35,7 +35,9 @@ struct Goolbitg_iOSApp: App {
 //                AuthRequestFeature()
 //            }))
 //            AuthPageView()
-//            GBLoginView()
+            GBLoginView(store: Store(initialState: LoginViewFeature.State(), reducer: {
+                LoginViewFeature()
+            }))
                 .onOpenURL { url in
                     if AuthApi.isKakaoTalkLoginUrl(url) {
                         _ = AuthController.handleOpenUrl(url: url)

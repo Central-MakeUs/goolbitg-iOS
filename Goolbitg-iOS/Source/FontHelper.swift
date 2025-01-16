@@ -9,6 +9,8 @@ import SwiftUI
 
 enum FontHelper {
     
+    case apple600
+    
     case h1
     case h2
     case h3
@@ -29,6 +31,7 @@ enum FontHelper {
     
     var font: Font {
         switch self {
+        case .apple600: return AppleFonts.apple600.asFont(size: 15)
         case .h1: return PretendardFont.boldFont.asFont(size: 24)
         case .h2: return PretendardFont.boldFont.asFont(size: 19)
         case .h3: return PretendardFont.boldFont.asFont(size: 16)

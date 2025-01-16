@@ -9,7 +9,11 @@ import UIKit
 
 enum ImageHelper {
     
+    case splashBack
+    
     case appLogo
+    case appLogo2
+    
     case appleLogo
     case kakao
     case alertLogo
@@ -25,12 +29,16 @@ enum ImageHelper {
     
     var image: UIImage {
         switch self {
+        case .splashBack:
+            return UIImage(named: "SplashBack") ?? UIImage(resource: .splashBack)
         case .appLogo:
-            return UIImage(named: "GBLogo") ?? UIImage(resource: .gbLogo)
+            return UIImage(named: "Login_AppLogo") ?? UIImage(resource: .loginAppLogo)
+        case .appLogo2:
+            return UIImage(named: "appLogo2") ?? UIImage(resource: .appLogo2)
         case .appleLogo:
-            return UIImage(named: "AppleLogo") ?? UIImage(resource: .appleLogo)
+            return UIImage(named: "Apple_Logo") ?? UIImage(resource: .appleLogo)
         case .kakao:
-            return UIImage(named: "KakaoLogo") ?? UIImage(resource: .kakaoLogo)
+            return UIImage(named: "Kakao_Logo") ?? UIImage(resource: .kakaoLogo)
             
         case .alertLogo:
             return UIImage(named: "alertLogoV2") ?? UIImage(resource: .alertLogoV2)
