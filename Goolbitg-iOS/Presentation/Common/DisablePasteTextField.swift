@@ -83,7 +83,7 @@ struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
     
     func updateUIView(_ uiView: ProtectedTextField, context: Context) {
         uiView.text = text
-        print(isFocused.wrappedValue, uiView.isFirstResponder )
+        
         if isFocused.wrappedValue, !uiView.isFirstResponder {
             DispatchQueue.main.async {
                 uiView.becomeFirstResponder()
@@ -138,5 +138,11 @@ class ProtectedTextField: UITextField {
             return false
         }
         return super.canPerformAction(action, withSender: sender)
+    }
+    override func buildMenu(with builder: any UIMenuBuilder) {
+        if #available(iOS 17.0, *) {
+            builder.remove(menu: .autoFill)
+        }
+        super.buildMenu(with: builder)
     }
 }

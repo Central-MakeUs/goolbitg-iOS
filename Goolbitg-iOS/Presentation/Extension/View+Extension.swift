@@ -21,4 +21,13 @@ extension View {
     func border(width: CGFloat, edges: [Edge], color: Color) -> some View {
         overlay(EdgeBorder(width: width, edge: edges).foregroundColor(color))
     }
+    
+    @ViewBuilder
+    func changeTextColor(_ color: Color) -> some View {
+        if UITraitCollection.current.userInterfaceStyle == .light {
+            self.colorInvert().colorMultiply(color)
+        } else {
+            self.colorMultiply(color)
+        }
+    }
 }

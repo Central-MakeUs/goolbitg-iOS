@@ -19,6 +19,7 @@
 		7B29EF8A2D297AC1005A8495 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF892D297AC1005A8495 /* Kingfisher */; };
 		7B29EF8D2D297ACC005A8495 /* PopupView in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF8C2D297ACC005A8495 /* PopupView */; };
 		7B29EF902D297AEC005A8495 /* TCACoordinators in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF8F2D297AEC005A8495 /* TCACoordinators */; };
+		7B7364C72D3A8FFC0096E8AC /* SwiftyGif in Frameworks */ = {isa = PBXBuildFile; productRef = 7B7364C62D3A8FFC0096E8AC /* SwiftyGif */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -67,6 +68,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7B29EF8D2D297ACC005A8495 /* PopupView in Frameworks */,
+				7B7364C72D3A8FFC0096E8AC /* SwiftyGif in Frameworks */,
 				7B29EF852D297A96005A8495 /* RealmSwift in Frameworks */,
 				7B29EF822D297A66005A8495 /* ComposableArchitecture in Frameworks */,
 				7B29EF8A2D297AC1005A8495 /* Kingfisher in Frameworks */,
@@ -130,6 +132,7 @@
 				7B29EF8C2D297ACC005A8495 /* PopupView */,
 				7B29EF8F2D297AEC005A8495 /* TCACoordinators */,
 				7B24085C2D37DFBF00138CA8 /* Lottie */,
+				7B7364C62D3A8FFC0096E8AC /* SwiftyGif */,
 			);
 			productName = "Goolbitg-iOS";
 			productReference = 7B29EF292D297812005A8495 /* Goolbitg-iOS.app */;
@@ -168,6 +171,7 @@
 				7B29EF8B2D297ACC005A8495 /* XCRemoteSwiftPackageReference "PopupView" */,
 				7B29EF8E2D297AEC005A8495 /* XCRemoteSwiftPackageReference "TCACoordinators" */,
 				7B24085B2D37DFBF00138CA8 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				7B7364C52D3A8FFC0096E8AC /* XCRemoteSwiftPackageReference "SwiftyGif" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7B29EF2A2D297812005A8495 /* Products */;
@@ -486,6 +490,14 @@
 				minimumVersion = 0.10.1;
 			};
 		};
+		7B7364C52D3A8FFC0096E8AC /* XCRemoteSwiftPackageReference "SwiftyGif" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/alexiscreuzot/SwiftyGif.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.4.5;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -538,6 +550,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7B29EF8E2D297AEC005A8495 /* XCRemoteSwiftPackageReference "TCACoordinators" */;
 			productName = TCACoordinators;
+		};
+		7B7364C62D3A8FFC0096E8AC /* SwiftyGif */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7B7364C52D3A8FFC0096E8AC /* XCRemoteSwiftPackageReference "SwiftyGif" */;
+			productName = SwiftyGif;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

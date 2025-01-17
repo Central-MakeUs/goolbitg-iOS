@@ -37,10 +37,15 @@ enum TextHelper {
     static let authRequestNickNamePlaceHolder = "6자 이내로 작성해 주세요"
     static let authRequestDuplicatedCheck = "중복검사"
     
+    static let authRequestBirthDayPlaceHolder = "생년월일을 선택해주세요"
     static let authRequestBirthDayTitle = "생년월일"
     static let authRequestBirthDayPlaceHolderYear = "YYYY"
     static let authRequestBirthDayPlaceHolderMonth = "MM"
     static let authRequestBirthDayPlaceHolderDay = "DD"
+    
+    static let authNickNameAlreadyUse = "이미 사용중인 닉네임 입니다."
+    static let authNickNameOverOrUnderText = "2자이상 6자 이내로 작성해주세요"
+    static let authNickNameKoreanOrEnglishNotText = "닉네임은 한글, 영문 대소문자만 입력할 수 있어요"
     
     static let authRequestGenderTitle = "성별"
     static let authRequestGenderMale = "남자"

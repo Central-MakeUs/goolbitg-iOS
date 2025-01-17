@@ -18,4 +18,20 @@ enum NickNameValidateEnum {
     case denied
     /// 정해진 길이를 지키지 않았을때
     case limitOverOrUnder
+    
+    
+    var placeholder: String? {
+        switch self {
+        case .none:
+            return nil
+        case .active:
+            return nil
+        case .alreadyUse:
+            return TextHelper.authNickNameAlreadyUse
+        case .denied:
+            return TextHelper.authNickNameKoreanOrEnglishNotText
+        case .limitOverOrUnder:
+            return TextHelper.authNickNameOverOrUnderText
+        }
+    }
 }

@@ -31,13 +31,13 @@ struct Goolbitg_iOSApp: App {
 //            ShoppingCheckListView(store: Store(initialState: ShoppingCheckListViewFeature.State(), reducer: {
 //                ShoppingCheckListViewFeature()
 //            }))
-//            AuthRequestView(store: Store(initialState: AuthRequestFeature.State(), reducer: {
-//                AuthRequestFeature()
-//            }))
-//            AuthPageView()
-            GBLoginView(store: Store(initialState: LoginViewFeature.State(), reducer: {
-                LoginViewFeature()
+            AuthRequestView(store: Store(initialState: AuthRequestFeature.State(), reducer: {
+                AuthRequestFeature()
             }))
+//            AuthPageView()
+//            GBLoginView(store: Store(initialState: LoginViewFeature.State(), reducer: {
+//                LoginViewFeature()
+//            }))
                 .onOpenURL { url in
                     if AuthApi.isKakaoTalkLoginUrl(url) {
                         _ = AuthController.handleOpenUrl(url: url)

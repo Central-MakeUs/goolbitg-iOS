@@ -13,11 +13,52 @@ struct AuthRequestView: View {
     
     @Perception.Bindable var store: StoreOf<AuthRequestFeature>
     
+    @State private var isShowDatePicker: Bool = false
+    @State private var emptyFocus = false
+    
     var body: some View {
         WithPerceptionTracking {
             contentView
+                .ignoresSafeArea(.keyboard)
                 .onTapGesture {
                     endTextEditing()
+                    emptyFocus = false
+                }
+                .popup(isPresented: $isShowDatePicker) {
+                    VStack(spacing: 0) {
+                        
+                        HStack {
+                            Spacer()
+                            
+                            VStack {}
+                                .frame(width: 40, height: 4)
+                                .background(GBColor.grey400.asColor)
+                                .clipShape(RoundedRectangle(cornerRadius: 3))
+                                
+                            Spacer()
+                        }
+                        .padding(.vertical, 8)
+                        
+                        DatePicker(
+                            "",
+                            selection: $store.date.sending(\.selectedDate),
+                            in: store.maxCalendar,
+                            displayedComponents: .date
+                        )
+                        .datePickerStyle(.wheel)
+                        .labelsHidden()
+                        .environment(\.locale, Locale(identifier: "ko_KR"))
+                        .changeTextColor(GBColor.white.asColor)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .background(GBColor.grey600.asColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 18))
+                    
+                } customize: {
+                    $0
+                        .type(.toast)
+                        .animation(.spring)
+                        .closeOnTapOutside(true)
                 }
         }
     }
@@ -43,6 +84,9 @@ extension AuthRequestView {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(GBColor.background1.asColor)
+        .onChange(of: emptyFocus) { _ in
+            store.send(.viewEvent(.nickNameTextFieldEventEnd))
+        }
     }
     
     private var headerView: some View {
@@ -83,13 +127,15 @@ extension AuthRequestView {
             sectionTopTextView(text: TextHelper.authRequestNickNameTitle, required: true)
             
             HStack (spacing: 0) {
-                PlaceholderTextField(
+                DisablePasteTextField(
                     text: $store.nickName.sending(\.nickNameText),
+                    isFocused: $emptyFocus,
                     placeholder: TextHelper.authRequestNickNamePlaceHolder,
                     placeholderColor: GBColor.grey400.asColor,
-                    edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18)
+                    edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
+                    keyboardType: .default
                 ) { // onCommit
-                    
+                    endTextEditing()
                 }
                 .frame(maxWidth: .infinity, maxHeight: 48)
                 .background(GBColor.grey600.asColor)
@@ -100,16 +146,38 @@ extension AuthRequestView {
                 )
                 .padding(.trailing, 16)
                 
-                VStack {
-                    Text(TextHelper.authRequestDuplicatedCheck)
-                        .font(FontHelper.btn3.font)
-                        .foregroundStyle(GBColor.black.asColor)
-                        .padding(16)
+                
+                if store.isDuplicateButtonState {
+                    VStack {
+                        Text(TextHelper.authRequestDuplicatedCheck)
+                            .font(FontHelper.btn3.font)
+                            .foregroundStyle(GBColor.black.asColor)
+                            .padding(16)
+                    }
+                    .background(GBColor.white.asColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .asButton {
+                        store.send(.viewEvent(.duplicatedButtonTapped))
+                        emptyFocus = false
+                    }
+                } else {
+                    VStack {
+                        Text(TextHelper.authRequestDuplicatedCheck)
+                            .font(FontHelper.btn3.font)
+                            .foregroundStyle(GBColor.grey500.asColor)
+                            .padding(16)
+                    }
+                    .background(GBColor.grey600.asColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
                 }
-                .background(GBColor.white.asColor)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-                .asButton {
-                    
+            }
+            
+            if let placeholder = store.nickNameResult.placeholder {
+                HStack (spacing:0) {
+                    Text(placeholder)
+                        .font(FontHelper.body2.font)
+                        .foregroundStyle(GBColor.error.asColor)
+                    Spacer()
                 }
             }
         }
@@ -120,62 +188,39 @@ extension AuthRequestView {
             sectionTopTextView(text: TextHelper.authRequestBirthDayTitle, required: true)
             
             HStack {
-                DisablePasteTextField(
-                    text: $store.birthDayYear.sending(\.yearText),
-                    isFocused: $store.isYearFocused.sending(\.yearFocused),
-                    placeholder: TextHelper.authRequestBirthDayPlaceHolderYear,
-                    placeholderColor: GBColor.grey400.asColor,
-                    edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
-                    keyboardType: .numberPad
-                ) { // onCommit
-                    
+                ZStack {
+                    switch store.state.birthDayShowTextState {
+                    case .placeholder:
+                        HStack {
+                            Text(TextHelper.authRequestBirthDayPlaceHolder)
+                                .font(FontHelper.caption2.font)
+                                .foregroundStyle(GBColor.grey400.asColor)
+                                .padding(.horizontal, SpacingHelper.md.pixel)
+                            Spacer()
+                        }
+                    case .show:
+                        HStack {
+                            Text(store.birthDayText)
+                                .padding(.horizontal, SpacingHelper.md.pixel)
+                                .font(FontHelper.caption2.font)
+                                .foregroundStyle(GBColor.white.asColor)
+                            Spacer()
+                        }
+                    }
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
-                .background(GBColor.grey600.asColor)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
-                )
-                
-                DisablePasteTextField(
-                    text: $store.birthDayMonth.sending(\.monthText),
-                    isFocused: $store.isMonthFocused.sending(\.monthFocused),
-                    placeholder: TextHelper.authRequestBirthDayPlaceHolderMonth,
-                    placeholderColor: GBColor.grey400.asColor,
-                    edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
-                    keyboardType: .numberPad
-                ) { // onCommit
-                    
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
-                .background(GBColor.grey600.asColor)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
-                )
-                
-                DisablePasteTextField(
-                    text: $store.birthDayDay.sending(\.dayText),
-                    isFocused: $store.isDayFocused.sending(\.dayFocused),
-                    placeholder: TextHelper.authRequestBirthDayPlaceHolderDay,
-                    placeholderColor: GBColor.grey400.asColor,
-                    edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
-                    keyboardType: .numberPad
-                ) { // onCommit
-                    
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
-                .background(GBColor.grey600.asColor)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
-                )
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 48)
+            .background(GBColor.grey600.asColor)
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
+            )
+            .asButton {
+                endTextEditing()
+                isShowDatePicker.toggle()
+                emptyFocus = false
             }
             
         }
@@ -204,6 +249,7 @@ extension AuthRequestView {
                 .clipShape(Capsule())
                 .asButton {
                     store.send(.viewEvent(.maleTaped))
+                    emptyFocus = false
                 }
                 
                 VStack {
@@ -225,6 +271,7 @@ extension AuthRequestView {
                 .clipShape(Capsule())
                 .asButton {
                     store.send(.viewEvent(.femaleTapped))
+                    emptyFocus = false
                 }
             }
         }
@@ -246,17 +293,7 @@ extension AuthRequestView {
     
     private var startButtonView: some View {
         VStack {
-            if !store.isActionButtonState {
-                HStack {
-                    Text(TextHelper.authStart)
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background(GBColor.grey500.asColor)
-                .font(FontHelper.btn1.font)
-                .foregroundStyle(GBColor.grey400.asColor)
-                .clipShape(Capsule())
-            } else {
+            if store.isActionButtonState {
                 HStack {
                     Text(TextHelper.authStart)
                 }
@@ -279,6 +316,67 @@ extension AuthRequestView {
         }
     }
 }
+
+/*
+ HStack {
+     DisablePasteTextField(
+         text: $store.birthDayYear.sending(\.yearText),
+         isFocused: $store.isYearFocused.sending(\.yearFocused),
+         placeholder: TextHelper.authRequestBirthDayPlaceHolderYear,
+         placeholderColor: GBColor.grey400.asColor,
+         edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
+         keyboardType: .numberPad
+     ) { // onCommit
+         
+     }
+     .frame(maxWidth: .infinity)
+     .frame(height: 48)
+     .background(GBColor.grey600.asColor)
+     .clipShape(RoundedRectangle(cornerRadius: 6))
+     .overlay(
+         RoundedRectangle(cornerRadius: 6)
+             .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
+     )
+     
+     DisablePasteTextField(
+         text: $store.birthDayMonth.sending(\.monthText),
+         isFocused: $store.isMonthFocused.sending(\.monthFocused),
+         placeholder: TextHelper.authRequestBirthDayPlaceHolderMonth,
+         placeholderColor: GBColor.grey400.asColor,
+         edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
+         keyboardType: .numberPad
+     ) { // onCommit
+         
+     }
+     .frame(maxWidth: .infinity)
+     .frame(height: 48)
+     .background(GBColor.grey600.asColor)
+     .clipShape(RoundedRectangle(cornerRadius: 6))
+     .overlay(
+         RoundedRectangle(cornerRadius: 6)
+             .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
+     )
+     
+     DisablePasteTextField(
+         text: $store.birthDayDay.sending(\.dayText),
+         isFocused: $store.isDayFocused.sending(\.dayFocused),
+         placeholder: TextHelper.authRequestBirthDayPlaceHolderDay,
+         placeholderColor: GBColor.grey400.asColor,
+         edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
+         keyboardType: .numberPad
+     ) { // onCommit
+         
+     }
+     .frame(maxWidth: .infinity)
+     .frame(height: 48)
+     .background(GBColor.grey600.asColor)
+     .clipShape(RoundedRectangle(cornerRadius: 6))
+     .overlay(
+         RoundedRectangle(cornerRadius: 6)
+             .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
+     )
+ }
+ */
 
 #Preview {
     AuthRequestView(store: Store(initialState: AuthRequestFeature.State(), reducer: {

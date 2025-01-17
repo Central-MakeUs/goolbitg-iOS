@@ -11,23 +11,26 @@ import ComposableArchitecture
 @Reducer
 struct AuthRequestFeature {
     
+    enum BirthDayShowTextState {
+        case show
+        case placeholder
+    }
+    
     @ObservableState
     struct State: Equatable {
         var nickName: String = ""
-        var birthDayYear = ""
-        var birthDayMonth = ""
-        var birthDayDay = ""
+        var birthDayText = ""
         
-        var isYearFocused = false
-        var isMonthFocused = false
-        var isDayFocused = false
+        var maxCalendar = Calendar.current.date(byAdding: .year, value: -100, to: Date())!...Date()
         
+        var birthDayShowTextState: BirthDayShowTextState = .placeholder
         var date = Date()
-        
         var currentGender: GenderType? = nil
         
-        var requiredCheckedList = RequiredCheckedList()
+        var isDuplicateButtonState = false
         var isActionButtonState = false
+        var nickNameResult: NickNameValidateEnum = .none
+        var dateState: Bool = false
     }
     
     enum Action {
@@ -35,221 +38,110 @@ struct AuthRequestFeature {
         
         // TextBinding
         case nickNameText(String)
-        case yearText(String)
-        case monthText(String)
-        case dayText(String)
-        
-        // TextField Focused
-        case moveToTarget(KeyboardTarget)
-        
-        case yearFocused(Bool)
-        case monthFocused(Bool)
-        case dayFocused(Bool)
-        
-        // TextFieldIssue
+
         case nickNameTextChecker(String)
-        case monthTextChecker(String)
-        case dayTextChecker(String)
-        case yearTextChecker(String)
+        
+        case selectedDate(Date)
     }
     
     enum ViewEvent: Equatable {
         case maleTaped
         case femaleTapped
+        case duplicatedButtonTapped
+        case nickNameTextFieldEventEnd
     }
     
-    struct RequiredCheckedList: Equatable {
-        var nickName: Bool = false
-        var nickNameDuplicated: Bool = false
-        var year: Bool = false
-        var month: Bool = false
-        var day: Bool = false
-        var gender: Bool = false
-    }
+    @Dependency(\.dateManager) var dateFormatter
+    @Dependency(\.textValidManager) var textValidManager
+    
+    static let test = "test"
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
                 
             case .nickNameText(let text):
-                state.nickName = text
-        
+//                return .send(.nickNameTextChecker(text))
                 return .run { send in
-                    try? await Task.sleep(for: .milliseconds(80))
                     await send(.nickNameTextChecker(text))
-                }
-                
-            case .yearText(let text):
-                state.birthDayYear = text
-                
-                if text.count >= 4 {
-                    return .run { send in
-                        await send(.moveToTarget(.month))
-                        await send(.yearTextChecker(text))
-                    }
-                }
-                
-                
-            case .monthText(let text):
-                state.birthDayMonth = text
-                
-                if text.count >= 2 {
-                    return .run { send in
-                        await send(.monthTextChecker(text))
-                        await send(.moveToTarget(.day))
-                    }
-                }
-                
-            case .dayText(let text):
-                state.birthDayDay = text
-                
-                if text.count >= 2 {
-                    return .run { [state] send in
-                        await send(.moveToTarget(.done))
-                        await send(.yearTextChecker(state.birthDayYear))
-                        await send(.monthTextChecker(state.birthDayMonth))
-                        await send(.dayTextChecker(state.birthDayDay))
-                    }
-                }
-                
-            case .yearFocused(let bool):
-                if bool {
-                    return .run { send in
-                        await send(.moveToTarget(.year))
-                    }
-                }
-                
-            case .monthFocused(let bool):
-                if bool {
-                    return .run { send in
-                        await send(.moveToTarget(.month))
-                    }
-                }
-            case .dayFocused(let bool):
-                if bool {
-                    return .run { send in
-                        await send(.moveToTarget(.day))
-                    }
                 }
                 
             case .nickNameTextChecker(let text):
                 let removeNext = text.removeNextLine
                 let removeSpacing = removeNext.removeSpacing
-                print(removeSpacing)
-                state.nickName = removeSpacing
                 
-            case .monthTextChecker(let text):
-                checkToMonth(state: &state, input: text)
+                print(removeSpacing, text)
+                if text != state.nickName {
+                    state.nickName = removeSpacing
+                }
                 
-            case .dayTextChecker(let text):
-                checkToDay(state: &state, input: text)
+                if !text.isEmpty {
+                    let result = nickNameTextCheck(nickName: removeSpacing)
+                    state.nickNameResult = result
+                    state.isDuplicateButtonState = ((result == .none) && !removeSpacing.isEmpty)
+                }
+
+                checkedButtonState(state: &state)
                 
-            case .yearTextChecker(let text):
-                checkToYear(state: &state, input: text)
+            case .selectedDate(let date):
+                state.date = date
+                let dateString = mappingToStringDate(date: date)
                 
-            case .moveToTarget(let target):
-                return targetKeyBoard(state: &state, target: target)
-            
+                state.birthDayText = dateString
+                state.birthDayShowTextState = .show
+                
+                state.dateState = true
+                checkedButtonState(state: &state)
                 
             case .viewEvent(.maleTaped):
                 state.currentGender = .male
+                checkedButtonState(state: &state)
                 
             case .viewEvent(.femaleTapped):
                 state.currentGender = .female
+                checkedButtonState(state: &state)
                 
+                /// 통신해야함 중복 검사
+            case .viewEvent(.duplicatedButtonTapped):
+                state.nickNameResult = .active
+                checkedButtonState(state: &state)
+                
+            case .viewEvent(.nickNameTextFieldEventEnd):
+                state.nickName = state.nickName.replacingOccurrences(of: ".", with: "")
             }
+            
+            
             return .none
         }
     }
 }
 
-
 extension AuthRequestFeature {
     
-    enum KeyboardTarget {
-        case year
-        case month
-        case day
+    private func nickNameTextCheck(nickName: String) -> NickNameValidateEnum {
         
-        case done
-    }
-    
-    private func targetKeyBoard(state: inout State, target: KeyboardTarget) -> Effect<Action> {
-        switch target {
-        case .year:
-            state.birthDayYear = ""
-            state.isMonthFocused = false
-            state.isDayFocused = false
-            state.isYearFocused = true
-        case .month:
-            state.birthDayMonth = ""
-            state.isYearFocused = false
-            state.isDayFocused = false
-            state.isMonthFocused = true
-        case .day:
-            state.birthDayDay = ""
-            state.isYearFocused = false
-            state.isMonthFocused = false
-            state.isDayFocused = true
-        case .done:
-            state.isYearFocused = false
-            state.isMonthFocused = false
-            state.isDayFocused = false
+        if !((nickName.count >= 2) && (nickName.count <= 6)) {
+            return .limitOverOrUnder
         }
+        
+        if !textValidManager.textValidCheck(validMode: .nickNameKoreanAndEnglish, text: nickName) {
+            return .denied
+        }
+        
         return .none
     }
     
-    private func checkRequired(state: inout State) {
-        let list = state.requiredCheckedList
+    private func mappingToStringDate(date: Date) -> String {
+        return dateFormatter.dateFormatToBirthDay(date)
+    }
+    
+    private func checkedButtonState(state: inout State) {
+        let nickNameState = state.nickNameResult == .active
+        let birthDayState = state.dateState
+        let genderState = state.currentGender != nil
         
-        let bool = list.nickName && list.nickNameDuplicated && list.year && list.month && list.day && list.gender
-    
-        state.isActionButtonState = bool
-    }
-    
-    private func checkToYear(state: inout State, input: String) {
-        guard let yearInt = Int(input) else {
-            return
-        }
+        print(nickNameState, birthDayState, genderState)
         
-        let currentYear = Calendar.current.component(.year, from: Date())
-        let minYear = currentYear - 200
-        
-        if yearInt > currentYear {
-            state.birthDayYear = String(currentYear)
-        } else if yearInt < minYear {
-            state.birthDayYear = String(currentYear)
-        } else {
-            state.birthDayYear = String(yearInt)
-        }
+        state.isActionButtonState = nickNameState && birthDayState && genderState
     }
-    
-    private func checkToMonth(state: inout State, input: String) {
-        guard let monthInt = Int(input) else {
-            state.birthDayMonth = ""
-            return
-        }
-        if monthInt < 1 {
-            state.birthDayMonth = ""
-        } else if monthInt > 12 {
-            state.birthDayMonth = ""
-        } else {
-            state.birthDayMonth = String(format: "%02d", monthInt)
-        }
-    }
-    
-    private func checkToDay(state: inout State, input: String) {
-        guard let dayInt = Int(input) else {
-            state.birthDayDay = ""
-            return
-        }
-        if dayInt < 1 {
-            state.birthDayDay = ""
-        } else if dayInt > 31 {
-            state.birthDayDay = ""
-        } else {
-            state.birthDayDay = String(format: "%02d", dayInt)
-        }
-    }
-    
 }
