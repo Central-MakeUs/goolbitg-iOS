@@ -26,6 +26,8 @@ enum ImageHelper {
     case infoTip
     
     case chevronDown
+    case plusLogo
+    case checkMark2
     
     var image: UIImage {
         switch self {
@@ -56,6 +58,11 @@ enum ImageHelper {
             
         case .chevronDown:
             return UIImage(named: "chevronDown") ?? UIImage(resource: .chevronDown)
+            
+        case .plusLogo:
+            return UIImage(named: "plusLogo") ?? UIImage(resource: .plusLogo)
+        case .checkMark2:
+            return UIImage(named: "CheckBox2") ?? UIImage(resource: .checkBox2)
         }
     }
 }
