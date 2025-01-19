@@ -15,6 +15,7 @@ struct DisablePasteTextField: View {
     let placeholderColor: Color
     let edge: UIEdgeInsets
     let keyboardType: UIKeyboardType
+    var isSecureTextEntry: Bool = false
     var ifLeadingEdge: CGFloat?
     let onCommit: (() -> Void)?
     
@@ -23,6 +24,7 @@ struct DisablePasteTextField: View {
         isFocused: Binding<Bool>,
         placeholder: String,
         placeholderColor: Color,
+        isSecureTextEntry: Bool = false,
         edge: UIEdgeInsets,
         keyboardType: UIKeyboardType,
         ifLeadingEdge: CGFloat? = nil,
@@ -35,6 +37,7 @@ struct DisablePasteTextField: View {
         self.edge = edge
         self.keyboardType = keyboardType
         self.ifLeadingEdge = ifLeadingEdge
+        self.isSecureTextEntry = isSecureTextEntry
         self.onCommit = onCommit
     }
     
@@ -44,6 +47,7 @@ struct DisablePasteTextField: View {
                 text: $text,
                 isFocused: $isFocused,
                 keyboardType: keyboardType,
+                isSecureTextEntry: isSecureTextEntry,
                 onCommit: onCommit
             )
             .padding(.leading, ifLeadingEdge ?? 0)
@@ -67,6 +71,7 @@ struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
     @Binding var text: String
     let isFocused: Binding<Bool>
     let keyboardType: UIKeyboardType
+    let isSecureTextEntry: Bool
     let onCommit: (() -> Void)?
     
     typealias UIViewType = ProtectedTextField
@@ -75,7 +80,7 @@ struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
         let textField = ProtectedTextField()
         textField.delegate = context.coordinator
         textField.keyboardType = keyboardType
-        
+        textField.isSecureTextEntry = isSecureTextEntry
         textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldTapped), for: .editingDidBegin)
         
         return textField

@@ -29,6 +29,9 @@ enum ImageHelper {
     case plusLogo
     case checkMark2
     
+    case warningPop
+    case checkPop
+    
     var image: UIImage {
         switch self {
         case .splashBack:
@@ -63,6 +66,12 @@ enum ImageHelper {
             return UIImage(named: "plusLogo") ?? UIImage(resource: .plusLogo)
         case .checkMark2:
             return UIImage(named: "CheckBox2") ?? UIImage(resource: .checkBox2)
+            
+        case .warningPop:
+            return UIImage(named: "warningPop") ?? UIImage(resource: .warningPop)
+            
+        case .checkPop:
+            return UIImage(named: "CheckPopup") ?? UIImage(resource: .checkPopup)
         }
     }
 }

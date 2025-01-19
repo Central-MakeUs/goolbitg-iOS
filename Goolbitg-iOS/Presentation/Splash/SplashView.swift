@@ -6,10 +6,11 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct SplashView: View {
- 
-    let onAppearTrigger: () -> Void
+    
+    @Perception.Bindable var store: StoreOf<SplashFeature>
     
     var body: some View {
         VStack(spacing: 0) {
@@ -32,13 +33,7 @@ struct SplashView: View {
                 .ignoresSafeArea()
         }
         .onAppear {
-            onAppearTrigger()
+            store.send(.viewCycle(.onAppear))
         }
-    }
-}
-
-#Preview {
-    SplashView {
-        
     }
 }

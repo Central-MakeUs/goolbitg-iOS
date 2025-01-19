@@ -31,3 +31,10 @@ extension View {
         }
     }
 }
+
+// MARK: 뒤로가기 제스처
+extension View {
+    func disableBackGesture(_ disabled: Bool = true) -> some View {
+        self.modifier(DisableBackGesture(isGestureDisabled: disabled))
+    }
+}

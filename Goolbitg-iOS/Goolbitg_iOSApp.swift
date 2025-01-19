@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import KakaoSDKCommon
 import KakaoSDKAuth
-import TipKit
+import SwiftyBeaver
 
 @main
 struct Goolbitg_iOSApp: App {
@@ -18,31 +18,22 @@ struct Goolbitg_iOSApp: App {
     
     init() {
         KakaoSDK.initSDK(appKey: SecretKeys.kakaoNative)
+        let console = ConsoleDestination()
+        Logger.addDestination(console)
     }
     
     var body: some Scene {
         WindowGroup {
-//            SelectExpenditureDateView(store: Store(initialState: ExpressExpenditureDateViewFeature.State(), reducer: {
-//                ExpressExpenditureDateViewFeature()
-//            }))
-//            ComsumptionHabitsView(store: Store(initialState: ComsumptionHabitsViewFeature.State(), reducer: {
-//                ComsumptionHabitsViewFeature()
-//            }))
-//            ShoppingCheckListView(store: Store(initialState: ShoppingCheckListViewFeature.State(), reducer: {
-//                ShoppingCheckListViewFeature()
-//            }))
-            AuthRequestView(store: Store(initialState: AuthRequestFeature.State(), reducer: {
-                AuthRequestFeature()
-            }))
-//            AuthPageView()
-//            GBLoginView(store: Store(initialState: LoginViewFeature.State(), reducer: {
-//                LoginViewFeature()
-//            }))
-                .onOpenURL { url in
-                    if AuthApi.isKakaoTalkLoginUrl(url) {
-                        _ = AuthController.handleOpenUrl(url: url)
-                    }
+            RootCoordinatorView(store: Store(
+                initialState: RootCoordinator.State.initialState,
+                reducer: {
+                    RootCoordinator()
+                }))
+            .onOpenURL { url in
+                if AuthApi.isKakaoTalkLoginUrl(url) {
+                    _ = AuthController.handleOpenUrl(url: url)
                 }
+            }
         }
     }
 }

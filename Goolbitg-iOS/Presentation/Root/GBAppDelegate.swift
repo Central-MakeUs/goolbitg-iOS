@@ -7,6 +7,9 @@
 
 import UIKit
 import ComposableArchitecture
+import SwiftyBeaver
+
+let Logger = SwiftyBeaver.self
 
 class GBAppDelegate: NSObject, UIApplicationDelegate {
     

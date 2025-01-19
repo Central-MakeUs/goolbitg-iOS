@@ -13,7 +13,7 @@ import ComposableArchitecture
 struct LoginViewFeature {
     
     @ObservableState
-    struct State {
+    struct State: Equatable {
         let requestAppleLoginList: [ASAuthorization.Scope] = [.fullName, .email]
         
     }
@@ -35,10 +35,13 @@ struct LoginViewFeature {
             
             case .getASAuthorization(let appleAuth):
                 let idToken = handleAuthorization(appleAuth)
-                
+                if let idToken {
+                    return .send(.sendToServerIdToken(type: "APPLE", idToken: idToken))
+                }
             case .appleLoginError(let error):
                 let error = error
                 
+                Logger.debug(error)
             case .kakaoLoginStart:
                 return .run { send in
                     guard let idToken = try await kakaoLoginLogic() else {

@@ -9,12 +9,12 @@ import SwiftUI
 
 enum AppleFonts: String {
     
-    case apple600 = "600_AppleSDGothicNeo-SemiBold"
+    case apple600 = "AppleSDGothicNeo-SemiBold"
     
     func font(size: CGFloat) -> UIFont {
         let font = UIFont(name: self.rawValue, size: size)
         guard let font else {
-            print("font 안됨")
+            Logger.warning("Font not found: \(self.rawValue)")
             return UIFont.systemFont(ofSize: size)
         }
         return font
