@@ -22,6 +22,13 @@ extension View {
         overlay(EdgeBorder(width: width, edge: edges).foregroundColor(color))
     }
     
+    func cornerRadiusCorners(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        self
+            .clipShape(
+                RoundedCornerShape(corners: corners, radius: radius)
+            )
+    }
+    
     @ViewBuilder
     func changeTextColor(_ color: Color) -> some View {
         if UITraitCollection.current.userInterfaceStyle == .light {

@@ -185,8 +185,9 @@ extension GBAlertView {
     GBAlertView(model: GBAlertViewComponents(
         title: "챌린지 중간",
         message: "중단하면 지금까지의 기록이 사라져요.\n정말 중단하시겠습니까?",
+        cancelTitle: "취소",
         okTitle: "중단",
-        alertStyle: .checkWithNormal)) {
+        alertStyle: .inTextFieldPassword)) {
             
         } okTouch: {
             
