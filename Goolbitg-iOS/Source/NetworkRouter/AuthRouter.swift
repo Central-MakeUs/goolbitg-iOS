@@ -43,22 +43,26 @@ extension AuthRouter: Router {
     
     var parameters: Parameters? {
         switch self {
-        case .register:
-            return nil
+        case .register(let authRegisterRequestModel):
+            return [
+                "type" : authRegisterRequestModel.type,
+                "idToken": authRegisterRequestModel.idToken
+            ]
         }
     }
     
     var body: Data? {
         switch self {
         case .register(let authRegisterRequestModel):
-            return try? CodableManager.shared.jsonEncoding(from: authRegisterRequestModel)
+            let data = try? CodableManager.shared.jsonEncodingStrategy(authRegisterRequestModel)
+            return data
         }
     }
     
     var encodingType: EncodingType {
         switch self {
         case .register:
-            return .url
+            return .json
         }
     }
 }

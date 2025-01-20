@@ -47,7 +47,7 @@ struct LoginViewFeature {
                     guard let idToken = try await kakaoLoginLogic() else {
                         return
                     }
-                    
+                    Logger.info(" ^^^^^^^^^^^ \(idToken)")
                     await send(.sendToServerIdToken(type: "KAKAO", idToken: idToken))
                     
                 } catch: { error, send in
@@ -60,6 +60,7 @@ struct LoginViewFeature {
             case .sendToServerIdToken(let type, let idToken):
                 return .run { send in
                     do {
+                        Logger.info(" ^^^^^^^^^^^ \(idToken)")
                         let result = try await networkManager.requestNotDtoNetwork(router: AuthRouter.register(AuthRegisterRequestModel(
                             type: type,
                             idToken: idToken
@@ -126,6 +127,7 @@ extension LoginViewFeature {
         switch result {
             
         case .success(let idToken):
+            Logger.info(" ^^^^^^^^^^^ \(idToken)")
             return idToken
         case .failure(let error):
             throw error

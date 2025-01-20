@@ -57,11 +57,15 @@ final class NetworkManager: Sendable, ThreadCheckable {
                 return true
             case .failure:
                 print("\(response.response?.statusCode)")
+                if let data = response.data {
+                    let data = try? CodableManager.shared.jsonDecoding(model: ErrorDTO.self, from: data)
+                    Logger.warning(data)
+                }
                 guard let status = response.response?.statusCode,
                       let error = APIErrorEntity.getSelf(code: status) else {
                     throw RouterError.unknown
                 }
-                
+                Logger.warning(error)
                 throw RouterError.serverMessage(error)
             }
         } catch {
@@ -216,3 +220,9 @@ extension DependencyValues {
     }
 }
 
+
+
+struct ErrorDTO: DTO {
+    let code: Int
+    let message: String
+}

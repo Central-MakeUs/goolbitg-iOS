@@ -39,6 +39,20 @@ extension View {
     }
 }
 
+extension View {
+    
+    func snapshot(scale: CGFloat? = nil) -> UIImage? {
+        let renderer = ImageRenderer(content: self)
+        renderer.scale = scale ?? UIScreen.main.scale
+        return renderer.uiImage
+    }
+    
+    func asImage() -> Image {
+        let image = self.snapshot()
+        return Image(uiImage: image ?? UIImage())
+    }
+}
+
 // MARK: 뒤로가기 제스처
 extension View {
     func disableBackGesture(_ disabled: Bool = true) -> some View {

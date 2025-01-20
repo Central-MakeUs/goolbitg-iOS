@@ -38,9 +38,11 @@ struct KakaoLoginManager: KakaoLoginManagerType {
                     if let error {
                         let results = checkKakaoError(error: error)
                         contin.resume(returning: .failure(results))
-                    } else if let oauthToken {
+                    } else if let oauthToken,
+                              let idToken = oauthToken.idToken {
                         print("카카오톡 성공 \(oauthToken)")
-                        contin.resume(returning: .success(oauthToken.accessToken))
+                        Logger.info(" ㅗㅗㅗㅗㅗㅗㅗㅗ \(idToken)")
+                        contin.resume(returning: .success(idToken))
                     } else {
                         contin.resume(returning:.failure(.error(.init(apiFailedMessage: "FAIL KAKAO"))))
                     }
@@ -52,9 +54,11 @@ struct KakaoLoginManager: KakaoLoginManagerType {
                     if let error {
                         let result = checkKakaoError(error: error)
                         contin.resume(returning: .failure(result))
-                    } else if let oauthToken {
+                    } else if let oauthToken,
+                              let idToken = oauthToken.idToken {
                         print("카카오톡 성공 \(oauthToken)")
-                        contin.resume(returning: .success(oauthToken.accessToken))
+                        Logger.info(" ㅗㅗㅗㅗㅗㅗㅗㅗ \(idToken)")
+                        contin.resume(returning: .success(idToken))
                     } else {
                         contin.resume(returning: .failure(.error(.init(apiFailedMessage: "FAIL KAKAO"))))
                     }

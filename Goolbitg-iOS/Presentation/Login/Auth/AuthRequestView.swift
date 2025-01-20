@@ -53,6 +53,7 @@ struct AuthRequestView: View {
                     .frame(maxWidth: .infinity)
                     .background(GBColor.grey600.asColor)
                     .clipShape(RoundedRectangle(cornerRadius: 18))
+//                    GBChallengeBottomSheetView()
                 } customize: {
                     $0
                         .type(.toast)

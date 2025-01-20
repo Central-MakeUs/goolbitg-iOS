@@ -33,6 +33,7 @@ extension Router {
     
     var headers: HTTPHeaders {
         var combine = HTTPHeaders()
+        combine.add(name: "Content-Type", value: "application/json")
         if let optionalHeaders {
             optionalHeaders.forEach { header in
                 combine.add(header)
@@ -57,8 +58,12 @@ extension Router {
             }
         case .json:
             do {
-                let jsonObject = CodableManager.shared.toJSONSerialization(data: body)
-                urlRequest = try JSONEncoding.default.encode(urlRequest, withJSONObject: jsonObject)
+                if let body {
+                    urlRequest.httpBody = body
+                } else {
+                    let request = try JSONEncoding.default.encode(urlRequest, withJSONObject: parameters)
+                    urlRequest = request
+                }
                 return urlRequest
             } catch {
                 throw .decodingFail

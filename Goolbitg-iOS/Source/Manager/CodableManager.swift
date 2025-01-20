@@ -14,6 +14,7 @@ final class CodableManager: Sendable {
     private init () {}
     
     private let encoder = JSONEncoder()
+    private let strategy = JSONEncoder()
     private let decoder = JSONDecoder()
 }
 
@@ -21,6 +22,11 @@ extension CodableManager {
     
     func jsonEncoding<T: Encodable>(from value: T) throws -> Data {
         return try encoder.encode(value)
+    }
+    
+    func jsonEncodingStrategy(_ target: Encodable) throws -> Data? {
+        strategy.keyEncodingStrategy = .useDefaultKeys
+        return try encoder.encode(target)
     }
     
     func jsonDecoding<T:Decodable>(model: T.Type, from data: Data) throws -> T {
