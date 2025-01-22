@@ -9,30 +9,37 @@ import Foundation
 import ComposableArchitecture
 @preconcurrency import TCACoordinators
 
-@Reducer(state: .equatable)
-enum RootScreen {
-    case splash(SplashFeature)
-    case login(LoginViewFeature)
-    /// TabView로 이동준비
-}
 
 @Reducer
 struct RootCoordinator {
     
     @ObservableState
     struct State: Equatable, Sendable {
+        var currentView: ChangeRootView = .splashLogin
         
-        static let initialState = State(routes: [.root(.splash(SplashFeature.State()), embedInNavigationView: true)])
-        
-        var routes: IdentifiedArrayOf<Route<RootScreen.State>>
+        var splashLogin = SplashLoginCoordinator.State.initialState
     }
     
     enum Action {
-        case router(IdentifiedRouterActionOf<RootScreen>)
+        case splashLoginAction(SplashLoginCoordinator.Action)
         
+        case changeView(ChangeRootView)
+        case deepLink(DeepLinkCase)
     }
     
+    enum ChangeRootView {
+        case splashLogin
+        case mainTab
+    }
+    
+    @Dependency(\.networkManager) var networkManager
+    
     var body: some ReducerOf<Self> {
+        
+        Scope(state: \.splashLogin, action: \.splashLoginAction) {
+            SplashLoginCoordinator()
+        }
+        
         core
     }
 }
@@ -41,31 +48,25 @@ extension RootCoordinator {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .router(.routeAction(id: .splash, action: .splash(.delegate(.finish)))):
-                
-                checkLoginState(&state)
-                
+            case let .splashLoginAction(.sendDeepLink(deepLinkURL)):
+                guard let deepLinkCase = DeepLinkCase(urlString: deepLinkURL) else {
+                    Logger.error("DeepLink Fail")
+                    return .none
+                }
+                deepLinkAction(deepLinkCase, state: &state)
             default:
                 break
             }
             return .none
         }
-        .forEachRoute(
-            \.routes,
-             action: \.router
-        )
     }
 }
 
 extension RootCoordinator {
-    
-    /// 로그인 체크
-    private func checkLoginState(_ state: inout State) {
-        // MARK: 로그인 여부 확인 하고 어딜갈지 정해야함
-        if UserDefaultsManager.accessToken != "" {
-            
-        } else {
-            state.routes.push(.login(LoginViewFeature.State()))
+    private func deepLinkAction(_ deepLink: DeepLinkCase, state: inout State) {
+        switch deepLink {
+        case .userInfo:
+            break
         }
     }
 }

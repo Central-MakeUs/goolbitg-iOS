@@ -24,44 +24,26 @@ struct RootCoordinatorView: View {
 extension RootCoordinatorView {
     private var content: some View {
         VStack {
-            TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
-                switch screen.case {
-                case let .splash(store):
-                    SplashView(store: store)
-                    
-                case let .login(store):
-                    GBLoginView(store: store)
-                        .navigationBarBackButtonHidden()
-                        .disableBackGesture()
-                }
+            switch store.currentView {
+            case .splashLogin:
+                SplashLoginCoordinatorView(
+                    store: store.scope(
+                        state: \.splashLogin,
+                        action: \.splashLoginAction
+                    )
+                )
+                
+            case .mainTab:
+                EmptyView()
             }
         }
     }
 }
 
-extension RootScreen.State: Identifiable {
-    var id: ID {
-        switch self {
-        case .login:
-            return .login
-        case .splash:
-            return .splash
-        }
-    }
-    
-    enum ID: Identifiable {
-        case splash
-        case login
-        
-        var id: ID {
-            return self
-        }
-    }
-}
 
 #Preview {
     RootCoordinatorView(store: Store(
-        initialState: RootCoordinator.State.initialState,
+        initialState: RootCoordinator.State(),
         reducer: {
             RootCoordinator()
         }))

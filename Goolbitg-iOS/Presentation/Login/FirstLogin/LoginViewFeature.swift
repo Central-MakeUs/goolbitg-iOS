@@ -25,6 +25,14 @@ struct LoginViewFeature {
         case kakaoLoginStart
         
         case sendToServerIdToken(type: String, idToken: String)
+        case sendToLoginServerIdToken(type: String, idToken: String)
+        
+        case delegate(Delegate)
+        
+        enum Delegate {
+            case deepLink(String)
+            case loginSuccess
+        }
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -54,7 +62,6 @@ struct LoginViewFeature {
                     guard let error = error as? KakaoLoginErrorCase else {
                         return
                     }
-                    
                 }
                 
             case .sendToServerIdToken(let type, let idToken):
@@ -66,18 +73,50 @@ struct LoginViewFeature {
                             idToken: idToken
                         )))
                         
-                        print(result)
-                        
+                        if result {
+                            await send(.sendToServerIdToken(type: type, idToken: idToken))
+                        }
                     } catch {
                         guard let error = error as? RouterError else {
                             return
                         }
-                        print(error)
+                        if case .serverMessage(let server) = error {
+                            if case .alreadyMember = server {
+                                await send(.sendToLoginServerIdToken(type: type, idToken: idToken))
+                            }
+                            // 이때의 에러도 분석해서 팝업 준비
+                        }
                     }
                 }
                 
+            case .sendToLoginServerIdToken(let type, let idToken):
+                return .run { send in
+                    let request = try await networkManager.requestNetwork(dto: LoginAccessDTO.self, router: AuthRouter.login(
+                        AuthRegisterRequestModel(
+                            type: type,
+                            idToken: idToken) )
+                    )
+                    saveToken(access: request.accessToken, refresh: request.refreshToken)
+                    
+                    // MARK: 여기선 이제 로그인 후 필수정보 쓴사람인가 아닌가 분석
+                    if let deepLink = request.links?.next.href {
+                        await send(.delegate(.deepLink(deepLink)))
+                    } else {
+                        await send(.delegate(.loginSuccess))
+                    }
+                    
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        return
+                    }
+                    // 토큰 유효 + 등록되지 않았을때 처리 해야함
+                    if case .serverMessage(let apiErrorEntity) = error {
+                        Logger.warning(apiErrorEntity)
+                    }
+                }
+            default:
+                break
             }
-            
             return .none
         }
     }
@@ -132,5 +171,10 @@ extension LoginViewFeature {
         case .failure(let error):
             throw error
         }
+    }
+    
+    private func saveToken(access: String, refresh: String) {
+        UserDefaultsManager.accessToken = access
+        UserDefaultsManager.refreshToken = refresh
     }
 }

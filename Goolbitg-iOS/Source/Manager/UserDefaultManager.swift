@@ -11,8 +11,12 @@ final actor UserDefaultsManager {
     
     enum Key: String {
         case deviceToken
+        
         case accessToken
         case refreshToken
+        
+        /// 디바이스 기준 처음 인지
+        case firstDevice
         
         var value: String {
             return self.rawValue
@@ -28,4 +32,6 @@ final actor UserDefaultsManager {
     @UserDefaultsWrapper(key: Key.refreshToken.value, placeValue: "")
     static var refreshToken: String
     
+    @UserDefaultsWrapper(key: Key.firstDevice.value, placeValue: true)
+    static var firstDevice: Bool
 }

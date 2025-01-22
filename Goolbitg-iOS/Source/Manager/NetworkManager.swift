@@ -16,63 +16,76 @@ final class NetworkManager: Sendable, ThreadCheckable {
     
     private let cancelStoreActor = AnyValueActor(Set<AnyCancellable>())
     private let retryActor = AnyValueActor(7)
-   
+    
     func requestNetwork<T: DTO, R: Router>(dto: T.Type, router: R) async throws(RouterError) -> T {
-        #if DEBUG
+#if DEBUG
         checkedMainThread() // 현재 쓰레드 확인
-        #endif
-            do {
-                let request = try router.asURLRequest()
-                
-                // MARK: 요청담당
-                let response = await getRequest(dto: dto, router: router, request: request)
-                
-                let result = try await getResponse(dto: dto, router: router, response: response)
-                
-                return result
-            } catch {
-                #if DEBUG
-                print("emergency")
-                #endif
-                throw .unknown
-            }
+#endif
+        let request = try router.asURLRequest()
+        
+        // MARK: 요청담당
+        let response = await getRequest(dto: dto, router: router, request: request)
+        Logger.info(request)
+        Logger.info(request.allHTTPHeaderFields)
+//        CodableManager.shared.toJSONSerialization(data: request.httpBody?)
+        if let requestBodyData = request.httpBody {
+            Logger.info( String(data: requestBodyData, encoding: .utf8))
+        }
+        Logger.info(request.method)
+        let result = try await getResponse(dto: dto, router: router, response: response)
+        
+        return result
+    }
+    
+    func requestNetworkWithRefresh<T:DTO, R: Router>(dto: T.Type, router: R) async throws(RouterError) -> T {
+        checkedMainThread() // 현재 쓰레드 확인
+        
+        let request = try router.asURLRequest()
+        
+        // MARK: 요청담당
+        let response = await getRequest(dto: dto, router: router, request: request, ifRefreshMode: true)
+        Logger.info(request)
+        let result = try await getResponse(dto: dto, router: router, response: response)
+        
+        return result
     }
     
     func requestNotDtoNetwork<R: Router>(router: R) async throws(RouterError) -> Bool {
 #if DEBUG
         checkedMainThread() // 현재 쓰레드 확인
 #endif
-        do {
-            let request = try router.asURLRequest()
-            
-            // MARK: 요청담당
-            let response = await AF.request(request)
-                .cacheResponse(using: .cache)
-                .validate(statusCode: 200..<300)
-                .serializingData()
-                .response
-            
-            switch response.result {
-            case .success:
+        let request = try router.asURLRequest()
+        let accessCode: Set<Int> = Set(Array(200..<300))
+        Logger.info(request)
+        
+        // MARK: 요청담당
+        let response = await AF.request(request)
+            .validate(statusCode: 200..<300)
+            .serializingString(emptyResponseCodes: accessCode)
+            .response
+        
+        switch response.result {
+        case .success:
+            return true
+        case .failure:
+            if accessCode.contains(response.response?.statusCode ?? 0) {
                 return true
-            case .failure:
-                print("\(response.response?.statusCode)")
-                if let data = response.data {
-                    let data = try? CodableManager.shared.jsonDecoding(model: ErrorDTO.self, from: data)
-                    Logger.warning(data)
-                }
-                guard let status = response.response?.statusCode,
-                      let error = APIErrorEntity.getSelf(code: status) else {
+            }
+            if let data = response.data {
+                let data = try? CodableManager.shared.jsonDecoding(model: ErrorDTO.self, from: data)
+                Logger.warning(data)
+                guard let code = data?.code,
+                      let errorEntity = APIErrorEntity.getSelf(code: code) else {
                     throw RouterError.unknown
                 }
-                Logger.warning(error)
-                throw RouterError.serverMessage(error)
+                throw RouterError.serverMessage(errorEntity)
             }
-        } catch {
-#if DEBUG
-            print("emergency")
-#endif
-            throw .unknown
+            guard let status = response.response?.statusCode,
+                  let error = APIErrorEntity.getSelf(code: status) else {
+                throw RouterError.unknown
+            }
+            Logger.warning(error)
+            throw RouterError.serverMessage(error)
         }
     }
     
@@ -84,7 +97,7 @@ final class NetworkManager: Sendable, ThreadCheckable {
                     .sink { text in
                         contin.yield(text)
                     }
-              
+                
                 await cancelStoreActor.withValue { value in
                     value.insert(subscribe)
                 }
@@ -103,12 +116,22 @@ final class NetworkManager: Sendable, ThreadCheckable {
 
 extension NetworkManager {
     // MARK: 요청담당
-    private func getRequest<T: DTO, R: Router>(dto: T.Type, router: R, request: URLRequest) async -> DataResponse<T, AFError> {
-        return await AF.request(request)
-            .cacheResponse(using: .cache)
-            .validate(statusCode: 200..<300)
-            .serializingDecodable(T.self)
-            .response
+    private func getRequest<T: DTO, R: Router>(dto: T.Type, router: R, request: URLRequest, ifRefreshMode: Bool = false) async -> DataResponse<T, AFError> {
+        
+        if ifRefreshMode {
+            return await AF.request(request, interceptor: GBRequestInterceptor())
+                .cacheResponse(using: .cache)
+                .validate(statusCode: 200..<300)
+                .serializingDecodable(T.self)
+                .response
+        }
+        else {
+            return await AF.request(request)
+                .cacheResponse(using: .cache)
+                .validate(statusCode: 200..<300)
+                .serializingDecodable(T.self)
+                .response
+        }
     }
     
     // MARK: RE스폰스 담당
@@ -118,15 +141,17 @@ extension NetworkManager {
         response: DataResponse<T, AFError>
     ) async throws(RouterError) -> T
     {
+        Logger.warning(response.response ?? "")
+        
         switch response.result {
         case let .success(data):
+            Logger.info(data)
             await retryActor.resetValue()
             
             return data
-        case let .failure(guideError):
-            #if DEBUG
-            print(guideError)
-            #endif
+        case let .failure(GBError):
+            
+            Logger.error(GBError)
             do {
                 let retryResult = try await retryNetwork(dto: dto, router: router)
                 
@@ -135,11 +160,11 @@ extension NetworkManager {
                 
                 return retryResult
             } catch {
-                throw checkResponseData(response.data, guideError)
+                throw checkResponseData(response.data, GBError)
             }
         }
     }
-
+    
     private func retryNetwork<T: DTO, R: Router>(dto: T.Type, router: R) async throws(RouterError) -> T {
         let ifRetry = await retryActor.withValue { value in
             return value > 0
@@ -182,7 +207,10 @@ extension NetworkManager {
                 guard let errorModel = APIErrorEntity.getSelf(code: errorResponse.code) else {
                     return RouterError.unknown
                 }
-                return RouterError.serverMessage(errorModel)
+                
+                let errorMessage = RouterError.serverMessage(errorModel)
+                Logger.warning(errorMessage)
+                return errorMessage
                 
             } catch {
                 return RouterError.unknown
@@ -207,6 +235,10 @@ extension NetworkManager {
         }
     }
     
+}
+
+extension NetworkManager {
+    static let shared = NetworkManager()
 }
 
 extension NetworkManager: DependencyKey {

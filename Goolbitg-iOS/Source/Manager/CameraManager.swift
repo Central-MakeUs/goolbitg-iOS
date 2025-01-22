@@ -11,8 +11,15 @@ import ComposableArchitecture
 final class CameraManager: Sendable {
     /// 카메라 권한 요청
     /// - Returns: 요청결과
+    @discardableResult
     func requestAuth() async -> Bool {
         return await AVCaptureDevice.requestAccess(for: .video)
+    }
+    
+    /// 카메라 권환 확인
+    /// - Returns: 결과
+    func isAuthorized() -> Bool {
+        return AVCaptureDevice.authorizationStatus(for: .video) == .authorized
     }
 }
 

@@ -25,7 +25,7 @@ struct Goolbitg_iOSApp: App {
     var body: some Scene {
         WindowGroup {
             RootCoordinatorView(store: Store(
-                initialState: RootCoordinator.State.initialState,
+                initialState: RootCoordinator.State(),
                 reducer: {
                     RootCoordinator()
                 }))

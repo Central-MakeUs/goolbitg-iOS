@@ -33,7 +33,6 @@ extension Router {
     
     var headers: HTTPHeaders {
         var combine = HTTPHeaders()
-        combine.add(name: "Content-Type", value: "application/json")
         if let optionalHeaders {
             optionalHeaders.forEach { header in
                 combine.add(header)
@@ -60,6 +59,7 @@ extension Router {
             do {
                 if let body {
                     urlRequest.httpBody = body
+                    urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
                 } else {
                     let request = try JSONEncoding.default.encode(urlRequest, withJSONObject: parameters)
                     urlRequest = request
