@@ -26,7 +26,7 @@ final class NetworkManager: Sendable, ThreadCheckable {
         // MARK: 요청담당
         let response = await getRequest(dto: dto, router: router, request: request)
         Logger.info(request)
-        Logger.info(request.allHTTPHeaderFields)
+        Logger.info(request.allHTTPHeaderFields ?? "")
 //        CodableManager.shared.toJSONSerialization(data: request.httpBody?)
         if let requestBodyData = request.httpBody {
             Logger.info( String(data: requestBodyData, encoding: .utf8))
@@ -50,7 +50,8 @@ final class NetworkManager: Sendable, ThreadCheckable {
         return result
     }
     
-    func requestNotDtoNetwork<R: Router>(router: R) async throws(RouterError) -> Bool {
+    @discardableResult
+    func requestNotDtoNetwork<R: Router>(router: R, ifRefreshNeed: Bool = false) async throws(RouterError) -> Bool {
 #if DEBUG
         checkedMainThread() // 현재 쓰레드 확인
 #endif
@@ -59,11 +60,18 @@ final class NetworkManager: Sendable, ThreadCheckable {
         Logger.info(request)
         
         // MARK: 요청담당
-        let response = await AF.request(request)
-            .validate(statusCode: 200..<300)
-            .serializingString(emptyResponseCodes: accessCode)
-            .response
-        
+        let response: DataResponse<String, AFError>
+        if ifRefreshNeed {
+            response = await AF.request(request, interceptor: GBRequestInterceptor())
+                .validate(statusCode: 200..<300)
+                .serializingString(emptyResponseCodes: accessCode)
+                .response
+        } else {
+            response = await AF.request(request)
+                .validate(statusCode: 200..<300)
+                .serializingString(emptyResponseCodes: accessCode)
+                .response
+        }
         switch response.result {
         case .success:
             return true
@@ -73,7 +81,7 @@ final class NetworkManager: Sendable, ThreadCheckable {
             }
             if let data = response.data {
                 let data = try? CodableManager.shared.jsonDecoding(model: ErrorDTO.self, from: data)
-                Logger.warning(data)
+                Logger.warning(data ?? "")
                 guard let code = data?.code,
                       let errorEntity = APIErrorEntity.getSelf(code: code) else {
                     throw RouterError.unknown
@@ -150,7 +158,7 @@ extension NetworkManager {
             
             return data
         case let .failure(GBError):
-            
+            Logger.error(response.data?.base64EncodedString() ?? "")
             Logger.error(GBError)
             do {
                 let retryResult = try await retryNetwork(dto: dto, router: router)

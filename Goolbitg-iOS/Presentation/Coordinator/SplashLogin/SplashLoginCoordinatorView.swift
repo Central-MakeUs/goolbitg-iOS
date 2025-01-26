@@ -38,6 +38,20 @@ extension SplashLoginCoordinatorView {
                         .navigationBarBackButtonHidden()
                         .disableBackGesture()
                     
+                case let .userInfoRequestView(store):
+                    AuthRequestView(store: store)
+                        .navigationBarBackButtonHidden()
+                        .disableBackGesture()
+                    
+                case let .analysisView(store):
+                    AnalysisView(store: store)
+                        .navigationBarBackButtonHidden()
+                        .disableBackGesture()
+                    
+                case let .shoppingCheckListView(store):
+                    ShoppingCheckListView(store: store)
+                        .navigationBarBackButtonHidden()
+                        .disableBackGesture()
                 }
             }
         }
@@ -53,6 +67,12 @@ extension SplashLoginScreen.State: Identifiable {
             return .splash
         case .authRequestPage:
             return .authRequestPage
+        case .userInfoRequestView:
+            return .userInfoRequestView
+        case .analysisView:
+            return .analysisView
+        case .shoppingCheckListView:
+            return .shoppingCheckListView
         }
     }
     
@@ -60,6 +80,9 @@ extension SplashLoginScreen.State: Identifiable {
         case splash
         case login
         case authRequestPage
+        case userInfoRequestView
+        case analysisView
+        case shoppingCheckListView
         
         var id: ID {
             return self

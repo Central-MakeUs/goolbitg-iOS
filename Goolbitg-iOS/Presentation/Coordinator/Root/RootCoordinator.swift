@@ -48,12 +48,12 @@ extension RootCoordinator {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case let .splashLoginAction(.sendDeepLink(deepLinkURL)):
-                guard let deepLinkCase = DeepLinkCase(urlString: deepLinkURL) else {
-                    Logger.error("DeepLink Fail")
-                    return .none
-                }
-                deepLinkAction(deepLinkCase, state: &state)
+//            case let .splashLoginAction(.sendDeepLink(deepLinkURL)):
+//                guard let deepLinkCase = DeepLinkCase(urlString: deepLinkURL) else {
+//                    Logger.error("DeepLink Fail")
+//                    return .none
+//                }
+//                deepLinkAction(deepLinkCase, state: &state)
             default:
                 break
             }
@@ -66,7 +66,7 @@ extension RootCoordinator {
     private func deepLinkAction(_ deepLink: DeepLinkCase, state: inout State) {
         switch deepLink {
         case .userInfo:
-            break
+            state.splashLogin.routes.push(.userInfoRequestView(AuthRequestFeature.State()))
         }
     }
 }

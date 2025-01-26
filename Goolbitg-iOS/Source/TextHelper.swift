@@ -26,8 +26,10 @@ enum TextHelper {
     
     // MARK: Common
     static let authStart = "시작하기"
+    static let agreeAndConditionStart = "약관 동의하고 시작하기"
     static let nextTitle = "다음으로"
     static let skipTitle = "건너뛰기"
+    static let acceptTitle = "적용하기"
     
     // MARK: AUTH Request View Text for GB
     static let authRequestHeaderTitle = "저희 굴비잇기를 위해\n이용할 정보를 작성해주세요"
@@ -46,16 +48,31 @@ enum TextHelper {
     static let authNickNameAlreadyUse = "이미 사용중인 닉네임 입니다."
     static let authNickNameOverOrUnderText = "2자이상 6자 이내로 작성해주세요"
     static let authNickNameKoreanOrEnglishNotText = "닉네임은 한글, 영문 대소문자만 입력할 수 있어요"
+    static let authNickNameAllowText = "사용 가능한 닉네임 입니다."
     
     static let authRequestGenderTitle = "성별"
     static let authRequestGenderMale = "남자"
     static let authRequestGenderFemale = "여성"
+    
+    static let authRequestWellComeToGoolB = "굴비잇기에 오신 걸 환영해요"
+    static let authRequestAgree = "서비스 사용전 가입 및 정보 제공에 동의해 주세요"
+    static let allAgreeText = "전체동의"
+    static let overFourTeenText = "[필수] 만 14세 이상입니다."
+    static let serviceAgreementText = "[필수] 서비스 이용약관"
+    static let privacyPolicyText = "[필수] 개인정보 보호정책"
+    static let adAgreementText = "[선택] 맞춤형 광고 및 개인정보 제공 동의"
     
     // MARK: Shopping Check List
     static let shoppingCheckListHeaderTitle = "쇼핑중독 체크리스트"
     static let shoppingCheckListHeaderSub = "본인이 생각하는 소비습관을"
     static let shoppingCheckListPointText = "모두"
     static let shoppingCheckListPointTrailingText = "선택해 주세요"
+    static let checkList1 = "스스로 통제하지 못한다"
+    static let checkList2 = "쇼핑할 때 죄책감이 든다"
+    static let checkList3 = "쇼핑할 때 긴장이나 불안감이 풀어진다"
+    static let checkList4 = "쇼핑은 필요보다 그 자체를 즐긴다"
+    static let checkList5 = "쇼핑 후 사용하지 않는 물건이 가득하다"
+    static let checkList6 = "물건을 사면 기분이 좋아진다"
     
     // MARK: 소비습관 체크
     static let ConsumptionScore = "소비 습관 점수"

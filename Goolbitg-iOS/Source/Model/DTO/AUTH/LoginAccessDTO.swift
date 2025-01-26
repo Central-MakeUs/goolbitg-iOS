@@ -9,11 +9,10 @@ import Foundation
 
 struct LoginAccessDTO: DTO {
     let accessToken, refreshToken: String
-    let registerComplete: Bool
     let links: DeepLinkDTO?
 
     enum CodingKeys: String, CodingKey {
         case links = "_links"
-        case accessToken, refreshToken, registerComplete
+        case accessToken, refreshToken
     }
 }

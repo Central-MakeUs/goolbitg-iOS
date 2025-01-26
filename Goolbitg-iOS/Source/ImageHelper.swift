@@ -31,6 +31,7 @@ enum ImageHelper {
     
     case warningPop
     case checkPop
+    case right
     
     var image: UIImage {
         switch self {
@@ -72,6 +73,8 @@ enum ImageHelper {
             
         case .checkPop:
             return UIImage(named: "CheckPopup") ?? UIImage(resource: .checkPopup)
+        case .right:
+            return UIImage(named: "rightCh") ?? UIImage(resource: .rightCh)
         }
     }
 }

@@ -14,6 +14,7 @@ final actor UserDefaultsManager {
         
         case accessToken
         case refreshToken
+        case userNickname
         
         /// 디바이스 기준 처음 인지
         case firstDevice
@@ -34,4 +35,7 @@ final actor UserDefaultsManager {
     
     @UserDefaultsWrapper(key: Key.firstDevice.value, placeValue: true)
     static var firstDevice: Bool
+    
+    @UserDefaultsWrapper(key: Key.userNickname.value, placeValue: "")
+    static var userNickname: String
 }

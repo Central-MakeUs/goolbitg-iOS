@@ -10,11 +10,12 @@ import ComposableArchitecture
 
 struct AnalysisView: View {
     
-    /// 닉네임을 받아와야함.
-    private let nickName = "바쁜굴비"
+    @Perception.Bindable var store: StoreOf<AnalysisFeature>
     
     var body: some View {
-        contentsView
+        WithPerceptionTracking {
+            contentsView
+        }
     }
 }
 
@@ -54,7 +55,7 @@ extension AnalysisView {
     private var headerView: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                Text("\(nickName)님의\n소비유형검사가 있어요")
+                Text("\(UserDefaultsManager.userNickname)님의\n소비유형검사가 있어요")
                     .font(FontHelper.h1.font)
                 
                 Spacer()
@@ -87,12 +88,7 @@ extension AnalysisView {
         .clipShape(Capsule())
         .padding(.horizontal, 16)
         .asButton {
-            
+            store.send(.startButtonTapped)
         }
     }
-}
-
-
-#Preview {
-    AnalysisView()
 }

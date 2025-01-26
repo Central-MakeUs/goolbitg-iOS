@@ -14,6 +14,9 @@ enum SplashLoginScreen {
     case splash(SplashFeature)
     case login(LoginViewFeature)
     case authRequestPage(AuthRequestPageFeature)
+    case userInfoRequestView(AuthRequestFeature)
+    case analysisView(AnalysisFeature)
+    case shoppingCheckListView(ShoppingCheckListViewFeature)
 }
 
 @Reducer
@@ -24,7 +27,6 @@ struct SplashLoginCoordinator {
         static let initialState = State(routes: [.root(.splash(SplashFeature.State()), embedInNavigationView: true)])
         
         var routes: IdentifiedArrayOf<Route<SplashLoginScreen.State>>
-        var ifNeedDeepLink: String?
     }
     
     enum Action {
@@ -34,11 +36,13 @@ struct SplashLoginCoordinator {
         
         case checkToRefresh
         case failRefresh
-        case sendDeepLink(String)
     }
     
     enum MoveToScreen {
         case authRequest
+        case userInfoRequest
+        case analysis
+        case shoppingListView
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -77,27 +81,50 @@ extension SplashLoginCoordinator {
                 }
                 
             case .router(.routeAction(id: .authRequestPage, action: .authRequestPage(.delegate(.nextView)))):
-                break
+                state.routes.push(.userInfoRequestView(AuthRequestFeature.State()))
                 
             case .failRefresh:
                 state.routes.push(.login(LoginViewFeature.State()))
                 
-            case let .router(.routeAction(id: .login, action: .login(.delegate(.deepLink(deepLink))))):
-                state.ifNeedDeepLink = deepLink
-                
+            case let .router(.routeAction(id: .login, action: .login(.delegate(.moveToOnBoarding(caseOf))))):
+                Logger.info(caseOf)
                 // MARK: 앱 권한 확인
                 return .run { send in
                     if await checkAuthState() {
                         await send(.moveToScreen(.authRequest))
                     } else {
-                        await send(.sendDeepLink(deepLink))
+                        switch caseOf {
+                        case .onBoarding1:
+                            await send(.moveToScreen(.userInfoRequest))
+                        case .onBoarding2:
+                            await send(.moveToScreen(.analysis))
+                        case .onBoarding3:
+                            break
+                        case .onBoarding4:
+                            break
+                        case .registEnd:
+                            break
+                        }
                     }
                 }
+                
+                /// 유저 정보 리퀘스트
+            case .router(.routeAction(id: .userInfoRequestView, action: .userInfoRequestView(.delegate(.successNextView)))):
+                return .send(.moveToScreen(.analysis))
+                /// 가짜 분석 뷰
+            case .router(.routeAction(id: .analysisView, action: .analysisView(.delegate(.nextView)))):
+                return .send(.moveToScreen(.shoppingListView))
                 
             case let .moveToScreen(screen):
                 switch screen {
                 case .authRequest:
                     state.routes.push(.authRequestPage(AuthRequestPageFeature.State()))
+                case .userInfoRequest:
+                    state.routes.push(.userInfoRequestView(AuthRequestFeature.State()))
+                case .analysis:
+                    state.routes.push(.analysisView(AnalysisFeature.State()))
+                case .shoppingListView:
+                    state.routes.push(.shoppingCheckListView(ShoppingCheckListViewFeature.State()))
                 }
             default:
                 break

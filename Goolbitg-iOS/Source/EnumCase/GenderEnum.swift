@@ -10,4 +10,13 @@ import Foundation
 enum GenderType: Equatable {
     case male
     case female
+    
+    var formattedString: String {
+        switch self {
+        case .male:
+            return "MALE"
+        case .female:
+            return "FEMALE"
+        }
+    }
 }

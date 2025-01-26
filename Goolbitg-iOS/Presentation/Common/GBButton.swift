@@ -18,12 +18,12 @@ struct GBButton: View {
             if !isActionButtonState {
                 HStack {
                     Text(title)
+                        .foregroundStyle(GBColor.grey400.asColor)
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 56)
                 .background(GBColor.grey500.asColor)
                 .font(FontHelper.btn1.font)
-                .foregroundStyle(GBColor.grey400.asColor)
                 .clipShape(Capsule())
             } else {
                 HStack {

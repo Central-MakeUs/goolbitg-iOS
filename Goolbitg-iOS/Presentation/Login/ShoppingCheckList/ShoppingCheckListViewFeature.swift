@@ -17,17 +17,17 @@ struct MockData: Equatable, Hashable {
 struct ShoppingCheckListViewFeature: GBReducer {
     
     @ObservableState
-    struct State {
+    struct State: Equatable {
         var isShowView: Bool = false
         var buttonState: Bool = false
         
         var mockDatas: [MockData] = [
-            .init(checkState: false, titel: "모든게 낮설기만해"),
-            .init(checkState: false, titel: "꿈을 꾸었나"),
-            .init(checkState: false, titel: "살얼이 놧다."),
-            .init(checkState: false, titel: "커피 3잔에 여유"),
-            .init(checkState: false, titel: "람보르기니 긁어보기"),
-            .init(checkState: false, titel: "포르쉐 긁어보기"),
+            MockData(checkState: false, titel: TextHelper.checkList1),
+            MockData(checkState: false, titel: TextHelper.checkList2),
+            MockData(checkState: false, titel: TextHelper.checkList3),
+            MockData(checkState: false, titel: TextHelper.checkList4),
+            MockData(checkState: false, titel: TextHelper.checkList5),
+            MockData(checkState: false, titel: TextHelper.checkList6),
         ]
     }
     

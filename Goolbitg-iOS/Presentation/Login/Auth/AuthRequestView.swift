@@ -25,44 +25,155 @@ struct AuthRequestView: View {
                     emptyFocus = false
                 }
                 .popup(isPresented: $isShowDatePicker) {
-                    VStack(spacing: 0) {
-                        
-                        HStack {
-                            Spacer()
-                            
-                            VStack {}
-                                .frame(width: 40, height: 4)
-                                .background(GBColor.grey400.asColor)
-                                .clipShape(RoundedRectangle(cornerRadius: 3))
-                                
-                            Spacer()
-                        }
-                        .padding(.vertical, 8)
-                        
-                        DatePicker(
-                            "",
-                            selection: $store.date.sending(\.selectedDate),
-                            in: store.maxCalendar,
-                            displayedComponents: .date
-                        )
-                        .datePickerStyle(.wheel)
-                        .labelsHidden()
-                        .environment(\.locale, Locale(identifier: "ko_KR"))
-                        .changeTextColor(GBColor.white.asColor)
+                    GBBottonSheetView {
+                        AnyView(bottomSheetDateView)
                     }
                     .frame(maxWidth: .infinity)
                     .background(GBColor.grey600.asColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 18))
-//                    GBChallengeBottomSheetView()
+                    .cornerRadiusCorners(12, corners: [.topLeft, .topRight])
                 } customize: {
                     $0
                         .type(.toast)
                         .animation(.spring)
                         .closeOnTapOutside(true)
+                        .closeOnTap(false)
                         .backgroundView {
                             Color.black.opacity(0.5)
                         }
                 }
+                .popup(isPresented: $store.showAgreeBottomSheet.sending(\.agreeBottomSheet)) {
+                    GBBottonSheetView(
+                        headerView: {
+                            AnyView(bottomSheetAgreeHeaderView)
+                        },
+                        contentView: {
+                            AnyView(bottomSheetAgreeListView)
+                        }
+                    )
+                        .frame(maxWidth: .infinity)
+                        .background(GBColor.grey600.asColor)
+                        .cornerRadiusCorners(12, corners: [.topLeft, .topRight])
+                } customize: {
+                    $0
+                        .type(.toast)
+                        .animation(.spring)
+                        .closeOnTap(false)
+                        .closeOnTapOutside(true)
+                        .backgroundView {
+                            Color.black.opacity(0.5)
+                        }
+                }
+        }
+    }
+    
+    private var bottomSheetDateView: some View {
+        VStack(spacing: 0) {
+            DatePicker(
+                "",
+                selection: $store.birthDayDate.sending(\.selectedDate),
+                in: store.maxCalendar,
+                displayedComponents: .date
+            )
+            .datePickerStyle(.wheel)
+            .labelsHidden()
+            .environment(\.locale, Locale(identifier: "ko_KR"))
+            .changeTextColor(GBColor.white.asColor)
+            
+            GBButtonV2(title: TextHelper.acceptTitle) {
+                isShowDatePicker.toggle()
+            }
+            .padding(.all, 16)
+        }
+    }
+    private var bottomSheetAgreeHeaderView: some View {
+        VStack(alignment: .center, spacing: 4) {
+            Text(TextHelper.authRequestWellComeToGoolB)
+                .font(FontHelper.h3.font)
+                .foregroundStyle(GBColor.white.asColor)
+            Text(TextHelper.authRequestAgree)
+                .font(FontHelper.body5.font)
+                .foregroundStyle(GBColor.grey200.asColor)
+       }
+        .padding(.bottom, 16)
+    }
+    private var bottomSheetAgreeListView: some View {
+        VStack(alignment: .center, spacing: 0) {
+            allAgreeButtonView
+                .padding(.horizontal, SpacingHelper.md.pixel)
+                .padding(.vertical, SpacingHelper.sm.pixel)
+            agreeListView
+            
+            Divider()
+                .frame(height: 1)
+                .foregroundStyle(GBColor.grey400.asColor)
+            
+            GBButton(
+                isActionButtonState: $store.agreeStartButtonState.sending(\.agreeStartButtonState),
+                title: TextHelper.authStart) {
+                    store.send(.viewEvent(.startButtonTapped))
+                }
+                .padding(.all, 16)
+                .padding(.bottom, 2)
+        }
+    }
+    
+    private var allAgreeButtonView: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                Image(uiImage: store.allAgreeButtonState ?  ImageHelper.checked.image : ImageHelper.unChecked.image)
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                Text(TextHelper.allAgreeText)
+                    .padding(.leading, SpacingHelper.sm.pixel)
+                    .font(FontHelper.body4.font)
+                    .foregroundStyle(GBColor.white.asColor)
+                Spacer()
+            }
+            .padding(.horizontal, SpacingHelper.md.pixel)
+            .padding(.vertical, 12)
+        }
+        .clipShape(Capsule())
+        .overlay {
+            Capsule()
+                .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
+        }
+        .asButton {
+            store.send(.viewEvent(.allAgreeButtonTapped))
+        }
+    }
+    
+    private var agreeListView: some View {
+        VStack(spacing: SpacingHelper.md.pixel) {
+            ForEach(AgreeListCase.allCases, id: \.self) { item in
+                agreeListElementView(caseOf: item)
+                    .asButton {
+                        store.send(.viewEvent(.agreeListButtonTapped(item)))
+                    }
+            }
+        }
+        .padding(.horizontal, SpacingHelper.lg.pixel)
+        .padding(.vertical, 16)
+    }
+    
+    private func agreeListElementView(caseOf: AgreeListCase) -> some View {
+        let currentButtonState = store.agreeList.contains { $0 == caseOf }
+        return VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                Image(uiImage: currentButtonState ? ImageHelper.checked.image : ImageHelper.unChecked.image )
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                
+                Text(caseOf.title)
+                    .padding(.leading, SpacingHelper.sm.pixel)
+                    .font(FontHelper.body4.font)
+                    .foregroundStyle(GBColor.grey300.asColor)
+                
+                Spacer()
+                
+                Image(uiImage: ImageHelper.right.image)
+                    .resizable()
+                    .frame(width: 7, height: 14)
+            }
         }
     }
 }
@@ -179,7 +290,7 @@ extension AuthRequestView {
                 HStack (spacing:0) {
                     Text(placeholder)
                         .font(FontHelper.body2.font)
-                        .foregroundStyle(GBColor.error.asColor)
+                        .foregroundStyle(store.nickNameResult == .active ? GBColor.main.asColor : GBColor.error.asColor)
                     Spacer()
                 }
             }
@@ -297,89 +408,13 @@ extension AuthRequestView {
     private var startButtonView: some View {
         VStack {
             if store.isActionButtonState {
-                HStack {
-                    Text(TextHelper.authStart)
+                GBButtonV2(title: TextHelper.agreeAndConditionStart) {
+                    store.send(.viewEvent(.agreeStartButtonTapped))
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background {
-                    Rectangle()
-                        .fill(
-                            .linearGradient(colors: [
-                                GBColor.primary600.asColor,
-                                GBColor.primary400.asColor
-                            ], startPoint: .topLeading, endPoint: .bottomTrailing)
-                        )
-                }
-                .clipShape(Capsule())
-                .font(FontHelper.btn1.font)
-                .foregroundStyle(GBColor.white.asColor)
-                .clipShape(Capsule())
             }
         }
     }
 }
-
-/*
- HStack {
-     DisablePasteTextField(
-         text: $store.birthDayYear.sending(\.yearText),
-         isFocused: $store.isYearFocused.sending(\.yearFocused),
-         placeholder: TextHelper.authRequestBirthDayPlaceHolderYear,
-         placeholderColor: GBColor.grey400.asColor,
-         edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
-         keyboardType: .numberPad
-     ) { // onCommit
-         
-     }
-     .frame(maxWidth: .infinity)
-     .frame(height: 48)
-     .background(GBColor.grey600.asColor)
-     .clipShape(RoundedRectangle(cornerRadius: 6))
-     .overlay(
-         RoundedRectangle(cornerRadius: 6)
-             .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
-     )
-     
-     DisablePasteTextField(
-         text: $store.birthDayMonth.sending(\.monthText),
-         isFocused: $store.isMonthFocused.sending(\.monthFocused),
-         placeholder: TextHelper.authRequestBirthDayPlaceHolderMonth,
-         placeholderColor: GBColor.grey400.asColor,
-         edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
-         keyboardType: .numberPad
-     ) { // onCommit
-         
-     }
-     .frame(maxWidth: .infinity)
-     .frame(height: 48)
-     .background(GBColor.grey600.asColor)
-     .clipShape(RoundedRectangle(cornerRadius: 6))
-     .overlay(
-         RoundedRectangle(cornerRadius: 6)
-             .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
-     )
-     
-     DisablePasteTextField(
-         text: $store.birthDayDay.sending(\.dayText),
-         isFocused: $store.isDayFocused.sending(\.dayFocused),
-         placeholder: TextHelper.authRequestBirthDayPlaceHolderDay,
-         placeholderColor: GBColor.grey400.asColor,
-         edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
-         keyboardType: .numberPad
-     ) { // onCommit
-         
-     }
-     .frame(maxWidth: .infinity)
-     .frame(height: 48)
-     .background(GBColor.grey600.asColor)
-     .clipShape(RoundedRectangle(cornerRadius: 6))
-     .overlay(
-         RoundedRectangle(cornerRadius: 6)
-             .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
-     )
- }
- */
 
 #Preview {
     AuthRequestView(store: Store(initialState: AuthRequestFeature.State(), reducer: {

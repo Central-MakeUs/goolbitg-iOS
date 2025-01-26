@@ -25,7 +25,7 @@ enum NickNameValidateEnum {
         case .none:
             return nil
         case .active:
-            return nil
+            return TextHelper.authNickNameAllowText
         case .alreadyUse:
             return TextHelper.authNickNameAlreadyUse
         case .denied:

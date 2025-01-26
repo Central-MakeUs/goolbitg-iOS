@@ -30,12 +30,16 @@ struct LoginViewFeature {
         case delegate(Delegate)
         
         enum Delegate {
-            case deepLink(String)
             case loginSuccess
+            case moveToOnBoarding(RegisterStatusCase)
         }
     }
     
     @Dependency(\.networkManager) var networkManager
+    
+    enum CancelID: Hashable, Sendable {
+        case kakao
+    }
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -63,6 +67,7 @@ struct LoginViewFeature {
                         return
                     }
                 }
+                    .throttle(id: CancelID.kakao, for: 5, scheduler: DispatchQueue.main.eraseToAnyScheduler(), latest: false)
                 
             case .sendToServerIdToken(let type, let idToken):
                 return .run { send in
@@ -99,10 +104,16 @@ struct LoginViewFeature {
                     saveToken(access: request.accessToken, refresh: request.refreshToken)
                     
                     // MARK: 여기선 이제 로그인 후 필수정보 쓴사람인가 아닌가 분석
-                    if let deepLink = request.links?.next.href {
-                        await send(.delegate(.deepLink(deepLink)))
+                    
+                    let requestRegisterState = try await networkManager.requestNetworkWithRefresh(dto: UserRegisterStatus.self, router: UserRouter.userRegisterStatus)
+                    
+                    Logger.info(requestRegisterState)
+                    
+                    // 필수 기입사항 안했을시
+                    if !requestRegisterState.requiredInfoCompleted {
+                        await send(.delegate(.moveToOnBoarding(requestRegisterState.status)))
                     } else {
-                        await send(.delegate(.loginSuccess))
+                        await send(.delegate(.moveToOnBoarding(.registEnd)))
                     }
                     
                 } catch: { error, send in

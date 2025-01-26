@@ -13,13 +13,13 @@ struct ShoppingCheckListView: View {
     
     @Perception.Bindable var store: StoreOf<ShoppingCheckListViewFeature>
     
-    @State var isShowTitle: Bool = false
-    @State var viewButtonState: Bool = false
+    @State private var isShowTitle: Bool = false
+    @State private var viewButtonState: Bool = false
     
     var body: some View {
         WithPerceptionTracking {
             VStack {
-                if store.isShowView, isShowTitle {
+                if isShowTitle {
                     contentView
                         .padding(.top, SpacingHelper.xxl.pixel / 2)
                         .transition(
@@ -29,6 +29,7 @@ struct ShoppingCheckListView: View {
                             )
                         )
                         .animation(.easeInOut, value: store.isShowView)
+
                 }
             }
             .frame(maxWidth: .infinity)
@@ -41,9 +42,7 @@ struct ShoppingCheckListView: View {
                 }
             }
             .onChange(of: store.buttonState) { newValue in
-                withAnimation {
-                    viewButtonState = newValue
-                }
+                viewButtonState = newValue
             }
         }
     }
@@ -55,7 +54,7 @@ extension ShoppingCheckListView {
         ZStack(alignment: .bottom) {
             ZStack(alignment: .top) {
                 
-                VStack {
+                VStack(spacing: 0) {
                     headerView
                         .foregroundStyle(.clear)
                         .opacity(0)
@@ -64,13 +63,13 @@ extension ShoppingCheckListView {
                     
                     Spacer()
                 }
-                VStack {
+                VStack(spacing: 0) {
                     headerView
                         .padding(.horizontal, 16)
                     
                     VStack {}
                         .frame(maxWidth: .infinity)
-                        .frame(height: SpacingHelper.lg.pixel)
+                        .frame(height: SpacingHelper.xl.pixel)
                         .background {
                             Rectangle()
                                 .fill(
@@ -126,20 +125,19 @@ extension ShoppingCheckListView {
     private var checkListView: some View {
         
         ScrollView {
-            LazyVStack {
-                VStack {}
-                    .padding(.bottom, SpacingHelper.xl.pixel)
+            VStack(spacing: SpacingHelper.md.pixel) {
+                Color.clear
+                    .padding(.bottom, SpacingHelper.lg.pixel)
                 
                 ForEach(Array(store.state.mockDatas.enumerated()), id: \.element.self) { index, data in
                     checkListElementView(data: data)
-                        .padding(.bottom, SpacingHelper.md.pixel)
                         .asButton {
                             store.send(.viewEvent(.selectedCheckListElement(data: data, idx: index)))
                         }
                         .padding(.horizontal, 16)
                 }
                 
-                VStack {}
+                Color.clear
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
             }
@@ -151,7 +149,7 @@ extension ShoppingCheckListView {
     }
     
     private func checkListElementView(data: MockData) -> some View {
-        VStack {
+        VStack(spacing: 0) {
             HStack(spacing: 0) {
                 Image(uiImage: data.checkState ? ImageHelper.checked.image : ImageHelper.unChecked.image)
                     .resizable()
@@ -185,10 +183,6 @@ extension ShoppingCheckListView {
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 16)
-            .overlay {
-
-               
-            }
     }
     
 }

@@ -15,19 +15,23 @@ enum AuthRouter {
     case login(AuthRegisterRequestModel)
     /// 엑세스 토큰 재발급
     case refresh(refreshToken: String)
+    /// 로그아웃
+    case logOut
+    /// 회원 탈퇴
+    case signOut
 }
 
 extension AuthRouter: Router {
     var method: HTTPMethod {
         switch self {
-        case .register, .login, .refresh:
+        case .register, .login, .refresh, .logOut, .signOut:
             return .post
         }
     }
     
     var version: String {
         switch self {
-        case .register, .login, .refresh:
+        case .register, .login, .refresh, .logOut, .signOut:
             return "/v1"
         }
     }
@@ -40,6 +44,10 @@ extension AuthRouter: Router {
             return "/auth/login"
         case .refresh:
             return "/auth/refresh"
+        case .logOut:
+            return "/auth/logout"
+        case .signOut:
+            return "/auth/unregister"
         }
     }
     
@@ -47,6 +55,8 @@ extension AuthRouter: Router {
         switch self {
         case .register, .login, .refresh:
             return nil
+        case .logOut, .signOut:
+            return [ "application/json" : "Content-Type" ]
         }
     }
     
@@ -57,7 +67,7 @@ extension AuthRouter: Router {
                 "type" : authRegisterRequestModel.type,
                 "idToken": authRegisterRequestModel.idToken
             ]
-        case .login, .refresh:
+        case .login, .refresh, .logOut, .signOut:
             return nil
         }
     }
@@ -73,11 +83,16 @@ extension AuthRouter: Router {
         case let .refresh(refreshToken):
             let data = try? CodableManager.shared.jsonEncodingStrategy(RefreshTokenReqeustModel(refreshToken: refreshToken))
             return data
+        case .logOut, .signOut:
+            return nil
         }
     }
     
     var encodingType: EncodingType {
         switch self {
+        case .logOut, .signOut:
+            return .url
+            
         case .register, .login, .refresh:
             return .json
         }
