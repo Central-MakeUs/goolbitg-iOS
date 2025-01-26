@@ -9,8 +9,5 @@ import Foundation
 
 protocol GBReducer {
     associatedtype ViewCycle
-    
     associatedtype ViewEvent
-    
-    associatedtype DataTransformable
 }

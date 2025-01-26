@@ -17,10 +17,8 @@ struct ComsumptionHabitsViewFeature: GBReducer {
         var closeToolTipTrigger = false
         
         var monthGetText: String = ""
-        var getisFocused: Bool = false
         
         var monthSavingText: String = ""
-        var savingIsFocused: Bool = false
         
         var monthTextGetWonState = false
         var monthTextSavingWonState = false
@@ -32,9 +30,14 @@ struct ComsumptionHabitsViewFeature: GBReducer {
     enum Action {
         case viewEvent(ViewEvent)
         case returnToEvent(ReturnToEvent)
+        case delegate(Delegate)
         
         /// dummyForButtonState or Focus
         case dummyButtonState(Bool)
+        
+        enum Delegate {
+            case nextView
+        }
         
         // Binding
         case monthGetText(String)
@@ -61,9 +64,8 @@ struct ComsumptionHabitsViewFeature: GBReducer {
         case checkToSavingText(String)
     }
     
-    enum DataTransformable {}
-    
     @Dependency(\.gbNumberForMatter) var gbNumberForMatter
+    @Dependency(\.networkManager) var networkManager
     
     var body: some ReducerOf<Self> {
         core
@@ -84,16 +86,13 @@ extension ComsumptionHabitsViewFeature {
                 }
                 
             case .viewEvent(.nextButtonTapped):
-                print("ASASASAS")
+                return mappingTonNumberAndSave(state: &state)
                 
             case .monthGetText(let text):
-                return .run { send in
-                    await send(.returnToEvent(.checkToMonthText(text)))
-                }
+                return .send(.returnToEvent(.checkToMonthText(text)))
+                
             case .monthSavingText(let text):
-                return .run { send in
-                    await send(.returnToEvent(.checkToSavingText(text)))
-                }
+                return .send(.returnToEvent(.checkToSavingText(text)))
                 
             case .returnToEvent(.closeToolTip):
                 
@@ -118,15 +117,7 @@ extension ComsumptionHabitsViewFeature {
                 
             case .returnToEvent(.showNoticeMoreSaving(let bool)):
                 state.ifMoreGetting = bool
-                
-            case .getFocused(let bool):
-                state.getisFocused = bool
-                
-            case .savingFocused(let bool):
-                state.savingIsFocused = bool
-                
             
-                
             default:
                 break
             }
@@ -158,5 +149,27 @@ extension ComsumptionHabitsViewFeature {
         }
         state.ifNextButtonState = false
         return .send(.returnToEvent(.showNoticeMoreSaving(false)))
+    }
+    
+    private func mappingTonNumberAndSave(state: inout State) -> Effect<Action> {
+        let monthGet = state.monthGetText
+        let monthSaving = state.monthSavingText
+        
+        let getRemoveComma = monthGet.replacingOccurrences(of: ",", with: "")
+        let savingRemoveComma = monthSaving.replacingOccurrences(of: ",", with: "")
+        
+        guard let getNumber = Int(getRemoveComma),
+              let savingNumber = Int(savingRemoveComma) else {
+            return .none
+        }
+        
+        return .run { send in
+            try await networkManager.requestNotDtoNetwork(router: UserRouter.userHabit(reqeustModel: UserHabitRequestModel(
+                avgIncomePerMonth: getNumber,
+                avgSpendingPerMonth: savingNumber )
+            ), ifRefreshNeed: true)
+            
+            await send(.delegate(.nextView))
+        }
     }
 }

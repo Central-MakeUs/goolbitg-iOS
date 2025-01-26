@@ -19,7 +19,11 @@ struct ExpressExpenditureDateViewFeature {
     
     enum Action {
         case viewEvent(ViewEvent)
-        case returnAction(ReturnAction)
+        case delegate(Delegate)
+        
+        enum Delegate {
+            case nextView
+        }
         
         // Binding
         case selectedDate(Date)
@@ -31,9 +35,8 @@ struct ExpressExpenditureDateViewFeature {
         case skipClicked
     }
     
-    enum ReturnAction {
-        
-    }
+    @Dependency(\.networkManager) var networkManager
+    @Dependency(\.dateManager) var dateManager
     
     var body: some ReducerOf<Self> {
         core
@@ -47,9 +50,31 @@ extension ExpressExpenditureDateViewFeature {
                 
             case .viewEvent(.selectedWeak(let item)):
                 state.selectedWeak = item
+                
+            case .viewEvent(.skipClicked):
+                return .send(.delegate(.nextView))
              
             case .selectedDate(let date):
                 state.selectedDate = date
+                
+            case .viewEvent(.nextButtonTapped):
+                guard let currentWeek = state.selectedWeak else {
+                    return .none
+                }
+                let currentDate = state.selectedDate
+                let format = dateManager.format(format: .timeHHmmss, date: currentDate)
+                return .run { send in
+                    try await networkManager.requestNotDtoNetwork(
+                        router: UserRouter.userPatternRegist(requestModel: UserPatternRequestModel(
+                            primeUseDay: currentWeek.format,
+                            primeUseTime: format )
+                        ),
+                        ifRefreshNeed: true
+                    )
+                    await send(.delegate(.nextView))
+                } catch: { error, send in
+                    Logger.error(error)
+                }
                 
             default:
                 break

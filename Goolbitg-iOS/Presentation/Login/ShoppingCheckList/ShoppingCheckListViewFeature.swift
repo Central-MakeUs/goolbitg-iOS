@@ -34,10 +34,15 @@ struct ShoppingCheckListViewFeature: GBReducer {
     enum Action {
         case viewCycle(ViewCycle)
         case viewEvent(ViewEvent)
-        case dataTransformable(DataTransformable)
+        case delegate(Delegate)
+        
+        enum Delegate {
+            case nextView
+        }
         
         /// Binding
         case buttonState(Bool)
+        
     }
     
     enum ViewCycle {
@@ -49,9 +54,7 @@ struct ShoppingCheckListViewFeature: GBReducer {
         case nextButtonTapped
     }
     
-    enum DataTransformable {
-        
-    }
+    @Dependency(\.networkManager) var networkManager
     
     var body: some ReducerOf<Self> {
         core
@@ -73,6 +76,23 @@ extension ShoppingCheckListViewFeature {
                 // buttonState
             case .buttonState(let bool):
                 state.buttonState = bool
+                
+            case .viewEvent(.nextButtonTapped):
+                var checks: [String: Bool] = [:]
+                for (index, data) in state.mockDatas.enumerated() {
+                    checks["check\(index + 1)"] = data.checkState
+                }
+                return .run { [checks] send in
+                    try await networkManager.requestNotDtoNetwork(
+                        router: UserRouter.userCheckList(
+                            reqeustModel: CheckPayload(checks: checks)
+                        ),
+                        ifRefreshNeed: true
+                    )
+                    await send(.delegate(.nextView))
+                } catch: { error, send in
+                    Logger.error(error)
+                }
             default :
                 break
             }

@@ -33,6 +33,8 @@ enum ImageHelper {
     case checkPop
     case right
     
+    case greenCard
+    
     var image: UIImage {
         switch self {
         case .splashBack:
@@ -75,6 +77,8 @@ enum ImageHelper {
             return UIImage(named: "CheckPopup") ?? UIImage(resource: .checkPopup)
         case .right:
             return UIImage(named: "rightCh") ?? UIImage(resource: .rightCh)
+        case .greenCard:
+            return UIImage(named: "greenCard") ?? UIImage(resource: .greenCard)
         }
     }
 }

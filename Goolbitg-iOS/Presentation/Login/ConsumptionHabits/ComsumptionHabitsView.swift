@@ -128,7 +128,6 @@ extension ComsumptionHabitsView {
             ZStack (alignment: .leadingFirstTextBaseline){
                 DisablePasteTextField(
                     text: $store.monthGetText.sending(\.monthGetText),
-                    isFocused: $store.getisFocused.sending(\.getFocused),
                     placeholder: TextHelper.consumptionAverageMonthlyIncomeWrite,
                     placeholderColor: GBColor.grey500.asColor,
                     edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
@@ -163,7 +162,6 @@ extension ComsumptionHabitsView {
             ZStack (alignment: .leading ) {
                 DisablePasteTextField(
                     text: $store.monthSavingText.sending(\.monthSavingText),
-                    isFocused: $store.savingIsFocused.sending(\.savingFocused),
                     placeholder: TextHelper.consumptionAverageMonthlySavingsWrite,
                     placeholderColor: GBColor.grey500.asColor,
                     edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),

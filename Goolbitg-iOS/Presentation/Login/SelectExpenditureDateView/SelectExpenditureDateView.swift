@@ -92,7 +92,7 @@ extension SelectExpenditureDateView {
                 Spacer()
             }
             .padding(.horizontal, SpacingHelper.sm.pixel)
-            .padding(.bottom, 8)
+            .padding(.bottom, SpacingHelper.sm.pixel)
             dropDownWeakView
         }
     }
@@ -108,13 +108,12 @@ extension SelectExpenditureDateView {
                         Spacer()
                         Image(uiImage: ImageHelper.chevronDown.image)
                     }
-                    .padding(.horizontal, 16)
+                    .padding(.all, SpacingHelper.md.pixel)
                 }
-                .frame(height: 44)
                 .background(GBColor.grey600.asColor)
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay {
-                    RoundedRectangle(cornerRadius: 4)
+                    RoundedRectangle(cornerRadius: 8)
                         .stroke(GBColor.grey500.asColor, lineWidth: 1)
                 }
                 .asButton {
@@ -122,9 +121,9 @@ extension SelectExpenditureDateView {
                 }
             } else {
                 weakListView
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                     .overlay {
-                        RoundedRectangle(cornerRadius: 4)
+                        RoundedRectangle(cornerRadius: 8)
                             .stroke(GBColor.grey500.asColor, lineWidth: 1)
                     }
             }
@@ -141,9 +140,8 @@ extension SelectExpenditureDateView {
                     Spacer()
                     Image(uiImage: ImageHelper.chevronDown.image)
                 }
-                .padding(.horizontal, 16)
+                .padding(.all, SpacingHelper.md.pixel)
             }
-            .frame(height: 44)
             .background(GBColor.grey600.asColor)
             .asButton {
                 toggleDropDown()
@@ -159,12 +157,12 @@ extension SelectExpenditureDateView {
                         Spacer()
                     }
                     .padding(.horizontal, 25)
+                    .padding(.vertical, SpacingHelper.md.pixel)
                     .asButton {
                         store.send(.viewEvent(.selectedWeak(item)))
                         toggleDropDown()
                     }
                 }
-                .frame(height: 38)
                 .background(GBColor.grey600.asColor)
                 .border(width: 1, edges: [.bottom], color: GBColor.grey500.asColor)
             }

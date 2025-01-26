@@ -52,6 +52,16 @@ extension SplashLoginCoordinatorView {
                     ShoppingCheckListView(store: store)
                         .navigationBarBackButtonHidden()
                         .disableBackGesture()
+                    
+                case let .habitCheckView(store):
+                    ComsumptionHabitsView(store: store)
+                        .navigationBarBackButtonHidden()
+                        .disableBackGesture()
+                
+                case let .dayTimeCheckView(store):
+                    SelectExpenditureDateView(store: store)
+                        .navigationBarBackButtonHidden()
+                        .disableBackGesture()
                 }
             }
         }
@@ -73,6 +83,10 @@ extension SplashLoginScreen.State: Identifiable {
             return .analysisView
         case .shoppingCheckListView:
             return .shoppingCheckListView
+        case .habitCheckView:
+            return .habitCheckListView
+        case .dayTimeCheckView:
+            return .exDayTimeCheckView
         }
     }
     
@@ -83,6 +97,8 @@ extension SplashLoginScreen.State: Identifiable {
         case userInfoRequestView
         case analysisView
         case shoppingCheckListView
+        case habitCheckListView
+        case exDayTimeCheckView
         
         var id: ID {
             return self

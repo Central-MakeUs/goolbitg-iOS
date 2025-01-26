@@ -34,4 +34,23 @@ enum WeakEnum: Equatable, CaseIterable {
             return "일요일"
         }
     }
+    
+    var format: String {
+        switch self {
+        case .monday:
+            return "MONDAY"
+        case .tuesday:
+            return "TUESDAY"
+        case .wednesday:
+            return "WEDNESDAY"
+        case .thursday:
+            return "THURSDAY"
+        case .friday:
+            return "FRIDAY"
+        case .saturday:
+            return "SATURDAY"
+        case .sunday:
+            return "SUNDAY"
+        }
+    }
 }

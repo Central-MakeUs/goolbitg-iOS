@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DisablePasteTextField: View {
     @Binding var text: String
-    @Binding var isFocused: Bool
+    var isFocused: Binding<Bool>?
     
     let placeholder: String
     let placeholderColor: Color
@@ -21,7 +21,7 @@ struct DisablePasteTextField: View {
     
     init(
         text: Binding<String>,
-        isFocused: Binding<Bool>,
+        isFocused: Binding<Bool>? = nil,
         placeholder: String,
         placeholderColor: Color,
         isSecureTextEntry: Bool = false,
@@ -31,7 +31,7 @@ struct DisablePasteTextField: View {
         onCommit: ( () -> Void)?
     ) {
         self._text = text
-        self._isFocused = isFocused
+        self.isFocused = isFocused
         self.placeholder = placeholder
         self.placeholderColor = placeholderColor
         self.edge = edge
@@ -45,7 +45,7 @@ struct DisablePasteTextField: View {
         VStack {
             DisablePasteTextFieldPrepresentable(
                 text: $text,
-                isFocused: $isFocused,
+                isFocused: isFocused,
                 keyboardType: keyboardType,
                 isSecureTextEntry: isSecureTextEntry,
                 onCommit: onCommit
@@ -69,7 +69,7 @@ struct DisablePasteTextField: View {
 struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
     
     @Binding var text: String
-    let isFocused: Binding<Bool>
+    var isFocused: Binding<Bool>?
     let keyboardType: UIKeyboardType
     let isSecureTextEntry: Bool
     let onCommit: (() -> Void)?
@@ -89,13 +89,15 @@ struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
     func updateUIView(_ uiView: ProtectedTextField, context: Context) {
         uiView.text = text
         
-        if isFocused.wrappedValue, !uiView.isFirstResponder {
-            DispatchQueue.main.async {
-                uiView.becomeFirstResponder()
-            }
-        } else if !isFocused.wrappedValue, uiView.isFirstResponder {
-            DispatchQueue.main.async {
-                uiView.resignFirstResponder()
+        if let isFocused = isFocused {
+            if isFocused.wrappedValue, !uiView.isFirstResponder {
+                DispatchQueue.main.async {
+                    uiView.becomeFirstResponder()
+                }
+            } else if !isFocused.wrappedValue, uiView.isFirstResponder {
+                DispatchQueue.main.async {
+                    uiView.resignFirstResponder()
+                }
             }
         }
     }
@@ -106,21 +108,21 @@ struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
     
     class Coordinator: NSObject, UITextFieldDelegate {
         @Binding var text: String
-        @Binding var isFocused: Bool
+        var isFocused: Binding<Bool>?
         
         let onCommit: (() -> Void)?
         
-        init(text: Binding<String>, isFocused: Binding<Bool>, onCommit: (() -> Void)?) {
+        init(text: Binding<String>, isFocused: Binding<Bool>?, onCommit: (() -> Void)?) {
             self._text = text
-            self._isFocused = isFocused
+            self.isFocused = isFocused
             self.onCommit = onCommit
         }
 
         
         @objc func textFieldTapped() {
             // 사용자가 텍스트 필드를 탭했을 때 포커스를 설정
-            if !isFocused {
-                isFocused = true
+            if let isFocused = isFocused, !isFocused.wrappedValue {
+                isFocused.wrappedValue = true
             }
         }
         

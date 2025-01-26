@@ -92,4 +92,10 @@ enum TextHelper {
     static let expenditureWeakDay = "주 지출 요일"
     static let expenditureWeakTime = "주 지출 시간"
     static let expenditureUsuallySelectDay = "주로 소비하는 요일을 선택해 주세요"
+    
+    // MARK: 분석 완료
+    static let resultHabitRecommendationTitle = "나만의 맞춤형 소비습관을 추천받거나\n주변에 내 소비 유형을 공유해보세요"
+    
+    static let fitMeHabitStart = "나에게 맞는 소비습관 형성하기"
+    
 }

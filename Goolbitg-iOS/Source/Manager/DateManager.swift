@@ -26,6 +26,7 @@ final class DateManager: @unchecked Sendable {
         case dayDD = "dd"
         case yearMonth = "yyyy년 MM월"
         case infoBirthDay = "yyyy-MM-dd"
+        case timeHHmmss = "HH:mm:ss"
         
         var format: String {
             return self.rawValue

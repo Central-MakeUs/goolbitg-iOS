@@ -17,6 +17,8 @@ enum SplashLoginScreen {
     case userInfoRequestView(AuthRequestFeature)
     case analysisView(AnalysisFeature)
     case shoppingCheckListView(ShoppingCheckListViewFeature)
+    case habitCheckView(ComsumptionHabitsViewFeature)
+    case dayTimeCheckView(ExpressExpenditureDateViewFeature)
 }
 
 @Reducer
@@ -43,6 +45,8 @@ struct SplashLoginCoordinator {
         case userInfoRequest
         case analysis
         case shoppingListView
+        case habitView
+        case expressExpenditureDateView
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -95,15 +99,16 @@ extension SplashLoginCoordinator {
                     } else {
                         switch caseOf {
                         case .onBoarding1:
-                            await send(.moveToScreen(.userInfoRequest))
+                            await send(.moveToScreen(.userInfoRequest)) // 1. 약관동의
                         case .onBoarding2:
-                            await send(.moveToScreen(.analysis))
+                            await send(.moveToScreen(.userInfoRequest)) // 2. 사용자 개인정보 등록
                         case .onBoarding3:
-                            break
+                            await send(.moveToScreen(.analysis)) // 3. 소비유형 검사가 있어요 -> 소비중독
                         case .onBoarding4:
-                            break
-                        case .registEnd:
-                            break
+                            await send(.moveToScreen(.habitView)) // 4. 소비 슴관
+                        case .registEnd: // 5. 선택 이라 등록완료
+                            // MARK: 테스트를 위한 강제
+                            await send(.moveToScreen(.expressExpenditureDateView))
                         }
                     }
                 }
@@ -114,6 +119,16 @@ extension SplashLoginCoordinator {
                 /// 가짜 분석 뷰
             case .router(.routeAction(id: .analysisView, action: .analysisView(.delegate(.nextView)))):
                 return .send(.moveToScreen(.shoppingListView))
+                /// 체크리스트 뷰
+            case .router(.routeAction(id: .shoppingCheckListView, action: .shoppingCheckListView(.delegate(.nextView)))):
+                return .send(.moveToScreen(.habitView))
+                /// 소비 습관 점수 뷰
+            case .router(.routeAction(id: .habitCheckListView, action: .habitCheckView(.delegate(.nextView)))):
+                return .send(.moveToScreen(.expressExpenditureDateView))
+                /// 지출 요일/ 시간 선택
+            case .router(.routeAction(id: .exDayTimeCheckView, action: .dayTimeCheckView(.delegate(.nextView)))):
+                
+                print("ASAS")
                 
             case let .moveToScreen(screen):
                 switch screen {
@@ -125,6 +140,10 @@ extension SplashLoginCoordinator {
                     state.routes.push(.analysisView(AnalysisFeature.State()))
                 case .shoppingListView:
                     state.routes.push(.shoppingCheckListView(ShoppingCheckListViewFeature.State()))
+                case .habitView:
+                    state.routes.push(.habitCheckView(ComsumptionHabitsViewFeature.State()))
+                case .expressExpenditureDateView:
+                    state.routes.push(.dayTimeCheckView(ExpressExpenditureDateViewFeature.State()))
                 }
             default:
                 break
