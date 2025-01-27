@@ -21,6 +21,7 @@ struct ResultHabitView: View {
                     
                 }
                 .padding(.horizontal, 16)
+                .padding(.bottom, 16)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(GBColor.background1.asColor)

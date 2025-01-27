@@ -23,6 +23,7 @@ final class DateManager: @unchecked Sendable {
     
     enum FormatType: String {
         case simpleE = "E"
+        case dayD = "d"
         case dayDD = "dd"
         case yearMonth = "yyyy년 MM월"
         case infoBirthDay = "yyyy-MM-dd"

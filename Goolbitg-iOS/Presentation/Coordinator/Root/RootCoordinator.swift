@@ -48,6 +48,10 @@ extension RootCoordinator {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+                
+            case .splashLoginAction(.delegate(.moveToHome)):
+                state.currentView = .mainTab
+                
 //            case let .splashLoginAction(.sendDeepLink(deepLinkURL)):
 //                guard let deepLinkCase = DeepLinkCase(urlString: deepLinkURL) else {
 //                    Logger.error("DeepLink Fail")

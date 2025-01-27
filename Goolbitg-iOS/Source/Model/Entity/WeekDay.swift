@@ -13,3 +13,10 @@ struct WeekDay: Identifiable, Entity {
     var active: Bool = true
     var isSelected: Bool = false
 }
+
+struct OneWeekDay: Entity {
+    var date: Date
+    var active: Bool = true
+    var isSelected: Bool = false
+    var isToday: Bool
+}

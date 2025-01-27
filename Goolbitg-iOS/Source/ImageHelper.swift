@@ -34,6 +34,11 @@ enum ImageHelper {
     case right
     
     case greenCard
+    case logo3
+    case homeBack
+    case bell
+    case won
+    case trophy
     
     var image: UIImage {
         switch self {
@@ -79,6 +84,16 @@ enum ImageHelper {
             return UIImage(named: "rightCh") ?? UIImage(resource: .rightCh)
         case .greenCard:
             return UIImage(named: "greenCard") ?? UIImage(resource: .greenCard)
+        case .logo3:
+            return UIImage(named: "Logo3") ?? UIImage(resource: .logo3)
+        case .homeBack:
+            return UIImage(named: "homeBack") ?? UIImage(resource: .homeBack)
+        case .bell:
+            return UIImage(named: "bell") ?? UIImage(resource: .bell)
+        case .won:
+            return UIImage(named: "Won") ?? UIImage(resource: .trophy)
+        case .trophy:
+            return UIImage(named: "Trophy") ?? UIImage(resource: .won)
         }
     }
 }

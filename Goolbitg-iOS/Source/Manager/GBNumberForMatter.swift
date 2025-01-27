@@ -39,6 +39,20 @@ extension GBNumberForMatter {
         return filtered
     }
     
+    func changeFormatToString(
+        number: Double,
+        numberStyle: NumberFormatter.Style = .currency
+    ) -> String {
+        numberFormatter.numberStyle = numberStyle
+        if numberStyle == .decimal {
+            numberFormatter.groupingSeparator = ","
+        }
+        return numberFormatter.string(from: NSNumber(value: number)) ?? ""
+    }
+}
+
+extension GBNumberForMatter {
+    static let shared = GBNumberForMatter()
 }
 
 extension GBNumberForMatter: DependencyKey {

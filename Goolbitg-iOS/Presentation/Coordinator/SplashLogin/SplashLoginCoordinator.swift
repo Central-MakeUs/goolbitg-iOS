@@ -38,6 +38,11 @@ struct SplashLoginCoordinator {
         
         case checkToRefresh
         case failRefresh
+        case delegate(Delegate)
+        
+        enum Delegate {
+            case moveToHome
+        }
     }
     
     enum MoveToScreen {
@@ -108,7 +113,7 @@ extension SplashLoginCoordinator {
                             await send(.moveToScreen(.habitView)) // 4. 소비 슴관
                         case .registEnd: // 5. 선택 이라 등록완료
                             // MARK: 테스트를 위한 강제
-                            await send(.moveToScreen(.expressExpenditureDateView))
+                            await send(.delegate(.moveToHome))
                         }
                     }
                 }
