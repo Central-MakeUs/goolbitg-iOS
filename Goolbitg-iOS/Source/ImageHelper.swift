@@ -40,6 +40,8 @@ enum ImageHelper {
     case won
     case trophy
     
+    case back
+    
     var image: UIImage {
         switch self {
         case .splashBack:
@@ -94,6 +96,8 @@ enum ImageHelper {
             return UIImage(named: "Won") ?? UIImage(resource: .trophy)
         case .trophy:
             return UIImage(named: "Trophy") ?? UIImage(resource: .won)
+        case .back:
+            return UIImage(named: "back") ?? UIImage(resource: .back)
         }
     }
 }
