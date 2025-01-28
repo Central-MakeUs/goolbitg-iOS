@@ -21,6 +21,7 @@
 		7B29EF902D297AEC005A8495 /* TCACoordinators in Frameworks */ = {isa = PBXBuildFile; productRef = 7B29EF8F2D297AEC005A8495 /* TCACoordinators */; };
 		7B7364C72D3A8FFC0096E8AC /* SwiftyGif in Frameworks */ = {isa = PBXBuildFile; productRef = 7B7364C62D3A8FFC0096E8AC /* SwiftyGif */; };
 		7BB09F832D3CF08E006B209E /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 7BB09F822D3CF08E006B209E /* SwiftyBeaver */; };
+		7BB0A5812D496A7C006B209E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7BB0A5802D496A7C006B209E /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,6 +41,7 @@
 /* Begin PBXFileReference section */
 		7B29EF292D297812005A8495 /* Goolbitg-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Goolbitg-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B29EF4D2D297935005A8495 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		7BB0A5802D496A7C006B209E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -89,6 +91,7 @@
 		7B29EF202D297812005A8495 = {
 			isa = PBXGroup;
 			children = (
+				7BB0A5802D496A7C006B209E /* PrivacyInfo.xcprivacy */,
 				7B29EF4D2D297935005A8495 /* .gitignore */,
 				7B29EF2B2D297812005A8495 /* Goolbitg-iOS */,
 				7B29EF2A2D297812005A8495 /* Products */,
@@ -193,6 +196,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7B29EF4E2D297935005A8495 /* .gitignore in Resources */,
+				7BB0A5812D496A7C006B209E /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
