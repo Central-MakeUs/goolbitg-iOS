@@ -15,7 +15,7 @@ final class NetworkManager: Sendable, ThreadCheckable {
     private let networkError = PassthroughSubject<String, Never>()
     
     private let cancelStoreActor = AnyValueActor(Set<AnyCancellable>())
-    private let retryActor = AnyValueActor(7)
+    private let retryActor = AnyValueActor(5)
     
     func requestNetwork<T: DTO, R: Router>(dto: T.Type, router: R) async throws(RouterError) -> T {
 #if DEBUG
@@ -45,7 +45,8 @@ final class NetworkManager: Sendable, ThreadCheckable {
         // MARK: 요청담당
         let response = await getRequest(dto: dto, router: router, request: request, ifRefreshMode: true)
         Logger.info(request)
-        let result = try await getResponse(dto: dto, router: router, response: response)
+        Logger.info(response.response)
+        let result = try await getResponse(dto: dto, router: router, response: response, ifRefreshMode: true)
         
         return result
     }
@@ -128,14 +129,12 @@ extension NetworkManager {
         
         if ifRefreshMode {
             return await AF.request(request, interceptor: GBRequestInterceptor())
-                .cacheResponse(using: .cache)
                 .validate(statusCode: 200..<300)
                 .serializingDecodable(T.self)
                 .response
         }
         else {
             return await AF.request(request)
-                .cacheResponse(using: .cache)
                 .validate(statusCode: 200..<300)
                 .serializingDecodable(T.self)
                 .response
@@ -146,7 +145,8 @@ extension NetworkManager {
     private func getResponse<T:DTO>(
         dto: T.Type,
         router: Router,
-        response: DataResponse<T, AFError>
+        response: DataResponse<T, AFError>,
+        ifRefreshMode: Bool = false
     ) async throws(RouterError) -> T
     {
         Logger.warning(response.response ?? "")
@@ -161,7 +161,7 @@ extension NetworkManager {
             Logger.error(response.data?.base64EncodedString() ?? "")
             Logger.error(GBError)
             do {
-                let retryResult = try await retryNetwork(dto: dto, router: router)
+                let retryResult = try await retryNetwork(dto: dto, router: router, ifRefresh: ifRefreshMode)
                 
                 // 성공시 초기화
                 await retryActor.resetValue()
@@ -173,7 +173,7 @@ extension NetworkManager {
         }
     }
     
-    private func retryNetwork<T: DTO, R: Router>(dto: T.Type, router: R) async throws(RouterError) -> T {
+    private func retryNetwork<T: DTO, R: Router>(dto: T.Type, router: R, ifRefresh: Bool) async throws(RouterError) -> T {
         let ifRetry = await retryActor.withValue { value in
             return value > 0
         }
@@ -188,7 +188,7 @@ extension NetworkManager {
                 case .failure(_):
                     await downRetryCount()
                     
-                    return try await retryNetwork(dto: dto, router: router)
+                    return try await retryNetwork(dto: dto, router: router, ifRefresh: ifRefresh)
                 }
             } else {
                 throw RouterError.retryFail

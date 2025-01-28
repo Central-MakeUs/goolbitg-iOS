@@ -10,6 +10,8 @@ import ComposableArchitecture
 
 struct ResultHabitView: View {
     
+    @Perception.Bindable var store: StoreOf<ResultHabitFeature>
+    
     @State private var cardRotate: Bool = false
     
     var body: some View {
@@ -18,7 +20,7 @@ struct ResultHabitView: View {
                 content
                 
                 GBButtonV2(title: TextHelper.fitMeHabitStart) {
-                    
+                    store.send(.viewEvent(.fitHabitStartTapped))
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
@@ -29,6 +31,7 @@ struct ResultHabitView: View {
                 withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
                     cardRotate.toggle()
                 }
+                store.send(.viewCycle(.onAppear))
             }
         }
     }
@@ -49,7 +52,7 @@ extension ResultHabitView {
     private var headerView: some View {
         VStack(spacing: SpacingHelper.lg.pixel) {
             HStack {
-                Text("바쁜굴비님은\n배고픈 굴비유형입니다")
+                Text(store.resultModel.topTitle)
                     .font(FontHelper.h1.font)
                     .foregroundStyle(GBColor.white.asColor)
                 Spacer()
@@ -75,29 +78,35 @@ extension ResultHabitView {
     }
     private var userInfoCardView: some View {
         VStack(spacing: 0) {
-            Text("1단계 굴비")
+            Text(store.resultModel.stepTitle)
                 .font(FontHelper.body2.font)
                 .foregroundStyle(GBColor.white.asColor.opacity(0.7))
                 .padding(.top, SpacingHelper.lg.pixel)
             
-            Text("아가 굴비")
+            Text(store.resultModel.nameTitle)
                 .font(FontHelper.h1.font)
                 .foregroundStyle(GBColor.white.asColor)
             
-            Image(.appLogo2)
-                .resizable()
-                .aspectRatio(1, contentMode: .fit)
-                .frame(width: 132)
-                .background(GBColor.primary300.asColor)
-                .clipShape(Circle())
-                .padding(.vertical, SpacingHelper.md.pixel)
+            Group {
+                if let url = store.resultModel.imageUrl {
+                    DownImageView(url: url, option: .max)
+                } else {
+                    Image(.appLogo2)
+                        .resizable()
+                }
+            }
+            .aspectRatio(1, contentMode: .fit)
+            .frame(width: 132)
+            .background(GBColor.primary300.asColor)
+            .clipShape(Circle())
+            .padding(.vertical, SpacingHelper.md.pixel)
             
             HStack(spacing: 0) {
                 Spacer()
                 VStack(spacing: 0) {
                   Text("나의 소비 점수")
                         .font(FontHelper.body4.font)
-                  Text("12점")
+                    Text(store.resultModel.spendingScore)
                         .font(FontHelper.h2.font)
                 }
                 
@@ -111,7 +120,7 @@ extension ResultHabitView {
                     Text("같은 유형 굴비")
                         .font(FontHelper.body4.font)
                     
-                    Text("40명")
+                    Text(store.resultModel.sameCount)
                           .font(FontHelper.h2.font)
                 }
                 
@@ -130,7 +139,9 @@ extension ResultHabitView {
             .clipShape(Capsule())
             .padding(.horizontal, SpacingHelper.lg.pixel)
             .padding(.bottom, SpacingHelper.lg.pixel)
-            
+            .asButton {
+                
+            }
         }
         .frame(maxWidth: .infinity)
         .background {
@@ -157,8 +168,3 @@ extension ResultHabitView {
     }
 }
 
-#if DEBUG
-#Preview {
-    ResultHabitView()
-}
-#endif

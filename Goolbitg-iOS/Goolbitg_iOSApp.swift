@@ -24,17 +24,16 @@ struct Goolbitg_iOSApp: App {
     
     var body: some Scene {
         WindowGroup {
-//            RootCoordinatorView(store: Store(
-//                initialState: RootCoordinator.State(),
-//                reducer: {
-//                    RootCoordinator()
-//                }))
-//            .onOpenURL { url in
-//                if AuthApi.isKakaoTalkLoginUrl(url) {
-//                    _ = AuthController.handleOpenUrl(url: url)
-//                }
-//            }
-            TestView()
+            RootCoordinatorView(store: Store(
+                initialState: RootCoordinator.State(),
+                reducer: {
+                    RootCoordinator()
+                }))
+            .onOpenURL { url in
+                if AuthApi.isKakaoTalkLoginUrl(url) {
+                    _ = AuthController.handleOpenUrl(url: url)
+                }
+            }
         }
     }
 }

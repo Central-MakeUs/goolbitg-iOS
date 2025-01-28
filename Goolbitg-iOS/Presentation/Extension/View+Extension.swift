@@ -53,6 +53,30 @@ extension View {
     }
 }
 
+extension View {
+    @ViewBuilder func shimmering(
+        active: Bool = true,
+        animation: Animation = ShimmerAnimation.defaultAnimation,
+        gradient: Gradient = ShimmerAnimation.defaultGradient,
+        bandSize: CGFloat = 0.3,
+        mode: ShimmerAnimation.Mode = .mask
+    ) -> some View {
+        if active {
+            modifier(ShimmerAnimation(animation: animation, gradient: gradient, bandSize: bandSize, mode: mode))
+        } else {
+            self
+        }
+    }
+    
+    func skeletonEffect(
+        animation: Animation = ShimmerAnimation.defaultAnimation,
+        gradient: Gradient = ShimmerAnimation.defaultGradient,
+        bandSize: CGFloat = 0.3
+    ) -> some View {
+        self.modifier(SkeletonModifier(animation: animation, bandSize: bandSize, gradient: gradient))
+    }
+}
+
 // MARK: 뒤로가기 제스처
 extension View {
     func disableBackGesture(_ disabled: Bool = true) -> some View {

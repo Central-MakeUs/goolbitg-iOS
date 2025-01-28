@@ -45,7 +45,7 @@ extension UserRouter: Router {
     var path: String {
         switch self {
         case .currentUserInfos:
-            return "/user/me"
+            return "/users/me"
         case .nickNameCheck:
             return "/users/nickname/check"
         case .userInfoRegist:

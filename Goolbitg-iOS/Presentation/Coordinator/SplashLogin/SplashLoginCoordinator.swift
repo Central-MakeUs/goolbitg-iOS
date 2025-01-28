@@ -19,6 +19,9 @@ enum SplashLoginScreen {
     case shoppingCheckListView(ShoppingCheckListViewFeature)
     case habitCheckView(ComsumptionHabitsViewFeature)
     case dayTimeCheckView(ExpressExpenditureDateViewFeature)
+    case analyzingConsumption(AnalyzingConsumptionFeature)
+    case resultHabit(ResultHabitFeature)
+    case challengeAdd(ChallengeAddViewFeature)
 }
 
 @Reducer
@@ -52,6 +55,7 @@ struct SplashLoginCoordinator {
         case shoppingListView
         case habitView
         case expressExpenditureDateView
+        case analyzingConsumption
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -111,9 +115,11 @@ extension SplashLoginCoordinator {
                             await send(.moveToScreen(.analysis)) // 3. 소비유형 검사가 있어요 -> 소비중독
                         case .onBoarding4:
                             await send(.moveToScreen(.habitView)) // 4. 소비 슴관
+                        case .onBoarding5:
+                            await send(.moveToScreen(.expressExpenditureDateView))
                         case .registEnd: // 5. 선택 이라 등록완료
                             // MARK: 테스트를 위한 강제
-                            await send(.delegate(.moveToHome))
+                            await send(.moveToScreen(.expressExpenditureDateView))
                         }
                     }
                 }
@@ -132,8 +138,14 @@ extension SplashLoginCoordinator {
                 return .send(.moveToScreen(.expressExpenditureDateView))
                 /// 지출 요일/ 시간 선택
             case .router(.routeAction(id: .exDayTimeCheckView, action: .dayTimeCheckView(.delegate(.nextView)))):
+                return .send(.moveToScreen(.analyzingConsumption))
                 
-                print("ASAS")
+            case let .router(.routeAction(id: .analyzingConsumption, action: .analyzingConsumption(.delegate(.tossToResult(userModel))))):
+                state.routes.push(.resultHabit(ResultHabitFeature.State(userModel: userModel)))
+                
+            case .router(.routeAction(id: .resultHabit, action: .resultHabit(.delegate(.nextView)))):
+                state.routes.push(.challengeAdd(ChallengeAddViewFeature.State(dismissButtonHidden: true)))
+             
                 
             case let .moveToScreen(screen):
                 switch screen {
@@ -149,6 +161,8 @@ extension SplashLoginCoordinator {
                     state.routes.push(.habitCheckView(ComsumptionHabitsViewFeature.State()))
                 case .expressExpenditureDateView:
                     state.routes.push(.dayTimeCheckView(ExpressExpenditureDateViewFeature.State()))
+                case .analyzingConsumption:
+                    state.routes.push(.analyzingConsumption(AnalyzingConsumptionFeature.State()))
                 }
             default:
                 break

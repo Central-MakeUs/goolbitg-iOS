@@ -62,6 +62,21 @@ extension SplashLoginCoordinatorView {
                     SelectExpenditureDateView(store: store)
                         .navigationBarBackButtonHidden()
                         .disableBackGesture()
+                    
+                case let .analyzingConsumption(store):
+                    AnalyzingConsumptionView(store: store)
+                        .navigationBarBackButtonHidden()
+                        .disableBackGesture()
+                    
+                case let .resultHabit(store):
+                    ResultHabitView(store: store)
+                        .navigationBarBackButtonHidden()
+                        .disableBackGesture()
+                    
+                case let .challengeAdd(store):
+                    ChallengeAddView(store: store)
+                        .navigationBarBackButtonHidden()
+                        .disableBackGesture()
                 }
             }
         }
@@ -87,6 +102,12 @@ extension SplashLoginScreen.State: Identifiable {
             return .habitCheckListView
         case .dayTimeCheckView:
             return .exDayTimeCheckView
+        case .analyzingConsumption:
+            return .analyzingConsumption
+        case .resultHabit:
+            return .resultHabit
+        case .challengeAdd:
+            return .challengeAdd
         }
     }
     
@@ -99,6 +120,9 @@ extension SplashLoginScreen.State: Identifiable {
         case shoppingCheckListView
         case habitCheckListView
         case exDayTimeCheckView
+        case analyzingConsumption
+        case resultHabit
+        case challengeAdd
         
         var id: ID {
             return self
