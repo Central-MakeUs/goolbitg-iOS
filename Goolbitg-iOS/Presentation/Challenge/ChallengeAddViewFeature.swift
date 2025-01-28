@@ -103,7 +103,7 @@ extension ChallengeAddViewFeature {
             case .viewEvent(.tryButtonTapped):
                 // 팝업 내리기
                 state.selectedEntity = nil
-                // 챌린지 Add 달아놓으세요 
+                // 챌린지 Add 달아놓으세요
                 
             default:
                 break
