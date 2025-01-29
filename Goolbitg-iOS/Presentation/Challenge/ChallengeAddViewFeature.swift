@@ -17,6 +17,7 @@ struct ChallengeAddViewFeature: GBReducer {
         var currentAnotherList: [ChallengeEntity]? = nil
         var dismissButtonHidden: Bool
         var selectedEntity: ChallengeEntity? = nil
+        var alertComponents: GBAlertViewComponents? = nil
     }
     
     enum Action {
@@ -27,8 +28,10 @@ struct ChallengeAddViewFeature: GBReducer {
         
         enum Delegate {
             case dismissTapped
+            case moveToHome
         }
         case selectedEntityBinding(ChallengeEntity?)
+        case alertComponents(GBAlertViewComponents?)
     }
     
     var body: some ReducerOf<Self> {
@@ -42,7 +45,7 @@ struct ChallengeAddViewFeature: GBReducer {
     enum ViewEvent {
         case dismissButtonTapped
         case selectedChallenge(ChallengeEntity)
-        case tryButtonTapped
+        case tryButtonTapped(item: ChallengeEntity)
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -52,6 +55,7 @@ struct ChallengeAddViewFeature: GBReducer {
         case requestAPIForChallengeList
         case setFamousList([ChallengeEntity])
         case setAnotherList([ChallengeEntity])
+        case errorController(errorEntity: APIErrorEntity)
     }
 }
 
@@ -100,11 +104,45 @@ extension ChallengeAddViewFeature {
             case let .selectedEntityBinding(value):
                 state.selectedEntity = value
                 
-            case .viewEvent(.tryButtonTapped):
+            case let .viewEvent(.tryButtonTapped(item)):
                 // 팝업 내리기
                 state.selectedEntity = nil
-                // 챌린지 Add 달아놓으세요
+                return .run { send in
+                    try await networkManager.requestNotDtoNetwork(
+                        router: ChallengeRouter.challengeEnroll(challengeID: item.id),
+                        ifRefreshNeed: true
+                    )
+                    await send(.delegate(.moveToHome))
+                } catch: { error, send in
+                    guard let error = error as? RouterError,
+                          case let .serverMessage(errorEntity) = error else {
+                        Logger.error(error)
+                        return
+                    }
+                    await send(.featureEvent(.errorController(errorEntity: errorEntity)))
+                }
                 
+            case let .featureEvent(.errorController(errorEntity)):
+                switch errorEntity {
+                case .challengeNotFound:
+                    state.alertComponents = GBAlertViewComponents(
+                        title: "오류",
+                        message: "찾을 수 없는 챌린지 입니다.",
+                        okTitle: "확인",
+                        alertStyle: .warning
+                    )
+                case .alreadyParticipatingChallenge:
+                    state.alertComponents = GBAlertViewComponents(
+                        title: "오류",
+                        message: "이미 참여중인 챌린지 입니다.",
+                        okTitle: "확인",
+                        alertStyle: .warning
+                    )
+                default:
+                    break
+                }
+            case let .alertComponents(model):
+                state.alertComponents = model
             default:
                 break
             }

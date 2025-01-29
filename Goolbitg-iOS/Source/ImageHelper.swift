@@ -5,7 +5,7 @@
 //  Created by Jae hyung Kim on 1/4/25.
 //
 
-import UIKit
+import SwiftUI
 
 enum ImageHelper {
     
@@ -41,6 +41,13 @@ enum ImageHelper {
     case trophy
     
     case back
+    
+    case homeTab
+    case challengeTab
+    case buyOrNotTab
+    case myPageTab
+    
+    case bridge
     
     var image: UIImage {
         switch self {
@@ -98,6 +105,22 @@ enum ImageHelper {
             return UIImage(named: "Trophy") ?? UIImage(resource: .won)
         case .back:
             return UIImage(named: "back") ?? UIImage(resource: .back)
+            
+        case .homeTab:
+            return UIImage(named: "home") ?? UIImage(resource: .home)
+        case .challengeTab:
+            return UIImage(named: "challenge") ?? UIImage(resource: .challenge)
+        case .buyOrNotTab:
+            return UIImage(named: "community2") ?? UIImage(resource: .community2)
+        case .myPageTab:
+            return UIImage(named: "myPage") ?? UIImage(resource: .myPage)
+        case .bridge:
+            return UIImage(named: "bridge") ?? UIImage(resource: .bridge)
         }
     }
+    
+    var asImage: Image {
+        return Image(uiImage: self.image)
+    }
+    
 }

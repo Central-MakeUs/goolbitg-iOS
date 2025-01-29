@@ -29,6 +29,7 @@ final class DateManager: @unchecked Sendable {
         case infoBirthDay = "yyyy-MM-dd"
         case timeHHmmss = "HH:mm:ss"
         case dicToDateForYYYYMMDD = "yyyy.MM.dd"
+        case yyyymmddKorean = "yyyy년 MM월 dd일"
         
         var format: String {
             return self.rawValue

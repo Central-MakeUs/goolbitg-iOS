@@ -85,6 +85,7 @@ extension SplashLoginCoordinator {
                     UserDefaultsManager.refreshToken = result.refreshToken
                     
                     // MARK: 로그인 되면 이동시켜 줘야함
+                    await send(.delegate(.moveToHome))
                 
                 } catch: { error, send in
                     guard let _ = error as? RouterError else {
@@ -138,6 +139,8 @@ extension SplashLoginCoordinator {
             case .router(.routeAction(id: .resultHabit, action: .resultHabit(.delegate(.nextView)))):
                 state.routes.push(.challengeAdd(ChallengeAddViewFeature.State(dismissButtonHidden: true)))
              
+            case .router(.routeAction(id: .challengeAdd, action: .challengeAdd(.delegate(.moveToHome)))):
+                return .send(.delegate(.moveToHome))
                 
             case let .moveToScreen(screen):
                 switch screen {
@@ -197,7 +200,7 @@ extension SplashLoginCoordinator {
         // MARK: 로그인 여부 확인 하고 어딜갈지 정해야함
         if UserDefaultsManager.accessToken != "" {
             // accessToken 이 존재한다면 재 갱신 시도
-            state.routes.push(.login(LoginViewFeature.State()))
+            return .send(.checkToRefresh)
         } else {
             state.routes.push(.login(LoginViewFeature.State()))
         }

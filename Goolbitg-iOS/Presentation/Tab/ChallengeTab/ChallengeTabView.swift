@@ -7,53 +7,77 @@
 
 import SwiftUI
 import ComposableArchitecture
+import PopupView
 
 struct ChallengeTabView: View {
     
+    @Perception.Bindable var store: StoreOf<ChallengeTabFeature>
+    
     @State private var tabMode: ChallengeTabInMode = .individuals
     
-    @State private var currentMonth = Date()
-    @State private var monthLeadingButtonState = true
-    @State private var monthTrailingButtonState = true
-    @State private var weekSlider:[[WeekDay]] = []
-    @State private var weekIndex: Int = 1
-    @State private var selectedWeekDay = WeekDay(date: Date())
     @State private var createWeekTrigger = true
     
+    @State private var showDatePicker: Bool = false
+    @State private var datePickerMonth = Date()
     
     @Namespace private var daySelectedAnimation
     // 애니메이션 방향 (-1: 왼쪽, 1: 오른쪽)
     @State private var animationDirection: CGFloat = 0
+    @State private var selectedWeekDay = WeekDay(date: Date())
     
     var body: some View {
-        contentView
-            .onAppear {
-                if weekSlider.isEmpty {
-                    let currentWeak = DateManager.shared.fetchWeek()
-                    
-                    if let firstDate = currentWeak.first?.date {
-                        weekSlider.append(DateManager.shared.createPreviousWeek(firstDate))
-                    }
-                    
-                    weekSlider.append(currentWeak)
-                    
-                    if let lastDate = currentWeak.last?.date {
-                        weekSlider.append(DateManager.shared.createNextWeek(lastDate))
+        WithPerceptionTracking {
+            contentView
+                .onAppear {
+                    store.send(.viewCycle(.onAppear))
+                }
+                .onChange(of: store.weekIndex) { newValue in
+                    print(newValue)
+                    RunLoop.current.perform {
+                        store.send(.viewEvent(.checkPagingForWeekData))
                     }
                 }
-            }
-            .onChange(of: weekIndex) { newValue in
-                print(newValue)
-                RunLoop.current.perform {
-                    if newValue == 2 {
-                        pagingWeek()
-                    } else if newValue == 0 {
-                        pagingWeek()
+                .popup(isPresented: $showDatePicker) {
+                    GBBottonSheetView {
+                        AnyView(bottomSheetDateView)
                     }
+                    .frame(maxWidth: .infinity)
+                    .background(GBColor.grey600.asColor)
+                    .cornerRadiusCorners(12, corners: [.topLeft, .topRight])
+                } customize: {
+                    $0
+                        .type(.toast)
+                        .animation(.spring)
+                        .closeOnTap(false)
+                        .closeOnTapOutside(false)
+                        .backgroundView {
+                            Color.black.opacity(0.5)
+                        }
                 }
-            }
+
+        }
     }
     
+    private var bottomSheetDateView: some View {
+        VStack(spacing: 0) {
+            DatePicker(
+                "",
+                selection: $datePickerMonth,
+                in: store.maxCalendar,
+                displayedComponents: .date
+            )
+            .datePickerStyle(.wheel)
+            .labelsHidden()
+            .environment(\.locale, Locale(identifier: "ko_KR"))
+            .changeTextColor(GBColor.white.asColor)
+            
+            GBButtonV2(title: TextHelper.acceptTitle) {
+                store.send(.viewEvent(.selectedMonthDate(datePickerMonth)))
+                showDatePicker.toggle()
+            }
+            .padding(.all, 16)
+        }
+    }
 }
 
 extension ChallengeTabView {
@@ -137,7 +161,7 @@ extension ChallengeTabView {
                     .frame(width: 24)
                     .foregroundStyle(GBColor.grey300.asColor)
                     .asButton {
-                        
+                        store.send(.viewEvent(.showChallengeAdd))
                     }
             }
             
@@ -151,25 +175,32 @@ extension ChallengeTabView {
     
     private var individualsSectionView: some View {
         VStack(spacing: 0) {
+            
+            monthSelectionView
+                .padding(.horizontal, SpacingHelper.md.pixel)
+                .padding(.bottom, 10)
+            
             calendarWeakView
-            challengeListView
+            
+            ScrollView {
+                toggleButtonView
+                    .padding(.vertical, SpacingHelper.lg.pixel)
+                challengeListView
+            }
         }
     }
     private var calendarWeakView: some View {
 
         return VStack (spacing: 0) {
-            monthSelectionView
-                .padding(.horizontal, SpacingHelper.md.pixel)
-                .padding(.bottom, 12)
-            
-            TabView(selection: $weekIndex) {
-                ForEach(weekSlider.indices, id: \.self) { index in
-                    let week = weekSlider[index]
+            TabView(selection: $store.weekIndex.sending(\.weekIndex)) {
+                ForEach(store.weekSlider.indices, id: \.self) { index in
+                    let week = store.weekSlider[index]
                     weekView(week)
                         .tag(index)
                 }
             }
-            .frame(height: 135)
+            .frame(height: 105)
+            .padding(.horizontal, SpacingHelper.md.pixel)
             .tabViewStyle(.page(indexDisplayMode: .never))
             
         }
@@ -178,37 +209,53 @@ extension ChallengeTabView {
     private func weekView(_ weak: [WeekDay]) -> some View {
         HStack(spacing: 0) {
             ForEach(weak) { day in
-                VStack(alignment: .center) {
-                    if DateManager.shared.isToday(day.date) {
-                        Circle()
-                            .frame(width: 4,height: 4)
-                            .foregroundStyle(GBColor.main.asColor)
-                    } else {
-                        VStack{}
-                            .frame(width: 4,height: 4)
+                VStack(alignment: .center, spacing: 0) {
+                    Group {
+                        if DateManager.shared.isToday(day.date) {
+                            Circle()
+                                .frame(width: 4,height: 4)
+                                .foregroundStyle(GBColor.main.asColor)
+                        } else {
+                            VStack{}
+                                .frame(width: 4,height: 4)
+                        }
                     }
+                    .padding(.bottom, 4)
                     
                     Text(DateManager.shared.format(format: .simpleE, date: day.date))
                         .font(FontHelper.body1.font)
                         .foregroundStyle(GBColor.white.asColor)
+                        .padding(.bottom, SpacingHelper.sm.pixel)
                     
-                    VStack(spacing: 0) {
-                        Text(DateManager.shared.format(format: .dayDD, date: day.date))
-                            .font(FontHelper.body1.font)
-                            .foregroundStyle(day.active ? GBColor.white.asColor :GBColor.grey500.asColor )
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .aspectRatio(1, contentMode: .fit)
-                    .background {
-                        if selectedWeekDay == day ||
-                            DateManager.shared.isSameDay(date: day.date, date2: selectedWeekDay.date)
-                        {
+                    ZStack {
+                        if selectedWeekDay == day {
                             Circle()
                                 .foregroundStyle(GBColor.main60.asColor)
-                                .padding(.all, 4)
                                 .matchedGeometryEffect(id: "daySelectedAnimation", in: daySelectedAnimation)
+                                .frame(height: 36)
+                        } else if DateManager.shared.isToday(day.date) {
+                            Circle()
+                                .foregroundStyle(GBColor.grey600.asColor)
+                                .frame(height: 36)
+                                .overlay {
+                                    Circle()
+                                        .stroke(lineWidth: 1)
+                                        .foregroundStyle(GBColor.grey500.asColor)
+                                }
                         }
+                        // 날짜 텍스트
+                        Text(DateManager.shared.format(format: .dayDD, date: day.date))
+                            .font(FontHelper.body1.font)
+                            .foregroundStyle(day.active ? GBColor.white.asColor : GBColor.grey500.asColor)
+                            .frame(height: 36) // 고정된 크기로 UI 유지
+                            .background(
+                                Circle()
+                                    .foregroundStyle(Color.clear)
+                            )
                     }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 36) // 전체 크기 고정
+                    .padding(.bottom, SpacingHelper.sm.pixel)
                     
                     dayProgressView(percentage: 1)
                 }
@@ -216,62 +263,28 @@ extension ChallengeTabView {
                     withAnimation(.snappy) {
                         selectedWeekDay = day
                     }
+                    store.send(.viewEvent(.selectedWeek(day)))
                 }
             }
-        }
-        .background {
-           
         }
     }
     
     private var monthSelectionView: some View {
         HStack (spacing: 0) {
             
-            leadingArrowView
-                .padding(.trailing, 4)
+            Text(store.currentMonth)
+                .padding(.trailing, 8)
+                .foregroundStyle(GBColor.white.asColor)
             
-            Text(DateManager.shared.format(format: .yearMonth, date: currentMonth))
-                .padding(.trailing, 4)
-            
-            trailingButtonState
-            
+            Image(systemName: "chevron.right")
+                .resizable()
+                .frame(width: 10, height: 13)
+                .foregroundStyle(GBColor.white.asColor)
+                .rotationEffect(.degrees(90))
             Spacer()
         }
-    }
-    
-    @ViewBuilder
-    private var leadingArrowView: some View {
-        if monthLeadingButtonState {
-            Image(systemName: "chevron.left")
-                .resizable()
-                .frame(width: 10, height: 13)
-                .foregroundStyle(GBColor.white.asColor)
-                .asButton {
-                    
-                }
-        } else {
-            Image(systemName: "chevron.left")
-                .resizable()
-                .frame(width: 10, height: 13)
-                .foregroundStyle(GBColor.white.asColor)
-        }
-    }
-    
-    @ViewBuilder
-    private var trailingButtonState: some View {
-        if monthTrailingButtonState {
-            Image(systemName: "chevron.right")
-                .resizable()
-                .frame(width: 10, height: 13)
-                .foregroundStyle(GBColor.white.asColor)
-                .asButton {
-                    
-                }
-        } else {
-            Image(systemName: "chevron.right")
-                .resizable()
-                .frame(width: 10, height: 13)
-                .foregroundStyle(GBColor.white.asColor)
+        .asButton {
+            showDatePicker.toggle()
         }
     }
     
@@ -288,6 +301,7 @@ extension ChallengeTabView {
                         height: 4
                     )
                     .padding(.leading, 4)
+                    .foregroundStyle(GBColor.main.asColor)
             }
         }
         .frame(height: 4)
@@ -296,41 +310,40 @@ extension ChallengeTabView {
                 if percentage == 1 {
                     HStack {
                         Spacer()
-                        Image(uiImage: ImageHelper.kakao.image)
+                        Image(uiImage: ImageHelper.bridge.image)
                             .resizable()
-                            .aspectRatio(1, contentMode: .fit)
-                            .frame(width: 20, height: 20)
+                            .frame(width: 16, height: 16)
                     }
                     .frame(
                         width: proxy.size.width,
                         height: proxy.size.height,
                         alignment: .trailing
                     )
+                    .offset(x: 6)
                 }
             }
         }
     }
     
-    private func pagingWeek() {
-        if weekSlider.indices.contains(weekIndex) {
-            if let firstDate = weekSlider[weekIndex].first?.date,
-               weekIndex == 0 {
-                weekSlider.insert(DateManager.shared.createPreviousWeek(firstDate), at: 0)
-                weekSlider.removeLast()
-                weekIndex = 1
-            }
-            
-            if let lastDate = weekSlider[weekIndex].last?.date,
-               weekIndex == 2 {
-                weekSlider.append(DateManager.shared.createNextWeek(lastDate))
-                weekSlider.removeFirst()
-                weekIndex = 1
-            }
+    private var toggleButtonView: some View {
+        HStack(spacing: 0) {
+            GBSwitchButton(
+                switchTitles: store.toggleSwitchCase.map({ $0.viewTittle }),
+                selectedIndex: $store.selectedSwitchIndex.sending(\.selectedSwitchIndex),
+                backGroundColor: GBColor.grey500.asColor,
+                capsuleColor: GBColor.white.asColor,
+                defaultTextColor: GBColor.grey300.asColor,
+                selectedTextColor: GBColor.black.asColor
+            )
+            .padding(.horizontal, 4)
+            .background(GBColor.grey500.asColor)
+            .clipShape(Capsule())
+            .frame(width: 247, height: 41)
         }
     }
     
     private var challengeListView: some View {
-        ScrollView {
+        LazyVStack(spacing: 0) {
             
         }
     }
@@ -380,5 +393,7 @@ extension ChallengeTabView {
 }
 
 #Preview {
-    ChallengeTabView()
+    ChallengeTabView(store: Store(initialState: ChallengeTabFeature.State(), reducer: {
+        ChallengeTabFeature()
+    }))
 }

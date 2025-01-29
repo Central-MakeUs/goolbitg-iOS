@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-struct GBAlertViewComponents {
+struct GBAlertViewComponents: Equatable {
     let title: String
     let message: String
     let cancelTitle: String?
     let okTitle: String
     let style: AlertStyle
     
-    enum AlertStyle {
+    enum AlertStyle: Equatable {
         case warning
         case normal
         case inTextFieldPassword
@@ -134,7 +134,7 @@ extension GBAlertView {
                     .background(GBColor.grey400.asColor)
                     .clipShape(Capsule())
                     .asButton {
-                        
+                        cancelTouch?()
                     }
             }
             
@@ -146,7 +146,7 @@ extension GBAlertView {
                 .background(okButtonColor)
                 .clipShape(Capsule())
                 .asButton {
-                    
+                    okTouch?()
                 }
         }
     }

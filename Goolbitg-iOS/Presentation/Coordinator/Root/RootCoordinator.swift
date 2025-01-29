@@ -18,10 +18,13 @@ struct RootCoordinator {
         var currentView: ChangeRootView = .splashLogin
         
         var splashLogin = SplashLoginCoordinator.State.initialState
+        
+        var tabState = GBTabBarCoordinator.State.initialState
     }
     
     enum Action {
         case splashLoginAction(SplashLoginCoordinator.Action)
+        case tabAction(GBTabBarCoordinator.Action)
         
         case changeView(ChangeRootView)
         case deepLink(DeepLinkCase)
@@ -38,6 +41,9 @@ struct RootCoordinator {
         
         Scope(state: \.splashLogin, action: \.splashLoginAction) {
             SplashLoginCoordinator()
+        }
+        Scope(state: \.tabState, action: \.tabAction) {
+            GBTabBarCoordinator()
         }
         
         core

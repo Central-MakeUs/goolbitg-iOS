@@ -13,9 +13,16 @@ struct RootCoordinatorView: View {
     
     @Perception.Bindable var store: StoreOf<RootCoordinator>
     
+    @State private var currentView: RootCoordinator.ChangeRootView = .splashLogin
+    
     var body: some View {
         WithPerceptionTracking {
             content
+                .onChange(of: store.currentView) { newValue in
+                    withAnimation {
+                        currentView = newValue
+                    }
+                }
         }
     }
 }
@@ -24,7 +31,7 @@ struct RootCoordinatorView: View {
 extension RootCoordinatorView {
     private var content: some View {
         VStack {
-            switch store.currentView {
+            switch currentView {
             case .splashLogin:
                 SplashLoginCoordinatorView(
                     store: store.scope(
@@ -34,7 +41,12 @@ extension RootCoordinatorView {
                 )
                 
             case .mainTab:
-                EmptyView()
+                GBTabBarView(
+                    store: store.scope(
+                        state: \.tabState,
+                        action: \.tabAction
+                    )
+                )
             }
         }
     }

@@ -40,7 +40,7 @@ struct ChallengeAddView: View {
                         bottomHashTag: nil,
                         buttonTitle: TextHelper.challengeTryTitle
                     ) {
-                        store.send(.viewEvent(.tryButtonTapped))
+                        store.send(.viewEvent(.tryButtonTapped(item: item)))
                     }
                 } customize: {
                     $0
@@ -52,6 +52,21 @@ struct ChallengeAddView: View {
                             Color.black.opacity(0.5)
                         }
                 }
+                .popup(item: $store.alertComponents.sending(\.alertComponents)) { model in
+                    GBAlertView(model: model) { }
+                    okTouch: {
+                        store.send(.alertComponents(nil))
+                    }
+
+                } customize: {
+                    $0
+                        .animation(.easeInOut)
+                        .type(.default)
+                        .appearFrom(.centerScale)
+                        .closeOnTap(false)
+                        .closeOnTapOutside(false)
+                }
+
         }
     }
 }

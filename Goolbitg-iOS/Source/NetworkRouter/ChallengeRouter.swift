@@ -10,13 +10,17 @@ import Alamofire
 
 enum ChallengeRouter {
     case challengeList(page: Int = 0, size: Int = 10, spendingTypeID: Int? = nil)
+    case challengeEnroll(challengeID: String)
+    case challengeRecords(page: Int = 0, size: Int = 10, date: String, state: String)
 }
 
 extension ChallengeRouter: Router {
     var method: HTTPMethod {
         switch self {
-        case .challengeList:
+        case .challengeList, .challengeRecords:
             return .get
+        case .challengeEnroll:
+            return .post
         }
     }
     
@@ -28,12 +32,16 @@ extension ChallengeRouter: Router {
         switch self {
         case .challengeList:
             return "/challenges"
+        case let .challengeEnroll(challengeID):
+            return "/challenges/\(challengeID)/enroll"
+        case .challengeRecords:
+            return "/challengeRecords"
         }
     }
     
     var optionalHeaders: HTTPHeaders? {
         switch self {
-        case .challengeList:
+        case .challengeList, .challengeEnroll, .challengeRecords:
             return [ "application/json" : "Content-Type" ]
         }
     }
@@ -50,19 +58,30 @@ extension ChallengeRouter: Router {
             }
             return defaultValue
             
+        case let .challengeRecords(page, size, date, state):
+            let defaultValue: [String : Any] = [
+                "page" : page,
+                "size" : size,
+                "date" : date,
+                "state" : state
+            ]
+            return defaultValue
+            
+        case .challengeEnroll:
+            return nil
         }
     }
     
     var body: Data? {
         switch self {
-        case .challengeList:
+        case .challengeList ,.challengeEnroll, .challengeRecords:
             return nil
         }
     }
     
     var encodingType: EncodingType {
         switch self {
-        case .challengeList:
+        case .challengeList , .challengeEnroll, .challengeRecords:
             return .url
         }
     }
