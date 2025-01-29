@@ -37,6 +37,7 @@ struct SplashLoginCoordinator {
     enum Action {
         case router(IdentifiedRouterActionOf<SplashLoginScreen>)
         
+        case checkToMoveScreen(caseOf: RegisterStatusCase)
         case moveToScreen(MoveToScreen)
         
         case checkToRefresh
@@ -94,7 +95,18 @@ extension SplashLoginCoordinator {
                 }
                 
             case .router(.routeAction(id: .authRequestPage, action: .authRequestPage(.delegate(.nextView)))):
-                state.routes.push(.userInfoRequestView(AuthRequestFeature.State()))
+                return .run { send in
+                    let requestRegisterState = try await networkManager.requestNetworkWithRefresh(dto: UserRegisterStatus.self, router: UserRouter.userRegisterStatus)
+                    
+                    Logger.info(requestRegisterState)
+                    
+                    // 필수 기입사항 안했을시
+                    if !requestRegisterState.requiredInfoCompleted {
+                        await send(.checkToMoveScreen(caseOf: requestRegisterState.status))
+                    } else {
+                        await send(.checkToMoveScreen(caseOf:.registEnd))
+                    }
+                }
                 
             case .failRefresh:
                 state.routes.push(.login(LoginViewFeature.State()))
@@ -102,27 +114,7 @@ extension SplashLoginCoordinator {
             case let .router(.routeAction(id: .login, action: .login(.delegate(.moveToOnBoarding(caseOf))))):
                 Logger.info(caseOf)
                 // MARK: 앱 권한 확인
-                return .run { send in
-                    if await checkAuthState() {
-                        await send(.moveToScreen(.authRequest))
-                    } else {
-                        switch caseOf {
-                        case .onBoarding1:
-                            await send(.moveToScreen(.userInfoRequest)) // 1. 약관동의
-                        case .onBoarding2:
-                            await send(.moveToScreen(.userInfoRequest)) // 2. 사용자 개인정보 등록
-                        case .onBoarding3:
-                            await send(.moveToScreen(.analysis)) // 3. 소비유형 검사가 있어요 -> 소비중독
-                        case .onBoarding4:
-                            await send(.moveToScreen(.habitView)) // 4. 소비 슴관
-                        case .onBoarding5:
-                            await send(.moveToScreen(.expressExpenditureDateView))
-                        case .registEnd: // 5. 선택 이라 등록완료
-                            // MARK: 테스트를 위한 강제
-                            await send(.moveToScreen(.expressExpenditureDateView))
-                        }
-                    }
-                }
+                return .send(.checkToMoveScreen(caseOf: caseOf))
                 
                 /// 유저 정보 리퀘스트
             case .router(.routeAction(id: .userInfoRequestView, action: .userInfoRequestView(.delegate(.successNextView)))):
@@ -163,6 +155,29 @@ extension SplashLoginCoordinator {
                     state.routes.push(.dayTimeCheckView(ExpressExpenditureDateViewFeature.State()))
                 case .analyzingConsumption:
                     state.routes.push(.analyzingConsumption(AnalyzingConsumptionFeature.State()))
+                }
+                
+            case let .checkToMoveScreen(caseOf):
+                return .run { send in
+                    if await checkAuthState() {
+                        await send(.moveToScreen(.authRequest))
+                    } else {
+                        switch caseOf {
+                        case .onBoarding1:
+                            await send(.moveToScreen(.userInfoRequest)) // 1. 약관동의
+                        case .onBoarding2:
+                            await send(.moveToScreen(.userInfoRequest)) // 2. 사용자 개인정보 등록
+                        case .onBoarding3:
+                            await send(.moveToScreen(.analysis)) // 3. 소비유형 검사가 있어요 -> 소비중독
+                        case .onBoarding4:
+                            await send(.moveToScreen(.habitView)) // 4. 소비 슴관
+                        case .onBoarding5:
+                            await send(.moveToScreen(.expressExpenditureDateView))
+                        case .registEnd: // 5. 선택 이라 등록완료
+                            // MARK: 테스트를 위한 강제
+                            await send(.moveToScreen(.expressExpenditureDateView))
+                        }
+                    }
                 }
             default:
                 break

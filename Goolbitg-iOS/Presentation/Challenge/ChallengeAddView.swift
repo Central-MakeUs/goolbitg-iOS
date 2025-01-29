@@ -38,7 +38,7 @@ struct ChallengeAddView: View {
                         subTitle: item.subTitle,
                         imageURL: item.imageUrl,
                         bottomHashTag: nil,
-                        buttonTitle: "도전하기"
+                        buttonTitle: TextHelper.challengeTryTitle
                     ) {
                         store.send(.viewEvent(.tryButtonTapped))
                     }
@@ -97,7 +97,7 @@ extension ChallengeAddView {
                     }
                 }
                 
-                Text("챌린지 추가")
+                Text(TextHelper.challengeAddTitle)
                     .font(FontHelper.h3.font)
                     .foregroundStyle(GBColor.white.asColor)
             }
@@ -108,14 +108,14 @@ extension ChallengeAddView {
     private var headerView: some View {
         VStack(spacing: SpacingHelper.sm.pixel) {
             HStack(spacing: 0) {
-                Text("\(UserDefaultsManager.userNickname)님,\n어떤 습관을 만들어 볼까요?")
+                Text("\(UserDefaultsManager.userNickname)" + TextHelper.challengeWhatMakeTitle)
                     .font(FontHelper.h1.font)
                     .foregroundStyle(GBColor.white.asColor)
                 Spacer()
             }
             
             HStack(spacing: 0) {
-                Text("만들고 싶은 습관 1개를 선택해주세요")
+                Text(TextHelper.challengeChoiceWhatYouWantToHabitOne)
                     .font(FontHelper.body2.font)
                     .foregroundStyle(GBColor.grey300.asColor)
                 Spacer()
@@ -127,7 +127,7 @@ extension ChallengeAddView {
     private var sameFamous: some View {
         VStack(spacing: 0) {
             HStack( spacing:0 ) {
-                Text("같은 소비유형 인기 챌린지")
+                Text(TextHelper.challengeSameFamousSpendingChallenge)
                     .font(FontHelper.h4.font)
                     .foregroundStyle(GBColor.white.asColor)
                 
@@ -198,7 +198,7 @@ extension ChallengeAddView {
     private var anotherList: some View {
         VStack(spacing:0) {
             HStack(spacing:0) {
-                Text("그 외 이런습관은 어때요?")
+                Text(TextHelper.challengeHowAboutAnotherHabitOne)
                     .font(FontHelper.h4.font)
                     .foregroundStyle(GBColor.white.asColor)
                 Spacer()

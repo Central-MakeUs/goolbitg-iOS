@@ -17,6 +17,15 @@ struct AuthPageView: View {
         WithPerceptionTracking {
             contentView
                 .background(GBColor.background1.asColor)
+                .alert(item: $store.alertAlertState.sending(\.alertAlertState)) { title in
+                    Text(title)
+                } actions: { _ in
+                    Text("확인")
+                        .asButton {
+                            store.send(.alertAlertOKTapped)
+                        }
+                }
+
         }
     }
 }
@@ -122,8 +131,10 @@ extension AuthPageView {
     }
 }
 
+#if DEBUG
 #Preview {
     AuthPageView(store: Store(initialState: AuthRequestPageFeature.State(), reducer: {
         AuthRequestPageFeature()
     }))
 }
+#endif

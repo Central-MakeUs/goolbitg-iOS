@@ -19,11 +19,13 @@ final class ChallengeMapper: Sendable {
     func toEntity(dto: ChallengeListElementDTO) -> ChallengeEntity {
         let url = URL(string: dto.imageURL)
         // MARK: SubTitle 이 존재하지 않음
+        let result = GBNumberForMatter.shared.changeForCommaNumber(String(dto.reward ?? 0))
+        
         return ChallengeEntity(
             id: String(dto.id),
             imageUrl: url,
             title: dto.title,
-            subTitle: nil,
+            subTitle: result + "원 절약 가능",
             reward: dto.reward?.toString,
             participantCount: dto.participantCount.toString,
             avgAchiveRatio: dto.avgAchiveRatio.toString,

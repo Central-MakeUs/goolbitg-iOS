@@ -102,4 +102,11 @@ enum TextHelper {
     
     static let fitMeHabitStart = "나에게 맞는 소비습관 형성하기"
     
+    // MARK: 챌린지 추가
+    static let challengeTryTitle = "도전하기"
+    static let challengeAddTitle = "챌린지 추가"
+    static let challengeWhatMakeTitle = "님,\n어떤 습관을 만들어 볼까요?"
+    static let challengeChoiceWhatYouWantToHabitOne = "만들고 싶은 습관 1개를 선택해주세요"
+    static let challengeSameFamousSpendingChallenge = "같은 소비유형 인기 챌린지"
+    static let challengeHowAboutAnotherHabitOne = "그 외 이런습관은 어때요?"
 }
