@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - ChallengeListDTO
-struct ChallengeListDTO: DTO {
+struct ChallengeListDTO<D: DTO>: DTO {
     /// 총 아이템 수
     let totalSize: Int
     /// 총 페이지 수
@@ -18,5 +18,5 @@ struct ChallengeListDTO: DTO {
     /// 페이지 번호
     let page: Int
     /// 챌린지 아이템들
-    let items: [ChallengeListElementDTO]
+    let items: [D]
 }

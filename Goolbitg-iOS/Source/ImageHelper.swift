@@ -48,6 +48,14 @@ enum ImageHelper {
     case myPageTab
     
     case bridge
+    case myBg
+    case appLogoEX
+    case greenLogo
+    
+    case user
+    case box
+    case headPhone
+    case document
     
     var image: UIImage {
         switch self {
@@ -116,6 +124,22 @@ enum ImageHelper {
             return UIImage(named: "myPage") ?? UIImage(resource: .myPage)
         case .bridge:
             return UIImage(named: "bridge") ?? UIImage(resource: .bridge)
+            
+        case .myBg:
+            return UIImage(named: "myBG") ?? UIImage(resource: .myBg)
+        case .appLogoEX:
+            return UIImage(named: "appLogoEX") ?? UIImage(resource: .appLogoEX)
+            
+        case .greenLogo:
+            return UIImage(named: "greenLogo") ?? UIImage(resource: .greenLogo)
+        case .user:
+            return UIImage(named: "User") ?? UIImage(resource: .user)
+        case .box:
+            return UIImage(named: "box") ?? UIImage(resource: .box)
+        case .headPhone:
+            return UIImage(named: "headPhone") ?? UIImage(resource: .headPhone)
+        case .document:
+            return UIImage(named: "document") ?? UIImage(resource: .document)
         }
     }
     

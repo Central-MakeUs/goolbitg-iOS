@@ -11,4 +11,10 @@ struct AuthRegisterRequestModel: Encodable {
     /// ex) KAKAO - APPLE
     let type: String
     let idToken: String
+    let authToken: String?
+}
+
+struct AuthLoginRequestModel: Encodable {
+    let type: String
+    let idToken: String
 }

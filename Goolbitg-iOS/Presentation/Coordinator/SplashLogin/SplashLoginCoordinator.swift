@@ -57,6 +57,7 @@ struct SplashLoginCoordinator {
         case habitView
         case expressExpenditureDateView
         case analyzingConsumption
+        case challengeAdd
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -137,7 +138,7 @@ extension SplashLoginCoordinator {
                 state.routes.push(.resultHabit(ResultHabitFeature.State(userModel: userModel)))
                 
             case .router(.routeAction(id: .resultHabit, action: .resultHabit(.delegate(.nextView)))):
-                state.routes.push(.challengeAdd(ChallengeAddViewFeature.State(dismissButtonHidden: true)))
+                return .send(.moveToScreen(.challengeAdd))
              
             case .router(.routeAction(id: .challengeAdd, action: .challengeAdd(.delegate(.moveToHome)))):
                 return .send(.delegate(.moveToHome))
@@ -158,6 +159,8 @@ extension SplashLoginCoordinator {
                     state.routes.push(.dayTimeCheckView(ExpressExpenditureDateViewFeature.State()))
                 case .analyzingConsumption:
                     state.routes.push(.analyzingConsumption(AnalyzingConsumptionFeature.State()))
+                case .challengeAdd:
+                    state.routes.push(.challengeAdd(ChallengeAddViewFeature.State(dismissButtonHidden: true)))
                 }
                 
             case let .checkToMoveScreen(caseOf):
@@ -175,7 +178,9 @@ extension SplashLoginCoordinator {
                         case .onBoarding4:
                             await send(.moveToScreen(.habitView)) // 4. 소비 슴관
                         case .onBoarding5:
-                            await send(.moveToScreen(.expressExpenditureDateView))
+                            await send(.moveToScreen(.expressExpenditureDateView)) // 옵션
+                        case .onBoarding6:
+                            await send(.moveToScreen(.challengeAdd)) // 5. 챌린지 추가
                         case .registEnd: // 5. 선택 이라 등록완료
                             // MARK: 테스트를 위한 강제
                             await send(.moveToScreen(.expressExpenditureDateView))

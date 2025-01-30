@@ -73,9 +73,9 @@ extension ChallengeAddViewFeature {
                 // MARK: 유형별 다시 꽃아놓기
                 let userHabitType: Int? = nil // UserDefaultsManager.userHabitType
                 return .run { send in
-                    let result = try await networkManager.requestNetworkWithRefresh(dto: ChallengeListDTO.self, router: ChallengeRouter.challengeList(spendingTypeID: userHabitType))
+                    let result = try await networkManager.requestNetworkWithRefresh(dto: ChallengeListDTO<ChallengeListElementDTO>.self, router: ChallengeRouter.challengeList(spendingTypeID: userHabitType))
                     
-                    let mapping = await challengeMapper.toEntity(dto: result)
+                    let mapping = await challengeMapper.toEntity(dtos: result.items)
                     
                     await send(.featureEvent(.setFamousList(mapping)))
                     await send(.featureEvent(.setAnotherList(mapping)))

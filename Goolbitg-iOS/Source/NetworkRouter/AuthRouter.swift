@@ -12,7 +12,7 @@ enum AuthRouter {
     /// 회원등록
     case register(AuthRegisterRequestModel)
     /// 로그인
-    case login(AuthRegisterRequestModel)
+    case login(AuthLoginRequestModel)
     /// 엑세스 토큰 재발급
     case refresh(refreshToken: String)
     /// 로그아웃
@@ -62,12 +62,7 @@ extension AuthRouter: Router {
     
     var parameters: Parameters? {
         switch self {
-        case .register(let authRegisterRequestModel):
-            return [
-                "type" : authRegisterRequestModel.type,
-                "idToken": authRegisterRequestModel.idToken
-            ]
-        case .login, .refresh, .logOut, .signOut:
+        case .register, .login, .refresh, .logOut, .signOut:
             return nil
         }
     }

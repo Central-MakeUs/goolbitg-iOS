@@ -15,23 +15,20 @@ final class NetworkManager: Sendable, ThreadCheckable {
     private let networkError = PassthroughSubject<String, Never>()
     
     private let cancelStoreActor = AnyValueActor(Set<AnyCancellable>())
-    private let retryActor = AnyValueActor(5)
+    private let retryActor = AnyValueActor(2)
     
     func requestNetwork<T: DTO, R: Router>(dto: T.Type, router: R) async throws(RouterError) -> T {
 #if DEBUG
         checkedMainThread() // 현재 쓰레드 확인
 #endif
         let request = try router.asURLRequest()
-        
+        Logger.debug(request)
+        Logger.debug(request.url)
         // MARK: 요청담당
         let response = await getRequest(dto: dto, router: router, request: request)
-        Logger.info(request)
-        Logger.info(request.allHTTPHeaderFields ?? "")
+        
+        
 //        CodableManager.shared.toJSONSerialization(data: request.httpBody?)
-        if let requestBodyData = request.httpBody {
-            Logger.info( String(data: requestBodyData, encoding: .utf8))
-        }
-        Logger.info(request.method)
         let result = try await getResponse(dto: dto, router: router, response: response)
         
         return result
@@ -41,11 +38,10 @@ final class NetworkManager: Sendable, ThreadCheckable {
         checkedMainThread() // 현재 쓰레드 확인
         
         let request = try router.asURLRequest()
-        
+        Logger.info(request)
         // MARK: 요청담당
         let response = await getRequest(dto: dto, router: router, request: request, ifRefreshMode: true)
-        Logger.info(request)
-        Logger.info(response.response)
+
         let result = try await getResponse(dto: dto, router: router, response: response, ifRefreshMode: true)
         
         return result
@@ -85,13 +81,13 @@ final class NetworkManager: Sendable, ThreadCheckable {
                 Logger.warning(data ?? "")
                 guard let code = data?.code,
                       let errorEntity = APIErrorEntity.getSelf(code: code) else {
-                    throw RouterError.unknown
+                    throw RouterError.unknown(errorCode: String(response.response?.statusCode ?? -999999))
                 }
                 throw RouterError.serverMessage(errorEntity)
             }
             guard let status = response.response?.statusCode,
                   let error = APIErrorEntity.getSelf(code: status) else {
-                throw RouterError.unknown
+                throw RouterError.unknown(errorCode: String(response.response?.statusCode ?? -999999))
             }
             Logger.warning(error)
             throw RouterError.serverMessage(error)
@@ -128,16 +124,20 @@ extension NetworkManager {
     private func getRequest<T: DTO, R: Router>(dto: T.Type, router: R, request: URLRequest, ifRefreshMode: Bool = false) async -> DataResponse<T, AFError> {
         
         if ifRefreshMode {
-            return await AF.request(request, interceptor: GBRequestInterceptor())
+            let requestResponse = await AF.request(request, interceptor: GBRequestInterceptor())
                 .validate(statusCode: 200..<300)
                 .serializingDecodable(T.self)
                 .response
+            Logger.debug(requestResponse.debugDescription)
+            return requestResponse
         }
         else {
-            return await AF.request(request)
+            let requestResponse = await AF.request(request)
                 .validate(statusCode: 200..<300)
                 .serializingDecodable(T.self)
                 .response
+            Logger.debug(requestResponse.debugDescription)
+            return requestResponse
         }
     }
     
@@ -194,7 +194,7 @@ extension NetworkManager {
                 throw RouterError.retryFail
             }
         } catch {
-            throw RouterError.unknown
+            throw RouterError.unknown(errorCode: String(-999999))
         }
     }
     
@@ -213,7 +213,7 @@ extension NetworkManager {
                 let errorResponse = try CodableManager.shared.jsonDecoding(model: APIErrorDTO.self, from: data)
                 
                 guard let errorModel = APIErrorEntity.getSelf(code: errorResponse.code) else {
-                    return RouterError.unknown
+                    return RouterError.unknown(errorCode: "ERROR MODEL DECODING FAIL")
                 }
                 
                 let errorMessage = RouterError.serverMessage(errorModel)
@@ -221,7 +221,7 @@ extension NetworkManager {
                 return errorMessage
                 
             } catch {
-                return RouterError.unknown
+                return RouterError.unknown(errorCode: "ERROR MODEL DECODING FAIL")
             }
         } else {
             return catchURLError(error)
@@ -236,10 +236,10 @@ extension NetworkManager {
                 return .timeOut
                 
             default:
-                return .unknown
+                return .unknown(errorCode: "TIME OUT")
             }
         } else {
-            return .unknown
+            return .unknown(errorCode: "TIME OUT")
         }
     }
     

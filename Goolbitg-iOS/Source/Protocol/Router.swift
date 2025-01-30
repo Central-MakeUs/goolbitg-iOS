@@ -49,8 +49,7 @@ extension Router {
         switch encodingType {
         case .url:
             do {
-                urlRequest = try URLEncoding.default.encode(urlRequest, with: parameters)
-                
+                urlRequest = try URLEncoding.queryString.encode(urlRequest, with: parameters)
                 return urlRequest
             } catch {
                 throw .encodingFail
@@ -79,10 +78,10 @@ extension Router {
             if case .invalidURL = error {
                 throw .urlFail(url: baseURL)
             } else {
-                throw .unknown
+                throw .unknown(errorCode: "baseURLToURL")
             }
         }catch {
-            throw .unknown
+            throw .unknown(errorCode: "baseURLToURL")
         }
     }
     
@@ -95,10 +94,10 @@ extension Router {
             if case .invalidURL = error {
                 throw .urlFail(url: baseURL)
             } else {
-                throw .unknown
+                throw .unknown(errorCode: "urlToURLRequest")
             }
         }catch {
-            throw .unknown
+            throw .unknown(errorCode: "urlToURLRequest")
         }
     }
 

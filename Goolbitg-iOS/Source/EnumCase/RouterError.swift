@@ -14,5 +14,5 @@ enum RouterError: Error {
     case retryFail
     case timeOut
     case serverMessage(APIErrorEntity)
-    case unknown
+    case unknown(errorCode: String)
 }

@@ -24,7 +24,7 @@ struct LoginViewFeature {
         
         case kakaoLoginStart
         
-        case sendToServerIdToken(type: String, idToken: String)
+        case sendToServerIdToken(type: String, idToken: String, authToken: String? = nil)
         case sendToLoginServerIdToken(type: String, idToken: String)
         
         case delegate(Delegate)
@@ -36,6 +36,7 @@ struct LoginViewFeature {
     }
     
     @Dependency(\.networkManager) var networkManager
+    @Dependency(\.jwtManager) var jwtManager
     
     enum CancelID: Hashable, Sendable {
         case kakao
@@ -46,10 +47,18 @@ struct LoginViewFeature {
             switch action {
             
             case .getASAuthorization(let appleAuth):
-                let idToken = handleAuthorization(appleAuth)
-                if let idToken {
-                    return .send(.sendToServerIdToken(type: "APPLE", idToken: idToken))
+                // apple 1차 토큰
+                let auth = handleAuthorization(appleAuth)
+                
+                guard let authToken = auth.auth,
+                      let idToken = auth.id
+                else {
+                    // MARK: ERROR 처리 해야함.
+                    return .none
                 }
+    
+                return .send(.sendToServerIdToken(type: "APPLE", idToken: idToken, authToken: authToken))
+
             case .appleLoginError(let error):
                 let error = error
                 
@@ -69,17 +78,18 @@ struct LoginViewFeature {
                 }
                     .throttle(id: CancelID.kakao, for: 5, scheduler: DispatchQueue.main.eraseToAnyScheduler(), latest: false)
                 
-            case .sendToServerIdToken(let type, let idToken):
+            case .sendToServerIdToken(let type, let idToken, let auth):
                 return .run { send in
                     do {
                         Logger.info(" ^^^^^^^^^^^ \(idToken)")
                         let result = try await networkManager.requestNotDtoNetwork(router: AuthRouter.register(AuthRegisterRequestModel(
                             type: type,
-                            idToken: idToken
+                            idToken: idToken,
+                            authToken: auth
                         )))
                         
                         if result {
-                            await send(.sendToServerIdToken(type: type, idToken: idToken))
+                            await send(.sendToLoginServerIdToken(type: type, idToken: idToken))
                         }
                     } catch {
                         guard let error = error as? RouterError else {
@@ -96,10 +106,12 @@ struct LoginViewFeature {
                 
             case .sendToLoginServerIdToken(let type, let idToken):
                 return .run { send in
-                    let request = try await networkManager.requestNetwork(dto: LoginAccessDTO.self, router: AuthRouter.login(
-                        AuthRegisterRequestModel(
+                    let request = try await networkManager.requestNetwork(dto: LoginAccessDTO.self, router: AuthRouter
+                        .login(
+                        AuthLoginRequestModel(
                             type: type,
-                            idToken: idToken) )
+                            idToken: idToken)
+                        )
                     )
                     saveToken(access: request.accessToken, refresh: request.refreshToken)
                     
@@ -134,11 +146,15 @@ struct LoginViewFeature {
 }
 
 extension LoginViewFeature {
-    
+    /// 회원 가입시 받고
+    /// 회원 탈퇴시 받고
     private func handleAuthorization(
         _ authorization: ASAuthorization
-    ) -> String? {
+    ) -> (auth: String?, id: String?) {
         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
+            var idToken: String? = nil
+            var authToken: String? = nil
+            
             // 사용자 ID
             let userID = appleIDCredential.user
             print("User ID: \(userID)")
@@ -162,12 +178,17 @@ extension LoginViewFeature {
             let identityToken = appleIDCredential.identityToken
             print("Identity Token: \(String(data: identityToken ?? Data(), encoding: .utf8) ?? "")")
             
-            if let identityToken {
-                let idToken = String(data: identityToken, encoding: .utf8)
-                return idToken
+            if let authorizationCode {
+                let auth = String(data: authorizationCode, encoding: .utf8)
+                authToken = auth
             }
+            if let identityToken {
+                let id = String(data: identityToken, encoding: .utf8)
+                idToken = id
+            }
+            return (authToken, idToken)
         }
-        return nil
+        return (nil, nil)
     }
     
     

@@ -10,8 +10,14 @@ import ComposableArchitecture
 
 final class ChallengeMapper: Sendable {
     
-    func toEntity(dto: ChallengeListDTO) async -> [ChallengeEntity] {
-        return await dto.items.asyncMap {
+    func toEntity(dtos: [ChallengeListElementDTO]) async -> [ChallengeEntity] {
+        return await dtos.asyncMap {
+            toEntity(dto: $0)
+        }
+    }
+    
+    func toEntity(dtos: [ChallengeRecordDTO]) async -> [ChallengeEntity] {
+        return await dtos.asyncMap {
             toEntity(dto: $0)
         }
     }
@@ -30,6 +36,20 @@ final class ChallengeMapper: Sendable {
             participantCount: dto.participantCount.toString,
             avgAchiveRatio: dto.avgAchiveRatio.toString,
             maxAchiveDays: dto.maxAchiveDays
+        )
+    }
+    
+    func toEntity(dto: ChallengeRecordDTO) -> ChallengeEntity {
+        
+        return ChallengeEntity(
+            id: String(dto.challengeId),
+            imageUrl: nil,
+            title: "타이틀 없음",
+            subTitle: "섭타이틀 없음",
+            reward: nil,
+            participantCount: "",
+            avgAchiveRatio: "",
+            maxAchiveDays: 0
         )
     }
     

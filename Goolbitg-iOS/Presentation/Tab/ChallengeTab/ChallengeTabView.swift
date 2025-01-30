@@ -15,8 +15,6 @@ struct ChallengeTabView: View {
     
     @State private var tabMode: ChallengeTabInMode = .individuals
     
-    @State private var createWeekTrigger = true
-    
     @State private var showDatePicker: Bool = false
     @State private var datePickerMonth = Date()
     
@@ -186,6 +184,7 @@ extension ChallengeTabView {
                 toggleButtonView
                     .padding(.vertical, SpacingHelper.lg.pixel)
                 challengeListView
+                    .padding(.horizontal, SpacingHelper.md.pixel)
             }
         }
     }
@@ -344,7 +343,22 @@ extension ChallengeTabView {
     
     private var challengeListView: some View {
         LazyVStack(spacing: 0) {
-            
+            ForEach(Array(store.challengeList.enumerated()), id: \.element.self) { index, item in
+                VStack(spacing:0) {
+                    CommonChallengeListElementImageView(model: item)
+                        .padding(.vertical, SpacingHelper.md.pixel)
+                    
+                    if index != store.challengeList.count - 1 {
+                        GBColor.grey500.asColor
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 1)
+                    } else {
+                        Color.clear
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 1)
+                    }
+                }
+            }
         }
     }
 }

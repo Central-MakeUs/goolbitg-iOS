@@ -23,6 +23,9 @@ struct ChallengeTabFeature: GBReducer {
         var weekSlider:[[WeekDay]] = []
         var selectedWeekDay = WeekDay(date: Date())
         var weekIndex: Int = 1
+        
+        var pagingObj = PagingObj()
+        var challengeList: [ChallengeEntity] = []
     }
     
     enum Action {
@@ -51,10 +54,25 @@ struct ChallengeTabFeature: GBReducer {
         case requestResettingWeekDatas(Date)
         case requestNextWeekData
         case requestPrevWeekData
+        
+        case requestChallengeList(obj: PagingObj)
+        case resultToChallengeList(dats: [ChallengeEntity])
+    }
+    
+    struct PagingObj: Equatable {
+        var pageNum = 0
+        var size = 10
+        var date = Date()
+        var status: ChallengeStatusCase = .wait
+    }
+    
+    enum CancelID: Hashable {
+        case switchToggle
     }
     
     @Dependency(\.dateManager) var dateManager
     @Dependency(\.networkManager) var networkManager
+    @Dependency(\.challengeMapper) var challengeMapper
     
     var body: some ReducerOf<Self> {
         core
@@ -67,10 +85,11 @@ extension ChallengeTabFeature {
             switch action {
                 
             case .viewCycle(.onAppear):
-                
+                let page = state.pagingObj
                 return .run { send in
                     await send(.featureEvent(.requestCurrentMonth(Date())))
                     await send(.featureEvent(.requestFirstSettingWeekDatas(Date())))
+                    await send(.featureEvent(.requestChallengeList(obj: page)))
                 }
                 
             case .viewEvent(.checkPagingForWeekData):
@@ -176,9 +195,38 @@ extension ChallengeTabFeature {
                 state.weekSlider = weekSlider
                 state.weekIndex = 1
                 
+            case let .featureEvent(.requestChallengeList(obj)):
+                
+                return .run { [state] send in
+                    let dateFormat = dateManager.format(format: .infoBirthDay, date: obj.date)
+                    let status = state.toggleSwitchCase[state.selectedSwitchIndex]
+                    print(status)
+                    let results = try await networkManager.requestNetworkWithRefresh(
+                        dto: ChallengeListDTO<ChallengeRecordDTO>.self,
+                        router: ChallengeRouter.challengeRecords(page: obj.pageNum, size: obj.size, date: dateFormat, state: status.requestMode)
+                    )
+                    
+                    let mapping = await challengeMapper.toEntity(dtos: results.items)
+                    await send(.featureEvent(.resultToChallengeList(dats: mapping)))
+                } catch: { error, send in
+                    guard let error = error as? RouterError,
+                          case let .serverMessage(errorModel) = error else {
+                        Logger.warning(error)
+                        return
+                    }
+                    Logger.info(errorModel)
+                }
+            case let .featureEvent(.resultToChallengeList(datas)):
+                state.challengeList = datas
                 
             case let .selectedSwitchIndex(index):
                 state.selectedSwitchIndex = index
+                let obj = state.pagingObj
+                return .run { send in
+                    await send(.featureEvent(.requestChallengeList(obj: obj)))
+                }
+                .debounce(id: CancelID.switchToggle, for: 0.5, scheduler: DispatchQueue.main.eraseToAnyScheduler())
+                
             case let .weekIndex(index):
                 state.weekIndex = index
                 

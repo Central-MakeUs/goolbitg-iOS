@@ -55,6 +55,11 @@ extension GBTabBarView {
                 store: store.scope(state: \.homeTabState, action: \.homeTabAction)
             )
             .tag(TabCase.homeTab)
+            
+            ChallengeTabCoordinatorView(
+                store: store.scope(state: \.chalengeTabState, action: \.challengeTabAction)
+            )
+            .tag(TabCase.ChallengeTab)
         }
     }
     

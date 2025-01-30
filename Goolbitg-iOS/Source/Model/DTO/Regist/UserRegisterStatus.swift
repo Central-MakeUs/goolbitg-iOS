@@ -23,6 +23,8 @@ enum RegisterStatusCase: Int, DTO {
     case onBoarding4
     /// 소비날짜 패턴 등록 (필수x)
     case onBoarding5
+    /// 챌린지 ADD
+    case onBoarding6
     /// 진짜 다함
     case registEnd
 }

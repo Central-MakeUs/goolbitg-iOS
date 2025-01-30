@@ -22,6 +22,7 @@
 		7B7364C72D3A8FFC0096E8AC /* SwiftyGif in Frameworks */ = {isa = PBXBuildFile; productRef = 7B7364C62D3A8FFC0096E8AC /* SwiftyGif */; };
 		7BB09F832D3CF08E006B209E /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 7BB09F822D3CF08E006B209E /* SwiftyBeaver */; };
 		7BB0A5812D496A7C006B209E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7BB0A5802D496A7C006B209E /* PrivacyInfo.xcprivacy */; };
+		7BB0A7072D4B774C006B209E /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = 7BB0A7062D4B774C006B209E /* SwiftJWT */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -74,6 +75,7 @@
 				7B7364C72D3A8FFC0096E8AC /* SwiftyGif in Frameworks */,
 				7B29EF852D297A96005A8495 /* RealmSwift in Frameworks */,
 				7B29EF822D297A66005A8495 /* ComposableArchitecture in Frameworks */,
+				7BB0A7072D4B774C006B209E /* SwiftJWT in Frameworks */,
 				7B29EF8A2D297AC1005A8495 /* Kingfisher in Frameworks */,
 				7B29EF7F2D297A4D005A8495 /* KakaoSDKUser in Frameworks */,
 				7B24085D2D37DFBF00138CA8 /* Lottie in Frameworks */,
@@ -139,6 +141,7 @@
 				7B24085C2D37DFBF00138CA8 /* Lottie */,
 				7B7364C62D3A8FFC0096E8AC /* SwiftyGif */,
 				7BB09F822D3CF08E006B209E /* SwiftyBeaver */,
+				7BB0A7062D4B774C006B209E /* SwiftJWT */,
 			);
 			productName = "Goolbitg-iOS";
 			productReference = 7B29EF292D297812005A8495 /* Goolbitg-iOS.app */;
@@ -179,6 +182,7 @@
 				7B24085B2D37DFBF00138CA8 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 				7B7364C52D3A8FFC0096E8AC /* XCRemoteSwiftPackageReference "SwiftyGif" */,
 				7BB09F812D3CF08E006B209E /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
+				7BB0A7052D4B774C006B209E /* XCRemoteSwiftPackageReference "Swift-JWT" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7B29EF2A2D297812005A8495 /* Products */;
@@ -516,6 +520,14 @@
 				minimumVersion = 2.1.1;
 			};
 		};
+		7BB0A7052D4B774C006B209E /* XCRemoteSwiftPackageReference "Swift-JWT" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Kitura/Swift-JWT.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -578,6 +590,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7BB09F812D3CF08E006B209E /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
 			productName = SwiftyBeaver;
+		};
+		7BB0A7062D4B774C006B209E /* SwiftJWT */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7BB0A7052D4B774C006B209E /* XCRemoteSwiftPackageReference "Swift-JWT" */;
+			productName = SwiftJWT;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

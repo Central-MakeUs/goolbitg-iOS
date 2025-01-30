@@ -19,6 +19,8 @@ final actor UserDefaultsManager {
         
         /// 디바이스 기준 처음 인지
         case firstDevice
+        case appleLoginAccess
+        case appleLoginRefresh
         
         var value: String {
             return self.rawValue
@@ -42,4 +44,10 @@ final actor UserDefaultsManager {
     
     @UserDefaultsWrapper(key: Key.userHabitType.value, placeValue: nil)
     static var userHabitType: Int?
+    
+    @UserDefaultsWrapper(key: Key.appleLoginAccess.value, placeValue: nil)
+    static var appleAccessToken: String?
+    
+    @UserDefaultsWrapper(key: Key.appleLoginRefresh.value, placeValue: nil)
+    static var appleRefreshToken: String?
 }

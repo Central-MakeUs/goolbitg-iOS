@@ -45,11 +45,13 @@ struct GBTabBarCoordinator {
         var currentTab: TabCase = .homeTab
         
         var homeTabState = HomeTabCoordinator.State.initialState
+        var chalengeTabState = ChallengeTabCoordinator.State.initialState
     }
     
     enum Action {
         case homeTabAction(HomeTabCoordinator.Action)
-    
+        case challengeTabAction(ChallengeTabCoordinator.Action)
+        
         case delegate(Delegate)
         
         enum Delegate {
@@ -61,6 +63,9 @@ struct GBTabBarCoordinator {
     var body: some ReducerOf<Self> {
         Scope(state: \.homeTabState, action: \.homeTabAction) {
             HomeTabCoordinator()
+        }
+        Scope(state: \.chalengeTabState, action: \.challengeTabAction) {
+            ChallengeTabCoordinator()
         }
         
         core
