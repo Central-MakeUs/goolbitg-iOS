@@ -16,6 +16,7 @@ struct ChallengeTabFeature: GBReducer {
         var toggleSwitchCase: [ChallengeStatusCase] = [.wait, .success]
         var selectedSwitchIndex: Int = 0
         
+        var onAppearTrigger = false
         var currentMonth = ""
         
         let maxCalendar = Calendar.current.date(byAdding: .year, value: -100, to: Date())!...Date()
@@ -32,9 +33,15 @@ struct ChallengeTabFeature: GBReducer {
         case viewCycle(ViewCycle)
         case viewEvent(ViewEvent)
         case featureEvent(FeatureEvent)
+        case delegate(Delegate)
+        case parentEvent(ParentEvent)
         
         case selectedSwitchIndex(Int)
         case weekIndex(Int)
+        
+        enum Delegate {
+            case moveToChallengeAdd
+        }
     }
     
     enum ViewCycle {
@@ -59,11 +66,8 @@ struct ChallengeTabFeature: GBReducer {
         case resultToChallengeList(dats: [ChallengeEntity])
     }
     
-    struct PagingObj: Equatable {
-        var pageNum = 0
-        var size = 10
-        var date = Date()
-        var status: ChallengeStatusCase = .wait
+    enum ParentEvent {
+        case reloadData
     }
     
     enum CancelID: Hashable {
@@ -85,11 +89,14 @@ extension ChallengeTabFeature {
             switch action {
                 
             case .viewCycle(.onAppear):
-                let page = state.pagingObj
-                return .run { send in
-                    await send(.featureEvent(.requestCurrentMonth(Date())))
-                    await send(.featureEvent(.requestFirstSettingWeekDatas(Date())))
-                    await send(.featureEvent(.requestChallengeList(obj: page)))
+                if !state.onAppearTrigger {
+                    state.onAppearTrigger = true
+                    let page = state.pagingObj
+                    return .run { send in
+                        await send(.featureEvent(.requestCurrentMonth(Date())))
+                        await send(.featureEvent(.requestFirstSettingWeekDatas(Date())))
+                        await send(.featureEvent(.requestChallengeList(obj: page)))
+                    }
                 }
                 
             case .viewEvent(.checkPagingForWeekData):
@@ -108,6 +115,9 @@ extension ChallengeTabFeature {
                 
             case let .viewEvent(.selectedWeek(data)):
                 state.selectedWeekDay = data
+                
+            case .viewEvent(.showChallengeAdd):
+                return .send(.delegate(.moveToChallengeAdd))
                 
             case let .featureEvent(.requestCurrentMonth(date)):
                 let monthText = dateManager.format(format: .yyyymmddKorean, date: date)
@@ -218,6 +228,16 @@ extension ChallengeTabFeature {
                 }
             case let .featureEvent(.resultToChallengeList(datas)):
                 state.challengeList = datas
+                
+                
+                // MARK: Parent
+            case .parentEvent(.reloadData):
+                let page = state.pagingObj
+                return .run { send in
+                    await send(.featureEvent(.requestCurrentMonth(Date())))
+                    await send(.featureEvent(.requestResettingWeekDatas(Date())))
+                    await send(.featureEvent(.requestChallengeList(obj: page)))
+                }
                 
             case let .selectedSwitchIndex(index):
                 state.selectedSwitchIndex = index

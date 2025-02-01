@@ -30,6 +30,7 @@ enum TextHelper {
     static let nextTitle = "다음으로"
     static let skipTitle = "건너뛰기"
     static let acceptTitle = "적용하기"
+    static let sharedTitle = "공유하기"
     
     // MARK: AUTH Request View Text for GB
     static let authRequestHeaderTitle = "저희 굴비잇기를 위해\n이용할 정보를 작성해주세요"
@@ -109,4 +110,15 @@ enum TextHelper {
     static let challengeChoiceWhatYouWantToHabitOne = "만들고 싶은 습관 1개를 선택해주세요"
     static let challengeSameFamousSpendingChallenge = "같은 소비유형 인기 챌린지"
     static let challengeHowAboutAnotherHabitOne = "그 외 이런습관은 어때요?"
+    
+    // MARK: 마이페이지
+    static let accountSetting = "계정 관리"
+    static let accountID = "아이디"
+    static let serviceInfo = "이용 안내"
+    static let logOut = "로그아웃"
+    static let serviceRevoke = "서비스 탈퇴"
+    static let myPage = "마이페이지"
+    static let mySpendingScoreTitle = "내 소비 점수"
+    static let totalChallengeCount = "총 챌린지 수"
+    static let writeCount = "작성한 글"
 }

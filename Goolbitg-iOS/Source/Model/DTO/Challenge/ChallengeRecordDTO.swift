@@ -8,8 +8,8 @@
 import Foundation
 
 struct ChallengeRecordDTO: DTO {
-    /// 챌린지 ID
-    let challengeId: Int
+    /// 챌린지 모델
+    let challenge: ChallengeListElementDTO
     /// 유저 ID
     let userId: String
     /// 기록일

@@ -8,11 +8,17 @@
 import SwiftUI
 
 struct CommonCheckListConfiguration: Hashable, Identifiable {
-    let id = UUID()
-    
+    let id: String
     var currentState: Bool
     let checkListTitle: String
     let subText: String?
+    
+    init(id: String = UUID().uuidString, currentState: Bool, checkListTitle: String, subText: String?) {
+        self.id = id
+        self.currentState = currentState
+        self.checkListTitle = checkListTitle
+        self.subText = subText
+    }
 }
 
 extension CommonCheckListConfiguration {

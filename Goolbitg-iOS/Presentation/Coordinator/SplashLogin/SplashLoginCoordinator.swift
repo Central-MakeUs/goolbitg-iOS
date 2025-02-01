@@ -37,6 +37,7 @@ struct SplashLoginCoordinator {
     enum Action {
         case router(IdentifiedRouterActionOf<SplashLoginScreen>)
         
+        case checkUserState
         case checkToMoveScreen(caseOf: RegisterStatusCase)
         case moveToScreen(MoveToScreen)
         
@@ -86,7 +87,7 @@ extension SplashLoginCoordinator {
                     UserDefaultsManager.refreshToken = result.refreshToken
                     
                     // MARK: 로그인 되면 이동시켜 줘야함
-                    await send(.delegate(.moveToHome))
+                    await send(.checkUserState)
                 
                 } catch: { error, send in
                     guard let _ = error as? RouterError else {
@@ -95,20 +96,13 @@ extension SplashLoginCoordinator {
                     }
                     await send(.failRefresh)
                 }
+        
+            case .checkUserState:
+                return checkUserRegistration(state: &state)
                 
             case .router(.routeAction(id: .authRequestPage, action: .authRequestPage(.delegate(.nextView)))):
-                return .run { send in
-                    let requestRegisterState = try await networkManager.requestNetworkWithRefresh(dto: UserRegisterStatus.self, router: UserRouter.userRegisterStatus)
-                    
-                    Logger.info(requestRegisterState)
-                    
-                    // 필수 기입사항 안했을시
-                    if !requestRegisterState.requiredInfoCompleted {
-                        await send(.checkToMoveScreen(caseOf: requestRegisterState.status))
-                    } else {
-                        await send(.checkToMoveScreen(caseOf:.registEnd))
-                    }
-                }
+                
+                return checkUserRegistration(state: &state)
                 
             case .failRefresh:
                 state.routes.push(.login(LoginViewFeature.State()))
@@ -181,9 +175,8 @@ extension SplashLoginCoordinator {
                             await send(.moveToScreen(.expressExpenditureDateView)) // 옵션
                         case .onBoarding6:
                             await send(.moveToScreen(.challengeAdd)) // 5. 챌린지 추가
-                        case .registEnd: // 5. 선택 이라 등록완료
-                            // MARK: 테스트를 위한 강제
-                            await send(.moveToScreen(.expressExpenditureDateView))
+                        case .registEnd: // 등록완료
+                            await send(.delegate(.moveToHome))
                         }
                     }
                 }
@@ -224,5 +217,20 @@ extension SplashLoginCoordinator {
             }
         }
         return false
+    }
+    
+    private func checkUserRegistration(state: inout State) -> EffectOf<Self> {
+        return .run { send in
+            let requestRegisterState = try await networkManager.requestNetworkWithRefresh(dto: UserRegisterStatus.self, router: UserRouter.userRegisterStatus)
+            
+            Logger.info(requestRegisterState)
+            
+            // 필수 기입사항 안했을시
+            if !requestRegisterState.requiredInfoCompleted {
+                await send(.checkToMoveScreen(caseOf: requestRegisterState.status))
+            } else {
+                await send(.checkToMoveScreen(caseOf:.registEnd))
+            }
+        }
     }
 }

@@ -141,7 +141,7 @@ extension ChallengeTabView {
                     .aspectRatio(1, contentMode: .fit)
                     .frame(width: 32, height: 32)
                     .asButton {
-                        
+                        store.send(.viewEvent(.showChallengeAdd))
                     }
             case .groups:
                 Image(uiImage: ImageHelper.plusLogo.image)
@@ -149,7 +149,7 @@ extension ChallengeTabView {
                     .aspectRatio(1, contentMode: .fit)
                     .frame(width: 32, height: 32)
                     .asButton {
-                        
+                        store.send(.viewEvent(.showChallengeAdd))
                     }
                     .padding(.trailing, 8)
                 
@@ -159,7 +159,7 @@ extension ChallengeTabView {
                     .frame(width: 24)
                     .foregroundStyle(GBColor.grey300.asColor)
                     .asButton {
-                        store.send(.viewEvent(.showChallengeAdd))
+                       
                     }
             }
             

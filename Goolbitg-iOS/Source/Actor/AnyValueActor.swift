@@ -33,10 +33,12 @@ extension AnyValueActor {
     /// setValue: 새로운 값을 지정합니다. ( 단, 타입일치 )
     func setValue(_ newValue: @autoclosure @Sendable () throws -> Value) rethrows {
         self.value = try newValue()
+        Logger.info(self.value)
     }
     
     /// resetValue: 처음 지정한 값으로 초기화 합니다.
     func resetValue() {
+        Logger.info(self.value)
         value = defaultValue
     }
 }

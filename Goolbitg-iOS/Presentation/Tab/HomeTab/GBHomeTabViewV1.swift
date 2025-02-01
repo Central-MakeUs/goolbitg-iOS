@@ -14,43 +14,22 @@ struct GBHomeTabViewV1: View {
     
     @State private var currentMoney: Double = 0
     @State private var currentMoneyColor = GBColor.white.asColor
-    @State private var currentWeek: [OneWeekDay] = []
+    
     @State private var currentOffset: CGFloat = 0
-    @State private var currentTodayCheckList: [CommonCheckListConfiguration] = []
     
     var body: some View {
-        contentView
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    currentMoney = 45000
+        WithPerceptionTracking {
+            contentView
+                .onAppear {
+                    store.send(.viewCycle(.onAppear))
                 }
-                if currentWeek.isEmpty {
-                    let currentWeek = DateManager.shared.fetchWeek()
-                    let mapping = currentWeek.map {
-                        let ifToday = DateManager.shared.isToday($0.date)
-                        return OneWeekDay(
-                            date: $0.date,
-                            active: $0.active,
-                            isSelected: ifToday,
-                            isToday: ifToday
-                        )
-                    }
-                    self.currentWeek = mapping
+                .onChange(of: store.currentUser.saveMoney) { newValue in
+                    currentMoney = Double(newValue)
                 }
-                
-                self.currentTodayCheckList = [
-                    .init(currentState: false, checkListTitle: "야식 안시켜먹기", subText: "+15,000"),
-                    .init(currentState: false, checkListTitle: "야식 안시켜먹기", subText: "+15,000"),
-                    .init(currentState: false, checkListTitle: "야식 안시켜먹기", subText: "+15,000"),
-                    .init(currentState: false, checkListTitle: "야식 안시켜먹기", subText: "+15,000"),
-                    .init(currentState: false, checkListTitle: "야식 안시켜먹기", subText: "+15,000"),
-                    .init(currentState: false, checkListTitle: "야식 안시켜먹기", subText: "+15,000"),
-                    .init(currentState: false, checkListTitle: "야식 안시켜먹기", subText: "+15,000"),
-                    .init(currentState: false, checkListTitle: "야식 안시켜먹기", subText: "+15,000"),
-                    .init(currentState: false, checkListTitle: "야식 안시켜먹기", subText: "+15,000"),
-                    .init(currentState: false, checkListTitle: "야식 안시켜먹기", subText: "+15,000")
-                ]
-            }
+                .onDisappear {
+                    store.send(.viewCycle(.onDisappear))
+                }
+        }
     }
 }
 
@@ -145,7 +124,7 @@ extension GBHomeTabViewV1 {
     private var moneyView: some View {
         VStack(spacing: 0) {
             HStack {
-                Text(UserDefaultsManager.userNickname + "님,\n이번주 얼마나 아끼셨나요?")
+                Text(store.currentUser.nickName + "님,\n이번주 얼마나 아끼셨나요?")
                     .font(FontHelper.h2.font)
                 Spacer()
             }
@@ -178,7 +157,7 @@ extension GBHomeTabViewV1 {
                     .frame(width: 12, height: 12)
                     .padding(.trailing, SpacingHelper.xs.pixel)
                 
-                Text("3일째 달성중")
+                Text(store.currentUser.awardText)
                     .font(FontHelper.body5.font)
                 
                 Color.white
@@ -190,7 +169,7 @@ extension GBHomeTabViewV1 {
                     .frame(width: 12, height: 12)
                     .padding(.trailing, SpacingHelper.xs.pixel)
                 
-                Text("치킨 2마리 만큼 아꼈어요")
+                Text(store.currentUser.chickenCount)
                     .font(FontHelper.body5.font)
             }
             .padding(.horizontal, SpacingHelper.sm.pixel)
@@ -208,7 +187,7 @@ extension GBHomeTabViewV1 {
     
     private var weekView: some View {
         HStack(spacing: 0) {
-            ForEach(currentWeek, id: \.self) { item in
+            ForEach(store.currentWeekState, id: \.self) { item in
                 weekElementView(model: item)
             }
         }
@@ -244,16 +223,32 @@ extension GBHomeTabViewV1 {
                 .foregroundStyle(GBColor.white.asColor)
                 .padding(.bottom, SpacingHelper.sm.pixel)
                 
-            if model.isSelected {
+            
+            switch model.weekState {
+            case .success:
                 Circle()
                     .background(.clear)
                     .foregroundStyle(.clear)
                     .overlay {
-                        Image(uiImage: ImageHelper.kakao.image)
+                        ImageHelper.logoStud.asImage
                             .resizable()
                     }
                     .padding(.all, SpacingHelper.sm.pixel)
-            } else {
+            case .fail:
+                Circle()
+                    .background(.clear)
+                    .foregroundStyle(.clear)
+            case .wait:
+                Circle()
+                    .stroke(lineWidth: 1)
+                    .foregroundStyle(GBColor.white.asColor.opacity(0.3))
+                    .overlay {
+                        Text(DateManager.shared.format(format: .dayD, date: model.date))
+                            .font(FontHelper.body1.font)
+                            .foregroundStyle(GBColor.white.asColor.opacity(0.3))
+                    }
+                    .padding(.all, SpacingHelper.sm.pixel)
+            case .none:
                 Circle()
                     .stroke(lineWidth: 1)
                     .foregroundStyle(GBColor.white.asColor.opacity(0.3))
@@ -283,7 +278,7 @@ extension GBHomeTabViewV1 {
             .padding(.bottom, 10)
             
             LazyVStack(spacing: SpacingHelper.md.pixel) {
-                ForEach(currentTodayCheckList, id: \.id) { item in
+                ForEach(store.challengeList, id: \.id) { item in
                     todayListElementView(item: item)
                 }
             }
@@ -293,7 +288,7 @@ extension GBHomeTabViewV1 {
     private func todayListElementView(item: CommonCheckListConfiguration) -> some View {
         CommonCheckListButtonView(configuration: item)
             .asButton {
-                
+                store.send(.viewEvent(.selectedItem(item: item)))
             }
     }
 }

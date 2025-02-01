@@ -28,3 +28,10 @@ extension Sequence {
         return values
     }
 }
+
+extension Collection {
+    /// 인덱스 터짐 방지
+    subscript(safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
+    }
+}

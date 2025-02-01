@@ -30,7 +30,9 @@ struct GBTabBarView: View {
 extension GBTabBarView {
     private var contentView: some View {
         VStack(spacing: 0) {
-            customTabBarView
+            NavigationView {
+                customTabBarView
+            }
         }
     }
 }
@@ -39,14 +41,31 @@ extension GBTabBarView {
     private var customTabBarView: some View {
         TabView(selection: $store.currentTab.sending(\.currentTab)) {
             scopeView
+                .toolbar(.hidden, for: .tabBar)
         }
-        .toolbar(.hidden, for: .tabBar)
         .overlay(alignment: .bottom) {
             customTabView
-                
         }
         .ignoresSafeArea(edges: .bottom)
         .background(Color.red)
+        .onAppear {
+            if let tabBarController = UIApplication.shared.keyWindow?.rootViewController as? UITabBarController {
+                tabBarController.tabBar.isHidden = true
+            }
+            
+            let appearance = UITabBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = .clear
+            
+            // 경계선(검정색 줄) 제거
+            appearance.shadowImage = UIImage()
+            appearance.backgroundImage = UIImage()
+            appearance.shadowColor = .clear
+            
+            // 설정 적용
+            UITabBar.appearance().standardAppearance = appearance
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
     }
     
     private var scopeView: some View {
@@ -60,6 +79,11 @@ extension GBTabBarView {
                 store: store.scope(state: \.chalengeTabState, action: \.challengeTabAction)
             )
             .tag(TabCase.ChallengeTab)
+            
+            MyPageViewCoordinatorView(
+                store: store.scope(state: \.myPageTabState, action: \.myPageTabAction)
+            )
+            .tag(TabCase.myPageTab)
         }
     }
     
@@ -88,22 +112,8 @@ extension GBTabBarView {
                 .foregroundStyle(GBColor.grey300.asColor)
         }
         .frame(width: UIScreen.main.bounds.width + 2)
-        .onAppear {
-            let appearance = UITabBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = .clear
-
-            // 경계선(검정색 줄) 제거
-            appearance.shadowImage = UIImage()
-            appearance.backgroundImage = UIImage()
-            appearance.shadowColor = .clear
-
-            // 설정 적용
-            UITabBar.appearance().standardAppearance = appearance
-            UITabBar.appearance().scrollEdgeAppearance = appearance
-        }
         .offset(y: 1)
-       
+        .opacity(store.tabbarHidden ? 0 : 1)
     }
     
     private func tabItemView(tabItem: TabCase) -> some View {

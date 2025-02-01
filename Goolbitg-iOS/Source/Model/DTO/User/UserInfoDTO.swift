@@ -45,6 +45,6 @@ struct UserInfoDTO: DTO, Equatable {
     /// 사용자가 작성한 게시물 개수
     let postCount: Int              // 사용자가 작성한 게시물 개수
     /// 사용자의 목표 달성률 (예: 37.2%)
-    let achivementGuage: Double     // 사용자의 목표 달성률 (예: 37.2%)
+    let achievementGuage: Double     // 사용자의 목표 달성률 (예: 37.2%)
 }
 

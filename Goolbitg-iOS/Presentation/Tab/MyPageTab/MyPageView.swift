@@ -7,9 +7,12 @@
 
 import SwiftUI
 import ComposableArchitecture
+import PopupView
 import Lottie
 
 struct MyPageView: View {
+    
+    @Perception.Bindable var store: StoreOf<MyPageViewFeature>
     
     var body: some View {
         WithPerceptionTracking {
@@ -19,6 +22,26 @@ struct MyPageView: View {
                     ImageHelper.myBg.asImage
                         .resizable()
                         .ignoresSafeArea()
+                }
+                .onAppear {
+                    store.send(.viewCycle(.onAppear))
+                }
+                // MARK: LogOut
+                .popup(item: $store.logoutAlert.sending(\.alertState)) { item in
+                    GBAlertView(
+                        model: item) {
+                            store.send(.alertState(nil))
+                        } okTouch: {
+                            store.send(.alertState(nil))
+                            store.send(.viewEvent(.acceptLogoutButtonTapped))
+                        }
+                } customize: {
+                    $0
+                        .type(.default)
+                        .animation(.bouncy)
+                        .appearFrom(.centerScale)
+                        .closeOnTap(false)
+                        .closeOnTapOutside(false)
                 }
         }
     }
@@ -58,7 +81,7 @@ extension MyPageView {
     
     private var navigationBar: some View {
         HStack(spacing: 0) {
-            Text("마이페이지")
+            Text(TextHelper.myPage)
                 .font(FontHelper.h1.font)
                 .foregroundStyle(GBColor.white.asColor)
             Spacer()
@@ -72,7 +95,7 @@ extension MyPageView {
                 .resizable()
                 .frame(width: 24, height: 24)
                 .asButton {
-                    
+                    store.send(.viewEvent(.alertButtonTapped))
                 }
             ZStack {
                 Circle()
@@ -98,17 +121,17 @@ extension MyPageView {
                     .padding(.trailing, SpacingHelper.md.pixel)
                 
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("초딩 굴비")
+                    Text(store.userEntity.nickname)
                         .font(FontHelper.h4.font)
                         .foregroundStyle(GBColor.white.asColor)
-                    Text("바쁜 굴비님")
+                    Text(store.userEntity.typeDetail)
                         .font(FontHelper.h1.font)
                         .foregroundStyle(GBColor.white.asColor)
                 }
                 
                 Spacer()
                 
-                Text("공유하기")
+                Text(TextHelper.sharedTitle)
                     .font(FontHelper.body5.font)
                     .foregroundStyle(GBColor.white.asColor)
                     .padding(.horizontal, SpacingHelper.sm.pixel)
@@ -120,10 +143,10 @@ extension MyPageView {
             HStack(spacing:0) {
                 Spacer()
                 VStack(spacing:0){
-                    Text("내소비 점수")
+                    Text(TextHelper.mySpendingScoreTitle)
                         .font(FontHelper.body5.font)
                         .foregroundStyle(GBColor.white.asColor)
-                    Text("12점")
+                    Text(store.userEntity.spandingScore)
                         .font(FontHelper.h3.font)
                         .foregroundStyle(GBColor.white.asColor)
                 }
@@ -132,10 +155,10 @@ extension MyPageView {
                     .frame(width: 0.8, height: 40)
                 Spacer()
                 VStack(spacing:0){
-                    Text("내소비 점수")
+                    Text(TextHelper.totalChallengeCount)
                         .font(FontHelper.body5.font)
                         .foregroundStyle(GBColor.white.asColor)
-                    Text("12점")
+                    Text(store.userEntity.totalChallengeCount)
                         .font(FontHelper.h3.font)
                         .foregroundStyle(GBColor.white.asColor)
                 }
@@ -144,10 +167,10 @@ extension MyPageView {
                     .frame(width: 0.6, height: 20)
                 Spacer()
                 VStack(spacing:0){
-                    Text("내소비 점수")
+                    Text(TextHelper.writeCount)
                         .font(FontHelper.body5.font)
                         .foregroundStyle(GBColor.white.asColor)
-                    Text("12점")
+                    Text(store.userEntity.writeCount)
                         .font(FontHelper.h3.font)
                         .foregroundStyle(GBColor.white.asColor)
                 }
@@ -156,13 +179,13 @@ extension MyPageView {
             .padding(.vertical, SpacingHelper.md.pixel)
             
             HStack {
-                Text("다음 굴비까지 18,000원 남았어요")
+                Text(store.userEntity.nextGoolbTitle)
                     .font(FontHelper.body4.font)
                     .foregroundStyle(GBColor.white.asColor)
                 Spacer()
             }
             
-            progressView(percentage: 0.5)
+            progressView(percentage: store.userEntity.nextGoolBPercent)
                 .padding(.vertical, SpacingHelper.xs.pixel)
             
         }
@@ -201,7 +224,7 @@ extension MyPageView {
     private var accountSection: some View {
         VStack(spacing:0) {
             HStack {
-                Text("계정 관리")
+                Text(TextHelper.accountSetting)
                     .font(FontHelper.body3.font)
                     .foregroundStyle(GBColor.grey300.asColor)
                 Spacer()
@@ -217,12 +240,12 @@ extension MyPageView {
                         .foregroundStyle(GBColor.white.asColor)
                     Spacer()
                     
-                    Text("아이디")
+                    Text(TextHelper.accountID)
                         .font(FontHelper.caption1.font)
                         .foregroundStyle(GBColor.grey300.asColor)
                 }
                 .asButton {
-                    
+                    store.send(.viewEvent(.accountSectionItemTapped(item: item)))
                 }
             }
             .padding(.vertical, SpacingHelper.md.pixel)
@@ -238,7 +261,7 @@ extension MyPageView {
     private var serviceSectionView: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("이용 인내")
+                Text(TextHelper.serviceInfo)
                     .font(FontHelper.body3.font)
                     .foregroundStyle(GBColor.grey300.asColor)
                 Spacer()
@@ -257,7 +280,7 @@ extension MyPageView {
                         Spacer()
                         
                         if item == .appVersion {
-                            Text(version ?? "")
+                            Text(store.version ?? "")
                                 .font(FontHelper.caption1.font)
                                 .foregroundStyle(GBColor.grey300.asColor)
                         } else {
@@ -268,7 +291,7 @@ extension MyPageView {
                     }
                     .padding(.all, SpacingHelper.sm.pixel)
                     .asButton {
-                        
+                        store.send(.viewEvent(.serviceSectionItemTapped(item: item)))
                     }
                     Group {
                         if ServiceInfoSectionType.allCases.last != item {
@@ -293,12 +316,12 @@ extension MyPageView {
     
     private var logOutAndServiceRevoke: some View {
         HStack(spacing: 0){
-            Text("로그아웃")
+            Text(TextHelper.logOut)
                 .font(FontHelper.body2.font)
                 .foregroundStyle(GBColor.grey300.asColor)
                 .padding(.trailing, 6)
                 .asButton {
-                    
+                    store.send(.viewEvent(.logOutButtonTapped))
                 }
             
             Circle()
@@ -306,20 +329,13 @@ extension MyPageView {
                 .foregroundStyle(GBColor.white.asColor)
                 .padding(.trailing, 6)
             
-            Text("서비스 탈퇴")
+            Text(TextHelper.serviceRevoke)
                 .font(FontHelper.body2.font)
                 .foregroundStyle(GBColor.grey300.asColor)
                 .asButton {
-                    
+                    store.send(.viewEvent(.revokeButtonTapped))
                 }
         }
-    }
-    
-    var version: String? {
-        guard let dictionary = Bundle.main.infoDictionary,
-        let version = dictionary["CFBundleShortVersionString"] as? String else {return nil}
-        
-        return version
     }
 }
 
@@ -377,6 +393,8 @@ enum ServiceInfoSectionType: CaseIterable {
 
 #if DEBUG
 #Preview {
-    MyPageView()
+    MyPageView(store: Store(initialState: MyPageViewFeature.State(), reducer: {
+        MyPageViewFeature()
+    }))
 }
 #endif

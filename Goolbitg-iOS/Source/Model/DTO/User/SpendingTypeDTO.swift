@@ -15,6 +15,8 @@ struct SpendingTypeDTO: DTO, Equatable {
     let title: String
     /// 소비 유형 관련 이미지 URL
     let imageURL: String?
+    /// 다음단계까지 남은 금액
+    let goal: Int?
     /// 같은 유형 사람 수
     let peopleCount: Int?
 
@@ -22,6 +24,7 @@ struct SpendingTypeDTO: DTO, Equatable {
         case id
         case title
         case imageURL = "imageUrl"
+        case goal
         case peopleCount
     }
 }

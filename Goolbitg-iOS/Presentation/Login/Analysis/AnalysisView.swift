@@ -11,6 +11,7 @@ import ComposableArchitecture
 struct AnalysisView: View {
     
     @Perception.Bindable var store: StoreOf<AnalysisFeature>
+    @Environment(\.safeAreaInsets) private var safeAreaInsets
     
     var body: some View {
         WithPerceptionTracking {
@@ -40,16 +41,18 @@ extension AnalysisView {
                         endPoint: .top
                     )
                 )
+                .padding(.top, safeAreaInsets.top)
             Spacer()
             StartButton
-                .padding(.bottom, 20)
+                .padding(.bottom, safeAreaInsets.bottom + 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
-            GIFImageView(imageName: "TestG.gif")
+            GIFImageView(imageName: "Onboarding2.gif")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ignoresSafeArea()
         }
+        .ignoresSafeArea()
     }
     
     private var headerView: some View {
@@ -92,3 +95,11 @@ extension AnalysisView {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    AnalysisView(store: Store(initialState: AnalysisFeature.State(), reducer: {
+        AnalysisFeature()
+    }))
+}
+#endif

@@ -20,34 +20,56 @@ final class GBRequestInterceptor: RequestInterceptor {
     
     func retry(_ request: Request, for session: Session, dueTo error: any Error, completion: @escaping (RetryResult) -> Void) {
         Task {
-            let retry = await retryCount.withValue { $0 > 0 }
-            if !retry { completion(.doNotRetry); return }
-            
             guard let statusCode = request.response?.statusCode,
                   let apiResult = APIErrorEntity(rawValue: statusCode) else {
-                completion(.doNotRetry)
+                if let statusCode = request.response?.statusCode,
+                   statusCode == 401 {
+                    if await requestRefresh() {
+                        completion(.retry)
+                    } else {
+                        completion(.doNotRetry)
+                    }
+                } else {
+                    completion(.doNotRetry)
+                }
                 return
             }
-            if case .tokenExpiration = apiResult, UserDefaultsManager.refreshToken != "" {
-                let result = try? await NetworkManager.shared.requestNetwork(
-                    dto: AccessTokenDTO.self,
-                    router: AuthRouter.refresh(
-                        refreshToken: UserDefaultsManager.refreshToken
-                    )
-                )
-                guard let result else { completion(.doNotRetry); return }
-                
-                UserDefaultsManager.accessToken = result.accessToken
-                UserDefaultsManager.refreshToken = result.refreshToken
-                
-                await retryCount.withValue { $0 -= 1 }
-                
-                completion(.retry)
+            if (apiResult == .tokenExpiration || statusCode == 401) && (UserDefaultsManager.refreshToken != "") {
+                if await requestRefresh() {
+                    completion(.retry)
+                } else {
+                    completion(.doNotRetry)
+                }
             }
             else {
                 completion(.doNotRetry)
             }
         }
+    }
+    
+    private func requestRefresh() async -> Bool {
+        
+        let retryCurrent = await retryCount.withValue {
+           return $0 > 0
+        }
+        
+        if !retryCurrent { return false }
+        
+        let result = try? await NetworkManager.shared.requestNetwork(
+            dto: AccessTokenDTO.self,
+            router: AuthRouter.refresh(
+                refreshToken: UserDefaultsManager.refreshToken
+            )
+        )
+        
+        guard let result else { return false }
+        
+        UserDefaultsManager.accessToken = result.accessToken
+        UserDefaultsManager.refreshToken = result.refreshToken
+        await retryCount.withValue { num in
+            num -= 1
+        }
+        return true
     }
     
 }

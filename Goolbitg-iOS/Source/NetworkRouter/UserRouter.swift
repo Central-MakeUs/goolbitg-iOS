@@ -25,6 +25,8 @@ enum UserRouter {
     case userRegisterStatus
     /// 약관동의 정보 등록
     case agreement(requestModel: UserAgreeMentRequestModel)
+    /// 주간 기록 보기
+    case weeklyStatus
     /// 푸시 알림 동의
     case agreePushNotification
 }
@@ -32,7 +34,7 @@ enum UserRouter {
 extension UserRouter: Router {
     var method: HTTPMethod {
         switch self {
-        case .currentUserInfos, .userRegisterStatus:
+        case .currentUserInfos, .userRegisterStatus, .weeklyStatus:
             return .get
             
         case .nickNameCheck, .userInfoRegist, .userCheckList, .userHabit, .userPatternRegist, .agreement, .agreePushNotification:
@@ -64,12 +66,14 @@ extension UserRouter: Router {
             return "/users/me/agreement"
         case .agreePushNotification:
             return "/challenges"
+        case .weeklyStatus:
+            return "/users/me/weeklyStatus"
         }
     }
     
     var optionalHeaders: HTTPHeaders? {
         switch self {
-        case .currentUserInfos, .userRegisterStatus, .agreePushNotification:
+        case .currentUserInfos, .userRegisterStatus, .agreePushNotification, .weeklyStatus:
             return [ "application/json" : "Content-Type" ]
         case .nickNameCheck, .userInfoRegist, .userCheckList, .userHabit, .userPatternRegist, .agreement:
             return nil
@@ -78,14 +82,14 @@ extension UserRouter: Router {
     
     var parameters: Parameters? {
         switch self {
-        case .currentUserInfos, .nickNameCheck, .userInfoRegist, .userCheckList, .userHabit, .userPatternRegist, .userRegisterStatus, .agreement, .agreePushNotification:
+        case .currentUserInfos, .nickNameCheck, .userInfoRegist, .userCheckList, .userHabit, .userPatternRegist, .userRegisterStatus, .agreement, .agreePushNotification, .weeklyStatus:
             return nil
         }
     }
     
     var body: Data? {
         switch self {
-        case .currentUserInfos, .userRegisterStatus, .agreePushNotification:
+        case .currentUserInfos, .userRegisterStatus, .agreePushNotification, .weeklyStatus:
             return nil
         case .nickNameCheck(let requestModel):
             return try? CodableManager.shared.jsonEncodingStrategy(requestModel)
@@ -104,7 +108,7 @@ extension UserRouter: Router {
     
     var encodingType: EncodingType {
         switch self {
-        case .currentUserInfos, .userRegisterStatus, .agreePushNotification:
+        case .currentUserInfos, .userRegisterStatus, .agreePushNotification, .weeklyStatus:
             return .url
         case .nickNameCheck, .userInfoRegist, .userCheckList, .userHabit, .userPatternRegist, .agreement:
             return .json

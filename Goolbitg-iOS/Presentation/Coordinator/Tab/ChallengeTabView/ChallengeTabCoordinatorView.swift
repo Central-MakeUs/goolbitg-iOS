@@ -27,6 +27,11 @@ extension ChallengeTabCoordinatorView {
                 case let .home(store):
                     ChallengeTabView(store: store)
                         .disableBackGesture(false)
+                    
+                case let .challengeAdd(store):
+                    ChallengeAddView(store: store)
+                        .navigationBarBackButtonHidden()
+                        .disableBackGesture(false)
                 }
             }
         }
@@ -38,11 +43,14 @@ extension ChallengeTabScreen.State: Identifiable {
         switch self {
         case .home:
             return .home
+        case .challengeAdd:
+            return .challengeAdd
         }
     }
     
     enum ID: Identifiable {
         case home
+        case challengeAdd
         
         var id: ID {
             return self

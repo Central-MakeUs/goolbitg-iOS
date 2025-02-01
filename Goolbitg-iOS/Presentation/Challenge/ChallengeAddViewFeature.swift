@@ -29,6 +29,7 @@ struct ChallengeAddViewFeature: GBReducer {
         enum Delegate {
             case dismissTapped
             case moveToHome
+            case successAdd
         }
         case selectedEntityBinding(ChallengeEntity?)
         case alertComponents(GBAlertViewComponents?)
@@ -65,7 +66,6 @@ extension ChallengeAddViewFeature {
             switch action {
             case .viewCycle(.onAppear):
                 return .run { send in
-                    try? await Task.sleep(for: .seconds(1))
                     await send(.featureEvent(.requestAPIForChallengeList))
                 }
                 
@@ -74,7 +74,7 @@ extension ChallengeAddViewFeature {
                 let userHabitType: Int? = nil // UserDefaultsManager.userHabitType
                 return .run { send in
                     let result = try await networkManager.requestNetworkWithRefresh(dto: ChallengeListDTO<ChallengeListElementDTO>.self, router: ChallengeRouter.challengeList(spendingTypeID: userHabitType))
-                    
+                    Logger.info(result)
                     let mapping = await challengeMapper.toEntity(dtos: result.items)
                     
                     await send(.featureEvent(.setFamousList(mapping)))
@@ -113,6 +113,8 @@ extension ChallengeAddViewFeature {
                         ifRefreshNeed: true
                     )
                     await send(.delegate(.moveToHome))
+                    await send(.delegate(.successAdd))
+                    
                 } catch: { error, send in
                     guard let error = error as? RouterError,
                           case let .serverMessage(errorEntity) = error else {

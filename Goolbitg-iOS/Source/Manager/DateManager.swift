@@ -84,6 +84,21 @@ extension DateManager {
         return weeks
     }
     
+    func fetchWeekDate(_ date: Date = Date()) -> [Date] {
+        let startDate = weekCalendar.startOfDay(for: date)
+        
+        var weeks: [Date] = []
+        
+        let weekDate = weekCalendar.dateInterval(of: .weekOfMonth, for: startDate)
+        guard let startOfWeek = weekDate?.start else { return [] }
+        
+        for i in 0..<7 {
+            guard let currentDate = weekCalendar.date(byAdding: .day, value: i, to: startOfWeek) else { continue }
+            weeks.append(currentDate)
+        }
+        return weeks
+    }
+    
     func createNextWeek(_ lastDate: Date) -> [WeekDay] {
         let start = weekCalendar.startOfDay(for: lastDate)
         guard let nextDate = calendar.date(byAdding: .day, value: 1, to: start) else {

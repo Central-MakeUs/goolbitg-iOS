@@ -11,7 +11,7 @@ import Alamofire
 enum ChallengeRouter {
     case challengeList(page: Int = 0, size: Int = 10, spendingTypeID: Int? = nil)
     case challengeEnroll(challengeID: String)
-    case challengeRecords(page: Int = 0, size: Int = 10, date: String, state: String)
+    case challengeRecords(page: Int = 0, size: Int = 10, date: String, state: String? = nil)
 }
 
 extension ChallengeRouter: Router {
@@ -59,12 +59,14 @@ extension ChallengeRouter: Router {
             return defaultValue
             
         case let .challengeRecords(page, size, date, state):
-            let defaultValue: [String : Any] = [
+            var defaultValue: [String : Any] = [
                 "page" : page,
                 "size" : size,
-                "date" : date,
-                "state" : state
+                "date" : date
             ]
+            if let state {
+                defaultValue["state"] = state
+            }
             return defaultValue
             
         case .challengeEnroll:

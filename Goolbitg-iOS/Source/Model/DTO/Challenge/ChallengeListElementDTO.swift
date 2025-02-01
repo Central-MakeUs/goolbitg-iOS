@@ -20,13 +20,13 @@ struct ChallengeListElementDTO: DTO {
     /// 챌린지 참여인원
     let participantCount: Int
     /// 챌린지 평균 달성률
-    let avgAchiveRatio: Double
+    let avgAchieveRatio: Double
     /// 챌린지 일수
-    let maxAchiveDays: Int
+    let maxAchieveDays: Int
 
     enum CodingKeys: String, CodingKey {
         case id, title
         case imageURL = "imageUrl"
-        case reward, participantCount, avgAchiveRatio, maxAchiveDays
+        case reward, participantCount, avgAchieveRatio, maxAchieveDays
     }
 }

@@ -12,10 +12,10 @@ import Foundation
 
 final class NetworkManager: Sendable, ThreadCheckable {
     
-    private let networkError = PassthroughSubject<String, Never>()
+    private let networkError = PassthroughSubject<RouterError, Never>()
     
     private let cancelStoreActor = AnyValueActor(Set<AnyCancellable>())
-    private let retryActor = AnyValueActor(2)
+    private let retryActor = AnyValueActor(3)
     
     func requestNetwork<T: DTO, R: Router>(dto: T.Type, router: R) async throws(RouterError) -> T {
 #if DEBUG
@@ -26,7 +26,6 @@ final class NetworkManager: Sendable, ThreadCheckable {
         Logger.debug(request.url)
         // MARK: 요청담당
         let response = await getRequest(dto: dto, router: router, request: request)
-        
         
 //        CodableManager.shared.toJSONSerialization(data: request.httpBody?)
         let result = try await getResponse(dto: dto, router: router, response: response)
@@ -54,7 +53,7 @@ final class NetworkManager: Sendable, ThreadCheckable {
 #endif
         let request = try router.asURLRequest()
         let accessCode: Set<Int> = Set(Array(200..<300))
-        Logger.info(request)
+       
         
         // MARK: 요청담당
         let response: DataResponse<String, AFError>
@@ -69,6 +68,8 @@ final class NetworkManager: Sendable, ThreadCheckable {
                 .serializingString(emptyResponseCodes: accessCode)
                 .response
         }
+        Logger.info(request)
+        Logger.info(response.result)
         switch response.result {
         case .success:
             return true
@@ -81,22 +82,25 @@ final class NetworkManager: Sendable, ThreadCheckable {
                 Logger.warning(data ?? "")
                 guard let code = data?.code,
                       let errorEntity = APIErrorEntity.getSelf(code: code) else {
+                    Logger.error(response.response?.statusCode ?? -999999)
                     throw RouterError.unknown(errorCode: String(response.response?.statusCode ?? -999999))
                 }
+                networkError.send(RouterError.serverMessage(errorEntity))
                 throw RouterError.serverMessage(errorEntity)
             }
             guard let status = response.response?.statusCode,
                   let error = APIErrorEntity.getSelf(code: status) else {
+                Logger.error(response.response?.statusCode ?? -999999)
                 throw RouterError.unknown(errorCode: String(response.response?.statusCode ?? -999999))
             }
-            Logger.warning(error)
+            Logger.error(error)
             throw RouterError.serverMessage(error)
         }
     }
     
-    func getNetworkError() -> AsyncStream<String> {
+    func getNetworkError() -> AsyncStream<RouterError> {
         
-        return AsyncStream<String> { contin in
+        return AsyncStream<RouterError> { contin in
             Task {
                 let subscribe = networkError
                     .sink { text in
@@ -126,6 +130,9 @@ extension NetworkManager {
         if ifRefreshMode {
             let requestResponse = await AF.request(request, interceptor: GBRequestInterceptor())
                 .validate(statusCode: 200..<300)
+                .cURLDescription {
+                    Logger.info($0)
+                }
                 .serializingDecodable(T.self)
                 .response
             Logger.debug(requestResponse.debugDescription)
@@ -168,13 +175,17 @@ extension NetworkManager {
                 
                 return retryResult
             } catch {
-                throw checkResponseData(response.data, GBError)
+                
+                let check = checkResponseData(response.data, GBError)
+                networkError.send(check)
+                throw check
             }
         }
     }
     
     private func retryNetwork<T: DTO, R: Router>(dto: T.Type, router: R, ifRefresh: Bool) async throws(RouterError) -> T {
         let ifRetry = await retryActor.withValue { value in
+            Logger.info("retry Count : \(value)")
             return value > 0
         }
         
@@ -185,9 +196,10 @@ extension NetworkManager {
                 switch response.result {
                 case let .success(data):
                     return data
-                case .failure(_):
+                case .failure(let error):
                     await downRetryCount()
                     
+
                     return try await retryNetwork(dto: dto, router: router, ifRefresh: ifRefresh)
                 }
             } else {
@@ -232,7 +244,7 @@ extension NetworkManager {
         if let afError = error.asAFError, let urlError = afError.underlyingError as? URLError {
             switch urlError.code {
             case .timedOut:
-                networkError.send("요청 시간이 초과되었습니다.")
+                networkError.send(.timeOut)
                 return .timeOut
                 
             default:

@@ -12,6 +12,7 @@ import TCACoordinators
 @Reducer(state: .equatable)
 enum ChallengeTabScreen {
     case home(ChallengeTabFeature)
+    case challengeAdd(ChallengeAddViewFeature)
 }
 
 @Reducer
@@ -27,6 +28,12 @@ struct ChallengeTabCoordinator {
     
     enum Action {
         case router(IdentifiedRouterActionOf<ChallengeTabScreen>)
+        case delegate(Delegate)
+        
+        enum Delegate {
+            case tabbarHidden
+            case showTabbar
+        }
     }
     
     var body: some ReducerOf<Self> {
@@ -38,6 +45,25 @@ extension ChallengeTabCoordinator {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+                
+            case .router(.routeAction(id: .home, action: .home(.delegate(.moveToChallengeAdd)))):
+                
+                state.routes.push(.challengeAdd(ChallengeAddViewFeature.State( dismissButtonHidden: false)))
+                return .send(.delegate(.tabbarHidden))
+                
+            case .router(.routeAction(id: .challengeAdd, action: .challengeAdd(.delegate(.dismissTapped)))):
+                state.routes.pop()
+                return .send(.delegate(.showTabbar))
+                
+            case .router(.routeAction(id: .challengeAdd, action: .challengeAdd(.delegate(.successAdd)))):
+                
+                state.routes.pop()
+                
+                return .run { send in
+                    await send(.delegate(.showTabbar))
+                    await send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadData)))))
+                }
+                
             default:
                 break
             }

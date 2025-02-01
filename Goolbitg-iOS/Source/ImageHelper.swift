@@ -57,6 +57,8 @@ enum ImageHelper {
     case headPhone
     case document
     
+    case logoStud
+    
     var image: UIImage {
         switch self {
         case .splashBack:
@@ -140,6 +142,9 @@ enum ImageHelper {
             return UIImage(named: "headPhone") ?? UIImage(resource: .headPhone)
         case .document:
             return UIImage(named: "document") ?? UIImage(resource: .document)
+            
+        case .logoStud:
+            return UIImage(named: "logoStud") ?? UIImage(resource: .logoStud)
         }
     }
     

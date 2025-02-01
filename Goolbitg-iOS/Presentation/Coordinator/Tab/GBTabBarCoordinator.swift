@@ -46,12 +46,15 @@ struct GBTabBarCoordinator {
         
         var homeTabState = HomeTabCoordinator.State.initialState
         var chalengeTabState = ChallengeTabCoordinator.State.initialState
+        var myPageTabState = MyPageTabCoordinator.State.initialState
+        
+        var tabbarHidden = false
     }
     
     enum Action {
         case homeTabAction(HomeTabCoordinator.Action)
         case challengeTabAction(ChallengeTabCoordinator.Action)
-        
+        case myPageTabAction(MyPageTabCoordinator.Action)
         case delegate(Delegate)
         
         enum Delegate {
@@ -67,7 +70,9 @@ struct GBTabBarCoordinator {
         Scope(state: \.chalengeTabState, action: \.challengeTabAction) {
             ChallengeTabCoordinator()
         }
-        
+        Scope(state: \.myPageTabState, action: \.myPageTabAction) {
+            MyPageTabCoordinator()
+        }
         core
     }
 }
@@ -79,6 +84,11 @@ extension GBTabBarCoordinator {
                 
             case let .currentTab(tabCase):
                 state.currentTab = tabCase
+                
+            case .challengeTabAction(.delegate(.tabbarHidden)):
+                state.tabbarHidden = true
+            case .challengeTabAction(.delegate(.showTabbar)):
+                state.tabbarHidden = false
             
             default:
                 break

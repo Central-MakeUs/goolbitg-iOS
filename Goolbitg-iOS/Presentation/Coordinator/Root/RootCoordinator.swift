@@ -57,7 +57,9 @@ extension RootCoordinator {
                 
             case .splashLoginAction(.delegate(.moveToHome)):
                 state.currentView = .mainTab
-                
+                return .send(.tabAction(.currentTab(.homeTab)))
+            case .tabAction(.myPageTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.logOutEvent)))))):
+                state.currentView = .splashLogin
 //            case let .splashLoginAction(.sendDeepLink(deepLinkURL)):
 //                guard let deepLinkCase = DeepLinkCase(urlString: deepLinkURL) else {
 //                    Logger.error("DeepLink Fail")
