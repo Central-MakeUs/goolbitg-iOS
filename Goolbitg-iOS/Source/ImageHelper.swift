@@ -58,6 +58,12 @@ enum ImageHelper {
     case document
     
     case logoStud
+    case checkChecked
+    case checkEnabled
+    case checkDisabled
+    case miniChallendar
+    case miniAward
+    case miniBurn
     
     var image: UIImage {
         switch self {
@@ -145,6 +151,23 @@ enum ImageHelper {
             
         case .logoStud:
             return UIImage(named: "logoStud") ?? UIImage(resource: .logoStud)
+            
+        case .checkChecked:
+            return UIImage(named: "checkChecked") ?? UIImage(resource: .checkChecked)
+        case .checkDisabled:
+            return UIImage(named: "checkDisabled") ?? UIImage(resource: .checkDisabled)
+        case .checkEnabled:
+            return UIImage(named: "checkEnabled") ?? UIImage(resource: .checkEnabled)
+            
+        case .miniBurn:
+            return UIImage(named: "miniBurn") ?? UIImage(resource: .miniBurn)
+            
+        case .miniAward:
+            return UIImage(named: "miniAward") ?? UIImage(resource: .miniAward)
+            
+        case .miniChallendar:
+            return UIImage(named: "miniChallendar") ?? UIImage(resource: .miniChallendar)
+            
         }
     }
     

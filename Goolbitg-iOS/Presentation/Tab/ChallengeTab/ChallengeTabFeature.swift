@@ -41,6 +41,7 @@ struct ChallengeTabFeature: GBReducer {
         
         enum Delegate {
             case moveToChallengeAdd
+            case moveToDetail(itemID: String)
         }
     }
     
@@ -53,6 +54,8 @@ struct ChallengeTabFeature: GBReducer {
         case checkPagingForWeekData
         case selectedMonthDate(Date)
         case selectedWeek(WeekDay)
+        case selectedDetail(item: ChallengeEntity)
+        case currentIndex(Int)
     }
     
     enum FeatureEvent {
@@ -116,8 +119,19 @@ extension ChallengeTabFeature {
             case let .viewEvent(.selectedWeek(data)):
                 state.selectedWeekDay = data
                 
+                state.challengeList = []
+                var paging = PagingObj()
+                paging.date = data.date
+                state.pagingObj = paging
+                
+                return .send(.featureEvent(.requestChallengeList(obj: state.pagingObj)))
+                
             case .viewEvent(.showChallengeAdd):
                 return .send(.delegate(.moveToChallengeAdd))
+                
+            case let .viewEvent(.selectedDetail(item)):
+                
+                return .send(.delegate(.moveToDetail(itemID: item.id)))
                 
             case let .featureEvent(.requestCurrentMonth(date)):
                 let monthText = dateManager.format(format: .yyyymmddKorean, date: date)
@@ -146,6 +160,7 @@ extension ChallengeTabFeature {
                     }
                     state.weekSlider = weakSlider
                 }
+                
             case let .featureEvent(.requestResettingWeekDatas(date)):
                 var weakSlider: [[WeekDay]] = []
                 let currentWeek = dateManager.fetchWeek(date)
@@ -207,10 +222,13 @@ extension ChallengeTabFeature {
                 
             case let .featureEvent(.requestChallengeList(obj)):
                 
-                return .run { [state] send in
+                let selectedSwitchIndex = state.selectedSwitchIndex
+                let toggleCase = state.toggleSwitchCase
+                
+                return .run { send in
                     let dateFormat = dateManager.format(format: .infoBirthDay, date: obj.date)
-                    let status = state.toggleSwitchCase[state.selectedSwitchIndex]
-                    print(status)
+                    let status = toggleCase[selectedSwitchIndex]
+                    
                     let results = try await networkManager.requestNetworkWithRefresh(
                         dto: ChallengeListDTO<ChallengeRecordDTO>.self,
                         router: ChallengeRouter.challengeRecords(page: obj.pageNum, size: obj.size, date: dateFormat, state: status.requestMode)

@@ -123,15 +123,15 @@ extension ChallengeTabView {
                 }
                 .padding(.trailing, 4)
             
-            Text("그룹")
-                .font(headerTitleFont(mode: .groups , by: tabMode))
-                .foregroundStyle(headerTitleColor(mode: .groups, by: tabMode))
-                .asButton {
-                    withAnimation {
-                        tabMode = .groups
-                        animationDirection = 1
-                    }
-                }
+//            Text("그룹")
+//                .font(headerTitleFont(mode: .groups , by: tabMode))
+//                .foregroundStyle(headerTitleColor(mode: .groups, by: tabMode))
+//                .asButton {
+//                    withAnimation {
+//                        tabMode = .groups
+//                        animationDirection = 1
+//                    }
+//                }
             
             Spacer()
             switch tabMode {
@@ -345,8 +345,21 @@ extension ChallengeTabView {
         LazyVStack(spacing: 0) {
             ForEach(Array(store.challengeList.enumerated()), id: \.element.self) { index, item in
                 VStack(spacing:0) {
-                    CommonChallengeListElementImageView(model: item)
-                        .padding(.vertical, SpacingHelper.md.pixel)
+                    Group {
+                        if DateManager.shared.isToday(store.selectedWeekDay.date) {
+                            CommonChallengeListElementImageView(model: item)
+                                .padding(.vertical, SpacingHelper.md.pixel)
+                                .asButton {
+                                    store.send(.viewEvent(.selectedDetail(item: item)))
+                                }
+                        } else {
+                            CommonChallengeListElementImageView(model: item)
+                                .padding(.vertical, SpacingHelper.md.pixel)
+                        }
+                    }
+                    .onAppear {
+                        store.send(.viewEvent(.currentIndex(index)))
+                    }
                     
                     if index != store.challengeList.count - 1 {
                         GBColor.grey500.asColor

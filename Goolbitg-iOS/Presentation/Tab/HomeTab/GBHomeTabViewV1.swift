@@ -222,10 +222,8 @@ extension GBHomeTabViewV1 {
                 .font(FontHelper.caption1.font)
                 .foregroundStyle(GBColor.white.asColor)
                 .padding(.bottom, SpacingHelper.sm.pixel)
-                
             
-            switch model.weekState {
-            case .success:
+            if model.weekState {
                 Circle()
                     .background(.clear)
                     .foregroundStyle(.clear)
@@ -234,21 +232,7 @@ extension GBHomeTabViewV1 {
                             .resizable()
                     }
                     .padding(.all, SpacingHelper.sm.pixel)
-            case .fail:
-                Circle()
-                    .background(.clear)
-                    .foregroundStyle(.clear)
-            case .wait:
-                Circle()
-                    .stroke(lineWidth: 1)
-                    .foregroundStyle(GBColor.white.asColor.opacity(0.3))
-                    .overlay {
-                        Text(DateManager.shared.format(format: .dayD, date: model.date))
-                            .font(FontHelper.body1.font)
-                            .foregroundStyle(GBColor.white.asColor.opacity(0.3))
-                    }
-                    .padding(.all, SpacingHelper.sm.pixel)
-            case .none:
+            } else {
                 Circle()
                     .stroke(lineWidth: 1)
                     .foregroundStyle(GBColor.white.asColor.opacity(0.3))

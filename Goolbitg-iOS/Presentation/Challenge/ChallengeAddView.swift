@@ -16,7 +16,7 @@ struct ChallengeAddView: View {
     private let skeletonBaseView = CommonChallengeListElementImageView(
         model: ChallengeEntity(
             id: UUID().uuidString,
-            imageUrl: nil,
+            imageUrl: nil, imageUrlLarge: nil,
             title: "XXXXXXXXXXXX",
             subTitle: "XXXXXXXXXXXX",
             reward: "",
@@ -36,7 +36,7 @@ struct ChallengeAddView: View {
                     GBChallengeBottomSheetView(
                         title: item.title,
                         subTitle: item.subTitle,
-                        imageURL: item.imageUrl,
+                        imageURL: item.imageUrlLarge,
                         bottomHashTag: nil,
                         buttonTitle: TextHelper.challengeTryTitle
                     ) {

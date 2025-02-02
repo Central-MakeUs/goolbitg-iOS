@@ -16,5 +16,5 @@ struct WeekDay: Identifiable, Entity {
 
 struct OneWeekDay: Entity {
     var date: Date
-    var weekState: ChallengeStatusCase
+    var weekState: Bool
 }

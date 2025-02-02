@@ -39,6 +39,7 @@ extension CommonChallengeListElementImageView {
             VStack(spacing:0) {
                 HStack {
                     Text(model.title)
+                        .multilineTextAlignment(.leading)
                         .font(FontHelper.body3.font)
                         .foregroundStyle(GBColor.white.asColor)
                     Spacer()
@@ -46,6 +47,7 @@ extension CommonChallengeListElementImageView {
                 if let subTitle = model.subTitle {
                     HStack {
                         Text(subTitle)
+                            .multilineTextAlignment(.leading)
                             .font(FontHelper.body5.font)
                             .foregroundStyle(GBColor.grey300.asColor)
                         Spacer()

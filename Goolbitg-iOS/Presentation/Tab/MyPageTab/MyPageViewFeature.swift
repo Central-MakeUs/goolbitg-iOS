@@ -88,9 +88,9 @@ extension MyPageViewFeature {
                 case .request:
                     moveURLManager.moveURL(caseOf: .inquiry)
                 case .serviceInfo:
-                    break
+                    moveURLManager.moveURL(caseOf: .service)
                 case .privacyPolicy:
-                    break
+                    moveURLManager.moveURL(caseOf: .privacy)
                 }
                 
             case .featureEvent(.requestUserInfo):

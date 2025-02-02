@@ -9,6 +9,8 @@ import Foundation
 
 enum AmountCase {
     case none
+    /// 2000원
+    case coffee
     /// 💡 5,000원 (~5,000원 이상)
     case taxi
     /// 💡 10,000원 (~10,000원 이상)
@@ -27,7 +29,9 @@ enum AmountCase {
     var title: String {
         switch self {
         case .none :
-            return "아낀게 없네요 참."
+            return ""
+        case .coffee:
+            return "커피 한잔만큼 아꼈어요"
         case .taxi:
             return "기본 택시비만큼 아꼈어요"
         case .movie:

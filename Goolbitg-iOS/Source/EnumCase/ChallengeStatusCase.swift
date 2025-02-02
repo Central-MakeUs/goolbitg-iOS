@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum ChallengeStatusCase: Entity {
+enum ChallengeStatusCase: Entity, Identifiable {
     /// 생성 시점 -> 진행중
     case wait
     /// 성공적 마무리
@@ -52,5 +52,9 @@ enum ChallengeStatusCase: Entity {
         case .none:
             return ""
         }
+    }
+    
+    var id: UUID {
+        return UUID()
     }
 }

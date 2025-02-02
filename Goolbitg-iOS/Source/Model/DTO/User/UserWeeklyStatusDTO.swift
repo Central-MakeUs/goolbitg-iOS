@@ -11,7 +11,6 @@ struct UserWeeklyStatusDTO: DTO {
     let nickname: String?
     let saving: Int?
     let continueCount: Int?
-    let chickenCount: Int?
-    let weekStatus: [ChallengeStatusCaseDTO]
+    let weeklyStatus: [UserWeeklyStatusElementDTO]
     let todayIndex: Int?
 }

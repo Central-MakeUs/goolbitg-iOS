@@ -12,21 +12,24 @@ final class MoveURLManager: Sendable {
     
     enum MoveURLCase {
         case inquiry
+        case privacy
+        case service
         
         var url: URL? {
             switch self {
             case .inquiry:
                 URL(string: "https://deep-twine-18f.notion.site/18b5dccdfca280ad8c49c5a75766dc64")
+            case .privacy:
+                URL(string: "https://deep-twine-18f.notion.site/18b5dccdfca2805986d4ff2aa8eff647?pvs=4")
+            case .service:
+                URL(string: "https://deep-twine-18f.notion.site/18b5dccdfca280128c3cc79c516a5b9d?pvs=4")
             }
         }
     }
     @discardableResult
     func moveURL(caseOf: MoveURLCase) -> Bool {
-        switch caseOf {
-        case .inquiry:
         guard let url = caseOf.url else { return false }
             return moveToSafari(url: url)
-        }
     }
     
     /// 사파리 로 이동합니다.

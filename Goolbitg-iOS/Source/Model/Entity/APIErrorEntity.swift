@@ -21,6 +21,8 @@ enum APIErrorEntity: Int, Entity {
     case noCredentials = 2003
     /// 접근 권한 없음
     case noAccess = 2004
+    /// 로그아웃 되버렷
+    case logoutCase = 2005
 
     // 유저 오류
     /// 이미 등록된 회원

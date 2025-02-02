@@ -46,11 +46,14 @@ final class UserMapper: Sendable {
         let currentWeek = DateManager.shared.fetchWeekDate()
         
         let mapping = await (currentWeek.enumerated()).asyncMap { index, item in
-            
-            var weekStatus: ChallengeStatusCase = .none
-            
-            if let status = dto.weekStatus[safe: index] {
-                weekStatus = ChallengeStatusCase.getSelf(initValue: status.rawValue)
+            var weekStatus = false
+            if let status = dto.weeklyStatus[safe: index] {
+                let success = status.achievedChallenges ?? 0
+                let will = status.totalChallenges ?? 0
+                
+                if success != 0, will != 0, success == will {
+                    weekStatus = true
+                }
             }
             
             return OneWeekDay(
@@ -76,7 +79,7 @@ final class UserMapper: Sendable {
             totalChallengeCount: String(model.challengeCount),
             writeCount: String(model.postCount),
             nextGoolbTitle: "다음 굴비까지 " + nextGold + "원 남았어요",
-            nextGoolBPercent: 0,
+            nextGoolBPercent: model.achievementGuage / Double(model.spendingType.goal ?? 0),
             userID: model.id
         )
     }
@@ -104,6 +107,9 @@ extension UserMapper {
         }
         else if amount >= 5000 {
             return .taxi
+        }
+        else if amount >= 2000 {
+            return .coffee
         }
         else {
             return .none

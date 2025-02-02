@@ -75,7 +75,7 @@ extension GBHomeTabViewFeature {
                 if !state.onAppearTrigger {
                     let result = dateManager.fetchWeekDate()
                     let mapping = result.map {
-                        return OneWeekDay(date: $0, weekState: .none)
+                        return OneWeekDay(date: $0, weekState: false)
                     }
                     state.currentWeekState = mapping
                 }

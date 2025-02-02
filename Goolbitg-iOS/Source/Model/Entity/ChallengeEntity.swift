@@ -10,6 +10,7 @@ import Foundation
 struct ChallengeEntity: Entity {
     let id: String
     let imageUrl: URL?
+    let imageUrlLarge: URL?
     let title: String
     let subTitle: String?
     /// 달성시 얻는 금액

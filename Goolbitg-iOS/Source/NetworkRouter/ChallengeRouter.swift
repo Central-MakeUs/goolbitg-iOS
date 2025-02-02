@@ -9,17 +9,24 @@ import Foundation
 import Alamofire
 
 enum ChallengeRouter {
+    /// 챌린지 리스트
     case challengeList(page: Int = 0, size: Int = 10, spendingTypeID: Int? = nil)
+    /// 챌린지 등록
     case challengeEnroll(challengeID: String)
+    /// 참여중인 챌린지 기록 목록
     case challengeRecords(page: Int = 0, size: Int = 10, date: String, state: String? = nil)
+    /// 3일치 작심삼일 기록 확인
+    case challengeTripple(challengeID: String)
+    /// 오늘의 챌린지 체크 성공 처리
+    case challengeRecordCheck(challengeID: String)
 }
 
 extension ChallengeRouter: Router {
     var method: HTTPMethod {
         switch self {
-        case .challengeList, .challengeRecords:
+        case .challengeList, .challengeRecords, .challengeTripple:
             return .get
-        case .challengeEnroll:
+        case .challengeEnroll, .challengeRecordCheck:
             return .post
         }
     }
@@ -32,18 +39,24 @@ extension ChallengeRouter: Router {
         switch self {
         case .challengeList:
             return "/challenges"
+            
         case let .challengeEnroll(challengeID):
             return "/challenges/\(challengeID)/enroll"
+            
         case .challengeRecords:
             return "/challengeRecords"
+            
+        case let .challengeTripple(challengeID):
+            return "/challengeTripple/\(challengeID)"
+            
+        case let .challengeRecordCheck(challengeID):
+            return "/challengeRecords/\(challengeID)/check"
+
         }
     }
     
     var optionalHeaders: HTTPHeaders? {
-        switch self {
-        case .challengeList, .challengeEnroll, .challengeRecords:
-            return [ "application/json" : "Content-Type" ]
-        }
+        return [ "application/json" : "Content-Type" ]
     }
     
     var parameters: Parameters? {
@@ -65,25 +78,36 @@ extension ChallengeRouter: Router {
                 "date" : date
             ]
             if let state {
-                defaultValue["state"] = state
+                defaultValue["status"] = state
             }
             return defaultValue
             
-        case .challengeEnroll:
+        case .challengeEnroll, .challengeTripple, .challengeRecordCheck:
             return nil
         }
     }
     
     var body: Data? {
         switch self {
-        case .challengeList ,.challengeEnroll, .challengeRecords:
+        case
+                .challengeList,
+                .challengeEnroll,
+                .challengeRecords,
+                .challengeTripple,
+                .challengeRecordCheck:
             return nil
+            
         }
     }
     
     var encodingType: EncodingType {
         switch self {
-        case .challengeList , .challengeEnroll, .challengeRecords:
+        case
+                .challengeList,
+                .challengeEnroll,
+                .challengeRecords,
+                .challengeTripple,
+                .challengeRecordCheck:
             return .url
         }
     }
