@@ -16,8 +16,9 @@ struct ChallengeTrippleEntity: Entity {
     let currentPeopleChallengeState: String
     let weekAvgText: String
     let fullDays: String
+    let cancelBool: Bool
     
     static var getSelf: Self {
-        return ChallengeTrippleEntity(challengeTitle: "", imageURL: nil, userName: UserDefaultsManager.userNickname, dayCountWithStatus: "", challengeStatus: [], currentPeopleChallengeState: "", weekAvgText: "", fullDays: "")
+        return ChallengeTrippleEntity(challengeTitle: "", imageURL: nil, userName: UserDefaultsManager.userNickname, dayCountWithStatus: "", challengeStatus: [], currentPeopleChallengeState: "", weekAvgText: "", fullDays: "", cancelBool: false)
     }
 }

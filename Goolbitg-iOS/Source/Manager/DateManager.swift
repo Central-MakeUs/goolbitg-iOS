@@ -126,12 +126,30 @@ extension DateManager {
     }
     
     func isToday(_ date: Date) -> Bool {
-        return calendar.isDateInToday(date)
+        return weekCalendar.isDateInToday(date)
+    }
+    
+    func isBeforeToday(_ date: Date) -> Bool {
+        let today = Date()
+        return weekCalendar.compare(date, to: today, toGranularity: .day) == .orderedAscending
     }
     
     func isSameDay(date: Date, date2: Date) -> Bool {
         return calendar.isDate(date, inSameDayAs: date2)
     }
+    
+//    func isInCurrentWeek(_ date: Date) -> Bool {
+//        guard let startOfWeek = weekCalendar.date(from: weekCalendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: Date()))
+//        else {
+//            return false
+//        }
+//        
+//        guard let endOfWeek = weekCalendar.date(byAdding: .day, value: 6, to: startOfWeek) else {
+//            return false
+//        }
+//        
+//        return date >= startOfWeek && date <= endOfWeek
+//    }
 }
 
 extension DateManager: DependencyKey {

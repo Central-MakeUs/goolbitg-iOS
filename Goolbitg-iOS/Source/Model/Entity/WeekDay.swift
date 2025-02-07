@@ -12,6 +12,7 @@ struct WeekDay: Identifiable, Entity {
     var date: Date
     var active: Bool = true
     var isSelected: Bool = false
+    var percent: Double = 0
 }
 
 struct OneWeekDay: Entity {

@@ -42,7 +42,7 @@ struct DisablePasteTextField: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             DisablePasteTextFieldPrepresentable(
                 text: $text,
                 isFocused: isFocused,
@@ -51,6 +51,7 @@ struct DisablePasteTextField: View {
                 onCommit: onCommit
             )
             .padding(.leading, ifLeadingEdge ?? 0)
+//            .fixedSize(horizontal: true, vertical: false)
         }
         .background(
             HStack {
@@ -82,7 +83,7 @@ struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
         textField.keyboardType = keyboardType
         textField.isSecureTextEntry = isSecureTextEntry
         textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldTapped), for: .editingDidBegin)
-        
+        textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return textField
     }
     

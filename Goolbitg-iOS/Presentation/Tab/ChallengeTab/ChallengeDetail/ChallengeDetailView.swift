@@ -19,6 +19,24 @@ struct ChallengeDetailView: View {
                 .onAppear {
                     store.send(.viewCycle(.onAppear))
                 }
+                .popup(item: $store.deleteAlertState.sending(\.alertBinding)) { item in
+                    GBAlertView(model: item) {
+                        store.send(.alertBinding(nil))
+                    } okTouch: {
+                        store.send(.alertBinding(nil))
+                        store.send(.viewEvent(.acceptStop))
+                    }
+                } customize: {
+                    $0
+                        .type(.default)
+                        .animation(.bouncy)
+                        .appearFrom(.centerScale)
+                        .closeOnTap(false)
+                        .closeOnTapOutside(false)
+                        .backgroundView {
+                            Color.black.opacity(0.5)
+                        }
+                }
         }
     }
 }
@@ -54,13 +72,14 @@ extension ChallengeDetailView {
                             store.send(.viewEvent(.dismissTap))
                         }
                     Spacer()
-                    
-                    Text("멈추기")
-                        .font(FontHelper.h3.font)
-                        .foregroundStyle(GBColor.error.asColor)
-                        .asButton {
-                            store.send(.viewEvent(.stopTap))
-                        }
+                    if !store.entity.cancelBool {
+                        Text("멈추기")
+                            .font(FontHelper.h3.font)
+                            .foregroundStyle(GBColor.error.asColor)
+                            .asButton {
+                                store.send(.viewEvent(.stopTap))
+                            }
+                    }
                 }
             }
             .padding(.horizontal, SpacingHelper.md.pixel)

@@ -16,13 +16,13 @@ enum APIErrorEntity: Int, Entity {
     /// 유효하지 않은 토큰
     case invalidToken = 2001
     /// 토큰 만료
-    case tokenExpiration = 2002
+    case tokenExpiration = 2002 // 이때 재로그인
     /// 인증 정보 없음
-    case noCredentials = 2003
+    case noCredentials = 2003 // 이때 재로그인
     /// 접근 권한 없음
-    case noAccess = 2004
+    case noAccess = 2004 // 이때 재로그인
     /// 로그아웃 되버렷
-    case logoutCase = 2005
+    case logoutCase = 2005 // 이때 재로그인
 
     // 유저 오류
     /// 이미 등록된 회원

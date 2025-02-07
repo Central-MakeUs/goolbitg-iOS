@@ -27,6 +27,10 @@ extension MyPageViewCoordinatorView {
             switch screen.case {
             case let .home(store):
                 MyPageView(store: store)
+            case let .revokePage(store):
+                RevokeReasonView(store: store)
+                    .navigationBarBackButtonHidden()
+                    .disableBackGesture(false)
             }
         }
     }
@@ -39,11 +43,14 @@ extension MyPageScreen.State: Identifiable {
         switch self {
         case .home:
             return .home
+        case .revokePage:
+            return .revokePage
         }
     }
     
     enum ID: Identifiable {
         case home
+        case revokePage
         
         var id: ID {
             return self

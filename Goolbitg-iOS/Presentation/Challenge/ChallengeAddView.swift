@@ -22,7 +22,8 @@ struct ChallengeAddView: View {
             reward: "",
             participantCount: "",
             avgAchiveRatio: "",
-            maxAchiveDays: 0
+            maxAchiveDays: 0,
+            status: nil
         )
     )
     

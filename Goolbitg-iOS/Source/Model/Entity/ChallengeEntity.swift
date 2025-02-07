@@ -21,4 +21,6 @@ struct ChallengeEntity: Entity {
     let avgAchiveRatio: String
     /// 가장 오래 진행된 챌린지 일수
     let maxAchiveDays: Int
+    
+    let status: ChallengeStatusCase? 
 }

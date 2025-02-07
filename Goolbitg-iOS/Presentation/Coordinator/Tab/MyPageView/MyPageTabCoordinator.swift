@@ -12,6 +12,7 @@ import TCACoordinators
 @Reducer(state: .equatable)
 enum MyPageScreen {
     case home(MyPageViewFeature)
+    case revokePage(RevokeFeature)
 }
 
 @Reducer
@@ -26,6 +27,12 @@ struct MyPageTabCoordinator {
     
     enum Action {
         case router(IdentifiedRouterActionOf<MyPageScreen>)
+        case delegate(Delegate)
+        
+        enum Delegate {
+            case tabViewHidden
+            case tabViewShow
+        }
     }
     
     var body: some ReducerOf<Self> {
@@ -37,6 +44,14 @@ extension MyPageTabCoordinator {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .router(.routeAction(id: .home, action: .home(.delegate(.revokedEvent)))):
+                state.routes.push(.revokePage(RevokeFeature.State()))
+                return .send(.delegate(.tabViewHidden))
+            
+            case .router(.routeAction(id: .revokePage, action: .revokePage(.delegate(.dismiss)))):
+                state.routes.pop()
+                return .send(.delegate(.tabViewShow))
+                
             default:
                 break
             }

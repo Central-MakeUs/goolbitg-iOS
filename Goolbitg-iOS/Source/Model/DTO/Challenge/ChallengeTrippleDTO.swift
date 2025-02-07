@@ -19,4 +19,6 @@ struct ChallengeTrippleDTO: DTO {
     
     /// 오늘 날짜가 몇 번째인지 나타내는 수
     let location: Int
+    /// 취소 여부
+    let canceled: Bool?
 }

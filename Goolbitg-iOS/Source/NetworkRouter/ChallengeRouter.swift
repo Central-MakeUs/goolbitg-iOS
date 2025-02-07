@@ -19,6 +19,8 @@ enum ChallengeRouter {
     case challengeTripple(challengeID: String)
     /// 오늘의 챌린지 체크 성공 처리
     case challengeRecordCheck(challengeID: String)
+    /// 챌린지 취소하기
+    case challengeRecordDelete(ChallengeID: String)
 }
 
 extension ChallengeRouter: Router {
@@ -28,6 +30,8 @@ extension ChallengeRouter: Router {
             return .get
         case .challengeEnroll, .challengeRecordCheck:
             return .post
+        case .challengeRecordDelete:
+            return .delete
         }
     }
     
@@ -51,7 +55,9 @@ extension ChallengeRouter: Router {
             
         case let .challengeRecordCheck(challengeID):
             return "/challengeRecords/\(challengeID)/check"
-
+            
+        case let .challengeRecordDelete(challengeID):
+            return "/challengeRecords/\(challengeID)"
         }
     }
     
@@ -82,7 +88,7 @@ extension ChallengeRouter: Router {
             }
             return defaultValue
             
-        case .challengeEnroll, .challengeTripple, .challengeRecordCheck:
+        case .challengeEnroll, .challengeTripple, .challengeRecordCheck, .challengeRecordDelete:
             return nil
         }
     }
@@ -94,7 +100,8 @@ extension ChallengeRouter: Router {
                 .challengeEnroll,
                 .challengeRecords,
                 .challengeTripple,
-                .challengeRecordCheck:
+                .challengeRecordCheck,
+                .challengeRecordDelete:
             return nil
             
         }
@@ -107,7 +114,8 @@ extension ChallengeRouter: Router {
                 .challengeEnroll,
                 .challengeRecords,
                 .challengeTripple,
-                .challengeRecordCheck:
+                .challengeRecordCheck,
+                .challengeRecordDelete:
             return .url
         }
     }

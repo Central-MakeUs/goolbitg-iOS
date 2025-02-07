@@ -22,6 +22,9 @@ final actor UserDefaultsManager {
         case appleLoginAccess
         case appleLoginRefresh
         
+        /// 애플 로그인 유저인지 구분합니다.
+        case ifAppleLoginUser
+        
         var value: String {
             return self.rawValue
         }
@@ -50,4 +53,18 @@ final actor UserDefaultsManager {
     
     @UserDefaultsWrapper(key: Key.appleLoginRefresh.value, placeValue: nil)
     static var appleRefreshToken: String?
+    
+    @UserDefaultsWrapper(key: Key.ifAppleLoginUser.value, placeValue: false)
+    static var ifAppleLoginUser: Bool
+    
+}
+
+extension UserDefaultsManager {
+    
+    static func resetUser() {
+        UserDefaultsManager.userNickname = ""
+        UserDefaultsManager.accessToken = ""
+        UserDefaultsManager.refreshToken = ""
+        UserDefaultsManager.ifAppleLoginUser = false
+    }
 }

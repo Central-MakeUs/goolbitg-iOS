@@ -18,7 +18,7 @@ enum TabCase: Hashable, CaseIterable {
     case homeTab
     /// meme -> Search Tab 변경
     case ChallengeTab
-    case buyOrNotTab
+//    case buyOrNotTab
     case myPageTab
     
     var title: String {
@@ -27,8 +27,8 @@ enum TabCase: Hashable, CaseIterable {
             return "홈"
         case .ChallengeTab:
             return "챌린지"
-        case .buyOrNotTab:
-            return "살까말까"
+//        case .buyOrNotTab:
+//            return "살까말까"
         case .myPageTab:
             return "마이페이지"
         }
@@ -88,6 +88,21 @@ extension GBTabBarCoordinator {
             case .challengeTabAction(.delegate(.tabbarHidden)):
                 state.tabbarHidden = true
             case .challengeTabAction(.delegate(.showTabbar)):
+                state.tabbarHidden = false
+                
+            case .challengeTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.hiddenTabBar))))):
+                state.tabbarHidden = true
+            case .challengeTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.showTabBar))))):
+                state.tabbarHidden = false
+                
+            case .homeTabAction(.delegate(.hiddenTabbar)):
+                state.tabbarHidden = true
+            case .homeTabAction(.delegate(.showTabbar)):
+                state.tabbarHidden = false
+                
+            case .myPageTabAction(.delegate(.tabViewHidden)):
+                state.tabbarHidden = true
+            case .myPageTabAction(.delegate(.tabViewShow)):
                 state.tabbarHidden = false
             
             default:

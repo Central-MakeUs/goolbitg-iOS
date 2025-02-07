@@ -24,6 +24,11 @@ struct GBHomeTabViewFeature: GBReducer {
         case viewCycle(ViewCycle)
         case viewEvent(ViewEvent)
         case featureEvent(FeatureEvent)
+        case delegate(Delegate)
+        
+        enum Delegate {
+            case moveToDetail(itemID: String)
+        }
     }
     
     enum ViewCycle {
@@ -52,6 +57,7 @@ struct GBHomeTabViewFeature: GBReducer {
     
     enum CancelID: Hashable {
         case onAppearTaskCancel
+        case selectedItem
     }
     
     var body: some ReducerOf<Self> {
@@ -70,6 +76,19 @@ extension GBHomeTabViewFeature {
                     await send(.featureEvent(.requestWeekState))
                     await send(.featureEvent(.requestChallengeList))
                 }
+                .cancellable(id: CancelID.onAppearTaskCancel)
+                
+            case .viewCycle(.onDisappear):
+                return .cancel(id: CancelID.onAppearTaskCancel)
+                
+            case let .viewEvent(.selectedItem(item)):
+                return .send(.delegate(.moveToDetail(itemID: item.id)))
+//                .throttle(
+//                    id: CancelID.selectedItem,
+//                    for: 0.7,
+//                    scheduler: DispatchQueue.main.eraseToAnyScheduler(),
+//                    latest: false
+//                )
                 
             case .featureEvent(.requestMockWeekState):
                 if !state.onAppearTrigger {
@@ -82,7 +101,7 @@ extension GBHomeTabViewFeature {
                     
             case .featureEvent(.requestWeekState):
                 return .run { send in
-                    let result = try await networkManager.requestNetworkWithRefresh(dto: UserWeeklyStatusDTO.self, router: UserRouter.weeklyStatus)
+                    let result = try await networkManager.requestNetworkWithRefresh(dto: UserWeeklyStatusDTO.self, router: UserRouter.weeklyStatus(dateString: nil))
                     
                     
                     let mappingTop = userMapper.homeTopViewMapping(dto: result)
@@ -109,7 +128,7 @@ extension GBHomeTabViewFeature {
                             page: pagingObj.pageNum,
                             size: pagingObj.size,
                             date: dateFormat,
-                            state: nil )
+                            state: ChallengeStatusCase.wait.requestMode )
                         )
                         await send(.featureEvent(.settingPagingObj(totalSize: result.totalSize, totalPage: result.totalPages)))
                         let mapping = await challengeMapper.toEntityConfigurationForHome(dtos: result.items)

@@ -25,8 +25,8 @@ enum UserRouter {
     case userRegisterStatus
     /// 약관동의 정보 등록
     case agreement(requestModel: UserAgreeMentRequestModel)
-    /// 주간 기록 보기
-    case weeklyStatus
+    /// 주간 기록 보기 ( yyyy-MM-dd)
+    case weeklyStatus(dateString: String? = nil)
     /// 푸시 알림 동의
     case agreePushNotification
 }
@@ -82,8 +82,16 @@ extension UserRouter: Router {
     
     var parameters: Parameters? {
         switch self {
-        case .currentUserInfos, .nickNameCheck, .userInfoRegist, .userCheckList, .userHabit, .userPatternRegist, .userRegisterStatus, .agreement, .agreePushNotification, .weeklyStatus:
+        case .currentUserInfos, .nickNameCheck, .userInfoRegist, .userCheckList, .userHabit, .userPatternRegist, .userRegisterStatus, .agreement, .agreePushNotification:
             return nil
+        case let .weeklyStatus(dateString):
+            if let dateString {
+                return [
+                    "date" : dateString
+                ]
+            } else {
+                return nil
+            }
         }
     }
     

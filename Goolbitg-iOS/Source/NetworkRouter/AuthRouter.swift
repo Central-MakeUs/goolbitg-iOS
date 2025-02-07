@@ -18,7 +18,7 @@ enum AuthRouter {
     /// 로그아웃
     case logOut
     /// 회원 탈퇴
-    case signOut
+    case signOut(RevokeRequestDTO)
 }
 
 extension AuthRouter: Router {
@@ -78,17 +78,22 @@ extension AuthRouter: Router {
         case let .refresh(refreshToken):
             let data = try? CodableManager.shared.jsonEncodingStrategy(RefreshTokenReqeustModel(refreshToken: refreshToken))
             return data
-        case .logOut, .signOut:
+            
+        case let .signOut(revokeModel):
+            let data = try? CodableManager.shared.jsonEncodingStrategy(revokeModel)
+            return data
+        case .logOut:
             return nil
+            
         }
     }
     
     var encodingType: EncodingType {
         switch self {
-        case .logOut, .signOut:
+        case .logOut:
             return .url
             
-        case .register, .login, .refresh:
+        case .register, .login, .refresh, .signOut:
             return .json
         }
     }

@@ -131,10 +131,10 @@ extension GBTabBarView {
                     ImageHelper.challengeTab.asImage
                         .renderingMode(.template)
                         .resizable()
-                case .buyOrNotTab:
-                    ImageHelper.buyOrNotTab.asImage
-                        .renderingMode(.template)
-                        .resizable()
+//                case .buyOrNotTab:
+//                    ImageHelper.buyOrNotTab.asImage
+//                        .renderingMode(.template)
+//                        .resizable()
                 case .myPageTab:
                     ImageHelper.myPageTab.asImage
                         .renderingMode(.template)

@@ -37,7 +37,8 @@ final class ChallengeMapper: Sendable {
             reward: dto.reward?.toString,
             participantCount: dto.participantCount.toString,
             avgAchiveRatio: dto.avgAchieveRatio.toString,
-            maxAchiveDays: dto.maxAchieveDays
+            maxAchiveDays: dto.maxAchieveDays,
+            status: nil
         )
     }
     
@@ -52,7 +53,8 @@ final class ChallengeMapper: Sendable {
             reward: String(dto.challenge.reward ?? 0),
             participantCount: String(dto.challenge.participantCount),
             avgAchiveRatio: String(dto.challenge.avgAchieveRatio),
-            maxAchiveDays: dto.challenge.maxAchieveDays
+            maxAchiveDays: dto.challenge.maxAchieveDays,
+            status: ChallengeStatusCase.getSelf(initValue: dto.status)
         )
     }
     
@@ -99,9 +101,40 @@ final class ChallengeMapper: Sendable {
             challengeStatus: dayStatus,
             currentPeopleChallengeState: withMe,
             weekAvgText: weekAvgText,
-            fullDays: longTimeText
+            fullDays: longTimeText,
+            cancelBool: dto.canceled ?? true
         )
     }
+    
+    func toMappingWeek(weekDays: [WeekDay], currentWeek: UserWeeklyStatusDTO) async -> [WeekDay] {
+        let list = currentWeek.weeklyStatus
+        return await Array(weekDays.enumerated()).asyncMap { index, item in
+            return toMappingWeek(weekDay: item, currentWeek: list[index])
+        }
+    }
+    
+    func toMappingWeek(weekDay: WeekDay, currentWeek: UserWeeklyStatusElementDTO) -> WeekDay {
+        
+        let total = currentWeek.totalChallenges ?? 0
+        let current = currentWeek.achievedChallenges ?? 0
+        var active = true
+        
+        let percent: Double
+        if total == 0 {
+            percent = 0.0
+            active = false
+        } else {
+            percent = Double(current) / Double(total)
+        }
+        
+        return WeekDay(
+            date: weekDay.date,
+            active: active,
+            isSelected: false,
+            percent: percent
+        )
+    }
+    
     
 }
 

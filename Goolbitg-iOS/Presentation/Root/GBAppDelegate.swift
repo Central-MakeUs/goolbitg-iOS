@@ -24,5 +24,8 @@ class GBAppDelegate: NSObject, UIApplicationDelegate {
         pushManager.sendToError()
     }
     
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        return UIInterfaceOrientationMask.portrait
+    }
 }
 

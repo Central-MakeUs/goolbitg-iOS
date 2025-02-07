@@ -114,7 +114,7 @@ struct LoginViewFeature {
                         )
                     )
                     saveToken(access: request.accessToken, refresh: request.refreshToken)
-                    
+                    UserDefaultsManager.ifAppleLoginUser = type == "APPLE"
                     // MARK: 여기선 이제 로그인 후 필수정보 쓴사람인가 아닌가 분석
                     
                     let requestRegisterState = try await networkManager.requestNetworkWithRefresh(dto: UserRegisterStatus.self, router: UserRouter.userRegisterStatus)

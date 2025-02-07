@@ -10,7 +10,7 @@ import Kingfisher
 
 struct DownImageView: View {
 
-    let url: URL
+    let url: URL?
     let option: Option
     var fallbackURL: URL? = nil
     var fallBackImg: UIImage? = nil
@@ -24,9 +24,9 @@ struct DownImageView: View {
         var size: CGSize {
             return switch self {
             case .max:
-                CGSize(width: 300, height: 300)
+                CGSize(width: 500, height: 500)
             case .mid:
-                CGSize(width: 200, height: 200)
+                CGSize(width: 300, height: 300)
             case .min:
                 CGSize(width: 100, height: 100)
             case let .custom(size):

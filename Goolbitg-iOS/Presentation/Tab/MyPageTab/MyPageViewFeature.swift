@@ -26,6 +26,7 @@ struct MyPageViewFeature: GBReducer {
         
         enum Delegate {
             case logOutEvent
+            case revokedEvent
         }
         
         case alertState(GBAlertViewComponents?)
@@ -53,6 +54,7 @@ struct MyPageViewFeature: GBReducer {
     @Dependency(\.networkManager) var networkManager
     @Dependency(\.userMapper) var userMapper
     @Dependency(\.moveURLManager) var moveURLManager
+    @Dependency(\.appleLoginManager) var appleLoginManager
     
     var body: some ReducerOf<Self> {
         core
@@ -92,6 +94,9 @@ extension MyPageViewFeature {
                 case .privacyPolicy:
                     moveURLManager.moveURL(caseOf: .privacy)
                 }
+                
+            case .viewEvent(.revokeButtonTapped):
+                return .send(.delegate(.revokedEvent))
                 
             case .featureEvent(.requestUserInfo):
                 return .run { send in

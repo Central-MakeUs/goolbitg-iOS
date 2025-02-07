@@ -59,6 +59,7 @@ extension RootCoordinator {
                 state.currentView = .mainTab
                 return .send(.tabAction(.currentTab(.homeTab)))
             case .tabAction(.myPageTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.logOutEvent)))))):
+                state.splashLogin.routes.popToRoot()
                 state.currentView = .splashLogin
 //            case let .splashLoginAction(.sendDeepLink(deepLinkURL)):
 //                guard let deepLinkCase = DeepLinkCase(urlString: deepLinkURL) else {
@@ -66,6 +67,10 @@ extension RootCoordinator {
 //                    return .none
 //                }
 //                deepLinkAction(deepLinkCase, state: &state)
+                
+            case .tabAction(.myPageTabAction(.router(.routeAction(id: .revokePage, action: .revokePage(.delegate(.revokedEvent)))))):
+                state.splashLogin.routes.popToRoot()
+                state.currentView = .splashLogin
             default:
                 break
             }

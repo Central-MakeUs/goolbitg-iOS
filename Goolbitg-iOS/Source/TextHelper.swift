@@ -121,4 +121,14 @@ enum TextHelper {
     static let mySpendingScoreTitle = "내 소비 점수"
     static let totalChallengeCount = "총 챌린지 수"
     static let writeCount = "작성한 글"
+    
+    // MARK: 회원 탈퇴
+    static let revokeNavigationTitle = "서비스 탈퇴"
+    static let revokeTopTitle = "다음 굴비까지 얼마 안남았는데\n정말 그만두시는건가요? :("
+    static let revokeTopSubTitle = "소중한 의견을 보내주신다면,\n더 좋은 모습으로 발전하겠습니다"
+    static let revokeFirstTitle = "앱 이용이 불편했어요"
+    static let revokeSecondTitle = "앱을 자주 사용하지 않아요"
+    static let revokeThirdTitle = "오류가 있었어요"
+    static let revokeFourthTitle = "새로운 계정을 사용하고 싶어요"
+    static let revokeFifthTitle = "기타(직접 입력)"
 }

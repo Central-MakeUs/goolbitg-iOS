@@ -17,13 +17,16 @@ struct ChallengeTabFeature: GBReducer {
         var selectedSwitchIndex: Int = 0
         
         var onAppearTrigger = false
-        var currentMonth = ""
         
         let maxCalendar = Calendar.current.date(byAdding: .year, value: -100, to: Date())!...Date()
         
         var weekSlider:[[WeekDay]] = []
         var selectedWeekDay = WeekDay(date: Date())
         var weekIndex: Int = 1
+        
+        var datePickerMonth = Date()
+        
+        var todayDate = Date()
         
         var pagingObj = PagingObj()
         var challengeList: [ChallengeEntity] = []
@@ -42,7 +45,11 @@ struct ChallengeTabFeature: GBReducer {
         enum Delegate {
             case moveToChallengeAdd
             case moveToDetail(itemID: String)
+            case hiddenTabBar
+            case showTabBar
         }
+        
+        case datePickerMonth(Date)
     }
     
     enum ViewCycle {
@@ -59,11 +66,18 @@ struct ChallengeTabFeature: GBReducer {
     }
     
     enum FeatureEvent {
-        case requestCurrentMonth(Date)
+//        case requestCurrentMonth(Date)
         case requestFirstSettingWeekDatas(Date)
         case requestResettingWeekDatas(Date)
         case requestNextWeekData
         case requestPrevWeekData
+        
+        case settingRequestList(Date)
+        case reSettingRequestList
+        
+        case firstResultWeekData([[WeekDay]])
+        case resultPrevWeekData([WeekDay])
+        case resultNextWeekData([WeekDay])
         
         case requestChallengeList(obj: PagingObj)
         case resultToChallengeList(dats: [ChallengeEntity])
@@ -96,10 +110,11 @@ extension ChallengeTabFeature {
                     state.onAppearTrigger = true
                     let page = state.pagingObj
                     return .run { send in
-                        await send(.featureEvent(.requestCurrentMonth(Date())))
                         await send(.featureEvent(.requestFirstSettingWeekDatas(Date())))
                         await send(.featureEvent(.requestChallengeList(obj: page)))
                     }
+                } else {
+                    state.todayDate = Date()
                 }
                 
             case .viewEvent(.checkPagingForWeekData):
@@ -111,86 +126,183 @@ extension ChallengeTabFeature {
                 }
                 
             case let .viewEvent(.selectedMonthDate(date)):
+                state.datePickerMonth = date
+                state.selectedWeekDay = WeekDay(date: date)
                 return .run { send in
-                    await send(.featureEvent(.requestCurrentMonth(date)))
                     await send(.featureEvent(.requestResettingWeekDatas(date)))
+                    await send(.featureEvent(.settingRequestList(date)))
                 }
+                .animation(.easeIn(duration: 1))
                 
             case let .viewEvent(.selectedWeek(data)):
                 state.selectedWeekDay = data
+                state.datePickerMonth = data.date
+                return .send(.featureEvent(.settingRequestList(data.date)))
                 
-                state.challengeList = []
+            case let .featureEvent(.settingRequestList(date)):
                 var paging = PagingObj()
-                paging.date = data.date
+                paging.date = date
                 state.pagingObj = paging
+                return .send(.featureEvent(.requestChallengeList(obj: state.pagingObj)))
                 
+            case .featureEvent(.reSettingRequestList):
+                let paging = PagingObj()
+                state.pagingObj = paging
                 return .send(.featureEvent(.requestChallengeList(obj: state.pagingObj)))
                 
             case .viewEvent(.showChallengeAdd):
                 return .send(.delegate(.moveToChallengeAdd))
                 
             case let .viewEvent(.selectedDetail(item)):
-                
                 return .send(.delegate(.moveToDetail(itemID: item.id)))
-                
-            case let .featureEvent(.requestCurrentMonth(date)):
-                let monthText = dateManager.format(format: .yyyymmddKorean, date: date)
-                state.currentMonth = monthText
                 
                 // MARK: 최초 달력 뷰 세팅
             case let .featureEvent(.requestFirstSettingWeekDatas(date)):
-                var weakSlider: [[WeekDay]] = []
-                let today = Date()
                 
-                if state.weekSlider.isEmpty {
-                    let currentWeek = dateManager.fetchWeek(date)
+                if !state.weekSlider.isEmpty { return .none }
+                
+                return .run { send in
+                    var weekSlider: [[WeekDay]] = []
                     
-                    if let firstDate = currentWeek.first?.date {
-                        let firstStack = dateManager.createPreviousWeek(firstDate)
-                        weakSlider.append(firstStack)
+                    let currentWeekEntity = dateManager.fetchWeek(date)
+                    let currentWeek = try await networkManager.requestNetworkWithRefresh(
+                        dto: UserWeeklyStatusDTO.self,
+                        router: UserRouter.weeklyStatus(dateString: nil)
+                    )
+                    let currentWeekResult = await challengeMapper.toMappingWeek(weekDays: currentWeekEntity, currentWeek: currentWeek)
+                    
+                    
+                    if let firstDate = currentWeekEntity.first?.date {
+                        let previousWeekEntity = dateManager.createPreviousWeek(firstDate)
+                        
+                        let dateString = dateManager.format(
+                            format: .infoBirthDay,
+                            date: previousWeekEntity.first?.date ?? Date()
+                        )
+                        
+                        let previousWeek = try await networkManager.requestNetworkWithRefresh(
+                            dto: UserWeeklyStatusDTO.self,
+                            router: UserRouter.weeklyStatus(dateString: dateString)
+                        )
+                        
+                        let prevResult = await challengeMapper.toMappingWeek(weekDays: previousWeekEntity, currentWeek: previousWeek)
+                        
+                        weekSlider.append(prevResult)
                     }
                     
-                    weakSlider.append(currentWeek)
+                    weekSlider.append(currentWeekResult)
                     
-                    if let lastDate = currentWeek.last?.date {
-                        if lastDate < today {
-                            let lastStack = dateManager.createNextWeek(lastDate)
-                            weakSlider.append(lastStack)
-                        }
+                    await send(.featureEvent(.firstResultWeekData(weekSlider)))
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        return
                     }
-                    state.weekSlider = weakSlider
+                    Logger.error(error)
                 }
+                
+            case let .featureEvent(.firstResultWeekData(datas)):
+                state.weekSlider = datas
                 
             case let .featureEvent(.requestResettingWeekDatas(date)):
-                var weakSlider: [[WeekDay]] = []
-                let currentWeek = dateManager.fetchWeek(date)
-                let today = Date()
-                
-                if let firstDate = currentWeek.first?.date {
-                    let firstStack = dateManager.createPreviousWeek(firstDate)
-                    weakSlider.append(firstStack)
-                }
-                
-                weakSlider.append(currentWeek)
-                
-                if let lastDate = currentWeek.last?.date {
-                    if lastDate < today {
-                        let lastStack = dateManager.createNextWeek(lastDate)
-                        weakSlider.append(lastStack)
+
+                return .run { send in
+                    var weekSlider: [[WeekDay]] = []
+                    
+                    let currentWeekEntity = dateManager.fetchWeek(date)
+                    let getDateString = dateManager.format(
+                        format: .infoBirthDay,
+                        date: date
+                    )
+                    
+                    let currentWeek = try await networkManager.requestNetworkWithRefresh(
+                        dto: UserWeeklyStatusDTO.self,
+                        router: UserRouter.weeklyStatus(dateString: getDateString)
+                    )
+                    let currentWeekResult = await challengeMapper.toMappingWeek(weekDays: currentWeekEntity, currentWeek: currentWeek)
+                    
+                    
+                    if let firstDate = currentWeekEntity.first?.date {
+                        let previousWeekEntity = dateManager.createPreviousWeek(firstDate)
+                        
+                        let dateString = dateManager.format(
+                            format: .infoBirthDay,
+                            date: previousWeekEntity.first?.date ?? Date()
+                        )
+                        
+                        let previousWeek = try await networkManager.requestNetworkWithRefresh(
+                            dto: UserWeeklyStatusDTO.self,
+                            router: UserRouter.weeklyStatus(dateString: dateString)
+                        )
+                        
+                        let prevResult = await challengeMapper.toMappingWeek(weekDays: previousWeekEntity, currentWeek: previousWeek)
+                        
+                        weekSlider.append(prevResult)
                     }
+                    
+                    weekSlider.append(currentWeekResult)
+                    
+                    if let lastDate = currentWeekEntity.last?.date {
+                        if lastDate < Date() {
+                            let lastStack = dateManager.createNextWeek(lastDate)
+                            
+                            let dateString = dateManager.format(
+                                format: .infoBirthDay,
+                                date: lastStack.first?.date ?? Date()
+                            )
+                            
+                            let lastWeek = try await networkManager.requestNetworkWithRefresh(
+                                dto: UserWeeklyStatusDTO.self,
+                                router: UserRouter.weeklyStatus(dateString: dateString)
+                            )
+                            
+                            let lastResult = await challengeMapper.toMappingWeek(weekDays: lastStack, currentWeek: lastWeek)
+                            
+                            weekSlider.append(lastResult)
+                        }
+                    }
+                    
+                    await send(.featureEvent(.firstResultWeekData(weekSlider)))
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        return
+                    }
+                    Logger.error(error)
                 }
-                
-                state.weekSlider = weakSlider
                 
             case .featureEvent(.requestPrevWeekData):
-                var weekSlider = state.weekSlider
+                let weekSlider = state.weekSlider
                 let index = state.weekIndex
                 
                 guard let firstDate = weekSlider[index].first?.date,
                       index == 0 else {
                     return .none
                 }
-                let prev = dateManager.createPreviousWeek(firstDate)
+                
+                return .run { send in
+                    let prev = dateManager.createPreviousWeek(firstDate)
+                    
+                    let dateString = dateManager.format(
+                        format: .infoBirthDay,
+                        date: prev.first?.date ?? Date()
+                    )
+                    
+                    let previousWeek = try await networkManager.requestNetworkWithRefresh(
+                        dto: UserWeeklyStatusDTO.self,
+                        router: UserRouter.weeklyStatus(dateString: dateString)
+                    )
+                    
+                    let mapping = await challengeMapper.toMappingWeek(weekDays: prev, currentWeek: previousWeek)
+                    
+                    await send(.featureEvent(.resultPrevWeekData(mapping)))
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        return
+                    }
+                    Logger.error(error)
+                }
+                
+            case let .featureEvent(.resultPrevWeekData(prev)):
+                var weekSlider = state.weekSlider
                 
                 if weekSlider.count == 3 {
                     weekSlider.removeLast()
@@ -201,7 +313,7 @@ extension ChallengeTabFeature {
                 state.weekIndex = 1
                 
             case .featureEvent(.requestNextWeekData):
-                var weekSlider = state.weekSlider
+                let weekSlider = state.weekSlider
                 let index = state.weekIndex
                 let today = Date()
                 
@@ -211,11 +323,36 @@ extension ChallengeTabFeature {
                     return .none
                 }
                 
-                let behind = dateManager.createNextWeek(lastDate)
+                return .run { send in
+                    let nextWeek = dateManager.createNextWeek(lastDate)
+                    
+                    let dateString = dateManager.format(
+                        format: .infoBirthDay,
+                        date: nextWeek.first?.date ?? Date()
+                    )
+                    
+                    let result = try await networkManager.requestNetworkWithRefresh(
+                        dto: UserWeeklyStatusDTO.self,
+                        router: UserRouter.weeklyStatus(dateString: dateString)
+                    )
+                    
+                    let mapping = await challengeMapper.toMappingWeek(weekDays: nextWeek, currentWeek: result)
+                    
+                    await send(.featureEvent(.resultNextWeekData(mapping)))
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        return
+                    }
+                    Logger.error(error)
+                }
+                
+            case let .featureEvent(.resultNextWeekData(next)):
+                var weekSlider = state.weekSlider
+                
                 if weekSlider.count == 3 {
                     weekSlider.removeFirst()
                 }
-                weekSlider.append(behind)
+                weekSlider.append(next)
                 
                 state.weekSlider = weekSlider
                 state.weekIndex = 1
@@ -251,14 +388,16 @@ extension ChallengeTabFeature {
                 // MARK: Parent
             case .parentEvent(.reloadData):
                 let page = state.pagingObj
+                state.datePickerMonth = Date()
+                state.selectedWeekDay = WeekDay(date: Date())
                 return .run { send in
-                    await send(.featureEvent(.requestCurrentMonth(Date())))
                     await send(.featureEvent(.requestResettingWeekDatas(Date())))
                     await send(.featureEvent(.requestChallengeList(obj: page)))
                 }
                 
             case let .selectedSwitchIndex(index):
                 state.selectedSwitchIndex = index
+                state.challengeList = []
                 let obj = state.pagingObj
                 return .run { send in
                     await send(.featureEvent(.requestChallengeList(obj: obj)))
@@ -268,6 +407,8 @@ extension ChallengeTabFeature {
             case let .weekIndex(index):
                 state.weekIndex = index
                 
+            case let .datePickerMonth(date):
+                state.datePickerMonth = date
             default:
                 break
             }

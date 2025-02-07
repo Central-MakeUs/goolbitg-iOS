@@ -240,9 +240,11 @@ extension MyPageView {
                         .foregroundStyle(GBColor.white.asColor)
                     Spacer()
                     
-                    Text(TextHelper.accountID)
-                        .font(FontHelper.caption1.font)
-                        .foregroundStyle(GBColor.grey300.asColor)
+                    if case .accountID = item {
+                        Text(store.userEntity.userID)
+                            .font(FontHelper.caption1.font)
+                            .foregroundStyle(GBColor.grey300.asColor)
+                    }
                 }
                 .asButton {
                     store.send(.viewEvent(.accountSectionItemTapped(item: item)))
@@ -345,7 +347,7 @@ enum AccountSectionType: CaseIterable {
     var title: String {
         switch self {
         case .accountID:
-            return "아이디"
+            return TextHelper.accountID
         }
     }
     

@@ -16,6 +16,7 @@ struct ChallengeDetailFeature: GBReducer {
         let challengeID: String
         
         var entity = ChallengeTrippleEntity.getSelf
+        var deleteAlertState: GBAlertViewComponents? = nil
     }
     
     enum Action {
@@ -26,6 +27,8 @@ struct ChallengeDetailFeature: GBReducer {
         enum Delegate {
             case dismissTap
         }
+        
+        case alertBinding(GBAlertViewComponents?)
     }
     
     enum ViewCycle {
@@ -35,6 +38,7 @@ struct ChallengeDetailFeature: GBReducer {
     enum ViewEvent {
         case dismissTap
         case stopTap
+        case acceptStop
         case selectedCaseItem(item: ChallengeStatusCase)
     }
     
@@ -69,7 +73,7 @@ extension ChallengeDetailFeature {
                 let id = state.challengeID
                 if case .wait = item {
                     return .run { send in
-                        let result = try await networkManager.requestNetworkWithRefresh(
+                        _ = try await networkManager.requestNetworkWithRefresh(
                             dto: ChallengeRecordDTO.self,
                             router: ChallengeRouter.challengeRecordCheck(
                                 challengeID: id
@@ -85,6 +89,33 @@ extension ChallengeDetailFeature {
                         /// MARK: 에러 대응 해야함
                     }
                 }
+            case .viewEvent(.stopTap):
+                
+                let deleteAlertState = GBAlertViewComponents(
+                    title: "챌린지 멈추기",
+                    message: "지금 멈추면 앞으로 기록을 못해요",
+                    cancelTitle: "취소",
+                    okTitle: "멈추기",
+                    alertStyle: .warning
+                )
+                
+                state.deleteAlertState = deleteAlertState
+                
+            case .viewEvent(.acceptStop):
+                let id = state.challengeID
+                return .run { send in
+                    try await networkManager.requestNotDtoNetwork(
+                        router: ChallengeRouter.challengeRecordDelete(ChallengeID: id),
+                        ifRefreshNeed: true
+                    )
+                    await send(.delegate(.dismissTap))
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        return
+                    }
+                    //MARK: 에러 대응 해야함.
+                }
+                
                 
             case .featureEvent(.requestChallengeTripple):
                 let id = state.challengeID
@@ -111,6 +142,9 @@ extension ChallengeDetailFeature {
                 
             case let .featureEvent(.resultChallengeTripple(model)):
                 state.entity = model
+                
+            case let .alertBinding(alert):
+                state.deleteAlertState = alert
                 
             default:
                 break

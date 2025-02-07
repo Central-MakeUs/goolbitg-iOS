@@ -54,6 +54,17 @@ enum ChallengeStatusCase: Entity, Identifiable {
         }
     }
     
+    var buttonTitle: String {
+        switch self {
+        case .success:
+            return "성공"
+        case .fail:
+            return "실패"
+        default:
+            return ""
+        }
+    }
+    
     var id: UUID {
         return UUID()
     }

@@ -16,7 +16,6 @@ struct ChallengeTabView: View {
     @State private var tabMode: ChallengeTabInMode = .individuals
     
     @State private var showDatePicker: Bool = false
-    @State private var datePickerMonth = Date()
     
     @Namespace private var daySelectedAnimation
     // 애니메이션 방향 (-1: 왼쪽, 1: 오른쪽)
@@ -35,6 +34,9 @@ struct ChallengeTabView: View {
                         store.send(.viewEvent(.checkPagingForWeekData))
                     }
                 }
+                .onChange(of: store.selectedWeekDay) { newValue in
+                    selectedWeekDay = newValue
+                }
                 .popup(isPresented: $showDatePicker) {
                     GBBottonSheetView {
                         AnyView(bottomSheetDateView)
@@ -42,6 +44,9 @@ struct ChallengeTabView: View {
                     .frame(maxWidth: .infinity)
                     .background(GBColor.grey600.asColor)
                     .cornerRadiusCorners(12, corners: [.topLeft, .topRight])
+                    .onAppear {
+                        store.send(.delegate(.hiddenTabBar))
+                    }
                 } customize: {
                     $0
                         .type(.toast)
@@ -50,6 +55,9 @@ struct ChallengeTabView: View {
                         .closeOnTapOutside(false)
                         .backgroundView {
                             Color.black.opacity(0.5)
+                        }
+                        .dismissCallback {
+                            store.send(.delegate(.showTabBar))
                         }
                 }
 
@@ -60,7 +68,7 @@ struct ChallengeTabView: View {
         VStack(spacing: 0) {
             DatePicker(
                 "",
-                selection: $datePickerMonth,
+                selection: $store.datePickerMonth.sending(\.datePickerMonth),
                 in: store.maxCalendar,
                 displayedComponents: .date
             )
@@ -70,7 +78,7 @@ struct ChallengeTabView: View {
             .changeTextColor(GBColor.white.asColor)
             
             GBButtonV2(title: TextHelper.acceptTitle) {
-                store.send(.viewEvent(.selectedMonthDate(datePickerMonth)))
+                store.send(.viewEvent(.selectedMonthDate(store.datePickerMonth)))
                 showDatePicker.toggle()
             }
             .padding(.all, 16)
@@ -193,9 +201,10 @@ extension ChallengeTabView {
         return VStack (spacing: 0) {
             TabView(selection: $store.weekIndex.sending(\.weekIndex)) {
                 ForEach(store.weekSlider.indices, id: \.self) { index in
-                    let week = store.weekSlider[index]
-                    weekView(week)
-                        .tag(index)
+                    if let week = store.weekSlider[safe: index] {
+                        weekView(week)
+                            .tag(index)
+                    }
                 }
             }
             .frame(height: 105)
@@ -227,7 +236,7 @@ extension ChallengeTabView {
                         .padding(.bottom, SpacingHelper.sm.pixel)
                     
                     ZStack {
-                        if selectedWeekDay == day {
+                        if DateManager.shared.isSameDay(date: day.date, date2: store.selectedWeekDay.date) {
                             Circle()
                                 .foregroundStyle(GBColor.main60.asColor)
                                 .matchedGeometryEffect(id: "daySelectedAnimation", in: daySelectedAnimation)
@@ -256,7 +265,7 @@ extension ChallengeTabView {
                     .frame(height: 36) // 전체 크기 고정
                     .padding(.bottom, SpacingHelper.sm.pixel)
                     
-                    dayProgressView(percentage: 1)
+                    dayProgressView(percentage: day.percent)
                 }
                 .asButton {
                     withAnimation(.snappy) {
@@ -269,9 +278,11 @@ extension ChallengeTabView {
     }
     
     private var monthSelectionView: some View {
-        HStack (spacing: 0) {
+        let monthText = DateManager.shared.format(format: .yyyymmddKorean, date: store.datePickerMonth)
+        
+        return HStack (spacing: 0) {
             
-            Text(store.currentMonth)
+            Text(monthText)
                 .padding(.trailing, 8)
                 .foregroundStyle(GBColor.white.asColor)
             
@@ -296,7 +307,7 @@ extension ChallengeTabView {
                     .padding(.horizontal, 4)
                 Capsule()
                     .frame(
-                        width: proxy.size.width * CGFloat(percentage) - 4,
+                        width: max(proxy.size.width * CGFloat(percentage) - 4, 0),
                         height: 4
                     )
                     .padding(.leading, 4)
@@ -352,7 +363,12 @@ extension ChallengeTabView {
                                 .asButton {
                                     store.send(.viewEvent(.selectedDetail(item: item)))
                                 }
-                        } else {
+                        }
+                        else if DateManager.shared.isBeforeToday(store.selectedWeekDay.date) {
+                            ChallengeBeforeView(model: item)
+                                .padding(.vertical, SpacingHelper.md.pixel)
+                        }
+                        else {
                             CommonChallengeListElementImageView(model: item)
                                 .padding(.vertical, SpacingHelper.md.pixel)
                         }

@@ -26,6 +26,12 @@ extension HomeTabCoordinatorView {
                 switch screen.case {
                 case let .home(store):
                     GBHomeTabViewV1(store: store)
+                        .disableBackGesture(false)
+                    
+                case let .challengeDetail(store):
+                    ChallengeDetailView(store: store)
+                        .navigationBarBackButtonHidden()
+                        .disableBackGesture(false)
                 }
             }
         }
@@ -37,11 +43,14 @@ extension homeTabScreen.State: Identifiable {
         switch self {
         case .home:
             return .home
+        case .challengeDetail:
+            return .challengeDetail
         }
     }
     
     enum ID: Identifiable {
         case home
+        case challengeDetail
         
         var id: ID {
             return self
