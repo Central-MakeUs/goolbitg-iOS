@@ -8,6 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 import TCACoordinators
+import PopupView
 
 struct RootCoordinatorView: View {
     
@@ -18,10 +19,21 @@ struct RootCoordinatorView: View {
     var body: some View {
         WithPerceptionTracking {
             content
+                .onAppear {
+                    store.send(.onAppear)
+                }
                 .onChange(of: store.currentView) { newValue in
                     withAnimation {
                         currentView = newValue
                     }
+                }
+                .popup(item: $store.alertItem.sending(\.alertItem)) { item in
+                    GBAlertView(
+                        model: item) {
+                            store.send(.alertItem(nil))
+                        } okTouch: {
+                            store.send(.confirmCase(item))
+                        }
                 }
         }
     }

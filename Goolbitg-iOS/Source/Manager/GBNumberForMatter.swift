@@ -31,6 +31,33 @@ extension GBNumberForMatter {
         }
     }
     
+    func changeForCommaNumber(_ number: Double) -> String {
+        return changeFormatToString(number: number)
+    }
+    
+    func changetForCommaNumber(_ number: String, max: Int) -> String {
+        
+        let filteredNumber = number.filter { $0.isNumber }
+        
+        if filteredNumber.isEmpty { return number }
+        
+        if let intValue = Int(filteredNumber) {
+            // 자리수를 초과하면 원본 반환
+            if filteredNumber.count > max {
+                var number = number
+                number.removeLast()
+                return number
+            }
+            
+            numberFormatter.numberStyle = .decimal
+            numberFormatter.groupingSeparator = ","
+            
+            return numberFormatter.string(from: NSNumber(value: intValue)) ?? number
+        } else {
+            return ""
+        }
+    }
+    
     /// 문자열중 숫자인것만 필터합니다.
     /// - Parameter string: input
     /// - Returns: 필터된 문자열

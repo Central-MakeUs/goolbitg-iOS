@@ -101,7 +101,7 @@ extension ComsumptionHabitsViewFeature {
             case .returnToEvent(.checkToMonthText(let text)):
                 state.monthTextGetWonState = !text.isEmpty
                 
-                let result = gbNumberForMatter.changeForCommaNumber(text)
+                let result = gbNumberForMatter.changetForCommaNumber(text, max: 9)
                 state.monthGetText = result
                 
                 return checkNextButtonState(state: &state)
@@ -110,7 +110,7 @@ extension ComsumptionHabitsViewFeature {
             case .returnToEvent(.checkToSavingText(let text)):
                 state.monthTextSavingWonState = !text.isEmpty
                 
-                let result = gbNumberForMatter.changeForCommaNumber(text)
+                let result = gbNumberForMatter.changetForCommaNumber(text, max: 9)
                 state.monthSavingText = result
                 
                 return checkNextButtonState(state: &state)

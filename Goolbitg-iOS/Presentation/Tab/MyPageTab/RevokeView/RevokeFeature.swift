@@ -116,7 +116,9 @@ extension RevokeFeature {
                         authorizationCode: nil
                     )
                     
-                    try await networkManager.requestNotDtoNetwork(router: AuthRouter.signOut(requestModel), ifRefreshNeed: false)
+                    try await networkManager.requestNotDtoNetwork(router: AuthRouter.signOut(requestModel), ifRefreshNeed: true)
+                    
+                    UserDefaultsManager.resetUser()
                     
                     await send(.delegate(.revokedEvent))
                 } catch: { error, send in

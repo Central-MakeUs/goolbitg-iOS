@@ -17,22 +17,36 @@ struct RootCoordinator {
     struct State: Equatable, Sendable {
         var currentView: ChangeRootView = .splashLogin
         
+        var alertItem: GBAlertViewComponents? = nil
+        
         var splashLogin = SplashLoginCoordinator.State.initialState
         
         var tabState = TabNavigationCoordinator.State.initialState
+        
+        var onAppear = false
     }
     
     enum Action {
         case splashLoginAction(SplashLoginCoordinator.Action)
         case tabAction(TabNavigationCoordinator.Action)
+        case onAppear
         
         case changeView(ChangeRootView)
         case deepLink(DeepLinkCase)
+        
+        case alertItem(GBAlertViewComponents?)
+        case confirmCase(GBAlertViewComponents)
+        
+        case getRouterError(RouterError)
     }
     
     enum ChangeRootView {
         case splashLogin
         case mainTab
+    }
+    
+    enum CancelID: Hashable {
+        case networkError
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -55,6 +69,18 @@ extension RootCoordinator {
         Reduce { state, action in
             switch action {
                 
+            case .onAppear:
+                if state.onAppear {
+                    state.onAppear = false
+                    
+                    return .run { send in
+                        for await error in networkManager.getNetworkError() {
+                            await send(.getRouterError(error))
+                        }
+                    }
+                    .debounce(id: CancelID.networkError, for: 1, scheduler: DispatchQueue.main.eraseToAnyScheduler())
+                }
+                
             case .splashLoginAction(.delegate(.moveToHome)):
                 state.currentView = .mainTab
                 return .send(.tabAction(.router(.routeAction(id: .tabView, action: .tabView(.currentTab(.homeTab))))))
@@ -62,24 +88,25 @@ extension RootCoordinator {
             case .tabAction(.router(.routeAction(id: .tabView, action: .tabView(.myPageTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.logOutEvent))))))))):
                 state.splashLogin.routes.popToRoot()
                 state.currentView = .splashLogin
-//                
-//            case .tabAction(.myPageTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.logOutEvent)))))):
-//                state.splashLogin.routes.popToRoot()
-//                state.currentView = .splashLogin
-//            case let .splashLoginAction(.sendDeepLink(deepLinkURL)):
-//                guard let deepLinkCase = DeepLinkCase(urlString: deepLinkURL) else {
-//                    Logger.error("DeepLink Fail")
-//                    return .none
-//                }
-//                deepLinkAction(deepLinkCase, state: &state)
-//
+                
             case .tabAction(.router(.routeAction(id: .tabView, action: .tabView(.myPageTabAction(.router(.routeAction(id: .revokePage, action: .revokePage(.delegate(.revokedEvent))))))))):
                 state.splashLogin.routes.popToRoot()
                 state.currentView = .splashLogin
                 
-//            case .tabAction(.myPageTabAction(.router(.routeAction(id: .revokePage, action: .revokePage(.delegate(.revokedEvent)))))):
-//                state.splashLogin.routes.popToRoot()
-//                state.currentView = .splashLogin
+            case .alertItem(let item):
+                state.alertItem = item
+                
+            case .getRouterError(let error):
+                guard case .serverMessage(let entity) = error else {
+                    return .none
+                }
+                
+                if entity == .tokenExpiration || entity == .noCredentials || entity == .notRegisteredMember {
+                    state.currentView = .splashLogin
+                    state.splashLogin.routes.push(.login(LoginViewFeature.State()))
+                }
+            
+                
             default:
                 break
             }
