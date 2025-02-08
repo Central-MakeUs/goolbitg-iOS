@@ -29,7 +29,6 @@ struct ChallengeTabView: View {
                     store.send(.viewCycle(.onAppear))
                 }
                 .onChange(of: store.weekIndex) { newValue in
-                    print(newValue)
                     RunLoop.current.perform {
                         store.send(.viewEvent(.checkPagingForWeekData))
                     }
@@ -189,8 +188,10 @@ extension ChallengeTabView {
             calendarWeakView
             
             ScrollView {
-                toggleButtonView
-                    .padding(.vertical, SpacingHelper.lg.pixel)
+                if store.isToday {
+                    toggleButtonView
+                        .padding(.vertical, SpacingHelper.lg.pixel - 10)
+                }
                 challengeListView
                     .padding(.horizontal, SpacingHelper.md.pixel)
             }
@@ -345,6 +346,7 @@ extension ChallengeTabView {
                 defaultTextColor: GBColor.grey300.asColor,
                 selectedTextColor: GBColor.black.asColor
             )
+            .disabled(!store.isToday)
             .padding(.horizontal, 4)
             .background(GBColor.grey500.asColor)
             .clipShape(Capsule())

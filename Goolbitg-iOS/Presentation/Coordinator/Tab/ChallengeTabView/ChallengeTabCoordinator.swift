@@ -12,8 +12,8 @@ import TCACoordinators
 @Reducer(state: .equatable)
 enum ChallengeTabScreen {
     case home(ChallengeTabFeature)
-    case challengeAdd(ChallengeAddViewFeature)
-    case challengeDetail(ChallengeDetailFeature)
+//    case challengeAdd(ChallengeAddViewFeature)
+//    case challengeDetail(ChallengeDetailFeature)
 }
 
 @Reducer
@@ -46,42 +46,6 @@ extension ChallengeTabCoordinator {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-                
-            case .router(.routeAction(id: .home, action: .home(.delegate(.moveToChallengeAdd)))):
-                
-                state.routes.push(.challengeAdd(ChallengeAddViewFeature.State( dismissButtonHidden: false)))
-                return .send(.delegate(.tabbarHidden))
-                
-            case .router(.routeAction(id: .challengeAdd, action: .challengeAdd(.delegate(.dismissTapped)))):
-                state.routes.pop()
-                return .send(.delegate(.showTabbar))
-                
-            case .router(.routeAction(id: .challengeAdd, action: .challengeAdd(.delegate(.successAdd)))):
-                
-                state.routes.pop()
-                
-                return .run { send in
-                    await send(.delegate(.showTabbar))
-                    await send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadData)))))
-                }
-                
-                /// 챌린지 디테일
-            case let .router(.routeAction(id: .home, action: .home(.delegate(.moveToDetail(itemID))))):
-                
-                state.routes.push(.challengeDetail(ChallengeDetailFeature.State(challengeID: itemID)))
-                
-                return .run { send in
-                    await send(.delegate(.tabbarHidden))
-                }
-                
-            case .router(.routeAction(id: .challengeDetail, action: .challengeDetail(.delegate(.dismissTap)))):
-                
-                state.routes.popToRoot()
-                
-                return .run { send in
-                    await send(.delegate(.showTabbar))
-                    await send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadData)))))
-                }
                 
             default:
                 break

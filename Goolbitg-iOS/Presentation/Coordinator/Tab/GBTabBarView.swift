@@ -29,11 +29,7 @@ struct GBTabBarView: View {
 
 extension GBTabBarView {
     private var contentView: some View {
-        VStack(spacing: 0) {
-            NavigationView {
-                customTabBarView
-            }
-        }
+        customTabBarView
     }
 }
 

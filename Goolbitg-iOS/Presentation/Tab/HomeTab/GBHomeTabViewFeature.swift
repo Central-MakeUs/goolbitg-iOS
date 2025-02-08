@@ -13,8 +13,13 @@ struct GBHomeTabViewFeature: GBReducer {
     
     @ObservableState
     struct State: Equatable {
+        var currentMoney: Double = 0
+        
         var currentWeekState: [OneWeekDay] = []
+        
+        var challengeTotalReward = ""
         var challengeList: [CommonCheckListConfiguration] = []
+        
         var onAppearTrigger = false
         var currentUser = HomeUserInfoEntity.getSelf
         var pagingObj = PagingObj()
@@ -29,6 +34,7 @@ struct GBHomeTabViewFeature: GBReducer {
         enum Delegate {
             case moveToDetail(itemID: String)
         }
+        case moneyBinding(Double)
     }
     
     enum ViewCycle {
@@ -48,6 +54,9 @@ struct GBHomeTabViewFeature: GBReducer {
         case resultUserInfo(HomeUserInfoEntity)
         case resultChallengeList([CommonCheckListConfiguration])
         case settingPagingObj(totalSize: Int, totalPage: Int)
+        
+        case resultTotalReward(String)
+        case animationMoney(Double)
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -121,19 +130,20 @@ extension GBHomeTabViewFeature {
                 let pagingObj = state.pagingObj
                 let dateFormat = dateManager.format(format: .infoBirthDay, date: pagingObj.date)
                 
-                if !state.onAppearTrigger {
-                    state.onAppearTrigger = true
-                    return .run { send in
-                        let result = try await networkManager.requestNetworkWithRefresh(dto: ChallengeListDTO<ChallengeRecordDTO>.self, router: ChallengeRouter.challengeRecords(
-                            page: pagingObj.pageNum,
-                            size: pagingObj.size,
-                            date: dateFormat,
-                            state: ChallengeStatusCase.wait.requestMode )
-                        )
-                        await send(.featureEvent(.settingPagingObj(totalSize: result.totalSize, totalPage: result.totalPages)))
-                        let mapping = await challengeMapper.toEntityConfigurationForHome(dtos: result.items)
-                        await send(.featureEvent(.resultChallengeList(mapping)))
-                    }
+                return .run { send in
+                    let result = try await networkManager.requestNetworkWithRefresh(dto: ChallengeListDTO<ChallengeRecordDTO>.self, router: ChallengeRouter.challengeRecords(
+                        page: pagingObj.pageNum,
+                        size: pagingObj.size,
+                        date: dateFormat,
+                        state: nil )
+                    )
+                    await send(.featureEvent(.settingPagingObj(totalSize: result.totalSize, totalPage: result.totalPages)))
+                    let mapping = await challengeMapper.toEntityConfigurationForHome(dtos: result.items)
+                    
+                    let currentTotal = result.totalReward ?? 0
+                    let totalString =  GBNumberForMatter.shared.changeForCommaNumber(String(currentTotal))
+                    await send(.featureEvent(.resultChallengeList(mapping)))
+                    await send(.featureEvent(.resultTotalReward(totalString)))
                 }
                 
                 
@@ -146,8 +156,19 @@ extension GBHomeTabViewFeature {
                 
             case let .featureEvent(.resultUserInfo(model)):
                 state.currentUser = model
+                return .send(.featureEvent(.animationMoney(Double(model.saveMoney))))
+                
             case let .featureEvent(.resultWeekState(models)):
                 state.currentWeekState = models
+                
+            case let .featureEvent(.resultTotalReward(text)):
+                state.challengeTotalReward = text
+                
+            case let .moneyBinding(money):
+                state.currentMoney = money
+                
+            case let .featureEvent(.animationMoney(money)):
+                state.currentMoney = money
                 
             default:
                 break

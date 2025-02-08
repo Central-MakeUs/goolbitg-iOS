@@ -169,10 +169,14 @@ struct AuthRequestView: View {
                     .foregroundStyle(GBColor.grey300.asColor)
                 
                 Spacer()
-                
-                Image(uiImage: ImageHelper.right.image)
-                    .resizable()
-                    .frame(width: 7, height: 14)
+                if caseOf != .fourTeen {
+                    Image(uiImage: ImageHelper.right.image)
+                        .resizable()
+                        .frame(width: 7, height: 14)
+                        .onTapGesture {
+                            store.send(.viewEvent(.agreeListRightButtonTapped(caseOf)))
+                        }
+                }
             }
         }
     }

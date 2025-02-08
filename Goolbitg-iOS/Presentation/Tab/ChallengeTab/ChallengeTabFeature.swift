@@ -27,6 +27,7 @@ struct ChallengeTabFeature: GBReducer {
         var datePickerMonth = Date()
         
         var todayDate = Date()
+        var isToday: Bool = true
         
         var pagingObj = PagingObj()
         var challengeList: [ChallengeEntity] = []
@@ -72,6 +73,7 @@ struct ChallengeTabFeature: GBReducer {
         case requestNextWeekData
         case requestPrevWeekData
         
+        case settingDate(data: WeekDay)
         case settingRequestList(Date)
         case reSettingRequestList
         
@@ -126,18 +128,19 @@ extension ChallengeTabFeature {
                 }
                 
             case let .viewEvent(.selectedMonthDate(date)):
-                state.datePickerMonth = date
-                state.selectedWeekDay = WeekDay(date: date)
                 return .run { send in
+                    await send(.featureEvent(.settingDate(data: WeekDay(date: date))))
                     await send(.featureEvent(.requestResettingWeekDatas(date)))
                     await send(.featureEvent(.settingRequestList(date)))
                 }
-                .animation(.easeIn(duration: 1))
+
                 
             case let .viewEvent(.selectedWeek(data)):
-                state.selectedWeekDay = data
-                state.datePickerMonth = data.date
-                return .send(.featureEvent(.settingRequestList(data.date)))
+                return .run { send in
+                    await send(.featureEvent(.settingDate(data: data)))
+                    await send(.featureEvent(.settingRequestList(data.date)))
+                }
+                .animation(.bouncy(duration: 0.4))
                 
             case let .featureEvent(.settingRequestList(date)):
                 var paging = PagingObj()
@@ -202,6 +205,7 @@ extension ChallengeTabFeature {
                 
             case let .featureEvent(.firstResultWeekData(datas)):
                 state.weekSlider = datas
+                state.weekIndex = 1
                 
             case let .featureEvent(.requestResettingWeekDatas(date)):
 
@@ -361,15 +365,34 @@ extension ChallengeTabFeature {
                 
                 let selectedSwitchIndex = state.selectedSwitchIndex
                 let toggleCase = state.toggleSwitchCase
+                let isToday = state.isToday
                 
                 return .run { send in
                     let dateFormat = dateManager.format(format: .infoBirthDay, date: obj.date)
                     let status = toggleCase[selectedSwitchIndex]
                     
-                    let results = try await networkManager.requestNetworkWithRefresh(
-                        dto: ChallengeListDTO<ChallengeRecordDTO>.self,
-                        router: ChallengeRouter.challengeRecords(page: obj.pageNum, size: obj.size, date: dateFormat, state: status.requestMode)
-                    )
+                    let results: ChallengeListDTO<ChallengeRecordDTO>
+                    if isToday {
+                        results = try await networkManager.requestNetworkWithRefresh(
+                            dto: ChallengeListDTO<ChallengeRecordDTO>.self,
+                            router: ChallengeRouter.challengeRecords(
+                                page: obj.pageNum,
+                                size: obj.size,
+                                date: dateFormat,
+                                state: status.requestMode
+                            )
+                        )
+                    } else {
+                        results = try await networkManager.requestNetworkWithRefresh(
+                            dto: ChallengeListDTO<ChallengeRecordDTO>.self,
+                            router: ChallengeRouter.challengeRecords(
+                                page: obj.pageNum,
+                                size: obj.size,
+                                date: dateFormat,
+                                state: nil
+                            )
+                        )
+                    }
                     
                     let mapping = await challengeMapper.toEntity(dtos: results.items)
                     await send(.featureEvent(.resultToChallengeList(dats: mapping)))
@@ -381,6 +404,14 @@ extension ChallengeTabFeature {
                     }
                     Logger.info(errorModel)
                 }
+                
+            case let .featureEvent(.settingDate(data)):
+                state.selectedWeekDay = data
+                state.datePickerMonth = data.date
+                state.selectedWeekDay = data
+                
+                state.isToday = dateManager.isSameDay(date: Date(), date2: data.date)
+                
             case let .featureEvent(.resultToChallengeList(datas)):
                 state.challengeList = datas
                 

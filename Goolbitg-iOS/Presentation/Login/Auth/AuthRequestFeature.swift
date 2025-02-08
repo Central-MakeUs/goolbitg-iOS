@@ -21,7 +21,12 @@ struct AuthRequestFeature {
         var nickName: String = ""
         var birthDayText = ""
         
-        var maxCalendar = Calendar.current.date(byAdding: .year, value: -100, to: Date())!...Date()
+        let maxCalendar: ClosedRange<Date> = {
+            let fourteenYearsAgo = Calendar.current.date(byAdding: .year, value: -14, to: Date())!
+            let hundredYearsAgo = Calendar.current.date(byAdding: .year, value: -100, to: Date())!
+            let validDateRange = hundredYearsAgo...fourteenYearsAgo
+            return validDateRange
+        }()
         
         var birthDayShowTextState: BirthDayShowTextState = .placeholder
         var birthDayDate = Date()
@@ -64,6 +69,7 @@ struct AuthRequestFeature {
         case nickNameTextFieldEventEnd
         case agreeStartButtonTapped
         case agreeListButtonTapped(AgreeListCase)
+        case agreeListRightButtonTapped(AgreeListCase)
         case allAgreeButtonTapped
         case startButtonTapped
     }
@@ -71,6 +77,7 @@ struct AuthRequestFeature {
     @Dependency(\.dateManager) var dateFormatter
     @Dependency(\.textValidManager) var textValidManager
     @Dependency(\.networkManager) var networkManager
+    @Dependency(\.moveURLManager) var moveURLManager
     
     static let test = "test"
     
@@ -163,6 +170,19 @@ struct AuthRequestFeature {
                 }
                 
                 checkedAgreeButtonState(state: &state)
+                
+            case let .viewEvent(.agreeListRightButtonTapped(caseOf)):
+                
+                switch caseOf {
+                case .fourTeen:
+                    break
+                case .serviceAgree:
+                    moveURLManager.moveURL(caseOf: .service)
+                case .privateAgree:
+                    moveURLManager.moveURL(caseOf: .privacy)
+                case .adAgree:
+                    moveURLManager.moveURL(caseOf: .inquiry)
+                }
                 
             case let .agreeStartButtonState(bool):
                 state.agreeStartButtonState = bool

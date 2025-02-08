@@ -20,6 +20,9 @@ struct RevokeReasonView: View {
         WithPerceptionTracking {
             WithPerceptionTracking {
                 contentView
+                    .onTapGesture {
+                        endTextEditing()
+                    }
                     .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification),
                                perform: { notification in
                         guard let userInfo = notification.userInfo,

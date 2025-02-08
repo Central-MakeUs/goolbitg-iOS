@@ -12,7 +12,7 @@ struct GBHomeTabViewV1: View {
     
     @Perception.Bindable var store: StoreOf<GBHomeTabViewFeature>
     
-    @State private var currentMoney: Double = 0
+//    @State private var currentMoney: Double = 0
     @State private var currentMoneyColor = GBColor.white.asColor
     
     @State private var currentOffset: CGFloat = 0
@@ -22,9 +22,6 @@ struct GBHomeTabViewV1: View {
             contentView
                 .onAppear {
                     store.send(.viewCycle(.onAppear))
-                }
-                .onChange(of: store.currentUser.saveMoney) { newValue in
-                    currentMoney = Double(newValue)
                 }
                 .onDisappear {
                     store.send(.viewCycle(.onDisappear))
@@ -100,23 +97,10 @@ extension GBHomeTabViewV1 {
                 
                 Spacer()
                 
-                ZStack(alignment: .topTrailing) {
-                    Image(uiImage: ImageHelper.bell.image)
-                        .resizable()
-                        .frame(width: 24, height: 24)
-                        .asButton {
-                            
-                        }
-                    ZStack {
-                        Circle()
-                            .foregroundStyle(GBColor.error.asColor)
-                        Text("1")
-                            .font(.system(size: 11, weight: .medium, design: .default))
-                    }
-                    .frame(width: 16, height: 16)
-                    .offset(y: -5)
-                    .offset(x: 5)
-                }
+//                NotiAlertView(count: "1")
+//                    .asButton {
+//                        
+//                    }
             }
         }
     }
@@ -133,7 +117,7 @@ extension GBHomeTabViewV1 {
             HStack(alignment: .bottom , spacing: 0) {
                 AnimateNumber(
                     font: FontHelper.hero1.font,
-                    value: $currentMoney,
+                    value: $store.currentMoney.sending(\.moneyBinding),
                     textColor: $currentMoneyColor,
                     numberStyle: .decimal
                 )
@@ -254,7 +238,7 @@ extension GBHomeTabViewV1 {
                     .font(FontHelper.h3.font)
                     .foregroundStyle(GBColor.grey50.asColor)
                 Spacer()
-                Text("총 49,000원 절약 가능")
+                Text("총 \(store.challengeTotalReward)원 절약 가능")
                     .font(FontHelper.body4.font)
                     .foregroundStyle(GBColor.grey300.asColor)
             }

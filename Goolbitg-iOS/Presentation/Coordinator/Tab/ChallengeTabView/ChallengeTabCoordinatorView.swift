@@ -28,15 +28,15 @@ extension ChallengeTabCoordinatorView {
                     ChallengeTabView(store: store)
                         .disableBackGesture(false)
                     
-                case let .challengeAdd(store):
-                    ChallengeAddView(store: store)
-                        .navigationBarBackButtonHidden()
-                        .disableBackGesture(false)
-                    
-                case let .challengeDetail(store):
-                    ChallengeDetailView(store: store)
-                        .navigationBarBackButtonHidden()
-                        .disableBackGesture(false)
+//                case let .challengeAdd(store):
+//                    ChallengeAddView(store: store)
+//                        .navigationBarBackButtonHidden()
+//                        .disableBackGesture(false)
+//                    
+//                case let .challengeDetail(store):
+//                    ChallengeDetailView(store: store)
+//                        .navigationBarBackButtonHidden()
+//                        .disableBackGesture(false)
                 }
             }
         }
@@ -48,10 +48,10 @@ extension ChallengeTabScreen.State: Identifiable {
         switch self {
         case .home:
             return .home
-        case .challengeAdd:
-            return .challengeAdd
-        case .challengeDetail:
-            return .challengeDetail
+//        case .challengeAdd:
+//            return .challengeAdd
+//        case .challengeDetail:
+//            return .challengeDetail
         }
     }
     

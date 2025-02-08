@@ -45,12 +45,15 @@ extension MyPageTabCoordinator {
         Reduce { state, action in
             switch action {
             case .router(.routeAction(id: .home, action: .home(.delegate(.revokedEvent)))):
-                state.routes.push(.revokePage(RevokeFeature.State()))
-                return .send(.delegate(.tabViewHidden))
+//                state.routes.push(.revokePage(RevokeFeature.State()))
+                
+                state.routes.presentCover(.revokePage(RevokeFeature.State()))
+                
+//                return .send(.delegate(.tabViewHidden))
             
             case .router(.routeAction(id: .revokePage, action: .revokePage(.delegate(.dismiss)))):
-                state.routes.pop()
-                return .send(.delegate(.tabViewShow))
+                state.routes.dismiss()
+//                return .send(.delegate(.tabViewShow))
                 
             default:
                 break

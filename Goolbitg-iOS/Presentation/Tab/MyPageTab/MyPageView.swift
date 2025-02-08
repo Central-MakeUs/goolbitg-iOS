@@ -85,28 +85,15 @@ extension MyPageView {
                 .font(FontHelper.h1.font)
                 .foregroundStyle(GBColor.white.asColor)
             Spacer()
-            alertView
+//            alertView
         }
     }
     
     private var alertView: some View {
-        ZStack(alignment: .topTrailing) {
-            Image(uiImage: ImageHelper.bell.image)
-                .resizable()
-                .frame(width: 24, height: 24)
-                .asButton {
-                    store.send(.viewEvent(.alertButtonTapped))
-                }
-            ZStack {
-                Circle()
-                    .foregroundStyle(GBColor.error.asColor)
-                Text("1")
-                    .font(.system(size: 11, weight: .medium, design: .default))
+        NotiAlertView(count: "1")
+            .asButton {
+                store.send(.viewEvent(.alertButtonTapped))
             }
-            .frame(width: 16, height: 16)
-            .offset(y: -5)
-            .offset(x: 5)
-        }
     }
 }
 

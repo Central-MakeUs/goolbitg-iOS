@@ -41,7 +41,7 @@ extension RootCoordinatorView {
                 )
                 
             case .mainTab:
-                GBTabBarView(
+                TabNavigationCoordinatorView(
                     store: store.scope(
                         state: \.tabState,
                         action: \.tabAction

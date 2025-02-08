@@ -19,4 +19,7 @@ struct ChallengeListDTO<D: DTO>: DTO {
     let page: Int
     /// 챌린지 아이템들
     let items: [D]
+    
+    /// 총 챌린지 리워드
+    let totalReward: Int?
 }

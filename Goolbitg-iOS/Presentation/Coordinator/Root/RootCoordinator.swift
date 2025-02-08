@@ -19,12 +19,12 @@ struct RootCoordinator {
         
         var splashLogin = SplashLoginCoordinator.State.initialState
         
-        var tabState = GBTabBarCoordinator.State.initialState
+        var tabState = TabNavigationCoordinator.State.initialState
     }
     
     enum Action {
         case splashLoginAction(SplashLoginCoordinator.Action)
-        case tabAction(GBTabBarCoordinator.Action)
+        case tabAction(TabNavigationCoordinator.Action)
         
         case changeView(ChangeRootView)
         case deepLink(DeepLinkCase)
@@ -43,7 +43,7 @@ struct RootCoordinator {
             SplashLoginCoordinator()
         }
         Scope(state: \.tabState, action: \.tabAction) {
-            GBTabBarCoordinator()
+            TabNavigationCoordinator()
         }
         
         core
@@ -57,20 +57,29 @@ extension RootCoordinator {
                 
             case .splashLoginAction(.delegate(.moveToHome)):
                 state.currentView = .mainTab
-                return .send(.tabAction(.currentTab(.homeTab)))
-            case .tabAction(.myPageTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.logOutEvent)))))):
+                return .send(.tabAction(.router(.routeAction(id: .tabView, action: .tabView(.currentTab(.homeTab))))))
+                
+            case .tabAction(.router(.routeAction(id: .tabView, action: .tabView(.myPageTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.logOutEvent))))))))):
                 state.splashLogin.routes.popToRoot()
                 state.currentView = .splashLogin
+//                
+//            case .tabAction(.myPageTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.logOutEvent)))))):
+//                state.splashLogin.routes.popToRoot()
+//                state.currentView = .splashLogin
 //            case let .splashLoginAction(.sendDeepLink(deepLinkURL)):
 //                guard let deepLinkCase = DeepLinkCase(urlString: deepLinkURL) else {
 //                    Logger.error("DeepLink Fail")
 //                    return .none
 //                }
 //                deepLinkAction(deepLinkCase, state: &state)
-                
-            case .tabAction(.myPageTabAction(.router(.routeAction(id: .revokePage, action: .revokePage(.delegate(.revokedEvent)))))):
+//
+            case .tabAction(.router(.routeAction(id: .tabView, action: .tabView(.myPageTabAction(.router(.routeAction(id: .revokePage, action: .revokePage(.delegate(.revokedEvent))))))))):
                 state.splashLogin.routes.popToRoot()
                 state.currentView = .splashLogin
+                
+//            case .tabAction(.myPageTabAction(.router(.routeAction(id: .revokePage, action: .revokePage(.delegate(.revokedEvent)))))):
+//                state.splashLogin.routes.popToRoot()
+//                state.currentView = .splashLogin
             default:
                 break
             }

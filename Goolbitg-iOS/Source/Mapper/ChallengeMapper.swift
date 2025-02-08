@@ -67,7 +67,7 @@ final class ChallengeMapper: Sendable {
     func toEntityConfigurationForHome(dto: ChallengeRecordDTO) -> CommonCheckListConfiguration {
         return CommonCheckListConfiguration(
             id: String(dto.challenge.id),
-            currentState: false,
+            currentState: dto.status == ChallengeStatusCase.success.requestMode,
             checkListTitle: dto.challenge.title,
             subText: "+" + String(dto.challenge.reward ?? 0)
         )

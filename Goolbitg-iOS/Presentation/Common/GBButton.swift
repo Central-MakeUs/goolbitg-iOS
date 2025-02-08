@@ -44,10 +44,10 @@ struct GBButton: View {
                 .font(FontHelper.btn1.font)
                 .foregroundStyle(GBColor.white.asColor)
                 .clipShape(Capsule())
+                .asButton {
+                    onSubmit()
+                }
             }
-        }
-        .asButton {
-            onSubmit()
         }
     }
 }

@@ -17,8 +17,8 @@ struct ChallengeAddView: View {
         model: ChallengeEntity(
             id: UUID().uuidString,
             imageUrl: nil, imageUrlLarge: nil,
-            title: "XXXXXXXXXXXX",
-            subTitle: "XXXXXXXXXXXX",
+            title: "XXXXXXXXXXXXxxxxxxxxx",
+            subTitle: "XXXXXXXXXXXXxxxxxxxxxxxx",
             reward: "",
             participantCount: "",
             avgAchiveRatio: "",
@@ -77,12 +77,9 @@ extension ChallengeAddView {
         VStack(spacing: 0) {
             navigationView
             
-            headerView
-                .padding(.horizontal, SpacingHelper.lg.pixel)
-                
             ScrollView {
-                Color.clear
-                    .frame(height: SpacingHelper.lg.pixel)
+                headerView
+                    .padding(.horizontal, SpacingHelper.lg.pixel)
                 
                 sameFamous
                     .padding(.horizontal, SpacingHelper.md.pixel)
