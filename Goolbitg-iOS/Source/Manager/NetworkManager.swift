@@ -91,6 +91,7 @@ final class NetworkManager: Sendable, ThreadCheckable {
             guard let status = response.response?.statusCode,
                   let error = APIErrorEntity.getSelf(code: status) else {
                 Logger.error(response.response?.statusCode ?? -999999)
+                networkError.send(RouterError.unknown(errorCode: String(response.response?.statusCode ?? -999999)))
                 throw RouterError.unknown(errorCode: String(response.response?.statusCode ?? -999999))
             }
             Logger.error(error)
