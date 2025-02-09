@@ -48,13 +48,24 @@ extension ChallengeDetailView {
             navigationView
                 .padding(.bottom, 36)
             
-            topImageUserStatusView
-            
-            ChallengeStatusThreeDayView
-                .padding(.vertical, SpacingHelper.xl.pixel)
-            
-            informationView
-            
+            if store.onLoad {
+                topImageUserStatusView
+                
+                ChallengeStatusThreeDayView
+                    .padding(.vertical, SpacingHelper.xl.pixel)
+                
+                informationView
+            } else {
+                Group {
+                    topImageUserStatusView
+                    
+                    ChallengeStatusThreeDayView
+                        .padding(.vertical, SpacingHelper.xl.pixel)
+                    
+                    informationView
+                }
+                .skeletonEffect()
+            }
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

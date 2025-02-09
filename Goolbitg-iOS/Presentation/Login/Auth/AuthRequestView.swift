@@ -227,13 +227,15 @@ extension AuthRequestView {
     }
     
     private var infoRequestView: some View {
-        VStack(spacing: 30) {
+        VStack(spacing: 0) {
             
             nickNameCheckView
                 .padding(.horizontal, 16)
+                .padding(.bottom, 8)
             
             sectionBirthDayView
                 .padding(.horizontal, 16)
+                .padding(.bottom, 30)
             
             genderView
                 .padding(.horizontal, 16)
@@ -297,6 +299,13 @@ extension AuthRequestView {
                         .foregroundStyle(store.nickNameResult == .active ? GBColor.main.asColor : GBColor.error.asColor)
                     Spacer()
                 }
+            } else {
+                HStack (spacing:0) {
+                    Text("XXXXXXXXXX")
+                        .font(FontHelper.body2.font)
+                    Spacer()
+                }
+                .opacity(0)
             }
         }
     }

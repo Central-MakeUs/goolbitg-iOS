@@ -18,7 +18,18 @@ struct ChallengeTrippleEntity: Entity {
     let fullDays: String
     let cancelBool: Bool
     
+    /// 스켈레톤 세팅
     static var getSelf: Self {
-        return ChallengeTrippleEntity(challengeTitle: "", imageURL: nil, userName: UserDefaultsManager.userNickname, dayCountWithStatus: "", challengeStatus: [], currentPeopleChallengeState: "", weekAvgText: "", fullDays: "", cancelBool: false)
+        return ChallengeTrippleEntity(
+            challengeTitle: "",
+            imageURL: nil,
+            userName: UserDefaultsManager.userNickname,
+            dayCountWithStatus: "XXXXXXXXXXX",
+            challengeStatus: [.none, .none, .none],
+            currentPeopleChallengeState: "XXXXXXXXXXXXXXXXXX",
+            weekAvgText: "XXXXXXXXXXXXXXXXX",
+            fullDays: "XXXXXXXXXXXXXX",
+            cancelBool: false
+        )
     }
 }

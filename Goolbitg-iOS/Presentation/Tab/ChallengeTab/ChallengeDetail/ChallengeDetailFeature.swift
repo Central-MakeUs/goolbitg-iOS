@@ -15,6 +15,7 @@ struct ChallengeDetailFeature: GBReducer {
     struct State: Equatable {
         let challengeID: String
         
+        var onLoad = false
         var entity = ChallengeTrippleEntity.getSelf
         var deleteAlertState: GBAlertViewComponents? = nil
     }
@@ -139,9 +140,11 @@ extension ChallengeDetailFeature {
                     // MARK: 에러 대응 해야함.
                     
                 }
+                    .animation(.easeInOut)
                 
             case let .featureEvent(.resultChallengeTripple(model)):
                 state.entity = model
+                state.onLoad = true
                 
             case let .alertBinding(alert):
                 state.deleteAlertState = alert

@@ -18,6 +18,22 @@ struct GBTabBarView: View {
     
     init(store: StoreOf<GBTabBarCoordinator>) {
         self.store = store
+        if let tabBarController = UIApplication.shared.keyWindow?.rootViewController as? UITabBarController {
+            tabBarController.tabBar.isHidden = true
+        }
+        
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .clear
+        
+        // 경계선(검정색 줄) 제거
+        appearance.shadowImage = UIImage()
+        appearance.backgroundImage = UIImage()
+        appearance.shadowColor = .clear
+        
+        // 설정 적용
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
     }
     
     var body: some View {
@@ -44,24 +60,6 @@ extension GBTabBarView {
         }
         .ignoresSafeArea(edges: .bottom)
         .background(Color.red)
-        .onAppear {
-            if let tabBarController = UIApplication.shared.keyWindow?.rootViewController as? UITabBarController {
-                tabBarController.tabBar.isHidden = true
-            }
-            
-            let appearance = UITabBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = .clear
-            
-            // 경계선(검정색 줄) 제거
-            appearance.shadowImage = UIImage()
-            appearance.backgroundImage = UIImage()
-            appearance.shadowColor = .clear
-            
-            // 설정 적용
-            UITabBar.appearance().standardAppearance = appearance
-            UITabBar.appearance().scrollEdgeAppearance = appearance
-        }
     }
     
     private var scopeView: some View {

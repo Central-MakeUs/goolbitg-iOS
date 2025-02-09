@@ -55,7 +55,12 @@ extension GBChallengeBottomSheetView {
         VStack(alignment: .center, spacing: 0) {
             Group {
                 if let url = imageURL {
-                    DownImageView(url: url, option: .min, fallbackURL: nil, fallBackImg: ImageHelper.appLogo.image)
+                    DownImageView(
+                        url: url,
+                        option: .custom(CGSize(width: 160, height: 160)),
+                        fallbackURL: nil,
+                        fallBackImg: ImageHelper.appLogo.image
+                    )
                 } else {
                     Image(uiImage: ImageHelper.appLogo.image)
                         .resizable()
@@ -64,13 +69,14 @@ extension GBChallengeBottomSheetView {
             }
             .aspectRatio(1, contentMode: .fit)
             .frame(width: 160)
-            .background(GBColor.grey500.asColor)
+//            .background(GBColor.grey500.asColor)
             .clipShape(Circle())
             
             Text(title)
                 .font(FontHelper.h3.font)
                 .foregroundStyle(GBColor.grey50.asColor)
                 .padding(.vertical, SpacingHelper.xs.pixel)
+            
             if let hashTag = bottomHashTag {
                 HStack(spacing: 0) {
                     ForEach(hashTag, id: \.self) { item in

@@ -91,6 +91,7 @@ struct ChallengeTabFeature: GBReducer {
     
     enum CancelID: Hashable {
         case switchToggle
+        case checkWeekDate
     }
     
     @Dependency(\.dateManager) var dateManager
@@ -121,11 +122,15 @@ extension ChallengeTabFeature {
                 
             case .viewEvent(.checkPagingForWeekData):
                 let newValue = state.weekIndex
-                if newValue == 2 {
-                    return .send(.featureEvent(.requestNextWeekData))
-                } else if newValue == 0 {
-                    return .send(.featureEvent(.requestPrevWeekData))
+                return .run { send in
+                    if newValue == 2 {
+                        await send(.featureEvent(.requestNextWeekData))
+                    } else if newValue == 0 {
+                        await send(.featureEvent(.requestPrevWeekData))
+                    }
                 }
+                .throttle(id: CancelID.checkWeekDate, for: 0.4, scheduler: DispatchQueue.global(qos: .userInteractive).eraseToAnyScheduler(), latest: false)
+                
                 
             case let .viewEvent(.selectedMonthDate(date)):
                 return .run { send in
@@ -138,7 +143,7 @@ extension ChallengeTabFeature {
             case let .viewEvent(.selectedWeek(data)):
                 return .run { send in
                     await send(.featureEvent(.settingDate(data: data)))
-                    await send(.featureEvent(.settingRequestList(data.date)))
+                    
                 }
                 .animation(.bouncy(duration: 0.4))
                 
@@ -411,6 +416,8 @@ extension ChallengeTabFeature {
                 state.selectedWeekDay = data
                 
                 state.isToday = dateManager.isSameDay(date: Date(), date2: data.date)
+                
+                return .send(.featureEvent(.settingRequestList(data.date)))
                 
             case let .featureEvent(.resultToChallengeList(datas)):
                 state.challengeList = datas
