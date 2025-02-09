@@ -22,6 +22,8 @@ struct ChallengeTabView: View {
     @State private var animationDirection: CGFloat = 0
     @State private var selectedWeekDay = WeekDay(date: Date())
     
+    @Environment(\.safeAreaInsets) var safeAreaInsets
+    
     var body: some View {
         WithPerceptionTracking {
             contentView
@@ -192,11 +194,73 @@ extension ChallengeTabView {
                     toggleButtonView
                         .padding(.vertical, SpacingHelper.lg.pixel - 10)
                 }
-                challengeListView
-                    .padding(.horizontal, SpacingHelper.md.pixel)
+                ZStack(alignment: .top) {
+                    
+                    emptyView
+                    
+                    VStack(spacing: 0) {
+                        challengeListView
+                            .padding(.horizontal, SpacingHelper.md.pixel)
+                        
+                        Color.clear
+                            .frame(height: safeAreaInsets.bottom + 20)
+                    }
+                }
             }
         }
     }
+    
+    private var emptyView: some View {
+        let selectedSwitch = store.toggleSwitchCase[store.selectedSwitchIndex]
+        
+        return VStack(spacing: 0) {
+            if !store.challengeList.isEmpty {}
+            else if !store.isToday {
+                if DateManager.shared.isBeforeToday(store.selectedWeekDay.date) {
+                    ImageHelper.appLogo.asImage
+                        .resizable()
+                        .frame(width: 180, height: 180)
+                        .grayscale(1)
+                    
+                    Text(ChallengeEmptyCase.beforeIngEmpty.title)
+                        .font(FontHelper.body2.font)
+                        .foregroundStyle(GBColor.white.asColor)
+                } else {
+                    ImageHelper.appLogo.asImage
+                        .resizable()
+                        .frame(width: 180, height: 180)
+                        .grayscale(1)
+                    
+                    Text(ChallengeEmptyCase.todayButIngEmpty.title)
+                        .font(FontHelper.body2.font)
+                        .foregroundStyle(GBColor.white.asColor)
+                }
+            }
+            else if selectedSwitch == .wait, !store.listLoad {
+                ImageHelper.appLogo.asImage
+                    .resizable()
+                    .frame(width: 180, height: 180)
+                    
+                Text(ChallengeEmptyCase.todayButIngEmpty.title)
+                    .multilineTextAlignment(.center)
+                    .font(FontHelper.body2.font)
+                    .foregroundStyle(GBColor.white.asColor)
+                
+            }
+            else if selectedSwitch == .success, !store.listLoad  {
+                ImageHelper.appLogo.asImage
+                    .resizable()
+                    .frame(width: 180, height: 180)
+                    .grayscale(1)
+                
+                Text(ChallengeEmptyCase.todaySuccessEmpty.title)
+                    .font(FontHelper.body2.font)
+                    .foregroundStyle(GBColor.white.asColor)
+            }
+        }
+        .padding(.vertical, SpacingHelper.xl.pixel)
+    }
+    
     private var calendarWeakView: some View {
 
         return VStack (spacing: 0) {

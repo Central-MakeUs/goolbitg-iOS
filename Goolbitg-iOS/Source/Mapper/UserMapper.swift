@@ -80,14 +80,27 @@ final class UserMapper: Sendable {
             writeCount: String(model.postCount),
             nextGoolbTitle: "다음 굴비까지 " + nextGold + "원 남았어요",
             nextGoolBPercent: model.achievementGuage / Double(model.spendingType.goal ?? 0),
-            userID: model.id
+            userID: model.id,
+            userTypeImageUrl: model.spendingType.imageURL
         )
     }
 }
 
 extension UserMapper {
     private func byAmountCase(amount: Int) -> AmountCase {
-        if amount >= 100000 {
+        if amount >= 500000 {
+            return .playStation
+        }
+        else if amount >= 400000 {
+            return .dryCleaning
+        }
+        else if amount >= 300000 {
+            return .appleWatch
+        }
+        else if amount >= 200000 {
+            return .airPods
+        }
+        else if amount >= 100000 {
             return .newWorld
         }
         else if amount >= 50000 {

@@ -16,6 +16,7 @@ struct UserMyPageEntity: Entity {
     let nextGoolbTitle: String
     let nextGoolBPercent: Double
     let userID: String
+    let userTypeImageUrl: String?
     
     static var getSelf: Self {
         return UserMyPageEntity(
@@ -26,7 +27,8 @@ struct UserMyPageEntity: Entity {
             writeCount: "",
             nextGoolbTitle: "",
             nextGoolBPercent: 0,
-            userID: ""
+            userID: "",
+            userTypeImageUrl: nil
         )
     }
 }

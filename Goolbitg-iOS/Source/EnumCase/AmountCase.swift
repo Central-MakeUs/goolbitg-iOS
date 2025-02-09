@@ -25,11 +25,19 @@ enum AmountCase {
     case koreanBeef
     /// 💡 100,000원 (~100,000원 이상)
     case newWorld
+    /// 200,000
+    case airPods
+    /// 300,000
+    case appleWatch
+    /// 400,000
+    case dryCleaning
+    /// 500,000
+    case playStation
     
     var title: String {
         switch self {
         case .none :
-            return ""
+            return "챌린지를 시작해보세요!"
         case .coffee:
             return "커피 한잔만큼 아꼈어요"
         case .taxi:
@@ -46,6 +54,14 @@ enum AmountCase {
             return "한우세트만큼 아꼈어요"
         case .newWorld:
             return "신세계 상품권 1장만큼 아꼈어요"
+        case .airPods:
+            return "에어팟 1개만큼 아꼈어요"
+        case .appleWatch:
+            return "애플워치 1대만큼 아꼈어요"
+        case .dryCleaning:
+            return "다이슨 드라이기 1대만큼 아꼈어요"
+        case .playStation:
+            return "플레이스테이션 1대만큼 아꼈어요"
         }
     }
 }

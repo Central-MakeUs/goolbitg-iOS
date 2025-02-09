@@ -17,6 +17,8 @@ struct GBHomeTabViewV1: View {
     
     @State private var currentOffset: CGFloat = 0
     
+    @Environment(\.safeAreaInsets) var safeAreaInsets
+    
     var body: some View {
         WithPerceptionTracking {
             contentView
@@ -60,6 +62,9 @@ extension GBHomeTabViewV1 {
                     todayListView
                         .padding(.horizontal, SpacingHelper.md.pixel)
                         .padding(.bottom, SpacingHelper.md.pixel)
+                    
+                    Color.clear
+                        .frame(height: safeAreaInsets.bottom + 20)
                 }
                 .onPreferenceChange(ScrollOffsetKey.self) { offsetY in
                     currentOffset = offsetY
@@ -76,7 +81,6 @@ extension GBHomeTabViewV1 {
                         
                     }
                     .padding(.bottom, 7)
-                    
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -122,7 +126,7 @@ extension GBHomeTabViewV1 {
                     numberStyle: .decimal
                 )
                     
-                Text("원 아꼇어요!")
+                Text("원 아꼈어요!")
                     .font(FontHelper.h3.font)
                 Spacer()
             }
@@ -136,7 +140,7 @@ extension GBHomeTabViewV1 {
     private var awardSectionView: some View {
         HStack(spacing: 0) {
             HStack(spacing: 0) {
-                Image(uiImage: ImageHelper.trophy.image)
+                Image(uiImage: ImageHelper.won.image)
                     .resizable()
                     .frame(width: 12, height: 12)
                     .padding(.trailing, SpacingHelper.xs.pixel)
@@ -148,7 +152,7 @@ extension GBHomeTabViewV1 {
                     .frame(width: 1, height: 16)
                     .padding(.horizontal, SpacingHelper.sm.pixel)
                 
-                Image(uiImage: ImageHelper.won.image)
+                Image(uiImage: ImageHelper.trophy.image)
                     .resizable()
                     .frame(width: 12, height: 12)
                     .padding(.trailing, SpacingHelper.xs.pixel)

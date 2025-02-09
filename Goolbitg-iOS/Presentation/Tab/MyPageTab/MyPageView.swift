@@ -14,6 +14,8 @@ struct MyPageView: View {
     
     @Perception.Bindable var store: StoreOf<MyPageViewFeature>
     
+    @Environment(\.safeAreaInsets) var safeAreaInsets
+    
     var body: some View {
         WithPerceptionTracking {
             content
@@ -70,6 +72,10 @@ extension MyPageView {
                 
                 logOutAndServiceRevoke
                     .padding(.bottom, SpacingHelper.md.pixel)
+                
+                Color.clear
+                    .frame(height: safeAreaInsets.bottom + 20)
+                
             }
             
             navigationBar
@@ -102,29 +108,35 @@ extension MyPageView {
         VStack(spacing: 0) {
             HStack(alignment: .top ,spacing: 0) {
                 
-                Image(uiImage: ImageHelper.greenLogo.image)
-                    .resizable()
-                    .frame(width: 54, height: 54)
-                    .padding(.trailing, SpacingHelper.md.pixel)
-                
+                if let url = store.userEntity.userTypeImageUrl {
+                    DownImageView(url: URL(string: url), option: .mid)
+                        .frame(width: 54, height: 54)
+                        .padding(.trailing, SpacingHelper.md.pixel)
+                } else {
+                    Image(uiImage: ImageHelper.greenLogo.image)
+                        .resizable()
+                        .frame(width: 54, height: 54)
+                        .padding(.trailing, SpacingHelper.md.pixel)
+                }
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(store.userEntity.nickname)
+                    Text(store.userEntity.typeDetail)
                         .font(FontHelper.h4.font)
                         .foregroundStyle(GBColor.white.asColor)
-                    Text(store.userEntity.typeDetail)
+                    Text(store.userEntity.nickname)
                         .font(FontHelper.h1.font)
                         .foregroundStyle(GBColor.white.asColor)
                 }
                 
                 Spacer()
                 
-                Text(TextHelper.sharedTitle)
-                    .font(FontHelper.body5.font)
-                    .foregroundStyle(GBColor.white.asColor)
-                    .padding(.horizontal, SpacingHelper.sm.pixel)
-                    .padding(.vertical, 4)
-                    .background(GBColor.white.asColor.opacity(0.2))
-                    .clipShape(Capsule())
+//
+//                Text(TextHelper.sharedTitle)
+//                    .font(FontHelper.body5.font)
+//                    .foregroundStyle(GBColor.white.asColor)
+//                    .padding(.horizontal, SpacingHelper.sm.pixel)
+//                    .padding(.vertical, 4)
+//                    .background(GBColor.white.asColor.opacity(0.2))
+//                    .clipShape(Capsule())
             }
             
             HStack(spacing:0) {

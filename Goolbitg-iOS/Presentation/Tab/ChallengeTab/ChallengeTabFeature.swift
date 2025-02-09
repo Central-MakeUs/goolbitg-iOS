@@ -29,6 +29,7 @@ struct ChallengeTabFeature: GBReducer {
         var todayDate = Date()
         var isToday: Bool = true
         
+        var listLoad = false
         var pagingObj = PagingObj()
         var challengeList: [ChallengeEntity] = []
     }
@@ -112,6 +113,7 @@ extension ChallengeTabFeature {
                 if !state.onAppearTrigger {
                     state.onAppearTrigger = true
                     let page = state.pagingObj
+                    state.listLoad = true
                     return .run { send in
                         await send(.featureEvent(.requestFirstSettingWeekDatas(Date())))
                         await send(.featureEvent(.requestChallengeList(obj: page)))
@@ -151,11 +153,15 @@ extension ChallengeTabFeature {
                 var paging = PagingObj()
                 paging.date = date
                 state.pagingObj = paging
+                
+                state.listLoad = true
                 return .send(.featureEvent(.requestChallengeList(obj: state.pagingObj)))
                 
             case .featureEvent(.reSettingRequestList):
                 let paging = PagingObj()
                 state.pagingObj = paging
+                
+                state.listLoad = true
                 return .send(.featureEvent(.requestChallengeList(obj: state.pagingObj)))
                 
             case .viewEvent(.showChallengeAdd):
@@ -367,7 +373,6 @@ extension ChallengeTabFeature {
                 state.weekIndex = 1
                 
             case let .featureEvent(.requestChallengeList(obj)):
-                
                 let selectedSwitchIndex = state.selectedSwitchIndex
                 let toggleCase = state.toggleSwitchCase
                 let isToday = state.isToday
@@ -413,7 +418,6 @@ extension ChallengeTabFeature {
             case let .featureEvent(.settingDate(data)):
                 state.selectedWeekDay = data
                 state.datePickerMonth = data.date
-                state.selectedWeekDay = data
                 
                 state.isToday = dateManager.isSameDay(date: Date(), date2: data.date)
                 
@@ -421,13 +425,15 @@ extension ChallengeTabFeature {
                 
             case let .featureEvent(.resultToChallengeList(datas)):
                 state.challengeList = datas
-                
+                state.listLoad = false
                 
                 // MARK: Parent
             case .parentEvent(.reloadData):
                 let page = state.pagingObj
                 state.datePickerMonth = Date()
                 state.selectedWeekDay = WeekDay(date: Date())
+                
+                state.listLoad = true
                 return .run { send in
                     await send(.featureEvent(.requestResettingWeekDatas(Date())))
                     await send(.featureEvent(.requestChallengeList(obj: page)))
@@ -437,6 +443,8 @@ extension ChallengeTabFeature {
                 state.selectedSwitchIndex = index
                 state.challengeList = []
                 let obj = state.pagingObj
+                
+                state.listLoad = true
                 return .run { send in
                     await send(.featureEvent(.requestChallengeList(obj: obj)))
                 }

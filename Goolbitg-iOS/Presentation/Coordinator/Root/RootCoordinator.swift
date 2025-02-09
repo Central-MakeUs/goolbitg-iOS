@@ -97,7 +97,11 @@ extension RootCoordinator {
                 state.alertItem = item
                 
             case .getRouterError(let error):
+                
                 guard case .serverMessage(let entity) = error else {
+                    UserDefaultsManager.resetUser()
+                    state.splashLogin.routes.popToRoot()
+                    state.currentView = .splashLogin
                     return .none
                 }
                 

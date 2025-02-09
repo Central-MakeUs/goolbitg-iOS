@@ -127,7 +127,11 @@ extension GBHomeTabViewFeature {
                 .cancellable(id: CancelID.onAppearTaskCancel)
                 
             case .featureEvent(.requestChallengeList):
-                let pagingObj = state.pagingObj
+                var obj = state.pagingObj
+                obj.date = Date()
+                state.pagingObj = obj
+                let pagingObj = obj
+                
                 let dateFormat = dateManager.format(format: .infoBirthDay, date: pagingObj.date)
                 
                 return .run { send in

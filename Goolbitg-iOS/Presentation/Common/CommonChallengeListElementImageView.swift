@@ -27,11 +27,11 @@ extension CommonChallengeListElementImageView {
                 } else {
                     Image(uiImage: ImageHelper.appLogo.image)
                         .resizable()
+                        .saturation(0)
                 }
             }
             .aspectRatio(1, contentMode: .fit)
             .frame(width: 45)
-            .saturation(0)
             .background(GBColor.grey500.asColor)
             .clipShape(Circle())
             
