@@ -49,7 +49,7 @@ final class ChallengeMapper: Sendable {
             imageUrl: URL(string:dto.challenge.imageUrlSmall ?? ""),
             imageUrlLarge: URL(string: dto.challenge.imageUrlLarge ?? ""),
             title: dto.challenge.title,
-            subTitle: String(dto.challenge.maxAchieveDays) + "일째 진행중",
+            subTitle: String(dto.duration ?? 0) + "일째 진행중",
             reward: String(dto.challenge.reward ?? 0),
             participantCount: String(dto.challenge.participantCount),
             avgAchiveRatio: String(dto.challenge.avgAchieveRatio),

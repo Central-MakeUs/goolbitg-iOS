@@ -18,4 +18,6 @@ struct ChallengeRecordDTO: DTO {
     let status: String
     /// 오늘 날짜가 몇 번째인지 나타내는 수 (0~2)
     let location: Int
+    /// 챌린지 일수
+    let duration: Int?
 }
