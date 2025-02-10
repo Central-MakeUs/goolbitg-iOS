@@ -130,17 +130,17 @@ extension ChallengeTabView {
                         animationDirection = -1
                     }
                 }
-                .padding(.trailing, 4)
+                .padding(.trailing, 8)
             
-//            Text("그룹")
-//                .font(headerTitleFont(mode: .groups , by: tabMode))
-//                .foregroundStyle(headerTitleColor(mode: .groups, by: tabMode))
-//                .asButton {
-//                    withAnimation {
-//                        tabMode = .groups
-//                        animationDirection = 1
-//                    }
-//                }
+            Text("그룹")
+                .font(headerTitleFont(mode: .groups , by: tabMode))
+                .foregroundStyle(headerTitleColor(mode: .groups, by: tabMode))
+                .asButton {
+                    withAnimation {
+                        tabMode = .groups
+                        animationDirection = 1
+                    }
+                }
             
             Spacer()
             switch tabMode {

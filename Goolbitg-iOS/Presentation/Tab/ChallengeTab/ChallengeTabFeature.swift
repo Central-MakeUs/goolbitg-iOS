@@ -101,6 +101,7 @@ struct ChallengeTabFeature: GBReducer {
     
     var body: some ReducerOf<Self> {
         core
+        challengeGroupCore
     }
 }
 
@@ -455,6 +456,19 @@ extension ChallengeTabFeature {
                 
             case let .datePickerMonth(date):
                 state.datePickerMonth = date
+            default:
+                break
+            }
+            return .none
+        }
+    }
+}
+
+extension ChallengeTabFeature {
+    private var challengeGroupCore: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+                
             default:
                 break
             }
