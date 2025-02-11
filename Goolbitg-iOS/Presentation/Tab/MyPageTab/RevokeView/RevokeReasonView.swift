@@ -163,7 +163,7 @@ extension RevokeReasonView {
                     bottom: SpacingHelper.md.pixel,
                     right: SpacingHelper.md.pixel
                 ),
-                keyboardType: .asciiCapable
+                keyboardType: .default
             ) {
                 
             }

@@ -38,6 +38,9 @@ struct RootCoordinator {
         case confirmCase(GBAlertViewComponents)
         
         case getRouterError(RouterError)
+        
+        case subscribeToBackground
+        case onAppearFromBackground
     }
     
     enum ChangeRootView {
@@ -47,6 +50,7 @@ struct RootCoordinator {
     
     enum CancelID: Hashable {
         case networkError
+        case onActive
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -77,8 +81,10 @@ extension RootCoordinator {
                         for await error in networkManager.getNetworkError() {
                             await send(.getRouterError(error))
                         }
+                        await send(.subscribeToBackground)
                     }
                     .debounce(id: CancelID.networkError, for: 1, scheduler: DispatchQueue.main.eraseToAnyScheduler())
+                    
                 }
                 
             case .splashLoginAction(.delegate(.moveToHome)):
@@ -109,7 +115,23 @@ extension RootCoordinator {
                     state.currentView = .splashLogin
                     state.splashLogin.routes.push(.login(LoginViewFeature.State()))
                 }
-            
+                
+            case .onAppearFromBackground:
+                if !UserDefaultsManager.accessToken.isEmpty && !UserDefaultsManager.refreshToken.isEmpty {
+
+                    return .run { send in
+                        let result = try await networkManager.requestNetwork(dto: AccessTokenDTO.self, router: AuthRouter.refresh(refreshToken: UserDefaultsManager.refreshToken))
+                        
+                        UserDefaultsManager.accessToken = result.accessToken
+                        UserDefaultsManager.refreshToken = result.refreshToken
+                    } catch: { error, send in
+                        guard let error = error as? RouterError else {
+                            await send(.getRouterError(.unknown(errorCode: "9999")))
+                            return
+                        }
+                        await send(.getRouterError(error))
+                    }
+                }
                 
             default:
                 break

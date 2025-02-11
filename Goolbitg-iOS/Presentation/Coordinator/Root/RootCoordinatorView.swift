@@ -16,6 +16,8 @@ struct RootCoordinatorView: View {
     
     @State private var currentView: RootCoordinator.ChangeRootView = .splashLogin
     
+    @Environment(\.scenePhase) var scenePhase
+    
     var body: some View {
         WithPerceptionTracking {
             content
@@ -34,6 +36,18 @@ struct RootCoordinatorView: View {
                         } okTouch: {
                             store.send(.confirmCase(item))
                         }
+                }
+                .onChange(of: scenePhase) { newValue in
+                    switch newValue {
+                    case .background:
+                        break
+                    case .inactive:
+                        break
+                    case .active:
+                        store.send(.onAppearFromBackground)
+                    @unknown default:
+                        break
+                    }
                 }
         }
     }
