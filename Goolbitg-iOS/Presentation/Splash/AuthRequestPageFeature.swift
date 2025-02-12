@@ -58,9 +58,9 @@ extension AuthRequestPageFeature {
                         pushManager.getDeviceToken()
                     }
                     
-                    await cameraManager.requestAuth()
+//                    await cameraManager.requestAuth()
                     
-                    await albumAuthManager.requestAlbumPermission()
+//                    await albumAuthManager.requestAlbumPermission()
                     
                     let requestResult = try? await networkManager.requestNotDtoNetwork(router: UserRouter.currentUserInfos, ifRefreshNeed: true)
                     

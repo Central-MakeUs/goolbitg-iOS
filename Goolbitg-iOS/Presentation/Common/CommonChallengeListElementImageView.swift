@@ -10,6 +10,7 @@ import SwiftUI
 struct CommonChallengeListElementImageView: View {
     
     let model: ChallengeEntity
+    let next: Bool 
     
     var body: some View {
         content
@@ -56,10 +57,11 @@ extension CommonChallengeListElementImageView {
             }
             .padding(.leading, SpacingHelper.md.pixel)
             
-            Image(uiImage: ImageHelper.right.image)
-                .resizable()
-                .frame(width: 7, height: 14)
-                
+            if next != true {
+                Image(uiImage: ImageHelper.right.image)
+                    .resizable()
+                    .frame(width: 7, height: 14)
+            }
         }
     }
 }

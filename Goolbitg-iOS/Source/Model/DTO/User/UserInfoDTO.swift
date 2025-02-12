@@ -14,9 +14,9 @@ struct UserInfoDTO: DTO, Equatable {
     /// 사용자 닉네임
     let nickname: String            // 사용자 닉네임
     /// 생년월일 (YYYY-MM-DD 형식)
-    let birthday: String            // 생년월일 (YYYY-MM-DD 형식)
+    let birthday: String?            // 생년월일 (YYYY-MM-DD 형식)
     /// 성별 ("MALE" 또는 "FEMALE")
-    let gender: String              // 성별 ("MALE" 또는 "FEMALE")
+    let gender: String?              // 성별 ("MALE" 또는 "FEMALE")
     
     // 사용자의 특정 체크 여부
     let check1: Bool

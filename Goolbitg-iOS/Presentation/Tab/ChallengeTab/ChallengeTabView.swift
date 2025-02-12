@@ -316,15 +316,27 @@ extension ChallengeTabView {
                                         .foregroundStyle(GBColor.grey500.asColor)
                                 }
                         }
+                        
                         // 날짜 텍스트
-                        Text(DateManager.shared.format(format: .dayDD, date: day.date))
-                            .font(FontHelper.body1.font)
-                            .foregroundStyle(day.active ? GBColor.white.asColor : GBColor.grey500.asColor)
-                            .frame(height: 36) // 고정된 크기로 UI 유지
-                            .background(
-                                Circle()
-                                    .foregroundStyle(Color.clear)
-                            )
+                        if store.selectedWeekDay == day {
+                            Text(DateManager.shared.format(format: .dayDD, date: day.date))
+                                .font(FontHelper.body1.font)
+                                .foregroundStyle(GBColor.white.asColor)
+                                .frame(height: 36) // 고정된 크기로 UI 유지
+                                .background(
+                                    Circle()
+                                        .foregroundStyle(Color.clear)
+                                )
+                        } else {
+                            Text(DateManager.shared.format(format: .dayDD, date: day.date))
+                                .font(FontHelper.body1.font)
+                                .foregroundStyle(day.active ? GBColor.white.asColor : GBColor.grey500.asColor)
+                                .frame(height: 36) // 고정된 크기로 UI 유지
+                                .background(
+                                    Circle()
+                                        .foregroundStyle(Color.clear)
+                                )
+                        }
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 36) // 전체 크기 고정
@@ -424,7 +436,7 @@ extension ChallengeTabView {
                 VStack(spacing:0) {
                     Group {
                         if DateManager.shared.isToday(store.selectedWeekDay.date) {
-                            CommonChallengeListElementImageView(model: item)
+                            CommonChallengeListElementImageView(model: item, next: false)
                                 .padding(.vertical, SpacingHelper.md.pixel)
                                 .asButton {
                                     store.send(.viewEvent(.selectedDetail(item: item)))
@@ -435,7 +447,7 @@ extension ChallengeTabView {
                                 .padding(.vertical, SpacingHelper.md.pixel)
                         }
                         else {
-                            CommonChallengeListElementImageView(model: item)
+                            CommonChallengeListElementImageView(model: item, next: true)
                                 .padding(.vertical, SpacingHelper.md.pixel)
                         }
                     }

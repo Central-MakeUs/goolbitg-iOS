@@ -41,6 +41,7 @@ struct RootCoordinator {
         
         case subscribeToBackground
         case onAppearFromBackground
+        case resetTab
     }
     
     enum ChangeRootView {
@@ -96,8 +97,16 @@ extension RootCoordinator {
                 state.currentView = .splashLogin
                 
             case .tabAction(.router(.routeAction(id: .tabView, action: .tabView(.myPageTabAction(.router(.routeAction(id: .revokePage, action: .revokePage(.delegate(.revokedEvent))))))))):
-                state.splashLogin.routes.popToRoot()
+                
                 state.currentView = .splashLogin
+                state.splashLogin.routes.popToRoot()
+                return .run { send in
+                    try await Task.sleep(for: .seconds(2))
+                    await send(.resetTab)
+                }
+                
+            case .resetTab:
+                state.tabState = .initialState
                 
             case .alertItem(let item):
                 state.alertItem = item

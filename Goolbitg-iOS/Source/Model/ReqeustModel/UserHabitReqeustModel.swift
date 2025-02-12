@@ -9,5 +9,5 @@ import Foundation
 
 struct UserHabitRequestModel: Encodable {
     let avgIncomePerMonth: Int
-    let avgSpendingPerMonth: Int
+    let avgSavingPerMonth: Int
 }
