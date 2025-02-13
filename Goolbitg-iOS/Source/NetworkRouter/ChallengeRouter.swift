@@ -33,7 +33,38 @@ enum ChallengeRouter {
         created: Bool = false // 본인 생성만 여부
     )
     
+    /// 챌린지 그룹 생성하기
+    case challengeGroupCreate(request: ChallengeGroupCreateRequestDTO)
     
+    /// 챌린지 그룹정보 가져오기
+    case getChallengeGroupData(groupID: String)
+    
+    /// 챌린지 그룹 정보를 수정합니다.
+    case modifyChallengeGroupData(groupID: String, requestDTO: ChallengeGroupCreateRequestDTO)
+    
+    /// 챌린지 그룹 삭제합니다. ( 내가 만든 챌린지만 삭제할 수 있습니다. )
+    case deleteChallengeGroup(groupID: String)
+    
+    /// 챌린지 그룹 참여합니다.
+    case joinChallengeGroup(groupID: String)
+    
+    /// 참여중인 챌린지 그룹 기록 보기
+    case challengeGroupRecord(
+        page: Int = 0,
+        size: Int = 10,
+        date: String? = nil, // 기록을 확인할 날짜입니다. 제공되지 않으면 오늘 기록을 가져옵니다. yyyy-MM-dd 형식입니다.
+        status: String? = nil, // 필터링할 챌린지 상태입니다. 제공되지 않으면 모든 상태를 가져옵니다.
+        created: Bool = false // 본인 생성만 여부
+    )
+    
+    /// 참여중인 챌린지 그룹의 기록을 확인
+    case challengeGroupRecordData(recordID: String, date: String?)
+    
+    /// 챌린지 그룹 기록 체크
+    case challengeGroupRecordCheck(recordID: String)
+    
+    /// 특정 챌린지 그룹 참여 통계 확인
+    case challengeGroupRecordStatus(groupID: String)
 }
 
 extension ChallengeRouter: Router {
@@ -47,10 +78,23 @@ extension ChallengeRouter: Router {
             return .delete
             
         // MARK: Challenge Group
-        case .challengeGroups:
+        case
+                .challengeGroups,
+                .getChallengeGroupData,
+                .challengeGroupRecord,
+                .challengeGroupRecordData,
+                .challengeGroupRecordStatus:
             return .get
+            
+        case .challengeGroupCreate, .joinChallengeGroup, .challengeGroupRecordCheck:
+            return .post
+            
+        case .modifyChallengeGroupData:
+            return .put
+            
+        case .deleteChallengeGroup:
+            return .delete
         }
-        
     }
     
     var version: String {
@@ -77,8 +121,36 @@ extension ChallengeRouter: Router {
         case let .challengeRecordDelete(challengeID):
             return "/challengeRecords/\(challengeID)"
             
+    // ChallengeGroup
         case .challengeGroups:
             return "/challengeGroups"
+            
+        case .challengeGroupCreate:
+            return "/challengeGroups"
+            
+        case let .getChallengeGroupData(groupID):
+            return "/challengeGroups/\(groupID)"
+            
+        case let .modifyChallengeGroupData(groupID, _):
+            return "/challengeGroups/\(groupID)"
+            
+        case let .deleteChallengeGroup(groupID):
+            return "/challengeGroups/\(groupID)"
+            
+        case let .joinChallengeGroup(groupID):
+            return "/challengeGroups/\(groupID)/enroll"
+            
+        case .challengeGroupRecord:
+            return "/challengeGroupRecords"
+            
+        case let .challengeGroupRecordData(recordID, _):
+            return "/challengeGroupRecords/\(recordID)"
+            
+        case let .challengeGroupRecordCheck(recordID):
+            return "/challengeGroupRecords/\(recordID)/check"
+            
+        case let .challengeGroupRecordStatus(groupID):
+            return "/challengeGroupStat/\(groupID)"
         }
     }
     
@@ -125,6 +197,30 @@ extension ChallengeRouter: Router {
             }
             
             return defaultValue
+            
+        case let .challengeGroupRecord(page, size, date, status, created):
+            var defaultValue: [String : Any] = [
+                "page" : page,
+                "size" : size,
+                "date" : date ?? NSNull(),
+                "status" : status ?? NSNull(),
+                "created" : created,
+            ]
+            
+            return defaultValue
+            
+        case let .challengeGroupRecordData(_, date):
+            return ["date" : date ?? NSNull()]
+            
+        case .challengeGroupCreate,
+                .getChallengeGroupData,
+                .modifyChallengeGroupData,
+                .deleteChallengeGroup,
+                .joinChallengeGroup,
+                .challengeGroupRecordCheck,
+                .challengeGroupRecordStatus:
+            
+            return nil
         }
     }
     
@@ -137,9 +233,22 @@ extension ChallengeRouter: Router {
                 .challengeTripple,
                 .challengeRecordCheck,
                 .challengeRecordDelete,
-                .challengeGroups:
+                .challengeGroups,
+                .getChallengeGroupData,
+                .deleteChallengeGroup,
+                .joinChallengeGroup,
+                .challengeGroupRecord,
+                .challengeGroupRecordData,
+                .challengeGroupRecordCheck,
+                .challengeGroupRecordStatus:
+            
             return nil
             
+        case let .challengeGroupCreate(request):
+            return try? CodableManager.shared.jsonEncodingStrategy(request)
+            
+        case let .modifyChallengeGroupData(_, request):
+            return try? CodableManager.shared.jsonEncodingStrategy(request)
         }
     }
     
@@ -152,8 +261,21 @@ extension ChallengeRouter: Router {
                 .challengeTripple,
                 .challengeRecordCheck,
                 .challengeRecordDelete,
-                .challengeGroups:
+            
+            // ChallengeGroup
+                .challengeGroups,
+                .getChallengeGroupData,
+                .deleteChallengeGroup,
+                .joinChallengeGroup,
+                .challengeGroupRecord,
+                .challengeGroupRecordData,
+                .challengeGroupRecordCheck,
+                .challengeGroupRecordStatus:
+            
             return .url
+            
+        case .challengeGroupCreate, .modifyChallengeGroupData:
+            return .json
         }
     }
     
