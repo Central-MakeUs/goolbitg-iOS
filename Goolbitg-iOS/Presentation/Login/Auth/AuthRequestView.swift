@@ -233,9 +233,10 @@ extension AuthRequestView {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 8)
             
+    
             sectionBirthDayView
-                .padding(.horizontal, 16)
-                .padding(.bottom, 30)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 30)
             
             genderView
                 .padding(.horizontal, 16)
@@ -264,32 +265,38 @@ extension AuthRequestView {
                     RoundedRectangle(cornerRadius: 6)
                         .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
                 )
-                .padding(.trailing, 16)
+                .padding(.trailing, 8)
                 
-                
-                if store.isDuplicateButtonState {
-                    VStack {
-                        Text(TextHelper.authRequestDuplicatedCheck)
-                            .font(FontHelper.btn3.font)
-                            .foregroundStyle(GBColor.black.asColor)
-                            .padding(16)
+                Group {
+                    if store.isDuplicateButtonState {
+                        VStack {
+                            Text(TextHelper.authRequestDuplicatedCheck)
+                                .font(FontHelper.btn3.font)
+                                .foregroundStyle(GBColor.black.asColor)
+                        }
+                        .frame(width: 88, height: 48)
+                        .background(GBColor.white.asColor)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .asButton {
+                            store.send(.viewEvent(.duplicatedButtonTapped))
+                            emptyFocus = false
+                        }
+                    } else {
+                        VStack {
+                            Text(TextHelper.authRequestDuplicatedCheck)
+                                .font(FontHelper.btn3.font)
+                                .foregroundStyle(GBColor.grey500.asColor)
+                                .padding(16)
+                        }
+                        .frame(width: 88, height: 48)
+                        .background(GBColor.grey600.asColor)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
                     }
-                    .background(GBColor.white.asColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                    .asButton {
-                        store.send(.viewEvent(.duplicatedButtonTapped))
-                        emptyFocus = false
-                    }
-                } else {
-                    VStack {
-                        Text(TextHelper.authRequestDuplicatedCheck)
-                            .font(FontHelper.btn3.font)
-                            .foregroundStyle(GBColor.grey500.asColor)
-                            .padding(16)
-                    }
-                    .background(GBColor.grey600.asColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
                 }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
+                )
             }
             
             if let placeholder = store.nickNameResult.placeholder {
@@ -312,50 +319,81 @@ extension AuthRequestView {
     
     private var sectionBirthDayView: some View {
         VStack {
-            sectionTopTextView(text: TextHelper.authRequestBirthDayTitle, required: true)
-            
-            HStack {
-                ZStack {
-                    switch store.state.birthDayShowTextState {
-                    case .placeholder:
-                        HStack {
-                            Text(TextHelper.authRequestBirthDayPlaceHolder)
-                                .font(FontHelper.caption2.font)
-                                .foregroundStyle(GBColor.grey400.asColor)
-                                .padding(.horizontal, SpacingHelper.md.pixel)
-                            Spacer()
-                        }
-                    case .show:
-                        HStack {
-                            Text(store.birthDayText)
-                                .padding(.horizontal, SpacingHelper.md.pixel)
-                                .font(FontHelper.caption2.font)
-                                .foregroundStyle(GBColor.white.asColor)
-                            Spacer()
+            sectionTopTextView(text: TextHelper.authRequestBirthDayTitle, required: false)
+            HStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    ZStack {
+                        switch store.state.birthDayShowTextState {
+                        case .placeholder:
+                            HStack {
+                                Text(TextHelper.authRequestBirthDayPlaceHolder)
+                                    .font(FontHelper.caption2.font)
+                                    .foregroundStyle(GBColor.grey400.asColor)
+                                    .padding(.horizontal, SpacingHelper.md.pixel)
+                                Spacer()
+                            }
+                        case .show:
+                            HStack {
+                                Text(store.birthDayText ?? "")
+                                    .padding(.horizontal, SpacingHelper.md.pixel)
+                                    .font(FontHelper.caption2.font)
+                                    .foregroundStyle(GBColor.white.asColor)
+                                Spacer()
+                            }
                         }
                     }
                 }
+                .frame(maxWidth: .infinity)
+                .frame(height: 48)
+                .background(GBColor.grey600.asColor)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
+                )
+                .asButton {
+                    endTextEditing()
+                    isShowDatePicker.toggle()
+                    emptyFocus = false
+                }
+                .padding(.trailing, 8)
+                Group {
+                    if store.birthDayText != nil {
+                        VStack {
+                            Text("삭제")
+                                .font(FontHelper.btn3.font)
+                                .foregroundStyle(GBColor.black.asColor)
+                        }
+                        .frame(width: 88, height: 48)
+                        .background(GBColor.white.asColor)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .asButton {
+                            store.send(.viewEvent(.deleteDateString))
+                        }
+                    }
+                    else {
+                        VStack {
+                            Text("삭제")
+                                .font(FontHelper.btn3.font)
+                                .foregroundStyle(GBColor.grey500.asColor)
+                                .padding(16)
+                        }
+                        .frame(width: 88, height: 48)
+                        .background(GBColor.grey600.asColor)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                    }
+                }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
+                )
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: 48)
-            .background(GBColor.grey600.asColor)
-            .clipShape(RoundedRectangle(cornerRadius: 6))
-            .overlay(
-                RoundedRectangle(cornerRadius: 6)
-                    .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
-            )
-            .asButton {
-                endTextEditing()
-                isShowDatePicker.toggle()
-                emptyFocus = false
-            }
-            
         }
     }
     
     private var genderView: some View {
         VStack {
-            sectionTopTextView(text: TextHelper.authRequestGenderTitle, required: true)
+            sectionTopTextView(text: TextHelper.authRequestGenderTitle, required: false)
             HStack (spacing: 16) {
                 VStack {
                     Text(TextHelper.authRequestGenderMale)

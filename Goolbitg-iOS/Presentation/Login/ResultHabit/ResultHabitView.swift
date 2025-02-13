@@ -72,10 +72,12 @@ extension ResultHabitView {
     private var cardView: some View {
         ZStack {
             cardAnimationView
-            userInfoCardView
+            replaceView
+//            userInfoCardView
                 .padding(.horizontal, SpacingHelper.xl.pixel)
         }
     }
+    
     private var userInfoCardView: some View {
         VStack(spacing: 0) {
             Text(store.resultModel.stepTitle)
@@ -168,3 +170,97 @@ extension ResultHabitView {
     }
 }
 
+extension ResultHabitView {
+    private var replaceView: some View {
+        VStack(spacing: 0) {
+            Text(store.resultModel.stepTitle)
+                .font(FontHelper.body2.font)
+                .foregroundStyle(GBColor.white.asColor.opacity(0.7))
+                .padding(.top, SpacingHelper.lg.pixel)
+            
+            Text(store.resultModel.nameTitle)
+                .font(FontHelper.h1.font)
+                .foregroundStyle(GBColor.white.asColor)
+            
+            Group {
+                if let url = store.resultModel.imageUrl {
+                    DownImageView(url: url, option: .max)
+                } else {
+                    Image(.appLogo2)
+                        .resizable()
+                }
+            }
+            .aspectRatio(1, contentMode: .fit)
+            .frame(width: 160)
+            .background(GBColor.primary300.asColor)
+            .clipShape(Circle())
+            .padding(.vertical, SpacingHelper.lg.pixel)
+            
+            HStack(spacing: 0) {
+                Spacer()
+                VStack(spacing: 0) {
+                  Text("나의 소비 점수")
+                        .font(FontHelper.body4.font)
+                    Text(store.resultModel.spendingScore)
+                        .font(FontHelper.h3.font)
+                }
+                
+                Spacer()
+                Color.white
+                    .frame(width: 1)
+                    .frame(maxHeight: 25)
+                Spacer()
+                
+                VStack(spacing: 0) {
+                    Text("같은 유형 굴비")
+                        .font(FontHelper.body4.font)
+                    
+                    Text(store.resultModel.sameCount)
+                          .font(FontHelper.h3.font)
+                }
+                
+                Spacer()
+            }
+            .padding(.bottom, SpacingHelper.lg.pixel + 10)
+            
+        }
+        .frame(maxWidth: .infinity)
+        .background {
+            BlurView(style: .systemUltraThinMaterialLight)
+                .opacity(0.984)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .overlay {
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(lineWidth: 1)
+                .opacity(0.8)
+        }
+    }
+}
+#if DEBUG
+#Preview {
+    ResultHabitView(store: Store(initialState: ResultHabitFeature.State(userModel: UserInfoDTO(
+        id: "",
+        nickname: "테스트",
+        birthday: "테스트",
+        gender: "테스트",
+        check1: false,
+        check2: false,
+        check3: false,
+        check4: true,
+        check5: true,
+        check6: false,
+        avgIncomePerMonth: 300,
+        avgSpendingPerMonth: 21,
+        primeUseDay: nil,
+        primeUseTime: nil,
+        spendingHabitScore: 315,
+        spendingType: SpendingTypeDTO(id: 0, title: "asdasd", imageURL: nil, goal: 3, peopleCount: 3),
+        challengeCount: 3,
+        postCount: 3,
+        achievementGuage: 0.3
+    )), reducer: {
+        ResultHabitFeature()
+    }))
+}
+#endif

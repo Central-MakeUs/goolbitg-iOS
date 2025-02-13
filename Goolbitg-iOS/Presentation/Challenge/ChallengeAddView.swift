@@ -24,7 +24,7 @@ struct ChallengeAddView: View {
             avgAchiveRatio: "",
             maxAchiveDays: 0,
             status: nil
-        )
+        ), next: false
     )
     
     var body: some View {
@@ -66,6 +66,9 @@ struct ChallengeAddView: View {
                         .appearFrom(.centerScale)
                         .closeOnTap(false)
                         .closeOnTapOutside(false)
+                        .backgroundView {
+                            Color.black.opacity(0.5)
+                        }
                 }
 
         }
@@ -203,7 +206,7 @@ extension ChallengeAddView {
                 .font(FontHelper.h1.font)
                 .foregroundStyle(GBColor.main.asColor.opacity(opacityValue))
                 .padding(.trailing, 10)
-            CommonChallengeListElementImageView(model: item)
+            CommonChallengeListElementImageView(model: item, next: false)
                 .padding(.trailing, SpacingHelper.sm.pixel)
         }
     }
@@ -221,7 +224,7 @@ extension ChallengeAddView {
                 if let list = store.currentAnotherList {
                     ForEach(Array(list.enumerated()), id: \.element.self) { index, item in
                         VStack(spacing:0) {
-                            CommonChallengeListElementImageView(model: item)
+                            CommonChallengeListElementImageView(model: item, next: false)
                                 .padding(.vertical, SpacingHelper.md.pixel)
                             
                             if index != list.count - 1 {

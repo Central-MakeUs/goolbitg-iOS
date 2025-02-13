@@ -212,7 +212,7 @@ extension SplashLoginCoordinator {
             let album = albumAuthManager.currentAlbumPermission() == .noOnce
             let noti = await pushNotiManager.getNotificationCurrentSetting() == .noOnce
             
-            if album || noti {
+            if /*album ||*/ noti {
                 return true
             }
         }

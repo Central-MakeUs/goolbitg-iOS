@@ -19,7 +19,8 @@ struct AuthRequestFeature {
     @ObservableState
     struct State: Equatable {
         var nickName: String = ""
-        var birthDayText = ""
+        /// 옵셔널
+        var birthDayText: String? = nil
         
         let maxCalendar: ClosedRange<Date> = {
             let fourteenYearsAgo = Calendar.current.date(byAdding: .year, value: -14, to: Date())!
@@ -72,6 +73,7 @@ struct AuthRequestFeature {
         case agreeListRightButtonTapped(AgreeListCase)
         case allAgreeButtonTapped
         case startButtonTapped
+        case deleteDateString
     }
     
     @Dependency(\.dateManager) var dateFormatter
@@ -119,12 +121,20 @@ struct AuthRequestFeature {
                 checkedButtonState(state: &state)
                 
             case .viewEvent(.maleTaped):
+                if state.currentGender == .male {
+                    state.currentGender = nil
+                    return .none
+                }
                 state.currentGender = .male
-                checkedButtonState(state: &state)
+//                checkedButtonState(state: &state)
                 
             case .viewEvent(.femaleTapped):
+                if state.currentGender == .female {
+                    state.currentGender = nil
+                    return .none
+                }
                 state.currentGender = .female
-                checkedButtonState(state: &state)
+//                checkedButtonState(state: &state)
                 
                 /// 통신해야함 중복 검사
             case .viewEvent(.duplicatedButtonTapped):
@@ -190,6 +200,9 @@ struct AuthRequestFeature {
             case .viewEvent(.startButtonTapped):
                 return registerRequest(state: &state)
                 
+            case .viewEvent(.deleteDateString):
+                state.birthDayText = nil
+                
             default:
                 break
             }
@@ -219,12 +232,8 @@ extension AuthRequestFeature {
     
     private func checkedButtonState(state: inout State) {
         let nickNameState = state.nickNameResult == .active
-        let birthDayState = state.dateState
-        let genderState = state.currentGender != nil
         
-        print(nickNameState, birthDayState, genderState)
-        
-        state.isActionButtonState = nickNameState && birthDayState && genderState
+        state.isActionButtonState = nickNameState /* && birthDayState && genderState*/
     }
     
     private func checkedAgreeButtonState(state: inout State) {
@@ -237,10 +246,7 @@ extension AuthRequestFeature {
     
     /// 약관동의 + 유저 등록
     private func registerRequest(state: inout State) -> Effect<Action> {
-        guard let gender = state.currentGender else {
-            return .none
-        }
-        
+       
         let currentAgreeList = state.agreeList
         let allCases = AgreeListCase.allCases
         let bools = allCases.map { currentAgreeList.contains($0) }
@@ -254,10 +260,12 @@ extension AuthRequestFeature {
         
         let nickName = state.nickName
         
+        let birthDayDateOptional = state.birthDayText != nil
+        
         let userRequestModel = UserInfoRegistReqeustModel(
             nickname: nickName,
-            birthday: dateFormatter.format(format: .infoBirthDay, date: state.birthDayDate),
-            gender: gender.formattedString
+            birthday: birthDayDateOptional ? dateFormatter.format(format: .infoBirthDay, date: state.birthDayDate) : nil,
+            gender: state.currentGender?.formattedString
         )
         
         return .run { send in

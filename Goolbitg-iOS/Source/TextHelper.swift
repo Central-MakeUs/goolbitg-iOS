@@ -40,8 +40,8 @@ enum TextHelper {
     static let authRequestNickNamePlaceHolder = "6자 이내로 작성해 주세요"
     static let authRequestDuplicatedCheck = "중복검사"
     
-    static let authRequestBirthDayPlaceHolder = "생년월일을 선택해주세요"
-    static let authRequestBirthDayTitle = "생년월일"
+    static let authRequestBirthDayPlaceHolder = "생년월일을 선택해주세요 (선택)"
+    static let authRequestBirthDayTitle = "생년월일 (선택)"
     static let authRequestBirthDayPlaceHolderYear = "YYYY"
     static let authRequestBirthDayPlaceHolderMonth = "MM"
     static let authRequestBirthDayPlaceHolderDay = "DD"
@@ -51,7 +51,7 @@ enum TextHelper {
     static let authNickNameKoreanOrEnglishNotText = "닉네임은 한글, 영문 대소문자만 입력할 수 있어요"
     static let authNickNameAllowText = "사용 가능한 닉네임 입니다."
     
-    static let authRequestGenderTitle = "성별"
+    static let authRequestGenderTitle = "성별 (선택)"
     static let authRequestGenderMale = "남자"
     static let authRequestGenderFemale = "여성"
     
@@ -74,6 +74,7 @@ enum TextHelper {
     static let checkList4 = "쇼핑은 필요보다 그 자체를 즐긴다"
     static let checkList5 = "쇼핑 후 사용하지 않는 물건이 가득하다"
     static let checkList6 = "물건을 사면 기분이 좋아진다"
+    static let checkList7 = "해당 사항 없습니다"
     
     // MARK: 소비습관 체크
     static let ConsumptionScore = "소비 습관 점수"

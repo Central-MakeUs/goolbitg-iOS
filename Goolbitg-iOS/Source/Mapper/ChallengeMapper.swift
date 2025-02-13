@@ -88,9 +88,10 @@ final class ChallengeMapper: Sendable {
                 }
                 return serverResponse
             }
-            
+        
+        let avgToInt = Int(dto.challenge.avgAchieveRatio)
         let withMe = "현재 \(dto.challenge.participantCount)명이 챌린지 진행하고 있어요!"
-        let weekAvgText = "일주일 기준 평균 \(dto.challenge.avgAchieveRatio)% 달성했어요!"
+        let weekAvgText = "일주일 기준 평균 \(avgToInt)% 달성했어요!"
         let longTimeText = "가장 오래는 \(dto.challenge.maxAchieveDays)일동안 진행했어요!"
         
         return ChallengeTrippleEntity(

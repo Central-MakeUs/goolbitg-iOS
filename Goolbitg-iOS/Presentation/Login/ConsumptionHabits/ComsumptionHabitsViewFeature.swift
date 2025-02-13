@@ -166,7 +166,7 @@ extension ComsumptionHabitsViewFeature {
         return .run { send in
             try await networkManager.requestNotDtoNetwork(router: UserRouter.userHabit(reqeustModel: UserHabitRequestModel(
                 avgIncomePerMonth: getNumber,
-                avgSpendingPerMonth: savingNumber )
+                avgSavingPerMonth: savingNumber )
             ), ifRefreshNeed: true)
             
             await send(.delegate(.nextView))

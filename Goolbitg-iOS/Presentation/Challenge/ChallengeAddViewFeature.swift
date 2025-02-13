@@ -71,7 +71,8 @@ extension ChallengeAddViewFeature {
                 
             case .featureEvent(.requestAPIForChallengeList):
                 // MARK: 유형별 다시 꽃아놓기
-                let userHabitType: Int? = nil // UserDefaultsManager.userHabitType
+                let userHabitType = UserDefaultsManager.userHabitType
+                
                 return .run { send in
                     let result = try await networkManager.requestNetworkWithRefresh(dto: ChallengeListDTO<ChallengeListElementDTO>.self, router: ChallengeRouter.challengeList(spendingTypeID: userHabitType))
                     Logger.info(result)

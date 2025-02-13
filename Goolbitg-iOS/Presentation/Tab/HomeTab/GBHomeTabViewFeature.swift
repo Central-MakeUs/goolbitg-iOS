@@ -149,7 +149,7 @@ extension GBHomeTabViewFeature {
                     await send(.featureEvent(.resultChallengeList(mapping)))
                     await send(.featureEvent(.resultTotalReward(totalString)))
                 }
-                
+                .cancellable(id: CancelID.onAppearTaskCancel)
                 
             case let .featureEvent(.settingPagingObj(totalSize, totalPage)):
                 state.pagingObj.totalCount = totalSize

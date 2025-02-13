@@ -9,6 +9,6 @@ import Foundation
 
 struct UserInfoRegistReqeustModel: Encodable {
     let nickname: String
-    let birthday: String
-    let gender: String
+    let birthday: String? 
+    let gender: String?
 }

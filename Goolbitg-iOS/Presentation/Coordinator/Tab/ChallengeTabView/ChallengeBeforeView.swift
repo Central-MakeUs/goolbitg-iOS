@@ -21,17 +21,34 @@ extension ChallengeBeforeView {
         HStack(spacing:0){
             /// Image
             Group {
-                if let url = model.imageUrl {
-                    DownImageView(url: url, option: .min, fallbackURL: nil, fallBackImg: ImageHelper.appLogo.image)
-                } else {
-                    Image(uiImage: ImageHelper.appLogo.image)
-                        .resizable()
+                if model.status == .fail {
+                    Group {
+                        if let url = model.imageUrl {
+                            DownImageView(url: url, option: .min, fallbackURL: nil, fallBackImg: ImageHelper.appLogo.image)
+                        } else {
+                            Image(uiImage: ImageHelper.appLogo.image)
+                                .resizable()
+                        }
+                    }
+                    .aspectRatio(1, contentMode: .fit)
+                    .frame(width: 45)
+                    .saturation(0)
+                    .background(GBColor.grey500.asColor)
+                }
+                else {
+                    Group {
+                        if let url = model.imageUrl {
+                            DownImageView(url: url, option: .min, fallbackURL: nil, fallBackImg: ImageHelper.appLogo.image)
+                        } else {
+                            Image(uiImage: ImageHelper.appLogo.image)
+                                .resizable()
+                        }
+                    }
+                    .aspectRatio(1, contentMode: .fit)
+                    .frame(width: 45)
+                    .background(GBColor.grey500.asColor)
                 }
             }
-            .aspectRatio(1, contentMode: .fit)
-            .frame(width: 45)
-            .saturation(0)
-            .background(GBColor.grey500.asColor)
             .clipShape(Circle())
             
             /// Title And SubTitle

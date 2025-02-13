@@ -38,6 +38,10 @@ struct RootCoordinator {
         case confirmCase(GBAlertViewComponents)
         
         case getRouterError(RouterError)
+        
+        case subscribeToBackground
+        case onAppearFromBackground
+        case resetTab
     }
     
     enum ChangeRootView {
@@ -47,6 +51,7 @@ struct RootCoordinator {
     
     enum CancelID: Hashable {
         case networkError
+        case onActive
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -77,8 +82,10 @@ extension RootCoordinator {
                         for await error in networkManager.getNetworkError() {
                             await send(.getRouterError(error))
                         }
+                        await send(.subscribeToBackground)
                     }
                     .debounce(id: CancelID.networkError, for: 1, scheduler: DispatchQueue.main.eraseToAnyScheduler())
+                    
                 }
                 
             case .splashLoginAction(.delegate(.moveToHome)):
@@ -90,8 +97,16 @@ extension RootCoordinator {
                 state.currentView = .splashLogin
                 
             case .tabAction(.router(.routeAction(id: .tabView, action: .tabView(.myPageTabAction(.router(.routeAction(id: .revokePage, action: .revokePage(.delegate(.revokedEvent))))))))):
-                state.splashLogin.routes.popToRoot()
+                
                 state.currentView = .splashLogin
+                state.splashLogin.routes.popToRoot()
+                return .run { send in
+                    try await Task.sleep(for: .seconds(2))
+                    await send(.resetTab)
+                }
+                
+            case .resetTab:
+                state.tabState = .initialState
                 
             case .alertItem(let item):
                 state.alertItem = item
@@ -109,7 +124,23 @@ extension RootCoordinator {
                     state.currentView = .splashLogin
                     state.splashLogin.routes.push(.login(LoginViewFeature.State()))
                 }
-            
+                
+            case .onAppearFromBackground:
+                if !UserDefaultsManager.accessToken.isEmpty && !UserDefaultsManager.refreshToken.isEmpty {
+
+                    return .run { send in
+                        let result = try await networkManager.requestNetwork(dto: AccessTokenDTO.self, router: AuthRouter.refresh(refreshToken: UserDefaultsManager.refreshToken))
+                        
+                        UserDefaultsManager.accessToken = result.accessToken
+                        UserDefaultsManager.refreshToken = result.refreshToken
+                    } catch: { error, send in
+                        guard let error = error as? RouterError else {
+                            await send(.getRouterError(.unknown(errorCode: "9999")))
+                            return
+                        }
+                        await send(.getRouterError(error))
+                    }
+                }
                 
             default:
                 break

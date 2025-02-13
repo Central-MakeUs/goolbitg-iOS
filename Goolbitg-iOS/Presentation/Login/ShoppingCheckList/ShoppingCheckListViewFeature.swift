@@ -21,14 +21,18 @@ struct ShoppingCheckListViewFeature: GBReducer {
         var isShowView: Bool = false
         var buttonState: Bool = false
         
-        var mockDatas: [MockData] = [
-            MockData(checkState: false, titel: TextHelper.checkList1),
-            MockData(checkState: false, titel: TextHelper.checkList2),
-            MockData(checkState: false, titel: TextHelper.checkList3),
-            MockData(checkState: false, titel: TextHelper.checkList4),
-            MockData(checkState: false, titel: TextHelper.checkList5),
-            MockData(checkState: false, titel: TextHelper.checkList6),
-        ]
+        var mockDatas: [MockData] = setMockData()
+        let removeIdx = 5
+        static func setMockData() -> [MockData] {
+            [
+                MockData(checkState: false, titel: TextHelper.checkList1),
+                MockData(checkState: false, titel: TextHelper.checkList2),
+                MockData(checkState: false, titel: TextHelper.checkList3),
+                MockData(checkState: false, titel: TextHelper.checkList4),
+                MockData(checkState: false, titel: TextHelper.checkList5),
+                MockData(checkState: false, titel: TextHelper.checkList7)
+            ]
+        }
     }
     
     enum Action {
@@ -70,7 +74,15 @@ extension ShoppingCheckListViewFeature {
                 state.isShowView = true
                 
             case .viewEvent(.selectedCheckListElement( _, let idx)):
-                state.mockDatas[idx].checkState.toggle()
+                if idx == state.removeIdx {
+                    var reset = State.setMockData()
+                    reset[idx].checkState = true
+                    state.mockDatas = reset
+                }
+                else {
+                    state.mockDatas[idx].checkState.toggle()
+                    state.mockDatas[state.removeIdx].checkState = false
+                }
                 checkButtonState(state: &state)
                 
                 // buttonState
@@ -79,6 +91,7 @@ extension ShoppingCheckListViewFeature {
                 
             case .viewEvent(.nextButtonTapped):
                 var checks: [String: Bool] = [:]
+                
                 for (index, data) in state.mockDatas.enumerated() {
                     checks["check\(index + 1)"] = data.checkState
                 }
@@ -101,7 +114,9 @@ extension ShoppingCheckListViewFeature {
     }
     
     private func checkButtonState(state: inout State) {
-        let checked = state.mockDatas.filter { $0.checkState == true }
+        let checked = state.mockDatas.filter {
+            $0.checkState == true
+        }
         let checkResult = !checked.isEmpty
         state.buttonState = checkResult
     } 
