@@ -18,11 +18,14 @@ protocol Router {
     var parameters: Parameters? { get }
     var body: Data? { get }
     var encodingType: EncodingType { get }
+    
+    var multipartFormData: MultipartFormData? { get }
 }
 
 enum EncodingType {
     case url
     case json
+    case multipartForm
 }
 
 extension Router {
@@ -47,7 +50,7 @@ extension Router {
         var urlRequest = try urlToURLRequest(url: url)
         
         switch encodingType {
-        case .url:
+        case .url, .multipartForm:
             do {
                 urlRequest = try URLEncoding.queryString.encode(urlRequest, with: parameters)
                 return urlRequest

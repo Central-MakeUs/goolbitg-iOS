@@ -258,6 +258,49 @@ extension NetworkManager {
     
 }
 
+// MARK: 이미지 업로드
+extension NetworkManager {
+    
+    func uplaodMultipartRequest<D: DTO>(
+        type: D.Type,
+        router: Router,
+        imageData: Data,
+        fileName: String
+    ) async throws(RouterError) -> D {
+        
+        guard let url = try router.asURLRequest().url else {
+            throw .urlFail(url: "uplaodMultipartRequest \(router)")
+        }
+        guard let multipartFormData = router.multipartFormData else {
+            throw .urlFail(url: "NOT FOUND multipartFormData \(router)")
+        }
+        
+        let request = await AF.upload(
+            multipartFormData: multipartFormData,
+            to: url,
+            interceptor: GBRequestInterceptor()
+        )
+            .validate(statusCode: 200..<300)
+            .cURLDescription {
+                Logger.info($0)
+            }
+            .serializingDecodable(D.self)
+            .response
+        
+        let response = try await getResponse(
+            dto: type,
+            router: router,
+            response: request,
+            ifRefreshMode: true
+        )
+        
+        return response
+    }
+    
+}
+
+
+
 extension NetworkManager {
     static let shared = NetworkManager()
 }

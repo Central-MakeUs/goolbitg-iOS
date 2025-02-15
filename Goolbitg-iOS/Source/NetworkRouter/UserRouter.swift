@@ -123,4 +123,7 @@ extension UserRouter: Router {
         }
     }
     
+    var multipartFormData: MultipartFormData? {
+        return nil
+    }
 }

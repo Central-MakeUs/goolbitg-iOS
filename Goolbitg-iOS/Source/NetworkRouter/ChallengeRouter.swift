@@ -119,5 +119,8 @@ extension ChallengeRouter: Router {
             return .url
         }
     }
-    
+  
+    var multipartFormData: MultipartFormData? {
+        return nil
+    }
 }

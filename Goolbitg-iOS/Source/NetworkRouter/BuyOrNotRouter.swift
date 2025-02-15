@@ -46,7 +46,7 @@ extension BuyOrNotRouter: Router {
         case .buyOtNots, .butOrNotsReg:
             return "/buyOtNots"
             
-        case let .buyOtNotsModify(postID):
+        case let .buyOtNotsModify(postID, _):
             return "/buyOtNots/\(postID)"
             
         case .buyOrNotDetail(let postID):
@@ -101,6 +101,10 @@ extension BuyOrNotRouter: Router {
         case .butOrNotsReg, .buyOtNotsModify, .buyOrNotVote:
             return .json
         }
+    }
+    
+    var multipartFormData: MultipartFormData? {
+        return nil
     }
 }
 

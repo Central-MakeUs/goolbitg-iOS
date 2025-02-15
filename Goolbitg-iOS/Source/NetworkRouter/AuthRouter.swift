@@ -97,4 +97,8 @@ extension AuthRouter: Router {
             return .json
         }
     }
+    
+    var multipartFormData: MultipartFormData? {
+        return nil
+    }
 }
