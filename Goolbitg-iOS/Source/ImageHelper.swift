@@ -64,6 +64,10 @@ enum ImageHelper {
     case miniChallendar
     case miniAward
     case miniBurn
+    case disLikeHand
+    case likeHand
+    case good
+    case bad
     
     var image: UIImage {
         switch self {
@@ -167,7 +171,16 @@ enum ImageHelper {
             
         case .miniChallendar:
             return UIImage(named: "miniChallendar") ?? UIImage(resource: .miniChallendar)
+        case .disLikeHand:
+            return UIImage(named: "disLikeHand") ?? UIImage(resource: .disLikeHand)
             
+        case .likeHand:
+            return UIImage(named: "likeHand") ?? UIImage(resource: .likeHand)
+            
+        case .good:
+            return UIImage(named: "Good") ?? UIImage(resource: .good)
+        case .bad:
+            return UIImage(named: "Bad") ?? UIImage(resource: .bad)
         }
     }
     
