@@ -130,6 +130,7 @@ extension BuyOrNotCardView {
 #Preview {
     BuyOrNotCardView(entity: BuyOrNotCardViewEntity(
         id: "asd",
+        userID: "ASDASDA",
         imageUrl: URL(string: "https://health.chosun.com/site/data/img_dir/2024/04/23/2024042302394_0.jpg"),
         itemName: "나이키 ACG 써마핏 ADV 루나 레이크 패딩 BC1220",
         priceString: "70,000원",

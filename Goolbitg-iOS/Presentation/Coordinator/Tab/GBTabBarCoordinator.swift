@@ -13,7 +13,7 @@ enum TabCase: Hashable, CaseIterable {
     case homeTab
     /// meme -> Search Tab 변경
     case ChallengeTab
-//    case buyOrNotTab
+    case buyOrNotTab
     case myPageTab
     
     var title: String {
@@ -22,8 +22,8 @@ enum TabCase: Hashable, CaseIterable {
             return "홈"
         case .ChallengeTab:
             return "챌린지"
-//        case .buyOrNotTab:
-//            return "살까말까"
+        case .buyOrNotTab:
+            return "살까말까"
         case .myPageTab:
             return "마이페이지"
         }
@@ -41,6 +41,7 @@ struct GBTabBarCoordinator {
         
         var homeTabState = HomeTabCoordinator.State.initialState
         var chalengeTabState = ChallengeTabCoordinator.State.initialState
+        var buyOrNotTabState = BuyOrNotTabCoordinator.State.initialState
         var myPageTabState = MyPageTabCoordinator.State.initialState
         
         var tabbarHidden = false
@@ -49,6 +50,7 @@ struct GBTabBarCoordinator {
     enum Action {
         case homeTabAction(HomeTabCoordinator.Action)
         case challengeTabAction(ChallengeTabCoordinator.Action)
+        case buyOrNotTabAction(BuyOrNotTabCoordinator.Action)
         case myPageTabAction(MyPageTabCoordinator.Action)
         case delegate(Delegate)
         
@@ -64,6 +66,9 @@ struct GBTabBarCoordinator {
         }
         Scope(state: \.chalengeTabState, action: \.challengeTabAction) {
             ChallengeTabCoordinator()
+        }
+        Scope(state: \.buyOrNotTabState, action: \.buyOrNotTabAction) {
+            BuyOrNotTabCoordinator()
         }
         Scope(state: \.myPageTabState, action: \.myPageTabAction) {
             MyPageTabCoordinator()

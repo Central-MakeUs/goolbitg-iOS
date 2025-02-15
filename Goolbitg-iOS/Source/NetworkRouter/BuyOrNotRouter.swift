@@ -44,19 +44,19 @@ extension BuyOrNotRouter: Router {
     var path: String {
         switch self {
         case .buyOtNots, .butOrNotsReg:
-            return "/buyOtNots"
+            return "/buyOrNots"
             
         case let .buyOtNotsModify(postID, _):
-            return "/buyOtNots/\(postID)"
+            return "/buyOrNots/\(postID)"
             
         case .buyOrNotDetail(let postID):
-            return "/buyOtNots/\(postID)"
+            return "/buyOrNots/\(postID)"
             
         case .buyOrNotDelete(let postID):
-            return "/buyOtNots/\(postID)"
+            return "/buyOrNots/\(postID)"
             
         case .buyOrNotVote(let postID, _):
-            return "/buyOtNots/\(postID)/vote"
+            return "/buyOrNots/\(postID)/vote"
         }
     }
     
@@ -67,7 +67,7 @@ extension BuyOrNotRouter: Router {
     var parameters: Parameters? {
         switch self {
         case .buyOtNots(let page, let size, let created):
-            var defaultValue: [String : Any] = [
+            let defaultValue: [String : Any] = [
                 "page" : page,
                 "size" : size,
                 "created" : created

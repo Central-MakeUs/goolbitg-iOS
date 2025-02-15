@@ -74,6 +74,11 @@ extension GBTabBarView {
             )
             .tag(TabCase.ChallengeTab)
             
+            BuyOrNotTabCoordinatorView(
+                store: store.scope(state: \.buyOrNotTabState, action: \.buyOrNotTabAction)
+            )
+            .tag(TabCase.buyOrNotTab)
+            
             MyPageViewCoordinatorView(
                 store: store.scope(state: \.myPageTabState, action: \.myPageTabAction)
             )
@@ -125,10 +130,10 @@ extension GBTabBarView {
                     ImageHelper.challengeTab.asImage
                         .renderingMode(.template)
                         .resizable()
-//                case .buyOrNotTab:
-//                    ImageHelper.buyOrNotTab.asImage
-//                        .renderingMode(.template)
-//                        .resizable()
+                case .buyOrNotTab:
+                    ImageHelper.buyOrNotTab.asImage
+                        .renderingMode(.template)
+                        .resizable()
                 case .myPageTab:
                     ImageHelper.myPageTab.asImage
                         .renderingMode(.template)
