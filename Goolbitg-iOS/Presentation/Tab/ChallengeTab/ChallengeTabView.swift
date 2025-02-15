@@ -488,6 +488,9 @@ extension ChallengeTabView {
                     Text("내가 만든 방만 보기")
                         .font(FontHelper.body3.font)
                         .foregroundStyle(GBColor.grey400.asColor)
+                        .asButton {
+                            
+                        }
                 }
                 .asButton {
                     

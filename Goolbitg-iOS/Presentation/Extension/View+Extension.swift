@@ -83,3 +83,11 @@ extension View {
         self.modifier(DisableBackGesture(isGestureDisabled: disabled))
     }
 }
+
+
+// MARK: Font 중앙화
+extension Text {
+    func asFont(_ helper: FontHelper) -> Text {
+        return self.font(helper.font)
+    }
+}

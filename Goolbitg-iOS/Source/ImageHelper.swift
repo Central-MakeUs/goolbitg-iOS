@@ -65,6 +65,9 @@ enum ImageHelper {
     case miniAward
     case miniBurn
     
+    case lock
+    case group
+    
     var image: UIImage {
         switch self {
         case .splashBack:
@@ -168,6 +171,11 @@ enum ImageHelper {
         case .miniChallendar:
             return UIImage(named: "miniChallendar") ?? UIImage(resource: .miniChallendar)
             
+        case .lock:
+            return UIImage(named: "lock") ?? UIImage(resource: .lock)
+            
+        case .group:
+            return UIImage(named: "Group") ?? UIImage(resource: .group)
         }
     }
     
