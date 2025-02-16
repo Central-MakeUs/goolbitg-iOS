@@ -19,6 +19,10 @@ struct BuyOrNotTabCoordinatorView: View {
                 switch screen.case {
                 case let .home(store):
                     BuyOrNotTabView(store: store)
+                     
+                case let .buyOrNotAdd(store):
+                    BuyOrNotAddView(store: store)
+                    
                 }
             }
         }
@@ -31,11 +35,14 @@ extension BuyOrNotTabCoordinatorScreen.State: Identifiable {
         switch self {
         case .home:
             return .home
+        case .buyOrNotAdd:
+            return .add
         }
     }
     
     enum ID: Identifiable {
         case home
+        case add
         
         var id: ID {
             return self

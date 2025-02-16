@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import PopupView
 
 enum BuyOrNotTabInMode {
     case buyOrNot
@@ -40,6 +41,24 @@ struct BuyOrNotTabView: View {
                 .onAppear {
                     store.send(.viewCycle(.onAppear))
                 }
+                .popup(
+                    item: $store.errorAlert.sending(\.bindingAlert)) { item in
+                        GBAlertView(
+                            model: item) {}
+                        okTouch: {
+                            store.send(.bindingAlert(nil))
+                        }
+                    } customize: {
+                        $0
+                            .animation(.easeInOut)
+                            .type(.default)
+                            .appearFrom(.centerScale)
+                            .closeOnTap(false)
+                            .closeOnTapOutside(false)
+                            .backgroundView {
+                                Color.black.opacity(0.5)
+                            }
+                    }
         }
     }
 }
@@ -93,7 +112,7 @@ extension BuyOrNotTabView {
                 .resizable()
                 .frame(width: 40, height: 40)
                 .asButton {
-                    
+                    store.send(.viewEvent(.addButtonTapped))
                 }
                 
         }

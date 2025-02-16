@@ -19,16 +19,24 @@ struct BuyOrNotTabViewFeature: GBReducer {
         var buyOrNotPagingObj = BuyOrNotPagingObj(page: 0, created: false)
         var pagingTrigger = false
         var userCreated = false
+        
+        var errorAlert: GBAlertViewComponents?
     }
     
     enum Action {
         case viewCycle(ViewCycle)
         case viewEvent(ViewEvent)
         case featureEvent(FeatureEvent)
+        case delegate(Delegate)
         
         case bindingCurrentList([BuyOrNotCardViewEntity])
         case bindingCurrentIndex(Int)
         case bindingTabMode(BuyOrNotTabInMode)
+        case bindingAlert(GBAlertViewComponents?)
+        
+        enum Delegate {
+            case moveToAddView
+        }
     }
     
     enum ViewCycle {
@@ -38,13 +46,16 @@ struct BuyOrNotTabViewFeature: GBReducer {
     enum ViewEvent {
         case likeButtonTapped(BuyOrNotCardViewEntity?, index: Int)
         case disLikeButtonTapped(BuyOrNotCardViewEntity?, index: Int)
+        case addButtonTapped
     }
     
     enum FeatureEvent {
         case requestBuyOrNotList(BuyOrNotPagingObj)
         case requestAppendBuyOrNotList(BuyOrNotPagingObj)
+        
         case resultBuyOrNotList(paging: BuyOrNotPagingObj, models: [BuyOrNotCardViewEntity])
         case resultAppendBuyOrNotList(paging: BuyOrNotPagingObj, models: [BuyOrNotCardViewEntity])
+        case resultVote(BuyOrNotVoteDTO, index: Int)
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -70,11 +81,63 @@ extension BuyOrNotTabViewFeature {
                     await send(.featureEvent(.requestBuyOrNotList(paging)))
                 }
                 
+            // MARK: ViewEvent
             case let .viewEvent(.likeButtonTapped(entity, index)):
                 guard let entity else { return .none }
+                return .run { send in
+                    let result = try await networkManager.requestNetworkWithRefresh(dto: BuyOrNotVoteDTO.self, router: BuyOrNotRouter.buyOrNotVote(
+                        postID: entity.id,
+                        requestDTO: BuyOrNotVoteRequestDTO(vote: .good) )
+                    )
+                    
+                    await send(.featureEvent(.resultVote(result, index: index)))
+                    
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        Logger.error(error)
+                        return
+                    }
+                    if case .serverMessage(.postLimitExceeded) = error {
+                        let alertComponents = GBAlertViewComponents(
+                            title: "투표 불가",
+                            message: "본인이 작성한 포스트는 투표할 수 없습니다.",
+                            cancelTitle: nil,
+                            okTitle: "확인",
+                            alertStyle: .warningWithWarning
+                        )
+                        await send(.bindingAlert(alertComponents))
+                    }
+                }
                 
             case let .viewEvent(.disLikeButtonTapped(entity, index)):
                 guard let entity else { return .none }
+                return .run { send in
+                    let result = try await networkManager.requestNetworkWithRefresh(dto: BuyOrNotVoteDTO.self, router: BuyOrNotRouter.buyOrNotVote(
+                        postID: entity.id,
+                        requestDTO: BuyOrNotVoteRequestDTO(vote: .bad) )
+                    )
+                    
+                    await send(.featureEvent(.resultVote(result, index: index)))
+                    
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        Logger.error(error)
+                        return
+                    }
+                    if case .serverMessage(.postLimitExceeded) = error {
+                        let alertComponents = GBAlertViewComponents(
+                            title: "투표 불가",
+                            message: "본인이 작성한 포스트는 투표할 수 없습니다.",
+                            cancelTitle: nil,
+                            okTitle: "확인",
+                            alertStyle: .warningWithWarning
+                        )
+                        await send(.bindingAlert(alertComponents))
+                    }
+                }
+                
+            case .viewEvent(.addButtonTapped):
+                return .send(.delegate(.moveToAddView))
                 
                 
             // MARK: REQUEST
@@ -152,7 +215,13 @@ extension BuyOrNotTabViewFeature {
                 
                 state.pagingTrigger = models.isEmpty
                 
+            case let .featureEvent(.resultVote(model, index)):
+                let copy = state.currentList
+                var copyChange = copy[index]
+                copyChange.goodVoteCount = String(model.goodVoteCount)
+                copyChange.badVoteCount = String(model.badVoteCount)
                 
+                state.currentList[index] = copyChange
                 
             // MARK: BINDING
             case .bindingCurrentList(let currentList):

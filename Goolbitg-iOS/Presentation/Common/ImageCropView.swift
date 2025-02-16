@@ -204,16 +204,23 @@ struct ImageCropView: View {
     
     var onCrop: (UIImage?) -> Void
     
+    @Environment(\.safeAreaInsets) var safeAreaInsets
+    
     var body: some View {
-        NavigationStack {
-            VStack {
+        ZStack(alignment: .top) {
+            navigationBar
+                .padding(.top, safeAreaInsets.top)
+                .padding(.bottom, 14)
+            
+            VStack(spacing: 0) {
                 navigationBar
-                
-                Spacer()
+                    .padding(.top, safeAreaInsets.top)
+                    .hidden()
                 
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
+                    .clipped()
                     .overlay(alignment: .topLeading) {
                         GeometryReader { geometry in
                             CropBox(rect: $cropArea, boxColor: GBColor.white.asColor)
@@ -227,8 +234,11 @@ struct ImageCropView: View {
                     }
                 
                 Spacer()
+                Color.clear
+                    .frame(height: safeAreaInsets.bottom)
             }
         }
+        .background(GBColor.background1.asColor)
     }
     
     private var navigationBar: some View {
@@ -271,60 +281,74 @@ struct ImageCropView: View {
             width: cropArea.size.width * scaleX,
             height: cropArea.size.height * scaleY
         )
-
+        
         guard let cutImageRef: CGImage = image.cgImage?.cropping(to: scaledCropArea) else {
             return nil
         }
-
-        return UIImage(cgImage: cutImageRef)
+        
+        let croppedImage = UIImage(cgImage: cutImageRef, scale: image.scale, orientation: image.imageOrientation)
+        
+        return croppedImage.fixedOrientation()
+    }
+}
+extension UIImage {
+    func fixedOrientation() -> UIImage {
+        if imageOrientation == .up { return self }
+        
+        return UIGraphicsImageRenderer(size: size).image { _ in
+            draw(in: CGRect(origin: .zero, size: size))
+        }
     }
 }
 
-struct TestView: View {
-    
-    @State var showPicker = false
-    @State var imageItem: PhotosPickerItem?
-    @State var showCrop: Bool = false
-    @State var image: UIImage = UIImage()
-    
-    var body: some View {
-        VStack {
-            Text("TEST")
-                .asButton {
-                    showPicker.toggle()
-                }
-        }
-        .photosPicker(isPresented: $showPicker, selection: $imageItem)
-        .onChange(of: imageItem) { newValue in
-            Task {
-                guard let imageData = try? await newValue?.loadTransferable(type: Data.self),
-                    let image = UIImage(data: imageData) else {
-                    return
-                }
-                await MainActor.run {
-                    self.image = image
-                }
-            }
-        }
-        .onChange(of: image) { newValue in
-            showCrop.toggle()
-        }
-        .fullScreenCover(isPresented: $showCrop) {
-            imageItem = nil
-        } content: {
-            ImageCropView(
-                image: image
-            ) { iamge in
-                
-            }
-        }
-    }
-}
-#if DEBUG
-@available(iOS 17.0, *)
-#Preview {
-    VStack {
-        TestView()
-    }
-}
-#endif
+//
+//struct TestView: View {
+//    
+//    @State var showPicker = false
+//    @State var imageItem: PhotosPickerItem?
+//    @State var showCrop: Bool = false
+//    @State var image: UIImage = UIImage()
+//    
+//    var body: some View {
+//        VStack {
+//            Text("TEST")
+//                .asButton {
+//                    showPicker.toggle()
+//                }
+//        }
+//        .photosPicker(isPresented: $showPicker, selection: $imageItem)
+//        .onChange(of: imageItem) { newValue in
+//            Task {
+//                guard let imageData = try? await newValue?.loadTransferable(type: Data.self),
+//                    let image = UIImage(data: imageData) else {
+//                    return
+//                }
+//                await MainActor.run {
+//                    self.image = image
+//                }
+//            }
+//        }
+//        .onChange(of: image) { newValue in
+//            showCrop.toggle()
+//        }
+//        .fullScreenCover(isPresented: $showCrop) {
+//            imageItem = nil
+//        } content: {
+//            ImageCropView(
+//                image: image
+//            ) { iamge in
+//                
+//            }
+//        }
+//    }
+//}
+//
+//
+//#if DEBUG
+//@available(iOS 17.0, *)
+//#Preview {
+//    VStack {
+//        TestView()
+//    }
+//}
+//#endif

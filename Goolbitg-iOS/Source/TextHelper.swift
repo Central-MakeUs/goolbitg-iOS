@@ -132,4 +132,7 @@ enum TextHelper {
     static let revokeThirdTitle = "오류가 있었어요"
     static let revokeFourthTitle = "새로운 계정을 사용하고 싶어요"
     static let revokeFifthTitle = "기타(직접 입력)"
+    
+    // MARK: 살까말까
+    static let buyOrNotAddTitle = "살까말까 글 작성하기"
 }

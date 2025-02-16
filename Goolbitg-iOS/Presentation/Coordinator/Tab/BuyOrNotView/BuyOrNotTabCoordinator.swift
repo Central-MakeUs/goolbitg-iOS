@@ -12,6 +12,7 @@ import TCACoordinators
 @Reducer(state: .equatable)
 enum BuyOrNotTabCoordinatorScreen {
     case home(BuyOrNotTabViewFeature)
+    case buyOrNotAdd(BuyOrNotAddViewFeature)
 }
 
 @Reducer
@@ -36,6 +37,12 @@ extension BuyOrNotTabCoordinator {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+                
+            case .router(.routeAction(id: .home, action: .home(.delegate(.moveToAddView)))):
+                state.routes.presentCover(.buyOrNotAdd(BuyOrNotAddViewFeature.State()))
+                
+            case .router(.routeAction(id: .add, action: .buyOrNotAdd(.delegate(.dismiss)))):
+                state.routes.dismiss()
                 
             default:
                 break

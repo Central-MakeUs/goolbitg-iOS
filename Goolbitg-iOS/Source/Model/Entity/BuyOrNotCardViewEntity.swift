@@ -16,8 +16,8 @@ struct BuyOrNotCardViewEntity: Entity {
     let goodReason: String
     let badReason: String
     
-    let goodVoteCount: String
-    let badVoteCount: String
+    var goodVoteCount: String
+    var badVoteCount: String
 }
 
 extension BuyOrNotCardViewEntity {
