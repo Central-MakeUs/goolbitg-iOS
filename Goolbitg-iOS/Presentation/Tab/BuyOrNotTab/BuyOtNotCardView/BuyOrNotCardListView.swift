@@ -34,7 +34,7 @@ struct BuyOrNotCardListView: View {
     
     var body: some View {
         GeometryReader { geometry in
-            HStack(spacing: horizontalPadding) {
+            LazyHStack(spacing: 0) {
                 ForEach(Array(currentListEntity.enumerated()), id: \.element.id) { item in
                     let entity = item.element
                     
@@ -49,16 +49,16 @@ struct BuyOrNotCardListView: View {
                             selectedEntity(entity)
                         }
                         .scaleEffect(scale)
-                        .animation(.linear, value: scale)
                         .frame(width: cardWidth, height: size.height)
                     }
                     .frame(width: cardWidth * sidePaddingScale)
+                    .padding(.trailing, horizontalPadding)
                 }
             }
-            .padding(.horizontal, horizontalPadding)
+            .padding(.leading, horizontalPadding)
             .offset(x: dragOffset + lastOffset)
             .gesture(
-                DragGesture(minimumDistance: 2)
+                DragGesture(minimumDistance: 1)
                     .onChanged { value in
                         let verticalDrag = abs(value.predictedEndTranslation.height)
                         let horizontalDrag = abs(value.predictedEndTranslation.width)
@@ -66,28 +66,16 @@ struct BuyOrNotCardListView: View {
                         if verticalDrag > horizontalDrag {
                             return
                         }
-                        withAnimation(.linear(duration: 0.1)) {
-                            isDragging = true
+                        withAnimation(.easeInOut(duration: 0.1)) {
                             dragOffset = value.translation.width
                         }
                     }
                     .onEnded { value in
-                        let verticalDrag = abs(value.predictedEndTranslation.height)
-                        let horizontalDrag = abs(value.predictedEndTranslation.width)
-                        
-                        if verticalDrag > horizontalDrag {
-                            withAnimation(.smooth(duration: 0.3)) {
-                                dragOffset = 0
-                            }
-                            return
-                        }
-                        
-                        isDragging = false
                         let newIndex = getNearestIndex()
                         
                         let newOffset = -CGFloat(newIndex) * (cardWidth * sidePaddingScale + horizontalPadding)
                         
-                        withAnimation(.smooth(duration: 0.2)) {
+                        withAnimation(.bouncy(duration: 0.4)) {
                             currentIndex = newIndex
                             lastOffset = newOffset
                             dragOffset = 0

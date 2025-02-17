@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct GBAlertViewComponents: Equatable {
+    let ifNeedID: String
     let title: String
     let message: String
     let cancelTitle: String?
@@ -27,13 +28,15 @@ struct GBAlertViewComponents: Equatable {
         message: String,
         cancelTitle: String? = nil,
         okTitle: String,
-        alertStyle: AlertStyle = .normal
+        alertStyle: AlertStyle = .normal,
+        ifNeedID: String = ""
     ) {
         self.title = title
         self.message = message
         self.cancelTitle = cancelTitle
         self.okTitle = okTitle
         self.style = alertStyle
+        self.ifNeedID = ifNeedID
     }
 }
 

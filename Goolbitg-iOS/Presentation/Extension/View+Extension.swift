@@ -83,3 +83,23 @@ extension View {
         self.modifier(DisableBackGesture(isGestureDisabled: disabled))
     }
 }
+
+extension View {
+    
+    func subscribeKeyboardHeight(keyboardHeight: @escaping (CGFloat) -> Void) -> some View {
+        self
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification),
+                       perform: { notification in
+                guard let userInfo = notification.userInfo,
+                      let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+                    return
+                }
+                
+                keyboardHeight(keyboardRect.height)
+                
+            }).onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification),
+                         perform: { _ in
+                keyboardHeight(0)
+            })
+    }
+}

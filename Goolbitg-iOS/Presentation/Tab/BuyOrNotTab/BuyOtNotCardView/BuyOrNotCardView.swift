@@ -11,10 +11,21 @@ struct BuyOrNotCardView: View {
     
     let entity: BuyOrNotCardViewEntity
     
+    @State private var hidden = true
+    
     var reportTab: () -> Void
     
     var body: some View {
         content
+            .opacity(hidden ? 0 : 1)
+            .onAppear {
+                withAnimation(.linear(duration: 1)) {
+                    hidden = false
+                }
+            }
+            .onDisappear {
+                hidden = true
+            }
     }
 }
 
@@ -39,7 +50,7 @@ extension BuyOrNotCardView {
                 .padding(.bottom, SpacingHelper.lg.pixel)
             
         }
-        .background(GBColor.white.asColor.opacity(0.05))
+        .background(GBColor.grey700.asColor)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay {
             RoundedRectangle(cornerRadius: 16)

@@ -19,22 +19,31 @@ struct BuyOrNotAddView: View {
     
     @Perception.Bindable var store: StoreOf<BuyOrNotAddViewFeature>
     
-    @State var showImagePicker = false
-    @State var imageItem: PhotosPickerItem?
-    @State var image: ImageIdentifier? = nil
-    @State var viewImage: UIImage? = nil
+    @State private var showImagePicker = false
+    @State private var imageItem: PhotosPickerItem?
+    @State private var image: ImageIdentifier? = nil
+    @State private var viewImage: UIImage? = nil
+    @State private var keyboardHeight: CGFloat = 0
+    @State private var focusedField: Int? = nil
     
     @Environment(\.imageCompressionManager) var imageCompressionManager
+    @Environment(\.safeAreaInsets) var safeAreaInsets
     
     var body: some View {
         WithPerceptionTracking {
             content
+                .onAppear {
+                    store.send(.viewCycle(.onAppear))
+                }
                 .popup(
                     item: $store.alertComponents.sending(\.bindingAlertComponents)) { item in
                         GBAlertView(
-                            model: item) {}
-                        okTouch: {
+                            model: item)
+                        {
                             store.send(.bindingAlertComponents(nil))
+                        }
+                        okTouch: {
+                            store.send(.viewEvent(.alertOkTap(item)))
                         }
                     } customize: {
                         $0
@@ -69,7 +78,7 @@ struct BuyOrNotAddView: View {
                                 await MainActor.run {
                                     self.image = ImageIdentifier(image: image)
                                 }
-                            case let .failure(error):
+                            case .failure(_):
                                 let alertComponents = GBAlertViewComponents(
                                     title: "이미지 파일 형식 오류",
                                     message: "지원되지 않는 이미지 파일 형식입니다.",
@@ -78,7 +87,7 @@ struct BuyOrNotAddView: View {
                                     alertStyle: .warningWithWarning
                                 )
                                 self.imageItem = nil
-                                self.imageItem = nil
+                                self.image = nil
                                 
                                 store.send(.bindingAlertComponents(alertComponents))
                             }
@@ -104,6 +113,13 @@ struct BuyOrNotAddView: View {
                             }
                         }
                     }
+                    .overlay {
+                        Group {
+                            if store.loading {
+                                GBLoadingView()
+                            }
+                        }
+                    }
             
         }
     }
@@ -111,17 +127,50 @@ struct BuyOrNotAddView: View {
 
 extension BuyOrNotAddView {
     private var content: some View {
-        VStack(spacing: 0) {
-            navigationBar
-                .padding(.horizontal, SpacingHelper.md.pixel)
-                .padding(.top, 4)
-                .padding(.bottom, 16)
-            ScrollView {
-                imageAddSectionView
-                    .padding(.horizontal, SpacingHelper.md.pixel + 8)
+        ZStack(alignment: .bottom) {
+            VStack(spacing: 0) {
+                navigationBar
+                    .padding(.horizontal, SpacingHelper.md.pixel)
+                    .padding(.top, 4)
+                    .padding(.bottom, 16)
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(spacing: SpacingHelper.lg.pixel) {
+                            imageAddSectionView
+                            
+                            itemNameSectionView
+                                .id(1)
+                            priceSectionView
+                                .id(2)
+                            whyBuySectionView
+                                .id(3)
+                            whyNotBuySectionView
+                                .padding(.bottom, safeAreaInsets.bottom)
+                                .id(4)
+                        }
+                        .padding(.horizontal, SpacingHelper.md.pixel + 8)
+                        
+                    }
+                    .padding(.bottom, keyboardHeight - safeAreaInsets.bottom)
+                    .onChange(of: keyboardHeight) { newValue in
+                        scrollToFocusedField(proxy)
+                    }
+                    .onChange(of: focusedField) { newValue in
+                        scrollToFocusedField(proxy)
+                    }
+                }
+            }
+            if store.currentOkButtonState {
+                GBButtonV2(title: "작성하기") {
+                    store.send(.viewEvent(.okButtonTapped))
+                }
             }
         }
+        .ignoresSafeArea(.keyboard)
         .background(GBColor.background1.asColor)
+        .subscribeKeyboardHeight { height in
+            keyboardHeight = height
+        }
     }
     
     private var navigationBar: some View {
@@ -146,7 +195,7 @@ extension BuyOrNotAddView {
 extension BuyOrNotAddView {
     private var imageAddSectionView: some View {
         VStack(spacing: SpacingHelper.sm.pixel) {
-            sectionTopTextView(text: "사진첨부", required: true)
+            sectionTopTextView(text: TextHelper.buyOrNotAddPhotoTitle, required: true)
             
             HStack(spacing: 0) {
                 ZStack(alignment: .topTrailing) {
@@ -227,6 +276,116 @@ extension BuyOrNotAddView {
 }
 
 extension BuyOrNotAddView {
+    private var itemNameSectionView: some View {
+        VStack(spacing: SpacingHelper.sm.pixel) {
+            sectionTopTextView(text: TextHelper.buyOrNotItemNameTitle, required: true)
+            
+            DisablePasteTextField(
+                text: $store.itemText.sending(\.bindingItemText),
+                placeholder: TextHelper.buyOrNotItemNamePlaceHolder,
+                placeholderColor: GBColor.grey500.asColor,
+                edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
+                keyboardType: .default) {
+                    
+                }
+                .background(GBColor.grey600.asColor)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
+                )
+        }
+        .onTapGesture {
+            self.focusedField = 1
+        }
+    }
+    
+    private var priceSectionView: some View {
+        VStack(spacing: SpacingHelper.sm.pixel) {
+            sectionTopTextView(text: TextHelper.buyOrNotPriceTitle, required: true)
+            
+            ZStack(alignment: .leading) {
+                DisablePasteTextField(
+                    text: $store.priceText.sending(\.bindingPriceText),
+                    placeholder: TextHelper.buyOrNotPricePlaceHolder,
+                    placeholderColor: GBColor.grey500.asColor,
+                    edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
+                    keyboardType: .numberPad,
+                    ifLeadingEdge: 20
+                ) {
+                    
+                }
+                .background(GBColor.grey600.asColor)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
+                )
+                
+                if !store.priceText.isEmpty {
+                    Text("₩")
+                        .foregroundStyle(GBColor.white.asColor)
+                        .padding(.leading, 20)
+                }
+            }
+        }
+        .onTapGesture {
+            self.focusedField = 2
+        }
+    }
+    
+    private var whyBuySectionView: some View {
+        VStack(spacing: SpacingHelper.sm.pixel) {
+            sectionTopTextView(text: TextHelper.buyOrNotWhyBuyTitle, required: true)
+            
+            DisablePasteTextField(
+                text: $store.buyText.sending(\.bindingBuyText),
+                placeholder: TextHelper.buyOrNotWhyBuyPlaceHolder,
+                placeholderColor: GBColor.grey500.asColor,
+                edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
+                keyboardType: .default
+            ) {
+                
+            }
+            .background(GBColor.grey600.asColor)
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
+            )
+            .onTapGesture {
+                self.focusedField = 3
+            }
+        }
+    }
+    
+    private var whyNotBuySectionView: some View {
+        VStack(spacing: SpacingHelper.sm.pixel) {
+            sectionTopTextView(text: TextHelper.buyOrNotWhyNotBuyTitle, required: true)
+            
+            DisablePasteTextField(
+                text: $store.notBuyText.sending(\.bindingBuyNotText),
+                placeholder: TextHelper.buyOrNotWhyNotBuyPlaceHolder,
+                placeholderColor: GBColor.grey500.asColor,
+                edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
+                keyboardType: .default
+            ) {
+                
+            }
+            .background(GBColor.grey600.asColor)
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
+            )
+            .onTapGesture {
+                self.focusedField = 4
+            }
+        }
+    }
+}
+
+extension BuyOrNotAddView {
     private func sectionTopTextView(text: String, required: Bool) -> some View {
         HStack(spacing: 3) {
             Text(text)
@@ -238,6 +397,15 @@ extension BuyOrNotAddView {
                     .foregroundStyle(GBColor.error.asColor)
             }
             Spacer()
+        }
+    }
+    
+    private func scrollToFocusedField(_ proxy: ScrollViewProxy) {
+        guard let field = focusedField else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now()) {
+            withAnimation {
+                proxy.scrollTo(field, anchor: .top)
+            }
         }
     }
 }

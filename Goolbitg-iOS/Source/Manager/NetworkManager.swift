@@ -263,9 +263,7 @@ extension NetworkManager {
     
     func uplaodMultipartRequest<D: DTO>(
         type: D.Type,
-        router: Router,
-        imageData: Data,
-        fileName: String
+        router: Router
     ) async throws(RouterError) -> D {
         
         guard let url = try router.asURLRequest().url else {

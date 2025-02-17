@@ -52,12 +52,7 @@ extension AuthRouter: Router {
     }
     
     var optionalHeaders: HTTPHeaders? {
-        switch self {
-        case .register, .login, .refresh:
-            return nil
-        case .logOut, .signOut:
-            return [ "application/json" : "Content-Type" ]
-        }
+        return [ "application/json" : "Content-Type" ]
     }
     
     var parameters: Parameters? {
