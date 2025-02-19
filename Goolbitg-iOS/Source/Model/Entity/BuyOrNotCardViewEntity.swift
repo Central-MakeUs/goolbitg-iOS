@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct BuyOrNotCardViewEntity: Entity {
+struct BuyOrNotCardViewEntity: Entity, Identifiable {
     let id: String
     let userID: String
     let imageUrl: URL?
@@ -18,6 +18,14 @@ struct BuyOrNotCardViewEntity: Entity {
     
     var goodVoteCount: String
     var badVoteCount: String
+    
+    let goodMoreOrBadMore: GoodOrBadOrNot
+}
+
+enum GoodOrBadOrNot: Equatable {
+    case good
+    case bad
+    case none
 }
 
 extension BuyOrNotCardViewEntity {
@@ -32,7 +40,8 @@ extension BuyOrNotCardViewEntity {
                 goodReason: "누구나 좋아하는 강아지",
                 badReason: "누구나 싫어하는 강아지",
                 goodVoteCount: "\(Int.random(in: 0...100))",
-                badVoteCount: "1"
+                badVoteCount: "1",
+                goodMoreOrBadMore: .bad
             )
         ]
     }

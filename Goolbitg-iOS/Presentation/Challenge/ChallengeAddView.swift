@@ -49,9 +49,7 @@ struct ChallengeAddView: View {
                         .animation(.spring)
                         .closeOnTapOutside(true)
                         .closeOnTap(false)
-                        .backgroundView {
-                            Color.black.opacity(0.5)
-                        }
+                        .backgroundColor(Color.black.opacity(0.5))
                 }
                 .popup(item: $store.alertComponents.sending(\.alertComponents)) { model in
                     GBAlertView(model: model) { }
@@ -66,9 +64,7 @@ struct ChallengeAddView: View {
                         .appearFrom(.centerScale)
                         .closeOnTap(false)
                         .closeOnTapOutside(false)
-                        .backgroundView {
-                            Color.black.opacity(0.5)
-                        }
+                        .backgroundColor(Color.black.opacity(0.5))
                 }
 
         }

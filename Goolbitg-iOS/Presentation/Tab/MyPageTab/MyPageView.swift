@@ -44,9 +44,7 @@ struct MyPageView: View {
                         .appearFrom(.centerScale)
                         .closeOnTap(false)
                         .closeOnTapOutside(false)
-                        .backgroundView {
-                            Color.black.opacity(0.5)
-                        }
+                        .backgroundColor(Color.black.opacity(0.5))
                 }
         }
     }

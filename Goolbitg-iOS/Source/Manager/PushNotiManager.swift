@@ -8,6 +8,7 @@
 import UIKit
 import ComposableArchitecture
 import UserNotifications
+import FirebaseMessaging
 import Combine
 
 final class PushNotiManager: NSObject, @unchecked Sendable {
@@ -25,8 +26,12 @@ final class PushNotiManager: NSObject, @unchecked Sendable {
 extension PushNotiManager {
     /// 푸시 알림 권한 요청 함수
     /// - Returns: 사용자 선택에 따른 결과
+    @MainActor
     func requestNotificationPermission() async throws -> Bool {
         let result = try await center.requestAuthorization(options: [.alert, .badge, .sound] )
+        if result {
+            NotificationCenter.default.post(name: .requestRemoteNotification, object: nil)
+        }
         return result
     }
     
@@ -48,10 +53,6 @@ extension PushNotiManager {
         @unknown default:
             return .noOnce
         }
-    }
-    // device 토큰 획득: application(_:didRegisterForRemo...) 함수 동작
-    func getDeviceToken() {
-        UIApplication.shared.registerForRemoteNotifications()
     }
 
     /// 푸시알림 권한을 받은 경우 해당 함수를 통해 토큰을 저장
@@ -75,15 +76,14 @@ extension PushNotiManager {
 }
 
 extension PushNotiManager: UNUserNotificationCenterDelegate {
-
+    
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        completionHandler([.sound, .badge, .banner])
+        completionHandler([.list, .banner, .badge, .sound])
     }
-    
 }
 
 extension PushNotiManager: DependencyKey {

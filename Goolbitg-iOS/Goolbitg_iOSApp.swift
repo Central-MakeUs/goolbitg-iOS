@@ -14,7 +14,7 @@ import SwiftyBeaver
 @main
 struct Goolbitg_iOSApp: App {
     
-    @UIApplicationDelegateAdaptor var delegate: GBAppDelegate
+    @UIApplicationDelegateAdaptor(GBAppDelegate.self) var delegate
     
     init() {
         KakaoSDK.initSDK(appKey: SecretKeys.kakaoNative)

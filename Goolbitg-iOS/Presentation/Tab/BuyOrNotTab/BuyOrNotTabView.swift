@@ -29,17 +29,24 @@ struct BuyOrNotTabView: View {
     
     @Environment(\.safeAreaInsets) var safeAreaInsets
     
-    @State private var animationDirection: CGFloat = 0
-    
     @State private var emptyList: [BuyOrNotCardViewEntity] = BuyOrNotCardViewEntity.dummy()
     
     @State private var emptyListIndex = 0
     
+    @State private var tabMode: BuyOrNotTabInMode = .buyOrNot
+    
+    @State private var ifModifierOrDelete: BuyOrNotCardViewEntity? = nil
+    @State private var popupPosition: CGPoint = .zero
+    
+    private let screenSize = UIScreen.main.bounds.size
+    
     var body: some View {
         WithPerceptionTracking {
             content
-                .onAppear {
-                    store.send(.viewCycle(.onAppear))
+                .onChange(of: store.tabMode) {  newValue in
+                    withAnimation {
+                        tabMode = newValue
+                    }
                 }
                 .popup(
                     item: $store.errorAlert.sending(\.bindingAlert)) { item in
@@ -55,11 +62,83 @@ struct BuyOrNotTabView: View {
                             .appearFrom(.centerScale)
                             .closeOnTap(false)
                             .closeOnTapOutside(false)
-                            .backgroundView {
-                                Color.black.opacity(0.5)
-                            }
+                            .backgroundColor(Color.black.opacity(0.5))
+                    }
+                    .popup(item: $ifModifierOrDelete) { item in
+                        GBBottonSheetView {
+                            AnyView(modifierBottomSheetTop)
+                        } contentView: {
+                            AnyView(modifierBottomSheetBottom)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .background(GBColor.grey600.asColor)
+                        .cornerRadiusCorners(12, corners: [.topLeft, .topRight])
+                        
+                    } customize: {
+                        $0
+                            .type(.toast)
+//                            .displayMode(.sheet)
+                            .closeOnTap(false)
+                            .closeOnTapOutside(true)
+                            .animation(.smooth)
+                            .backgroundColor(Color.black.opacity(0.5))
+//                            .backgroundView {
+//                                Color.black.opacity(0.5)
+//                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                            }
                     }
         }
+    }
+    
+    private var modifierBottomSheetTop: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Spacer()
+                Text("수정하기")
+                    .font(FontHelper.body1.font)
+                    .foregroundStyle(GBColor.white.asColor)
+                    .padding(.vertical, SpacingHelper.sm.pixel)
+                Spacer()
+            }
+            .asButton {
+                
+            }
+            .padding(.horizontal, SpacingHelper.lg.pixel)
+            
+            Divider()
+                .padding(.vertical, SpacingHelper.sm.pixel)
+                .padding(.horizontal, SpacingHelper.md.pixel)
+            HStack {
+                Spacer()
+                Text("삭제하기")
+                    .font(FontHelper.body1.font)
+                    .foregroundStyle(GBColor.error.asColor)
+                    .padding(.vertical, SpacingHelper.sm.pixel)
+                Spacer()
+            }
+            .asButton {
+                
+            }
+            .padding(.horizontal, SpacingHelper.lg.pixel)
+        }
+        .padding(.vertical, SpacingHelper.md.pixel)
+    }
+    
+    private var modifierBottomSheetBottom: some View {
+        VStack(spacing: 0) {
+            Text("닫기")
+                .font(FontHelper.h3.font)
+                .foregroundStyle(GBColor.white.asColor)
+                .padding(.vertical, 16)
+        }
+        .frame(maxWidth: .infinity)
+        .background(GBColor.grey500.asColor)
+        .clipShape(Capsule())
+        .padding(.all, 16)
+        .asButton {
+            ifModifierOrDelete = nil
+        }
+        .padding(.bottom, safeAreaInsets.bottom)
     }
 }
 
@@ -71,8 +150,20 @@ extension BuyOrNotTabView {
                 .padding(.horizontal, SpacingHelper.md.pixel)
                 .padding(.bottom, SpacingHelper.sm.pixel)
             
-            buyOrNotView
-                
+            VStack(spacing: 0) {
+                if tabMode == .buyOrNot {
+                    buyOrNotView
+                        .onAppear {
+                            store.send(.viewCycle(.onAppear))
+                        }
+                }
+                else if tabMode == .records {
+                    buyOrNotRecordView
+                        .onAppear {
+                            store.send(.viewCycle(.recordOnAppear))
+                        }
+                }
+            }
             Spacer()
             
             Color.clear
@@ -90,10 +181,7 @@ extension BuyOrNotTabView {
                 .font(headerTitleFont(mode: .buyOrNot , by: currentTab))
                 .foregroundStyle(headerTitleColor(mode: .buyOrNot, by: currentTab))
                 .asButton {
-                    withAnimation {
-                        store.send(.bindingTabMode(.buyOrNot))
-                        animationDirection = -1
-                    }
+                    store.send(.bindingTabMode(.buyOrNot))
                 }
                 .padding(.trailing, 4)
             
@@ -101,10 +189,7 @@ extension BuyOrNotTabView {
                 .font(headerTitleFont(mode: .records , by: currentTab))
                 .foregroundStyle(headerTitleColor(mode: .records, by: currentTab))
                 .asButton {
-                    withAnimation {
-                        store.send(.bindingTabMode(.records))
-                        animationDirection = 1
-                    }
+                    store.send(.bindingTabMode(.records))
                 }
             Spacer()
             
@@ -114,7 +199,7 @@ extension BuyOrNotTabView {
                 .asButton {
                     store.send(.viewEvent(.addButtonTapped))
                 }
-                
+            
         }
     }
     
@@ -208,7 +293,7 @@ extension BuyOrNotTabView {
             }
         }
     }
-
+    
     
     private func currentItemGoodOrNotCount(ifGood: Bool) -> some View {
         let model = store.currentList[safe: store.currentIndex]
@@ -230,6 +315,137 @@ extension BuyOrNotTabView {
         .font(FontHelper.caption2.font)
     }
 }
+
+extension BuyOrNotTabView {
+    private var buyOrNotRecordView: some View {
+        VStack(spacing: 0) {
+            
+            recordHeaderView
+                .padding(.horizontal, SpacingHelper.lg.pixel)
+                .padding(.vertical, SpacingHelper.sm.pixel)
+            
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(Array(store.currentUserList.enumerated()), id: \.element.id) { idx, item in
+                        MyWriteListView(model: item)
+                    }
+                }
+            }
+        }
+    }
+    
+    private var recordHeaderView: some View {
+        HStack(spacing: 0) {
+            Text("내가 작성한 글")
+                .font(FontHelper.body3.font)
+                .foregroundStyle(GBColor.white.asColor)
+            Spacer()
+        }
+    }
+    
+    private func MyWriteListView(model: BuyOrNotCardViewEntity) -> some View {
+        
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                DownImageView(url: model.imageUrl, option: .min)
+                    .frame(width: 80, height: 80)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(lineWidth: 1)
+                            .foregroundStyle(GBColor.grey500.asColor)
+                    }
+                    .padding(.trailing, SpacingHelper.md.pixel)
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack {
+                        Text(model.itemName)
+                            .font(FontHelper.body3.font)
+                            .foregroundStyle(GBColor.white.asColor)
+                            .padding(.bottom, SpacingHelper.xs.pixel)
+                        Spacer()
+                    }
+                    HStack {
+                        Text(model.priceString)
+                            .font(FontHelper.body4.font)
+                            .foregroundStyle(GBColor.white.asColor)
+                        Spacer()
+                    }
+                    Spacer()
+                    
+                    HStack(spacing: 0) {
+                        
+                        ImageHelper.miniLikeHand
+                            .asImage
+                            .renderingMode(.template)
+                            .resizable()
+                            .frame(width: 12, height: 12)
+                            .foregroundColor(
+                                setLikeAndBadColor(goodOrBadOrNot: model.goodMoreOrBadMore, by: .good)
+                            )
+                            .padding(.trailing, 4)
+                        
+                        Text(model.goodVoteCount)
+                            .font(FontHelper.body5.font)
+                            .foregroundColor(
+                                setLikeAndBadColor(goodOrBadOrNot: model.goodMoreOrBadMore, by: .good)
+                            )
+                            .padding(.trailing, SpacingHelper.sm.pixel)
+                        
+                        ImageHelper.miniUnlikeHand
+                            .asImage
+                            .renderingMode(.template)
+                            .resizable()
+                            .frame(width: 12, height: 12)
+                            .foregroundColor(
+                                setLikeAndBadColor(goodOrBadOrNot: model.goodMoreOrBadMore, by: .bad)
+                            )
+                            .padding(.trailing, 4)
+                        
+                        Text(model.badVoteCount)
+                            .font(FontHelper.body5.font)
+                            .foregroundColor(
+                                setLikeAndBadColor(goodOrBadOrNot: model.goodMoreOrBadMore, by: .bad)
+                            )
+                    }
+                }
+                .padding(.vertical, SpacingHelper.xs.pixel)
+                VStack {
+                    
+                    GeometryReader { proxy in
+                        Image(systemName: "ellipsis")
+                            .resizable()
+                            .frame(width: 18, height: 3)
+                            .rotationEffect(.degrees(90))
+                            .foregroundStyle(GBColor.white.asColor)
+                            .padding(.trailing, SpacingHelper.sm.pixel)
+                            .frame(width: 32)
+                            .asButton {
+                                withAnimation {
+                                    ifModifierOrDelete = model
+                                }
+                            }
+                          
+                    }
+                    .frame(width: 20, height: 3)
+                    Spacer()
+                    
+                }
+                
+                .padding(.vertical, SpacingHelper.xs.pixel)
+            }
+            .padding(.vertical, SpacingHelper.md.pixel)
+        }
+        .padding(.horizontal, SpacingHelper.md.pixel)
+        .frame(height: 112)
+        
+    }
+    
+    private func setLikeAndBadColor(goodOrBadOrNot: GoodOrBadOrNot, by: GoodOrBadOrNot) -> Color {
+        goodOrBadOrNot == by ? GBColor.main.asColor : GBColor.grey300.asColor
+    }
+}
+
 
 extension BuyOrNotTabView {
     private func headerTitleColor(mode: BuyOrNotTabInMode, by: BuyOrNotTabInMode) -> Color {

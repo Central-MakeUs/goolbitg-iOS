@@ -17,8 +17,13 @@ struct BuyOrNotTabViewFeature: GBReducer {
         var currentList: [BuyOrNotCardViewEntity] = []
         var currentIndex: Int = 0
         var buyOrNotPagingObj = BuyOrNotPagingObj(page: 0, created: false)
-        var pagingTrigger = false
         var userCreated = false
+        var pagingTrigger = false
+        
+        var buyOrNotRecordPagingObj = BuyOrNotPagingObj(page: 0, created: true)
+        var currentUserList: [BuyOrNotCardViewEntity] = []
+        var userListPagingTrigger = false
+        
         
         var errorAlert: GBAlertViewComponents?
     }
@@ -41,6 +46,7 @@ struct BuyOrNotTabViewFeature: GBReducer {
     
     enum ViewCycle {
         case onAppear
+        case recordOnAppear
     }
     
     enum ViewEvent {
@@ -55,7 +61,17 @@ struct BuyOrNotTabViewFeature: GBReducer {
         
         case resultBuyOrNotList(paging: BuyOrNotPagingObj, models: [BuyOrNotCardViewEntity])
         case resultAppendBuyOrNotList(paging: BuyOrNotPagingObj, models: [BuyOrNotCardViewEntity])
+        
+        // MARK: 투표
         case resultVote(BuyOrNotVoteDTO, index: Int)
+        
+        // MARK: 기록
+        case requestUserRecordList(BuyOrNotPagingObj)
+        case requestMoreRecordList(BuyOrNotPagingObj)
+        
+        case resultUserRecordList(paging: BuyOrNotPagingObj, models: [BuyOrNotCardViewEntity])
+        case resultAppendRecordList(paging: BuyOrNotPagingObj, models: [BuyOrNotCardViewEntity])
+        
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -71,14 +87,25 @@ extension BuyOrNotTabViewFeature {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            // MARK: ViewCycle
             case .viewCycle(.onAppear):
-                let paging = BuyOrNotPagingObj(page: 0, created: state.userCreated)
+                let paging = BuyOrNotPagingObj(page: 0, created: false)
                 state.buyOrNotPagingObj = paging
                 state.pagingTrigger = false
                 state.currentList = []
                 state.currentIndex = 0
                 return .run { send in
                     await send(.featureEvent(.requestBuyOrNotList(paging)))
+                }
+                
+            case .viewCycle(.recordOnAppear):
+                let paging = BuyOrNotPagingObj(page: 0, created: true)
+                state.buyOrNotRecordPagingObj = paging
+                state.userListPagingTrigger = false
+                state.currentUserList = []
+                
+                return .run { send in
+                    await send(.featureEvent(.requestUserRecordList(paging)))
                 }
                 
             // MARK: ViewEvent
@@ -203,6 +230,37 @@ extension BuyOrNotTabViewFeature {
                     Logger.error(error)
                 }
                 
+            case let .featureEvent(.requestUserRecordList(PagingObj)):
+                
+                return .run { send in
+                    let result = try await networkManager.requestNetworkWithRefresh(
+                        dto: BuyOrNotPagedDTO<BuyOrNotDTO>.self,
+                        router: BuyOrNotRouter.buyOtNots(
+                            page: PagingObj.page,
+                            size: PagingObj.size,
+                            created: PagingObj.created
+                        )
+                    )
+                    
+                    var obj = PagingObj
+                    obj.onLoad = true
+                    obj.totalSize = result.page
+                    
+                    let mapping = await buyOrNotMapper.toEntity(dtos: result.items)
+                    
+                    await send(.featureEvent(.resultUserRecordList(
+                        paging: obj,
+                        models: mapping )
+                    ))
+                    
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        Logger.error("ERRRRRRRRRRROOOOOOOOR")
+                        return
+                    }
+                    Logger.error(error)
+                }
+                
             // MARK: RESULT
             case let .featureEvent(.resultBuyOrNotList(paging, models)):
                 state.buyOrNotPagingObj = paging
@@ -222,6 +280,12 @@ extension BuyOrNotTabViewFeature {
                 copyChange.badVoteCount = String(model.badVoteCount)
                 
                 state.currentList[index] = copyChange
+                
+            case let .featureEvent(.resultUserRecordList(paging, models)):
+                state.buyOrNotRecordPagingObj = paging
+                state.currentUserList = models
+                state.userListPagingTrigger = models.isEmpty
+                
                 
             // MARK: BINDING
             case .bindingCurrentList(let currentList):

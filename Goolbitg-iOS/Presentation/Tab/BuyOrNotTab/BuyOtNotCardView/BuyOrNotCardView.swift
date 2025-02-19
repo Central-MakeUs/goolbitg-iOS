@@ -148,7 +148,7 @@ extension BuyOrNotCardView {
         goodReason: "누구나 좋아하는 강아지",
         badReason: "누구나 싫어하는 강아지",
         goodVoteCount: "99",
-        badVoteCount: "1"
+        badVoteCount: "1", goodMoreOrBadMore: .good
     ),
         reportTab: {
             

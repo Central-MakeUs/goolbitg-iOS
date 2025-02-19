@@ -69,6 +69,8 @@ enum ImageHelper {
     case good
     case bad
     case buyOrNotAdd
+    case miniLikeHand
+    case miniUnlikeHand
     
     var image: UIImage {
         switch self {
@@ -185,6 +187,12 @@ enum ImageHelper {
             
         case .buyOrNotAdd:
             return UIImage(named: "buyOrNotAdd") ?? UIImage(resource: .buyOrNotAdd)
+            
+        case .miniLikeHand:
+            return UIImage(named: "miniLikeHand") ?? UIImage(resource: .miniLikeHand)
+            
+        case .miniUnlikeHand:
+            return UIImage(named: "miniUnLikeHand") ?? UIImage(resource: .miniUnLikeHand)
         }
     }
     

@@ -54,9 +54,7 @@ extension AuthRequestPageFeature {
                 return .run { send in
                     // 허용 가정하고 푸시 테스트
                    let result = try await pushManager.requestNotificationPermission()
-                    if result {
-                        pushManager.getDeviceToken()
-                    }
+                    
                     
 //                    await cameraManager.requestAuth()
                     

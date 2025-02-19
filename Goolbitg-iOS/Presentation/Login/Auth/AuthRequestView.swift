@@ -37,9 +37,7 @@ struct AuthRequestView: View {
                         .animation(.spring)
                         .closeOnTapOutside(true)
                         .closeOnTap(false)
-                        .backgroundView {
-                            Color.black.opacity(0.5)
-                        }
+                        .backgroundColor(Color.black.opacity(0.5))
                 }
                 .popup(isPresented: $store.showAgreeBottomSheet.sending(\.agreeBottomSheet)) {
                     GBBottonSheetView(
@@ -59,9 +57,7 @@ struct AuthRequestView: View {
                         .animation(.spring)
                         .closeOnTap(false)
                         .closeOnTapOutside(true)
-                        .backgroundView {
-                            Color.black.opacity(0.5)
-                        }
+                        .backgroundColor(Color.black.opacity(0.5))
                 }
         }
     }
