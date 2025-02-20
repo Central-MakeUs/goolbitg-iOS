@@ -44,6 +44,11 @@ extension BuyOrNotTabCoordinator {
             case .router(.routeAction(id: .add, action: .buyOrNotAdd(.delegate(.dismiss)))):
                 state.routes.dismiss()
                 
+            case .router(.routeAction(id: .add, action: .buyOrNotAdd(.delegate(.succressItem)))):
+                state.routes.dismiss()
+                
+                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.newBuyOrNotItem)))))
+                
             default:
                 break
             }

@@ -36,7 +36,9 @@ struct BuyOrNotTabView: View {
     @State private var tabMode: BuyOrNotTabInMode = .buyOrNot
     
     @State private var ifModifierOrDelete: BuyOrNotCardViewEntity? = nil
+    @State private var currentSelectedIdx: Int? = nil
     @State private var popupPosition: CGPoint = .zero
+    @State private var currentUserListIdx = 0
     
     private let screenSize = UIScreen.main.bounds.size
     
@@ -48,44 +50,48 @@ struct BuyOrNotTabView: View {
                         tabMode = newValue
                     }
                 }
+                .onChange(of: store.loading) { newValue in
+                    LoadingEnvironment.shared.loading(newValue)
+                }
                 .popup(
                     item: $store.errorAlert.sending(\.bindingAlert)) { item in
-                        GBAlertView(
-                            model: item) {}
-                        okTouch: {
-                            store.send(.bindingAlert(nil))
+                        VStack(spacing: 0) {
+                            Spacer()
+                            GBAlertView(
+                                model: item) {
+                                    store.send(.bindingAlert(nil))
+                                }
+                            okTouch: {
+                                store.send(.viewEvent(.alertOkTapped(item: item)))
+                            }
+                            Spacer()
                         }
                     } customize: {
                         $0
+                            .type(.floater())
                             .animation(.easeInOut)
-                            .type(.default)
                             .appearFrom(.centerScale)
+                            .displayMode(.sheet)
                             .closeOnTap(false)
                             .closeOnTapOutside(false)
                             .backgroundColor(Color.black.opacity(0.5))
                     }
-                    .popup(item: $ifModifierOrDelete) { item in
-                        GBBottonSheetView {
-                            AnyView(modifierBottomSheetTop)
-                        } contentView: {
-                            AnyView(modifierBottomSheetBottom)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .background(GBColor.grey600.asColor)
-                        .cornerRadiusCorners(12, corners: [.topLeft, .topRight])
-                        
+                .popup(item: $ifModifierOrDelete) { item in
+                    GBBottonSheetView {
+                        AnyView(modifierBottomSheetTop)
+                    } contentView: {
+                        AnyView(modifierBottomSheetBottom)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .background(GBColor.grey600.asColor)
+                    .cornerRadiusCorners(12, corners: [.topLeft, .topRight])
                     } customize: {
                         $0
                             .type(.toast)
-//                            .displayMode(.sheet)
                             .closeOnTap(false)
                             .closeOnTapOutside(true)
                             .animation(.smooth)
                             .backgroundColor(Color.black.opacity(0.5))
-//                            .backgroundView {
-//                                Color.black.opacity(0.5)
-//                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                            }
                     }
         }
     }
@@ -101,7 +107,14 @@ struct BuyOrNotTabView: View {
                 Spacer()
             }
             .asButton {
+                guard let entity = self.ifModifierOrDelete else {
+                    self.ifModifierOrDelete = nil
+                    self.currentSelectedIdx = nil
+                    return
+                }
                 
+                self.ifModifierOrDelete = nil
+                self.currentSelectedIdx = nil
             }
             .padding(.horizontal, SpacingHelper.lg.pixel)
             
@@ -117,7 +130,17 @@ struct BuyOrNotTabView: View {
                 Spacer()
             }
             .asButton {
-                
+                guard let entity = self.ifModifierOrDelete else {
+                    self.ifModifierOrDelete = nil
+                    self.currentSelectedIdx = nil
+                    return
+                }
+                self.ifModifierOrDelete = nil
+                self.currentSelectedIdx = nil
+                Task {
+                    try? await Task.sleep(for: .seconds(0.7))
+                    store.send(.viewEvent(.deleteModel(entity, index: currentUserListIdx)))
+                }
             }
             .padding(.horizontal, SpacingHelper.lg.pixel)
         }
@@ -136,7 +159,8 @@ struct BuyOrNotTabView: View {
         .clipShape(Capsule())
         .padding(.all, 16)
         .asButton {
-            ifModifierOrDelete = nil
+            self.ifModifierOrDelete = nil
+            self.currentSelectedIdx = nil
         }
         .padding(.bottom, safeAreaInsets.bottom)
     }
@@ -161,6 +185,9 @@ extension BuyOrNotTabView {
                     buyOrNotRecordView
                         .onAppear {
                             store.send(.viewCycle(.recordOnAppear))
+                        }
+                        .onChange(of: currentUserListIdx) { idx in
+                            checkCurrentUserIdx(idx: idx)
                         }
                 }
             }
@@ -327,7 +354,10 @@ extension BuyOrNotTabView {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     ForEach(Array(store.currentUserList.enumerated()), id: \.element.id) { idx, item in
-                        MyWriteListView(model: item)
+                        MyWriteListView(model: item, idx: idx)
+                            .onAppear {
+                                currentUserListIdx = idx
+                            }
                     }
                 }
             }
@@ -343,7 +373,7 @@ extension BuyOrNotTabView {
         }
     }
     
-    private func MyWriteListView(model: BuyOrNotCardViewEntity) -> some View {
+    private func MyWriteListView(model: BuyOrNotCardViewEntity, idx: Int) -> some View {
         
         VStack(spacing: 0) {
             HStack(spacing: 0) {
@@ -411,25 +441,20 @@ extension BuyOrNotTabView {
                 }
                 .padding(.vertical, SpacingHelper.xs.pixel)
                 VStack {
-                    
-                    GeometryReader { proxy in
-                        Image(systemName: "ellipsis")
-                            .resizable()
-                            .frame(width: 18, height: 3)
-                            .rotationEffect(.degrees(90))
-                            .foregroundStyle(GBColor.white.asColor)
-                            .padding(.trailing, SpacingHelper.sm.pixel)
-                            .frame(width: 32)
-                            .asButton {
-                                withAnimation {
-                                    ifModifierOrDelete = model
-                                }
+                    Image(systemName: "ellipsis")
+                        .resizable()
+                        .frame(width: 18, height: 3)
+                        .rotationEffect(.degrees(90))
+                        .foregroundStyle(GBColor.white.asColor)
+                        .padding(.trailing, SpacingHelper.sm.pixel)
+                        .frame(width: 32)
+                        .asButton {
+                            withAnimation {
+                                ifModifierOrDelete = model
+                                currentSelectedIdx = idx
                             }
-                          
-                    }
-                    .frame(width: 20, height: 3)
+                        }
                     Spacer()
-                    
                 }
                 
                 .padding(.vertical, SpacingHelper.xs.pixel)
@@ -454,6 +479,18 @@ extension BuyOrNotTabView {
     
     private func headerTitleFont(mode: BuyOrNotTabInMode, by: BuyOrNotTabInMode) -> Font {
         return mode == by ? FontHelper.h1.font : FontHelper.h2.font
+    }
+    
+    private func checkCurrentUserIdx(idx: Int) {
+        Task {
+            let currentList = store.currentList
+            if !store.userListPagingTrigger,
+               !currentList.isEmpty,
+               (currentList.count - 3) > 0,
+               (currentList.count - 3) < idx {
+                store.send(.viewEvent(.moreUserList(index: idx)))
+            }
+        }
     }
 }
 

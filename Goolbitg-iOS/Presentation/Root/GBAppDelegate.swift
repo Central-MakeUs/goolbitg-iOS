@@ -7,7 +7,8 @@
 
 import UIKit
 import ComposableArchitecture
-import Firebase
+import FirebaseCore
+import FirebaseMessaging
 import SwiftyBeaver
 
 let Logger = SwiftyBeaver.self

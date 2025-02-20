@@ -77,12 +77,23 @@ extension PushNotiManager {
 
 extension PushNotiManager: UNUserNotificationCenterDelegate {
     
+    @MainActor
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
-        willPresent notification: UNNotification,
-        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
-    ) {
-        completionHandler([.list, .banner, .badge, .sound])
+        willPresent notification: UNNotification
+    ) async -> UNNotificationPresentationOptions
+    {
+        let userInfo = notification.request.content.userInfo
+        return [.list, .banner, .badge, .sound]
+    }
+    
+    @MainActor
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse
+    ) async {
+        let userInfo = response.notification.request.content.userInfo
+        
     }
 }
 

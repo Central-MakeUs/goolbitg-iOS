@@ -30,8 +30,10 @@ struct Goolbitg_iOSApp: App {
                     RootCoordinator()
                 }))
             .onOpenURL { url in
-                if AuthApi.isKakaoTalkLoginUrl(url) {
-                    _ = AuthController.handleOpenUrl(url: url)
+                DispatchQueue.main.async {
+                    if AuthApi.isKakaoTalkLoginUrl(url) {
+                        _ = AuthController.handleOpenUrl(url: url)
+                    }
                 }
             }
         }

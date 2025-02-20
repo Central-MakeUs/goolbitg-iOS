@@ -26,6 +26,8 @@ struct BuyOrNotTabViewFeature: GBReducer {
         
         
         var errorAlert: GBAlertViewComponents?
+        var currentAlertModel: CurrentAlertType? = nil
+        var loading: Bool = false
     }
     
     enum Action {
@@ -38,6 +40,7 @@ struct BuyOrNotTabViewFeature: GBReducer {
         case bindingCurrentIndex(Int)
         case bindingTabMode(BuyOrNotTabInMode)
         case bindingAlert(GBAlertViewComponents?)
+        case parentEvent(ParentEvent)
         
         enum Delegate {
             case moveToAddView
@@ -53,6 +56,11 @@ struct BuyOrNotTabViewFeature: GBReducer {
         case likeButtonTapped(BuyOrNotCardViewEntity?, index: Int)
         case disLikeButtonTapped(BuyOrNotCardViewEntity?, index: Int)
         case addButtonTapped
+        case moreUserList(index: Int)
+        case modifierModel(BuyOrNotCardViewEntity, index: Int)
+        case deleteModel(BuyOrNotCardViewEntity, index: Int)
+        
+        case alertOkTapped(item: GBAlertViewComponents)
     }
     
     enum FeatureEvent {
@@ -68,10 +76,16 @@ struct BuyOrNotTabViewFeature: GBReducer {
         // MARK: 기록
         case requestUserRecordList(BuyOrNotPagingObj)
         case requestMoreRecordList(BuyOrNotPagingObj)
+        case requestDeleteRecord(BuyOrNotCardViewEntity, idx: Int)
+        
         
         case resultUserRecordList(paging: BuyOrNotPagingObj, models: [BuyOrNotCardViewEntity])
         case resultAppendRecordList(paging: BuyOrNotPagingObj, models: [BuyOrNotCardViewEntity])
-        
+        case resultDeleteRecord(idx: Int)
+    }
+    
+    enum ParentEvent {
+        case newBuyOrNotItem
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -166,6 +180,30 @@ extension BuyOrNotTabViewFeature {
             case .viewEvent(.addButtonTapped):
                 return .send(.delegate(.moveToAddView))
                 
+            case let .viewEvent(.moreUserList(index)):
+                if (index > state.currentList.count - 2), !state.userListPagingTrigger {
+                    state.buyOrNotRecordPagingObj.page += 1
+                    state.userListPagingTrigger = true
+                    return .send(.featureEvent(.requestMoreRecordList(state.buyOrNotRecordPagingObj)))
+                }
+                
+            case let .viewEvent(.deleteModel(userModel, index)):
+                
+                state.currentAlertModel = .deleteModel(model: userModel, idx: index)
+                
+                state.errorAlert = GBAlertViewComponents(
+                    title: "삭제하기",
+                    message: "정말 살까말까 글을\n삭제하시겠어요?",
+                    cancelTitle: "취소",
+                    okTitle: "삭제",
+                    alertStyle: .warning
+                )
+                
+            case .viewEvent(.alertOkTapped(_)):
+                state.errorAlert = nil
+                if case let.deleteModel(model, idx) = state.currentAlertModel {
+                    return .send(.featureEvent(.requestDeleteRecord(model, idx: idx)))
+                }
                 
             // MARK: REQUEST
             case let .featureEvent(.requestBuyOrNotList(obj)):
@@ -181,7 +219,6 @@ extension BuyOrNotTabViewFeature {
                     )
                     
                     var obj = obj
-                    obj.onLoad = true
                     obj.totalSize = result.page
                     
                     let mapping = await buyOrNotMapper.toEntity(dtos: result.items)
@@ -212,7 +249,6 @@ extension BuyOrNotTabViewFeature {
                     )
                     
                     var obj = obj
-                    obj.onLoad = true
                     obj.totalSize = result.page
                     
                     let mapping = await buyOrNotMapper.toEntity(dtos: result.items)
@@ -243,7 +279,6 @@ extension BuyOrNotTabViewFeature {
                     )
                     
                     var obj = PagingObj
-                    obj.onLoad = true
                     obj.totalSize = result.page
                     
                     let mapping = await buyOrNotMapper.toEntity(dtos: result.items)
@@ -259,6 +294,63 @@ extension BuyOrNotTabViewFeature {
                         return
                     }
                     Logger.error(error)
+                }
+                
+            case let .featureEvent(.requestMoreRecordList(obj)):
+                return .run(priority: .background) { send in
+                    let result = try await networkManager.requestNetworkWithRefresh(
+                        dto: BuyOrNotPagedDTO<BuyOrNotDTO>.self,
+                        router: BuyOrNotRouter.buyOtNots(
+                            page: obj.page,
+                            size: obj.size,
+                            created: obj.created
+                        )
+                    )
+                    
+                    var obj = obj
+                    obj.totalSize = result.page
+                    
+                    let mapping = await buyOrNotMapper.toEntity(dtos: result.items)
+                    
+                    await send(.featureEvent(.resultAppendRecordList(
+                        paging: obj,
+                        models: mapping)
+                    ))
+                    
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        Logger.error("ERRRRRRRRRRROOOOOOOOR")
+                        return
+                    }
+                    Logger.error(error)
+                }
+                
+            case let .featureEvent(.requestDeleteRecord(model, idx)):
+                guard let item = state.currentUserList[safe: idx],
+                     item == model else {
+                    return .none
+                }
+                Logger.debug("삭제할 에쩡!!!!!!!!!!!!!!!")
+                state.loading = true
+                return .run { send in
+                    try await networkManager.requestNotDtoNetwork(
+                        router: BuyOrNotRouter.buyOrNotDelete(postID: model.id),
+                        ifRefreshNeed: true
+                    )
+                    
+                    await send(.featureEvent(.resultDeleteRecord(idx: idx)))
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        return
+                    }
+                    if case .serverMessage(.postNotFound) = error {
+                        await send(.bindingAlert(GBAlertViewComponents(
+                            title: "ERROR",
+                            message: "포스트가 존재하지 않습니다.",
+                            okTitle: "확인",
+                            alertStyle: .warningWithWarning
+                        )))
+                    }
                 }
                 
             // MARK: RESULT
@@ -286,6 +378,15 @@ extension BuyOrNotTabViewFeature {
                 state.currentUserList = models
                 state.userListPagingTrigger = models.isEmpty
                 
+            case let .featureEvent(.resultAppendRecordList(paging, models)):
+                state.buyOrNotRecordPagingObj = paging
+                state.currentUserList.append(contentsOf: models)
+                state.pagingTrigger = models.isEmpty
+                
+            case let .featureEvent(.resultDeleteRecord(index)):
+                state.currentUserList.remove(at: index)
+                
+                state.loading = false
                 
             // MARK: BINDING
             case .bindingCurrentList(let currentList):
@@ -304,18 +405,32 @@ extension BuyOrNotTabViewFeature {
             case .bindingTabMode(let tabMode):
                 state.tabMode = tabMode
                 
+            case let .bindingAlert(model):
+                state.errorAlert = model
+                if model == nil {
+                    state.currentAlertModel = nil
+                }
+                
+                // MARK: ParentAction
+            case .parentEvent(.newBuyOrNotItem):
+                state.buyOrNotPagingObj = BuyOrNotPagingObj(page: 0, created: true)
+                return .send(.featureEvent(.requestUserRecordList(state.buyOrNotPagingObj)))
+                
             default:
                 break
             }
             return .none
         }
     }
+    
+    enum CurrentAlertType: Equatable {
+        case deleteModel(model: BuyOrNotCardViewEntity, idx: Int)
+    }
 }
     
 
 struct BuyOrNotPagingObj: Equatable {
     var totalSize = 0
-    var onLoad = false
     var page: Int
     let size = 10
     let created: Bool

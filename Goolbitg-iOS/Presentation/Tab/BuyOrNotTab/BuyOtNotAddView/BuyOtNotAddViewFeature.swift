@@ -40,6 +40,7 @@ struct BuyOrNotAddViewFeature: GBReducer {
         
         enum Delegate {
             case dismiss
+            case succressItem
         }
     }
     
@@ -144,7 +145,7 @@ extension BuyOrNotAddViewFeature {
                 else if item.ifNeedID == "완료" {
                     state.alertComponents = nil
                     return .run { send in
-                        await send(.delegate(.dismiss))
+                        await send(.delegate(.succressItem))
                     }
                 }
                 else {
