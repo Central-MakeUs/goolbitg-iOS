@@ -39,7 +39,7 @@ extension BuyOrNotTabCoordinator {
             switch action {
                 
             case .router(.routeAction(id: .home, action: .home(.delegate(.moveToAddView)))):
-                state.routes.presentCover(.buyOrNotAdd(BuyOrNotAddViewFeature.State()))
+                state.routes.presentCover(.buyOrNotAdd(BuyOrNotAddViewFeature.State(stateMode: .add)))
                 
             case .router(.routeAction(id: .add, action: .buyOrNotAdd(.delegate(.dismiss)))):
                 state.routes.dismiss()
@@ -48,6 +48,15 @@ extension BuyOrNotTabCoordinator {
                 state.routes.dismiss()
                 
                 return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.newBuyOrNotItem)))))
+                
+            case let .router(.routeAction(id: .home, action: .home(.delegate(.moveToModifierView(model, idx))))):
+                
+                state.routes.presentCover(.buyOrNotAdd(BuyOrNotAddViewFeature.State(stateMode: .modifier(model, idx: idx))))
+                
+            case let .router(.routeAction(id: .add, action: .buyOrNotAdd(.delegate(.successModifer(model, idx))))):
+                
+                state.routes.dismiss()
+                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.modifierSuccess(model, idx: idx))))))
                 
             default:
                 break

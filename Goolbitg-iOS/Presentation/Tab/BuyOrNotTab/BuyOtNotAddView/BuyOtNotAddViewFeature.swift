@@ -8,14 +8,39 @@
 import Foundation
 import ComposableArchitecture
 
+enum BuyOrNotAddOrModify: Equatable {
+    case add
+    case modifier(BuyOrNotCardViewEntity, idx: Int)
+    
+    var navigationTitle: String {
+        switch self {
+        case .add:
+            return TextHelper.buyOrNotAddTitle
+        case .modifier:
+            return "살까말까 글 수정하기"
+        }
+    }
+    
+    var endTitle: String {
+        switch self {
+        case .add:
+            return "작성하기"
+        case .modifier:
+            return "수정하기"
+        }
+    }
+}
+
 @Reducer
 struct BuyOrNotAddViewFeature: GBReducer {
     
     @ObservableState
     struct State: Equatable {
+        let stateMode: BuyOrNotAddOrModify
         var currentImageData: Data? = nil // 무조건 JPEG 로 변환
         var alertComponents: GBAlertViewComponents? = nil
         
+        var ifImageURL: URL? = nil
         var itemText = ""
         var priceText = ""
         var buyText = ""
@@ -23,6 +48,7 @@ struct BuyOrNotAddViewFeature: GBReducer {
         
         var currentOkButtonState = false
         var loading = false
+        var modiferModel: BuyOrNotCardViewEntity? = nil
     }
     
     enum Action {
@@ -41,6 +67,7 @@ struct BuyOrNotAddViewFeature: GBReducer {
         enum Delegate {
             case dismiss
             case succressItem
+            case successModifer(BuyOrNotCardViewEntity, idx: Int)
         }
     }
     
@@ -58,10 +85,12 @@ struct BuyOrNotAddViewFeature: GBReducer {
     enum FeatureEvent {
         case successRegister
         case errorHandling(RouterError)
+        case successModifier(BuyOrNotCardViewEntity)
     }
     
     @Dependency(\.gbNumberForMatter) var numberFormatter
     @Dependency(\.networkManager) var networkManager
+    @Dependency(\.buyOrNotMapper) var buyOrNotMapper
     
     var body: some ReducerOf<Self> {
         core
@@ -73,13 +102,20 @@ extension BuyOrNotAddViewFeature {
         Reduce { state, action in
             switch action {
             case .viewCycle(.onAppear):
-                
-                break
+                if case let .modifier(entity, _) = state.stateMode {
+                    state.itemText = entity.itemName
+                    state.priceText = entity.priceString
+                    state.buyText = entity.goodReason
+                    state.notBuyText = entity.badReason
+                    state.ifImageURL = entity.imageUrl
+                }
             case .viewEvent(.dismiss):
                 
+                let text = state.stateMode == .add ? "글 작성" : "글 수정"
+                
                 let alertComponents = GBAlertViewComponents(
-                    title: "살까말까 글 작성 중단",
-                    message: "살깔말까 글 작성을\n정말 중단하시겠어요?",
+                    title: "살까말까 \(text) 중단",
+                    message: "살깔말까 \(text)을\n정말 중단하시겠어요?",
                     cancelTitle: "취소",
                     okTitle: "중단",
                     alertStyle: .warningWithWarning,
@@ -89,6 +125,7 @@ extension BuyOrNotAddViewFeature {
                 state.alertComponents = alertComponents
                 
             case let .viewEvent(.imageResults(data)):
+                state.ifImageURL = nil
                 state.currentImageData = data
                 
                 return checkAll(state: &state)
@@ -120,12 +157,23 @@ extension BuyOrNotAddViewFeature {
                             badReason: state.notBuyText
                         )
                         
-                        let _ = try await networkManager.requestNetworkWithRefresh(
-                            dto: BuyOrNotDTO.self,
-                            router: BuyOrNotRouter.butOrNotsReg(requestDTO: requestDTO)
-                        )
-                        
-                        await send(.featureEvent(.successRegister))
+                        switch state.stateMode {
+                        case .add:
+                            let _ = try await networkManager.requestNetworkWithRefresh(
+                                dto: BuyOrNotDTO.self,
+                                router: BuyOrNotRouter.butOrNotsReg(requestDTO: requestDTO)
+                            )
+                            
+                            await send(.featureEvent(.successRegister))
+                        case let .modifier(model, idx):
+                            let modify = try await networkManager.requestNetworkWithRefresh(dto: BuyOrNotDTO.self, router: BuyOrNotRouter.buyOtNotsModify(
+                                postID: model.id,
+                                requestDTO: requestDTO)
+                            )
+//                            await send(.featureEvent(.successRegister))
+                            let entity = buyOrNotMapper.toEntity(dto: modify)
+                            await send(.featureEvent(.successModifier(entity)))
+                        }
                         
                     } catch: { error, send in
                         guard let error = error as? RouterError else {
@@ -146,6 +194,15 @@ extension BuyOrNotAddViewFeature {
                     state.alertComponents = nil
                     return .run { send in
                         await send(.delegate(.succressItem))
+                    }
+                }
+                else if item.ifNeedID == "수정완료",
+                        let model = state.modiferModel,
+                        case let .modifier(_, idx)  = state.stateMode {
+                    
+                    state.alertComponents = nil
+                    return .run { send in
+                        await send(.delegate(.successModifer(model, idx: idx)))
                     }
                 }
                 else {
@@ -172,12 +229,27 @@ extension BuyOrNotAddViewFeature {
                 
             case .featureEvent(.successRegister):
                 state.loading = false
+                let text = "글 작성"
                 let alertComponents = GBAlertViewComponents(
-                    title: "살까말까 글 작성 완료",
+                    title: "살까말까 \(text) 완료",
                     message: "24시간 이후 투표결과를\n확인할 수 있도록 알려드려요!",
                     okTitle: "확인",
                     alertStyle: .checkWithNormal,
                     ifNeedID: "완료"
+                )
+                
+                state.alertComponents = alertComponents
+                
+            case let .featureEvent(.successModifier(model)):
+                state.loading = false
+                state.modiferModel = model
+                let text = "글 수정"
+                let alertComponents = GBAlertViewComponents(
+                    title: "살까말까 \(text) 완료",
+                    message: "24시간 이후 투표결과를\n확인할 수 있도록 알려드려요!",
+                    okTitle: "확인",
+                    alertStyle: .checkWithNormal,
+                    ifNeedID: "수정완료"
                 )
                 
                 state.alertComponents = alertComponents

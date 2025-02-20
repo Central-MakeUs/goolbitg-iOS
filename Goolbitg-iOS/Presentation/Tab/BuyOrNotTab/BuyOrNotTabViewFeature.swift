@@ -44,6 +44,7 @@ struct BuyOrNotTabViewFeature: GBReducer {
         
         enum Delegate {
             case moveToAddView
+            case moveToModifierView(BuyOrNotCardViewEntity, idx: Int)
         }
     }
     
@@ -86,6 +87,7 @@ struct BuyOrNotTabViewFeature: GBReducer {
     
     enum ParentEvent {
         case newBuyOrNotItem
+        case modifierSuccess(BuyOrNotCardViewEntity, idx: Int)
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -204,6 +206,10 @@ extension BuyOrNotTabViewFeature {
                 if case let.deleteModel(model, idx) = state.currentAlertModel {
                     return .send(.featureEvent(.requestDeleteRecord(model, idx: idx)))
                 }
+                
+            case let .viewEvent(.modifierModel(model, index)):
+                
+                return .send(.delegate(.moveToModifierView(model, idx: index)))
                 
             // MARK: REQUEST
             case let .featureEvent(.requestBuyOrNotList(obj)):
@@ -415,6 +421,9 @@ extension BuyOrNotTabViewFeature {
             case .parentEvent(.newBuyOrNotItem):
                 state.buyOrNotPagingObj = BuyOrNotPagingObj(page: 0, created: true)
                 return .send(.featureEvent(.requestUserRecordList(state.buyOrNotPagingObj)))
+                
+            case let .parentEvent(.modifierSuccess(model, idx)):
+                state.currentUserList[idx] = model
                 
             default:
                 break

@@ -18,8 +18,11 @@ struct ImageIdentifier: Identifiable {
 struct BuyOrNotAddView: View {
     
     @Perception.Bindable var store: StoreOf<BuyOrNotAddViewFeature>
+    @Dependency(\.cameraManager) var cameraManager
     
+    @State private var precentImageMode: Bool = false
     @State private var showImagePicker = false
+    @State private var showCameraPicker = false
     @State private var imageItem: PhotosPickerItem?
     @State private var image: ImageIdentifier? = nil
     @State private var viewImage: UIImage? = nil
@@ -91,24 +94,28 @@ struct BuyOrNotAddView: View {
                             }
                         }
                     }
+                    .onChange(of: viewImage) { image in
+                        if let image {
+                            Task {
+                                let imageData = await imageCompressionManager.compressImageAsync(
+                                    image,
+                                    zipRate: 9.9
+                                )
+                                store.send(.viewEvent(.imageResults(imageData)))
+                            }
+                        } else {
+                            store.send(.viewEvent(.imageResults(nil)))
+                        }
+                    }
+                    .fullScreenCover(isPresented: $showCameraPicker) {
+                        CameraView(image: $viewImage)
+                    }
                     .fullScreenCover(item: $image) { imageModel in
                         ImageCropView(
                             image: imageModel.image
                         ) { image in
                             self.image = nil
                             viewImage = image
-                            if let image {
-                                Task {
-                                    let imageData = await imageCompressionManager.compressImageAsync(
-                                        image,
-                                        zipRate: 9.9
-                                    )
-                                    
-                                    store.send(.viewEvent(.imageResults(imageData)))
-                                }
-                            } else {
-                                store.send(.viewEvent(.imageResults(nil)))
-                            }
                         }
                     }
                     .overlay {
@@ -117,6 +124,31 @@ struct BuyOrNotAddView: View {
                                 GBLoadingView()
                             }
                         }
+                    }
+                    .confirmationDialog("종류 선택", isPresented: $precentImageMode) {
+                        Text("앨범")
+                            .asButton {
+                                showImagePicker = true
+                            }
+                        Text("카메라")
+                            .asButton {
+                                if cameraManager.isAuthorized() {
+                                    showCameraPicker = true
+                                }
+                                else {
+                                    let alertComponents = GBAlertViewComponents(
+                                        title: "카메라 권한을 허용하세요",
+                                        message: "카메라 권환을 허용하여야 카메라를 통해 이미지를 업로드 할 수 있습니다.",
+                                        cancelTitle: nil,
+                                        okTitle: "확인",
+                                        alertStyle: .warningWithWarning
+                                    )
+                                    self.imageItem = nil
+                                    self.image = nil
+                                    
+                                    store.send(.bindingAlertComponents(alertComponents))
+                                }
+                            }
                     }
             
         }
@@ -159,7 +191,7 @@ extension BuyOrNotAddView {
                 }
             }
             if store.currentOkButtonState {
-                GBButtonV2(title: "작성하기") {
+                GBButtonV2(title: store.stateMode.endTitle) {
                     store.send(.viewEvent(.okButtonTapped))
                 }
             }
@@ -173,7 +205,7 @@ extension BuyOrNotAddView {
     
     private var navigationBar: some View {
         ZStack(alignment: .center) {
-            Text(TextHelper.buyOrNotAddTitle)
+            Text(store.stateMode.navigationTitle)
                 .font(FontHelper.h3.font)
                 .foregroundStyle(GBColor.white.asColor)
             
@@ -210,9 +242,28 @@ extension BuyOrNotAddView {
                                         .foregroundStyle(GBColor.grey500.asColor)
                                 }
                                 .asButton {
-                                    showImagePicker.toggle()
+                                    precentImageMode.toggle()
                                 }
-                        } else {
+                        }
+                        else if let url = store.ifImageURL {
+                            DownImageView(
+                                url: url,
+                                option: .mid,
+                                fallBackImg: ImageHelper.appLogo.image
+                            )
+                            .aspectRatio(1, contentMode: .fit)
+                            .frame(width: 120, height: 120)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(lineWidth: 1)
+                                    .foregroundStyle(GBColor.grey500.asColor)
+                            }
+                            .asButton {
+                                precentImageMode.toggle()
+                            }
+                        }
+                        else {
                             VStack(spacing: 0) {
                                 Spacer()
                                 Image(systemName: "photo")
@@ -239,7 +290,7 @@ extension BuyOrNotAddView {
                                     .foregroundStyle(GBColor.grey500.asColor)
                             }
                             .asButton {
-                                showImagePicker.toggle()
+                                precentImageMode.toggle()
                             }
                         }
                     }
@@ -410,7 +461,7 @@ extension BuyOrNotAddView {
 
 #if DEBUG
 #Preview {
-    BuyOrNotAddView(store: Store(initialState: BuyOrNotAddViewFeature.State(), reducer: {
+    BuyOrNotAddView(store: Store(initialState: BuyOrNotAddViewFeature.State(stateMode: .add), reducer: {
         BuyOrNotAddViewFeature()
     }))
 }

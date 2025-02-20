@@ -107,7 +107,8 @@ struct BuyOrNotTabView: View {
                 Spacer()
             }
             .asButton {
-                guard let entity = self.ifModifierOrDelete else {
+                guard let entity = self.ifModifierOrDelete,
+                      let selectedIDX = currentSelectedIdx else {
                     self.ifModifierOrDelete = nil
                     self.currentSelectedIdx = nil
                     return
@@ -115,6 +116,10 @@ struct BuyOrNotTabView: View {
                 
                 self.ifModifierOrDelete = nil
                 self.currentSelectedIdx = nil
+                Task {
+                    try? await Task.sleep(for: .seconds(0.7))
+                    store.send(.viewEvent(.modifierModel(entity, index: selectedIDX)))
+                }
             }
             .padding(.horizontal, SpacingHelper.lg.pixel)
             
@@ -130,7 +135,8 @@ struct BuyOrNotTabView: View {
                 Spacer()
             }
             .asButton {
-                guard let entity = self.ifModifierOrDelete else {
+                guard let entity = self.ifModifierOrDelete,
+                      let selectedIDX = currentSelectedIdx else {
                     self.ifModifierOrDelete = nil
                     self.currentSelectedIdx = nil
                     return
@@ -139,7 +145,7 @@ struct BuyOrNotTabView: View {
                 self.currentSelectedIdx = nil
                 Task {
                     try? await Task.sleep(for: .seconds(0.7))
-                    store.send(.viewEvent(.deleteModel(entity, index: currentUserListIdx)))
+                    store.send(.viewEvent(.deleteModel(entity, index: selectedIDX)))
                 }
             }
             .padding(.horizontal, SpacingHelper.lg.pixel)

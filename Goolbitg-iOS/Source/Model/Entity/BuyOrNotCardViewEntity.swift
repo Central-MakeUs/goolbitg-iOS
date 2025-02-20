@@ -20,6 +20,7 @@ struct BuyOrNotCardViewEntity: Entity, Identifiable {
     var badVoteCount: String
     
     let goodMoreOrBadMore: GoodOrBadOrNot
+    var ifNeedIndex = 0
 }
 
 enum GoodOrBadOrNot: Equatable {
