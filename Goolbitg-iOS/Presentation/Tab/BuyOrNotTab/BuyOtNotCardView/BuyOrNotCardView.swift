@@ -18,7 +18,8 @@ struct BuyOrNotCardView: View {
     var body: some View {
         content
             .opacity(hidden ? 0 : 1)
-            .onAppear {
+            .task {
+                try? await Task.sleep(for: .milliseconds(300))
                 withAnimation(.linear(duration: 1)) {
                     hidden = false
                 }
