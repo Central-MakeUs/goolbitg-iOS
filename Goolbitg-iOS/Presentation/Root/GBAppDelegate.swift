@@ -41,6 +41,9 @@ class GBAppDelegate: NSObject, UIApplicationDelegate {
         Messaging.messaging().token { token, _ in
             Logger.debug("💜😀 \(token ?? "nil")")
         }
+        if let token = Messaging.messaging().fcmToken {
+            pushManager.setServerToToken(token: token)
+        }
     }
     
     func application(_ application: UIApplication, didFailToContinueUserActivityWithType userActivityType: String, error: any Error) {

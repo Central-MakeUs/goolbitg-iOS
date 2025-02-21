@@ -29,6 +29,8 @@ enum UserRouter {
     case weeklyStatus(dateString: String? = nil)
     /// 푸시 알림 동의
     case agreePushNotification
+    /// 푸시 알림 FCM 처리
+    case registrationFCMToken(registrationToken: String)
 }
 
 extension UserRouter: Router {
@@ -37,7 +39,7 @@ extension UserRouter: Router {
         case .currentUserInfos, .userRegisterStatus, .weeklyStatus:
             return .get
             
-        case .nickNameCheck, .userInfoRegist, .userCheckList, .userHabit, .userPatternRegist, .agreement, .agreePushNotification:
+        case .nickNameCheck, .userInfoRegist, .userCheckList, .userHabit, .userPatternRegist, .agreement, .agreePushNotification, .registrationFCMToken:
             return .post
         }
     }
@@ -68,6 +70,8 @@ extension UserRouter: Router {
             return "/challenges"
         case .weeklyStatus:
             return "/users/me/weeklyStatus"
+        case .registrationFCMToken:
+            return "/users/me/registrationToken"
         }
     }
     
@@ -75,7 +79,7 @@ extension UserRouter: Router {
         switch self {
         case .currentUserInfos, .userRegisterStatus, .agreePushNotification, .weeklyStatus:
             return [ "application/json" : "Content-Type" ]
-        case .nickNameCheck, .userInfoRegist, .userCheckList, .userHabit, .userPatternRegist, .agreement:
+        case .nickNameCheck, .userInfoRegist, .userCheckList, .userHabit, .userPatternRegist, .agreement, .registrationFCMToken:
             return nil
         }
     }
@@ -92,12 +96,17 @@ extension UserRouter: Router {
             } else {
                 return nil
             }
+            
+        case let .registrationFCMToken(token):
+            return [
+                "registrationToken" : token
+            ]
         }
     }
     
     var body: Data? {
         switch self {
-        case .currentUserInfos, .userRegisterStatus, .agreePushNotification, .weeklyStatus:
+        case .currentUserInfos, .userRegisterStatus, .agreePushNotification, .weeklyStatus, .registrationFCMToken:
             return nil
         case .nickNameCheck(let requestModel):
             return try? CodableManager.shared.jsonEncodingStrategy(requestModel)
@@ -118,7 +127,7 @@ extension UserRouter: Router {
         switch self {
         case .currentUserInfos, .userRegisterStatus, .agreePushNotification, .weeklyStatus:
             return .url
-        case .nickNameCheck, .userInfoRegist, .userCheckList, .userHabit, .userPatternRegist, .agreement:
+        case .nickNameCheck, .userInfoRegist, .userCheckList, .userHabit, .userPatternRegist, .agreement, .registrationFCMToken:
             return .json
         }
     }

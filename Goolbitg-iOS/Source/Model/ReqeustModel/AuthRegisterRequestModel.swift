@@ -17,5 +17,4 @@ struct AuthRegisterRequestModel: Encodable {
 struct AuthLoginRequestModel: Encodable {
     let type: String
     let idToken: String
-    let registrationToken: String?
 }

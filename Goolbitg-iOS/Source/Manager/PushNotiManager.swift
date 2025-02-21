@@ -17,6 +17,8 @@ final class PushNotiManager: NSObject, @unchecked Sendable {
     private var deviceToken = UserDefaultsManager.deviceToken
     private let publishPushError = PassthroughSubject<Void, Never>()
     
+    @Dependency(\.networkManager) var networkManager
+    
     override init() {
         super.init()
         center.delegate = self
@@ -72,6 +74,18 @@ extension PushNotiManager {
     /// - Returns: AnyPublisher<Void>
     func getCurrentError() -> AnyPublisher<Void, Never> {
         return self.publishPushError.eraseToAnyPublisher()
+    }
+    
+    func setServerToToken(token: String) {
+        Task.detached { [weak self] in
+            guard let self else { return }
+            
+            let _ = try? await networkManager.requestNotDtoNetwork(
+                router: UserRouter.registrationFCMToken(
+                    registrationToken: token
+                ), ifRefreshNeed: true
+            )
+        }
     }
 }
 

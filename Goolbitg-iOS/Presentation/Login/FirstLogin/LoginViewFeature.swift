@@ -114,8 +114,7 @@ struct LoginViewFeature {
                         .login(
                         AuthLoginRequestModel(
                             type: type,
-                            idToken: idToken,
-                            registrationToken: UserDefaultsManager.fcmRegistrationToken)
+                            idToken: idToken )
                         )
                     )
                     saveToken(access: request.accessToken, refresh: request.refreshToken)
