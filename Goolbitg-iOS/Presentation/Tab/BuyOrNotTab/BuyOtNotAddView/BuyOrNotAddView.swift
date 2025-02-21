@@ -194,6 +194,7 @@ extension BuyOrNotAddView {
                 GBButtonV2(title: store.stateMode.endTitle) {
                     store.send(.viewEvent(.okButtonTapped))
                 }
+                .padding(.horizontal, 10)
             }
         }
         .ignoresSafeArea(.keyboard)

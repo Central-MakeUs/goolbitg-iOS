@@ -131,15 +131,19 @@ extension BuyOrNotAddViewFeature {
                 return checkAll(state: &state)
                 
             case .viewEvent(.okButtonTapped):
+                
+                let price = Int(
+                 state.priceText
+                     .replacingOccurrences(of: ",", with: "")
+                     .replacingOccurrences(of: " ", with: "")
+                )
+                
                 if let imgData = state.currentImageData,
                    state.currentOkButtonState,
-                   let price = Int(
-                    state.priceText
-                        .replacingOccurrences(of: ",", with: "")
-                        .replacingOccurrences(of: " ", with: "")
-                   ) {
+                   let price {
                     state.loading = true
                     return .run { [state] send in
+                        
                         /// ImageUpload
                         let imageResult = try await networkManager.uplaodMultipartRequest(
                             type: ImageDTO.self,
@@ -148,7 +152,7 @@ extension BuyOrNotAddViewFeature {
                                 fileName: "GoolB_\(UUID().uuidString)"
                             )
                         )
-                        Logger.debug("IMAGE URL : \(imageResult.url)")
+                        
                         let requestDTO = BuyOrNotRequestModel(
                             productName: state.itemText,
                             productPrice: price,
@@ -157,29 +161,41 @@ extension BuyOrNotAddViewFeature {
                             badReason: state.notBuyText
                         )
                         
-                        switch state.stateMode {
-                        case .add:
-                            let _ = try await networkManager.requestNetworkWithRefresh(
-                                dto: BuyOrNotDTO.self,
-                                router: BuyOrNotRouter.butOrNotsReg(requestDTO: requestDTO)
-                            )
-                            
-                            await send(.featureEvent(.successRegister))
-                        case let .modifier(model, idx):
-                            let modify = try await networkManager.requestNetworkWithRefresh(dto: BuyOrNotDTO.self, router: BuyOrNotRouter.buyOtNotsModify(
-                                postID: model.id,
-                                requestDTO: requestDTO)
-                            )
-//                            await send(.featureEvent(.successRegister))
-                            let entity = buyOrNotMapper.toEntity(dto: modify)
-                            await send(.featureEvent(.successModifier(entity)))
-                        }
+                        let _ = try await networkManager.requestNetworkWithRefresh(
+                            dto: BuyOrNotDTO.self,
+                            router: BuyOrNotRouter.butOrNotsReg(requestDTO: requestDTO)
+                        )
+                        
+                        await send(.featureEvent(.successRegister))
                         
                     } catch: { error, send in
                         guard let error = error as? RouterError else {
                             return
                         }
                         await send(.featureEvent(.errorHandling(error)))
+                    }
+                }
+                else if let imageURLString = state.ifImageURL?.absoluteString,
+                        let price,
+                        case let .modifier(model, idx) = state.stateMode
+                {
+                    state.loading = true
+                    return .run { [state] send in
+                        let requestDTO = BuyOrNotRequestModel(
+                            productName: state.itemText,
+                            productPrice: price,
+                            productImageUrl: imageURLString,
+                            goodReason: state.buyText,
+                            badReason: state.notBuyText
+                        )
+                        
+                        let modify = try await networkManager.requestNetworkWithRefresh(dto: BuyOrNotDTO.self, router: BuyOrNotRouter.buyOtNotsModify(
+                            postID: model.id,
+                            requestDTO: requestDTO)
+                        )
+    
+                        let entity = buyOrNotMapper.toEntity(dto: modify)
+                        await send(.featureEvent(.successModifier(entity)))
                     }
                 }
                 
@@ -293,11 +309,12 @@ extension BuyOrNotAddViewFeature {
 extension BuyOrNotAddViewFeature {
     
     private func checkAll(state: inout State) -> EffectOf<Self> {
-        guard let _ = state.currentImageData,
+        guard
               let _ = (state.itemText.isEmpty ? nil : state.itemText),
               let _ = (state.priceText.isEmpty ? nil : state.priceText),
               let _ = (state.buyText.isEmpty ? nil : state.buyText),
-              let _ = (state.notBuyText.isEmpty ? nil : state.notBuyText)
+              let _ = (state.notBuyText.isEmpty ? nil : state.notBuyText),
+              (state.currentImageData != nil || state.ifImageURL != nil)
         else {
             state.currentOkButtonState = false
             return .none

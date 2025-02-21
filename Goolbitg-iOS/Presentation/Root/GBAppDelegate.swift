@@ -38,12 +38,16 @@ class GBAppDelegate: NSObject, UIApplicationDelegate {
         let deviceToken = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
         pushManager.setDeviceToken(token: deviceToken)
         
-        Messaging.messaging().token { token, _ in
+        Messaging.messaging().token {[weak self] token, _ in
+            guard let self else { return }
+            if let token {
+                if let reCheckToken = Messaging.messaging().fcmToken {
+                    pushManager.setServerToToken(token: reCheckToken)
+                }
+            }
             Logger.debug("💜😀 \(token ?? "nil")")
         }
-        if let token = Messaging.messaging().fcmToken {
-            pushManager.setServerToToken(token: token)
-        }
+        
     }
     
     func application(_ application: UIApplication, didFailToContinueUserActivityWithType userActivityType: String, error: any Error) {

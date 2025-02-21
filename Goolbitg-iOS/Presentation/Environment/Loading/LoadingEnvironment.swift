@@ -14,7 +14,9 @@ final class LoadingEnvironment: @unchecked Sendable {
     let isLoading = CurrentValueSubject<Bool, Never>(false)
     
     func loading(_ bool: Bool) {
-        isLoading.send(bool)
+        DispatchQueue.main.async { [weak self] in
+            self?.isLoading.send(bool)
+        }
     }
 }
 
