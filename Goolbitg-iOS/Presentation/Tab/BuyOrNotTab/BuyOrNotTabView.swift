@@ -36,6 +36,7 @@ struct BuyOrNotTabView: View {
     @State private var tabMode: BuyOrNotTabInMode = .buyOrNot
     
     @State private var ifModifierOrDelete: BuyOrNotCardViewEntity? = nil
+    @State private var ifReportModelID: String? = nil
     @State private var currentSelectedIdx: Int? = nil
     @State private var popupPosition: CGPoint = .zero
     @State private var currentUserListIdx = 0
@@ -85,6 +86,19 @@ struct BuyOrNotTabView: View {
                     .frame(maxWidth: .infinity)
                     .background(GBColor.grey600.asColor)
                     .cornerRadiusCorners(12, corners: [.topLeft, .topRight])
+                    } customize: {
+                        $0
+                            .type(.toast)
+                            .closeOnTap(false)
+                            .closeOnTapOutside(true)
+                            .animation(.smooth)
+                            .backgroundColor(Color.black.opacity(0.5))
+                    }
+                    .popup(item: $ifReportModelID) { item in
+                        BuyOrNotModifyBottomSheetView { reason in
+                            ifReportModelID = nil
+                            store.send(.viewEvent(.reportButtonTapped(id: item, reason: reason)))
+                        }
                     } customize: {
                         $0
                             .type(.toast)
@@ -262,6 +276,7 @@ extension BuyOrNotTabView {
                                 print(selected)
                             } reportEntity: { report in
                                 print(report)
+                                ifReportModelID = report.id
                             }
                             .onAppear {
                                 emptyListIndex = 0
@@ -500,11 +515,126 @@ extension BuyOrNotTabView {
     }
 }
 
+enum ReportCase: Equatable, CaseIterable {
+    case adult
+    case fight
+    case wrong
+    case other
+    
+    var reason: String {
+        switch self {
+        case .adult:
+            return "성적인 콘텐츠"
+        case .fight:
+            return "폭력적 또는 혐오스러운 콘텐츠"
+        case .wrong:
+            return "잘못된 정보"
+        case .other:
+            return "기타 사유"
+        }
+    }
+}
+
+struct BuyOrNotModifyBottomSheetView: View {
+    
+    @State private var ifCurrentReportCase: ReportCase? = nil
+    @State private var currentButtonState = false
+    @Environment(\.safeAreaInsets) var safeAreaInsets
+    
+    let reportButtonTapped: (ReportCase) -> Void
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Capsule()
+                .foregroundStyle(GBColor.grey300.asColor)
+                .frame(width: 32, height: 4)
+                .padding(.top, SpacingHelper.md.pixel)
+                .padding(.horizontal, SpacingHelper.md.pixel)
+                
+            reportHeaderView
+            Divider()
+                .foregroundStyle(GBColor.grey300.asColor)
+                .padding(.bottom, SpacingHelper.sm.pixel)
+            
+            reportFooterView
+        }
+        .frame(maxWidth: .infinity)
+        .background(GBColor.grey600.asColor)
+        .cornerRadiusCorners(12, corners: [.topLeft, .topRight])
+    }
+    
+    private var reportFooterView: some View {
+        VStack (spacing: 0) {
+            LazyVStack (spacing: SpacingHelper.md.pixel) {
+                ForEach(ReportCase.allCases, id: \.self) { item in
+                    CommonCheckListButtonView(
+                        configuration: CommonCheckListConfiguration(
+                            currentState: ifCurrentReportCase == item,
+                            checkListTitle: item.reason,
+                            subText: nil)
+                    )
+                    .asButton {
+                        if ifCurrentReportCase == nil {
+                            ifCurrentReportCase = item
+                            currentButtonState = true
+                        }
+                        else if ifCurrentReportCase != item{
+                            ifCurrentReportCase = item
+                            currentButtonState = true
+                        }
+                        else {
+                            ifCurrentReportCase = nil
+                            currentButtonState = false
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+            
+            Divider()
+                .foregroundStyle(GBColor.grey300.asColor)
+                .padding(.top, SpacingHelper.sm.pixel)
+            
+            GBButton(
+                isActionButtonState: $currentButtonState,
+                title: "신고하기") {
+                    if let ifCurrentReportCase {
+                        reportButtonTapped(ifCurrentReportCase)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.all, 16)
+                .padding(.bottom, safeAreaInsets.bottom)
+        }
+    }
+    
+    
+    private var reportHeaderView: some View {
+        VStack(spacing: 4) {
+            HStack {
+                Spacer()
+                Text("신고하기")
+                    .font(FontHelper.h3.font)
+                    .foregroundStyle(GBColor.white.asColor)
+                Spacer()
+            }
+            HStack {
+                Spacer()
+                Text("신고하려는 이유를 선택해 주세요")
+                    .font(FontHelper.body5.font)
+                    .foregroundStyle(GBColor.grey200.asColor)
+                Spacer()
+            }
+        }
+        .padding(.all, SpacingHelper.sm.pixel)
+    }
+}
 
 #if DEBUG
 #Preview {
     BuyOrNotTabView(store: Store(initialState: BuyOrNotTabViewFeature.State(), reducer: {
         BuyOrNotTabViewFeature()
     }))
+//    BuyOrNotModifyBottomSheetView()
 }
 #endif

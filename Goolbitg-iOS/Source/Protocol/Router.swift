@@ -31,7 +31,11 @@ enum EncodingType {
 extension Router {
     
     var baseURL: String {
+        #if DEV
+        return SecretKeys.devBaseURL + version
+        #else
         return SecretKeys.baseURL + version
+        #endif
     }
     
     var headers: HTTPHeaders {

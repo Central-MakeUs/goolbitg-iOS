@@ -49,6 +49,8 @@ enum APIErrorEntity: Int, Entity {
     case postLimitExceeded = 5001
     /// 존재하지 않는 포스트
     case postNotFound = 5002
+    /// 이미 신고한 포스트
+    case alreadyReportedPost = 5004
 
     // 알림 오류
     /// 존재하지 않는 알림

@@ -42,6 +42,8 @@ struct BuyOrNotTabViewFeature: GBReducer {
         case bindingAlert(GBAlertViewComponents?)
         case parentEvent(ParentEvent)
         
+        case loading(Bool)
+        
         enum Delegate {
             case moveToAddView
             case moveToModifierView(BuyOrNotCardViewEntity, idx: Int)
@@ -62,6 +64,7 @@ struct BuyOrNotTabViewFeature: GBReducer {
         case deleteModel(BuyOrNotCardViewEntity, index: Int)
         
         case alertOkTapped(item: GBAlertViewComponents)
+        case reportButtonTapped(id: String, reason: ReportCase)
     }
     
     enum FeatureEvent {
@@ -79,6 +82,8 @@ struct BuyOrNotTabViewFeature: GBReducer {
         case requestMoreRecordList(BuyOrNotPagingObj)
         case requestDeleteRecord(BuyOrNotCardViewEntity, idx: Int)
         
+        // MARK: 신고하기
+        case requestReport(id: String, reason: ReportCase)
         
         case resultUserRecordList(paging: BuyOrNotPagingObj, models: [BuyOrNotCardViewEntity])
         case resultAppendRecordList(paging: BuyOrNotPagingObj, models: [BuyOrNotCardViewEntity])
@@ -210,6 +215,10 @@ extension BuyOrNotTabViewFeature {
             case let .viewEvent(.modifierModel(model, index)):
                 
                 return .send(.delegate(.moveToModifierView(model, idx: index)))
+                
+            case let .viewEvent(.reportButtonTapped(id, item)):
+                
+                return .send(.featureEvent(.requestReport(id: id, reason: item)))
                 
             // MARK: REQUEST
             case let .featureEvent(.requestBuyOrNotList(obj)):
@@ -359,6 +368,49 @@ extension BuyOrNotTabViewFeature {
                     }
                 }
                 
+            case let .featureEvent(.requestReport(id, reason)):
+                state.loading = true
+                return .run { send in
+                    
+                    try await networkManager.requestNotDtoNetwork(router: BuyOrNotRouter.buyOrNotReport(
+                        postID: id,
+                        reason: reason.reason
+                    ), ifRefreshNeed: true
+                    )
+                    
+                    await send(.loading(false))
+                    
+                    await send(.bindingAlert(GBAlertViewComponents(
+                        title: "신고하기 완료",
+                        message: "신고하기 완료되었습니다",
+                        okTitle: "확인",
+                        alertStyle: .checkWithNormal
+                    )))
+                    
+                } catch: { error, send in
+                    await send(.loading(false))
+                    
+                    guard let error = error as? RouterError else {
+                        return
+                    }
+                    if case  .serverMessage(.postNotFound) = error {
+                        await send(.bindingAlert(GBAlertViewComponents(
+                            title: "ERROR",
+                            message: "포스트가 존재하지 않습니다.",
+                            okTitle: "확인",
+                            alertStyle: .warningWithWarning
+                        )))
+                    }
+                    else if case .serverMessage(.alreadyReportedPost) = error {
+                        await send(.bindingAlert(GBAlertViewComponents(
+                            title: "ERROR",
+                            message: "이미 신고한 게시물입니다.",
+                            okTitle: "확인",
+                            alertStyle: .warningWithWarning
+                        )))
+                    }
+                }
+                
             // MARK: RESULT
             case let .featureEvent(.resultBuyOrNotList(paging, models)):
                 state.buyOrNotPagingObj = paging
@@ -424,6 +476,9 @@ extension BuyOrNotTabViewFeature {
                 
             case let .parentEvent(.modifierSuccess(model, idx)):
                 state.currentUserList[idx] = model
+                
+            case let .loading(bool):
+                state.loading = bool
                 
             default:
                 break

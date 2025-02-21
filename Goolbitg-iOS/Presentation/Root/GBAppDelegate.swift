@@ -21,6 +21,7 @@ class GBAppDelegate: NSObject, UIApplicationDelegate {
         FirebaseApp.configure()
         Messaging.messaging().delegate = self
         
+        UserDefaultsManager.fcmRegistrationToken = Messaging.messaging().fcmToken
         
         NotificationCenter.default.addObserver(forName: .requestRemoteNotification, object: nil, queue: .main) { _ in
             application.registerForRemoteNotifications()

@@ -21,6 +21,8 @@ enum BuyOrNotRouter {
     case buyOrNotDelete(postID: String)
     /// 살까말까 투표
     case buyOrNotVote(postID: String, requestDTO: BuyOrNotVoteRequestDTO)
+    /// 살까말까 신고
+    case buyOrNotReport(postID: String, reason: String)
 }
 
 extension BuyOrNotRouter: Router {
@@ -28,7 +30,7 @@ extension BuyOrNotRouter: Router {
         switch self {
         case .buyOtNots, .buyOrNotDetail:
             return .get
-        case .butOrNotsReg, .buyOrNotVote:
+        case .butOrNotsReg, .buyOrNotVote, .buyOrNotReport:
             return .post
         case .buyOtNotsModify:
             return .put
@@ -57,6 +59,9 @@ extension BuyOrNotRouter: Router {
             
         case .buyOrNotVote(let postID, _):
             return "/buyOrNots/\(postID)/vote"
+            
+        case .buyOrNotReport(let postID, _):
+            return "buyOrNots/\(postID)/report"
         }
     }
     
@@ -73,7 +78,7 @@ extension BuyOrNotRouter: Router {
                 "created" : created
             ]
             return defaultValue
-        case .butOrNotsReg, .buyOtNotsModify, .buyOrNotDetail, .buyOrNotDelete, .buyOrNotVote:
+        case .butOrNotsReg, .buyOtNotsModify, .buyOrNotDetail, .buyOrNotDelete, .buyOrNotVote, .buyOrNotReport:
             return nil
         }
     }
@@ -91,6 +96,9 @@ extension BuyOrNotRouter: Router {
         
         case .buyOrNotVote(_, let requestDTO):
             return try? CodableManager.shared.jsonEncodingStrategy(requestDTO)
+            
+        case .buyOrNotReport(_, let reason):
+            return try? CodableManager.shared.jsonEncodingStrategy(ReasonRequestDTO(reason: reason))
         }
     }
     
@@ -98,7 +106,7 @@ extension BuyOrNotRouter: Router {
         switch self {
         case .buyOtNots, .buyOrNotDetail, .buyOrNotDelete:
             return .url
-        case .butOrNotsReg, .buyOtNotsModify, .buyOrNotVote:
+        case .butOrNotsReg, .buyOtNotsModify, .buyOrNotVote, .buyOrNotReport:
             return .json
         }
     }
@@ -108,4 +116,7 @@ extension BuyOrNotRouter: Router {
     }
 }
 
+struct ReasonRequestDTO: Encodable {
+    let reason: String
+}
 
