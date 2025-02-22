@@ -132,4 +132,16 @@ enum TextHelper {
     static let revokeThirdTitle = "오류가 있었어요"
     static let revokeFourthTitle = "새로운 계정을 사용하고 싶어요"
     static let revokeFifthTitle = "기타(직접 입력)"
+    
+    // MARK: 살까말까
+    static let buyOrNotAddTitle = "살까말까 글 작성하기"
+    static let buyOrNotAddPhotoTitle = "사진 첨부"
+    static let buyOrNotItemNameTitle = "품목명"
+    static let buyOrNotItemNamePlaceHolder = "품목명을 작성해주세요"
+    static let buyOrNotPriceTitle = "가격"
+    static let buyOrNotPricePlaceHolder = "₩ 가격을 입력해주세요"
+    static let buyOrNotWhyBuyTitle = "사고싶은 이유"
+    static let buyOrNotWhyBuyPlaceHolder  = "20자 이내로 작성해주세요"
+    static let buyOrNotWhyNotBuyTitle = "사면 안되는 이유"
+    static let buyOrNotWhyNotBuyPlaceHolder = "20자 이내로 작성해주세요"
 }

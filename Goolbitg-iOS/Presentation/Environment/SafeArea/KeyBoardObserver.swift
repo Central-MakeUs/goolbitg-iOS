@@ -7,12 +7,7 @@
 
 import SwiftUI
 
-private struct KeyboardHeightEnvironmentKey: EnvironmentKey {
-    static let defaultValue: CGFloat = 0
-}
-
 extension EnvironmentValues {
-    
     var keyboardHeight: CGFloat {
         get { self[KeyboardHeightEnvironmentKey.self] }
         set { self[KeyboardHeightEnvironmentKey.self] = newValue }
@@ -20,12 +15,23 @@ extension EnvironmentValues {
 }
 
 struct KeyboardHeightEnvironmentValue: ViewModifier {
-    @State private var keyboardHeight: CGFloat = 0
+    @State private var keyboardHeight: CGFloat = 0 {
+        didSet {
+            print("\(keyboardHeight)")
+        }
+    }
+    
+    var ifNeedMoreHeight: CGFloat
+    
+    init(ifNeedMoreHeight: CGFloat = 0) {
+        self.ifNeedMoreHeight = ifNeedMoreHeight
+    }
     
     func body(content: Content) -> some View {
-        content
-            .environment(\.keyboardHeight, keyboardHeight)
-            .animation(.interpolatingSpring(mass: 3, stiffness: 1000, damping: 500, initialVelocity: 0), value: keyboardHeight)
+        let totalHeight = self.keyboardHeight + self.ifNeedMoreHeight
+        return content
+            .environment(\.keyboardHeight, totalHeight)
+            .animation(.interpolatingSpring(mass: 3, stiffness: 1000, damping: 500, initialVelocity: 0), value: totalHeight)
             .background {
                 GeometryReader { keyboardProxy in
                     GeometryReader { proxy in
@@ -44,11 +50,11 @@ struct KeyboardHeightEnvironmentValue: ViewModifier {
     }
 }
 
-public extension View {
+extension View {
    
-    func keyboardHeightEnvironmentValue() -> some View {
+    func keyboardHeightEnvironmentValue(ifNeedMoreHeight: CGFloat = 0) -> some View {
         #if os(iOS)
-        modifier(KeyboardHeightEnvironmentValue())
+        modifier(KeyboardHeightEnvironmentValue(ifNeedMoreHeight: ifNeedMoreHeight))
         #else
         environment(\.keyboardHeight, 0)
         #endif

@@ -129,7 +129,12 @@ extension RootCoordinator {
                 if !UserDefaultsManager.accessToken.isEmpty && !UserDefaultsManager.refreshToken.isEmpty {
 
                     return .run { send in
-                        let result = try await networkManager.requestNetwork(dto: AccessTokenDTO.self, router: AuthRouter.refresh(refreshToken: UserDefaultsManager.refreshToken))
+                        let result = try await networkManager.requestNetworkWithRefresh(
+                            dto: AccessTokenDTO.self,
+                            router: AuthRouter.refresh(
+                                refreshToken: UserDefaultsManager.refreshToken
+                            )
+                        )
                         
                         UserDefaultsManager.accessToken = result.accessToken
                         UserDefaultsManager.refreshToken = result.refreshToken

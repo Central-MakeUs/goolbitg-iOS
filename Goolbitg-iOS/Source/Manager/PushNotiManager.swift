@@ -8,6 +8,7 @@
 import UIKit
 import ComposableArchitecture
 import UserNotifications
+import FirebaseMessaging
 import Combine
 
 final class PushNotiManager: NSObject, @unchecked Sendable {
@@ -15,6 +16,8 @@ final class PushNotiManager: NSObject, @unchecked Sendable {
     private let center = UNUserNotificationCenter.current()
     private var deviceToken = UserDefaultsManager.deviceToken
     private let publishPushError = PassthroughSubject<Void, Never>()
+    
+    @Dependency(\.networkManager) var networkManager
     
     override init() {
         super.init()
@@ -25,8 +28,12 @@ final class PushNotiManager: NSObject, @unchecked Sendable {
 extension PushNotiManager {
     /// 푸시 알림 권한 요청 함수
     /// - Returns: 사용자 선택에 따른 결과
+    @MainActor
     func requestNotificationPermission() async throws -> Bool {
         let result = try await center.requestAuthorization(options: [.alert, .badge, .sound] )
+        if result {
+            NotificationCenter.default.post(name: .requestRemoteNotification, object: nil)
+        }
         return result
     }
     
@@ -49,10 +56,6 @@ extension PushNotiManager {
             return .noOnce
         }
     }
-    // device 토큰 획득: application(_:didRegisterForRemo...) 함수 동작
-    func getDeviceToken() {
-        UIApplication.shared.registerForRemoteNotifications()
-    }
 
     /// 푸시알림 권한을 받은 경우 해당 함수를 통해 토큰을 저장
     /// - Parameter token: 저장할 디바이스 토큰
@@ -72,18 +75,40 @@ extension PushNotiManager {
     func getCurrentError() -> AnyPublisher<Void, Never> {
         return self.publishPushError.eraseToAnyPublisher()
     }
+    
+    func setServerToToken(token: String) {
+        Task.detached { [weak self] in
+            guard let self else { return }
+            
+            let _ = try? await networkManager.requestNotDtoNetwork(
+                router: UserRouter.registrationFCMToken(
+                    registrationToken: token
+                ), ifRefreshNeed: true
+            )
+        }
+    }
 }
 
 extension PushNotiManager: UNUserNotificationCenterDelegate {
-
+    
+    @MainActor
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
-        willPresent notification: UNNotification,
-        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
-    ) {
-        completionHandler([.sound, .badge, .banner])
+        willPresent notification: UNNotification
+    ) async -> UNNotificationPresentationOptions
+    {
+        let userInfo = notification.request.content.userInfo
+        return [.list, .banner, .badge, .sound]
     }
     
+    @MainActor
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse
+    ) async {
+        let userInfo = response.notification.request.content.userInfo
+        
+    }
 }
 
 extension PushNotiManager: DependencyKey {

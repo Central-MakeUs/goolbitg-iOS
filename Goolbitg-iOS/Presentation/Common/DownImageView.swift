@@ -65,6 +65,7 @@ struct DownImageView: View {
             .backgroundDecode(true) // 백그라운드에서 디코딩
             .processingQueue(.dispatch(DispatchQueue.global(qos: .userInitiated)))
             .retry(maxCount: 2, interval: .seconds(1))
+            .fade(duration: 0.25)
             .resizable()
     }
 }

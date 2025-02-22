@@ -64,6 +64,13 @@ enum ImageHelper {
     case miniChallendar
     case miniAward
     case miniBurn
+    case disLikeHand
+    case likeHand
+    case good
+    case bad
+    case buyOrNotAdd
+    case miniLikeHand
+    case miniUnlikeHand
     
     case lock
     case group
@@ -170,12 +177,30 @@ enum ImageHelper {
             
         case .miniChallendar:
             return UIImage(named: "miniChallendar") ?? UIImage(resource: .miniChallendar)
+        case .disLikeHand:
+            return UIImage(named: "disLikeHand") ?? UIImage(resource: .disLikeHand)
             
         case .lock:
             return UIImage(named: "lock") ?? UIImage(resource: .lock)
             
         case .group:
             return UIImage(named: "Group") ?? UIImage(resource: .group)
+        case .likeHand:
+            return UIImage(named: "likeHand") ?? UIImage(resource: .likeHand)
+            
+        case .good:
+            return UIImage(named: "Good") ?? UIImage(resource: .good)
+        case .bad:
+            return UIImage(named: "Bad") ?? UIImage(resource: .bad)
+            
+        case .buyOrNotAdd:
+            return UIImage(named: "buyOrNotAdd") ?? UIImage(resource: .buyOrNotAdd)
+            
+        case .miniLikeHand:
+            return UIImage(named: "miniLikeHand") ?? UIImage(resource: .miniLikeHand)
+            
+        case .miniUnlikeHand:
+            return UIImage(named: "miniUnLikeHand") ?? UIImage(resource: .miniUnLikeHand)
         }
     }
     
@@ -184,3 +209,4 @@ enum ImageHelper {
     }
     
 }
+

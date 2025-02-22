@@ -14,7 +14,7 @@ import SwiftyBeaver
 @main
 struct Goolbitg_iOSApp: App {
     
-    @UIApplicationDelegateAdaptor var delegate: GBAppDelegate
+    @UIApplicationDelegateAdaptor(GBAppDelegate.self) var delegate
     
     init() {
         KakaoSDK.initSDK(appKey: SecretKeys.kakaoNative)
@@ -30,8 +30,10 @@ struct Goolbitg_iOSApp: App {
                     RootCoordinator()
                 }))
             .onOpenURL { url in
-                if AuthApi.isKakaoTalkLoginUrl(url) {
-                    _ = AuthController.handleOpenUrl(url: url)
+                DispatchQueue.main.async {
+                    if AuthApi.isKakaoTalkLoginUrl(url) {
+                        _ = AuthController.handleOpenUrl(url: url)
+                    }
                 }
             }
         }

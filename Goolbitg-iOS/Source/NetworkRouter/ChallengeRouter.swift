@@ -278,5 +278,8 @@ extension ChallengeRouter: Router {
             return .json
         }
     }
-    
+  
+    var multipartFormData: MultipartFormData? {
+        return nil
+    }
 }

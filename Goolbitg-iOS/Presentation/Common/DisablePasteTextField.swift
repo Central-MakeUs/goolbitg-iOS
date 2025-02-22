@@ -82,6 +82,8 @@ struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
         textField.delegate = context.coordinator
         textField.keyboardType = keyboardType
         textField.isSecureTextEntry = isSecureTextEntry
+        textField.autocorrectionType = .no // 자동 수정 활성화 여부
+        textField.autocapitalizationType = .none // 자동 대문자 활성화 여부
         textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldTapped), for: .editingDidBegin)
         textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return textField

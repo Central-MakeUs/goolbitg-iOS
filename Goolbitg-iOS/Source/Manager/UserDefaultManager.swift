@@ -25,6 +25,9 @@ final actor UserDefaultsManager {
         /// 애플 로그인 유저인지 구분합니다.
         case ifAppleLoginUser
         
+        /// FCM  registrationToken
+        case fcmRegistrationToken
+        
         var value: String {
             return self.rawValue
         }
@@ -56,6 +59,9 @@ final actor UserDefaultsManager {
     
     @UserDefaultsWrapper(key: Key.ifAppleLoginUser.value, placeValue: false)
     static var ifAppleLoginUser: Bool
+    
+    @UserDefaultsWrapper(key: Key.fcmRegistrationToken.value, placeValue: nil)
+    static var fcmRegistrationToken: String?
     
 }
 

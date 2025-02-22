@@ -15,6 +15,7 @@ struct RootCoordinatorView: View {
     @Perception.Bindable var store: StoreOf<RootCoordinator>
     
     @State private var currentView: RootCoordinator.ChangeRootView = .splashLogin
+    @State private var currentLoading = false
     
     @Environment(\.scenePhase) var scenePhase
     
@@ -49,6 +50,9 @@ struct RootCoordinatorView: View {
                         break
                     }
                 }
+                .onReceive(LoadingEnvironment.shared.isLoading) { output in
+                    currentLoading = output
+                }
         }
     }
 }
@@ -56,25 +60,33 @@ struct RootCoordinatorView: View {
 
 extension RootCoordinatorView {
     private var content: some View {
-        VStack {
-            switch currentView {
-            case .splashLogin:
-                SplashLoginCoordinatorView(
-                    store: store.scope(
-                        state: \.splashLogin,
-                        action: \.splashLoginAction
+        ZStack {
+            VStack {
+                switch currentView {
+                case .splashLogin:
+                    SplashLoginCoordinatorView(
+                        store: store.scope(
+                            state: \.splashLogin,
+                            action: \.splashLoginAction
+                        )
                     )
-                )
-                
-            case .mainTab:
-                TabNavigationCoordinatorView(
-                    store: store.scope(
-                        state: \.tabState,
-                        action: \.tabAction
+                    
+                case .mainTab:
+                    TabNavigationCoordinatorView(
+                        store: store.scope(
+                            state: \.tabState,
+                            action: \.tabAction
+                        )
                     )
-                )
+                }
+            }
+            
+            if currentLoading {
+                GBLoadingView()
+                    .zIndex(1)
             }
         }
+        .animation(.easeInOut, value: currentLoading)
     }
 }
 

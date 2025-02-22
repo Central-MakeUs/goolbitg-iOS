@@ -18,17 +18,24 @@ protocol Router {
     var parameters: Parameters? { get }
     var body: Data? { get }
     var encodingType: EncodingType { get }
+    
+    var multipartFormData: MultipartFormData? { get }
 }
 
 enum EncodingType {
     case url
     case json
+    case multipartForm
 }
 
 extension Router {
     
     var baseURL: String {
+        #if DEV
+        return SecretKeys.devBaseURL + version
+        #else
         return SecretKeys.baseURL + version
+        #endif
     }
     
     var headers: HTTPHeaders {
@@ -47,7 +54,7 @@ extension Router {
         var urlRequest = try urlToURLRequest(url: url)
         
         switch encodingType {
-        case .url:
+        case .url, .multipartForm:
             do {
                 urlRequest = try URLEncoding.queryString.encode(urlRequest, with: parameters)
                 return urlRequest
@@ -61,7 +68,7 @@ extension Router {
                     urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
                 } else {
                     let request = try JSONEncoding.default.encode(urlRequest, withJSONObject: parameters)
-                    Logger.info(parameters)
+                    Logger.debug(parameters ?? "")
                     urlRequest = request
                 }
                 return urlRequest

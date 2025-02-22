@@ -56,7 +56,7 @@ struct LoginViewFeature {
                     // MARK: ERROR 처리 해야함.
                     return .none
                 }
-    
+                LoadingEnvironment.shared.loading(true)
                 return .send(.sendToServerIdToken(type: "APPLE", idToken: idToken, authToken: authToken))
 
             case .appleLoginError(let error):
@@ -64,6 +64,7 @@ struct LoginViewFeature {
                 
                 Logger.debug(error)
             case .kakaoLoginStart:
+                LoadingEnvironment.shared.loading(true)
                 return .run { send in
                     guard let idToken = try await kakaoLoginLogic() else {
                         return
@@ -72,6 +73,7 @@ struct LoginViewFeature {
                     await send(.sendToServerIdToken(type: "KAKAO", idToken: idToken))
                     
                 } catch: { error, send in
+                    LoadingEnvironment.shared.loading(false)
                     guard let error = error as? KakaoLoginErrorCase else {
                         return
                     }
@@ -91,7 +93,9 @@ struct LoginViewFeature {
                         if result {
                             await send(.sendToLoginServerIdToken(type: type, idToken: idToken))
                         }
+                        LoadingEnvironment.shared.loading(false)
                     } catch {
+                        LoadingEnvironment.shared.loading(false)
                         guard let error = error as? RouterError else {
                             return
                         }
@@ -110,7 +114,7 @@ struct LoginViewFeature {
                         .login(
                         AuthLoginRequestModel(
                             type: type,
-                            idToken: idToken)
+                            idToken: idToken )
                         )
                     )
                     saveToken(access: request.accessToken, refresh: request.refreshToken)
@@ -120,7 +124,7 @@ struct LoginViewFeature {
                     let requestRegisterState = try await networkManager.requestNetworkWithRefresh(dto: UserRegisterStatus.self, router: UserRouter.userRegisterStatus)
                     
                     Logger.info(requestRegisterState)
-                    
+                    LoadingEnvironment.shared.loading(false)
                     // 필수 기입사항 안했을시
                     if !requestRegisterState.requiredInfoCompleted {
                         await send(.delegate(.moveToOnBoarding(requestRegisterState.status)))
@@ -129,6 +133,7 @@ struct LoginViewFeature {
                     }
                     
                 } catch: { error, send in
+                    LoadingEnvironment.shared.loading(false)
                     guard let error = error as? RouterError else {
                         return
                     }
