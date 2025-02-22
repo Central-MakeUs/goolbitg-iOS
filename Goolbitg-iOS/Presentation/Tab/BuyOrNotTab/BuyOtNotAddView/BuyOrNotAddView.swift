@@ -52,6 +52,7 @@ struct BuyOrNotAddView: View {
                         $0
                             .animation(.easeInOut)
                             .type(.default)
+                            .displayMode(.sheet)
                             .appearFrom(.centerScale)
                             .closeOnTap(false)
                             .closeOnTapOutside(false)
@@ -117,6 +118,7 @@ struct BuyOrNotAddView: View {
                             self.image = nil
                             viewImage = image
                         }
+                        .navigationBarBackButtonHidden()
                     }
                     .overlay {
                         Group {

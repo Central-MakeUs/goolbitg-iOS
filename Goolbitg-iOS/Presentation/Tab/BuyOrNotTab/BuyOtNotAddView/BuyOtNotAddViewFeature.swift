@@ -177,7 +177,7 @@ extension BuyOrNotAddViewFeature {
                 }
                 else if let imageURLString = state.ifImageURL?.absoluteString,
                         let price,
-                        case let .modifier(model, idx) = state.stateMode
+                        case let .modifier(model, _) = state.stateMode
                 {
                     state.loading = true
                     return .run { [state] send in
@@ -193,7 +193,7 @@ extension BuyOrNotAddViewFeature {
                             postID: model.id,
                             requestDTO: requestDTO)
                         )
-    
+                        
                         let entity = buyOrNotMapper.toEntity(dto: modify)
                         await send(.featureEvent(.successModifier(entity)))
                     }

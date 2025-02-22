@@ -141,7 +141,7 @@ enum TextHelper {
     static let buyOrNotPriceTitle = "가격"
     static let buyOrNotPricePlaceHolder = "₩ 가격을 입력해주세요"
     static let buyOrNotWhyBuyTitle = "사고싶은 이유"
-    static let buyOrNotWhyBuyPlaceHolder  = "사고싶은 이유를 20자 이내로 작성해주세요"
+    static let buyOrNotWhyBuyPlaceHolder  = "20자 이내로 작성해주세요"
     static let buyOrNotWhyNotBuyTitle = "사면 안되는 이유"
-    static let buyOrNotWhyNotBuyPlaceHolder = "사면 안되는 이유를 20자 이내로 작성해주세요"
+    static let buyOrNotWhyNotBuyPlaceHolder = "20자 이내로 작성해주세요"
 }

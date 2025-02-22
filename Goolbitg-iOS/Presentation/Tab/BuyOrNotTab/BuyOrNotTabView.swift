@@ -371,16 +371,20 @@ extension BuyOrNotTabView {
             recordHeaderView
                 .padding(.horizontal, SpacingHelper.lg.pixel)
                 .padding(.vertical, SpacingHelper.sm.pixel)
-            
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(Array(store.currentUserList.enumerated()), id: \.element.id) { idx, item in
-                        MyWriteListView(model: item, idx: idx)
-                            .onAppear {
-                                currentUserListIdx = idx
-                            }
+            if !store.currentUserList.isEmpty {
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(Array(store.currentUserList.enumerated()), id: \.element.id) { idx, item in
+                            MyWriteListView(model: item, idx: idx)
+                                .onAppear {
+                                    currentUserListIdx = idx
+                                }
+                        }
                     }
                 }
+            }
+            else {
+                userListEmptyView
             }
         }
     }
@@ -485,6 +489,26 @@ extension BuyOrNotTabView {
         .padding(.horizontal, SpacingHelper.md.pixel)
         .frame(height: 112)
         
+    }
+    
+    private var userListEmptyView: some View {
+        VStack(spacing: 0) {
+            ImageHelper.appLogo.asImage
+                .resizable()
+                .aspectRatio(1, contentMode: .fit)
+                .grayscale(1)
+            
+            Text("아직 작성된 글이 없어요")
+                .font(FontHelper.body2.font)
+                .foregroundStyle(GBColor.grey200.asColor)
+                .padding(.bottom, SpacingHelper.lg.pixel)
+            
+            GBButtonV2(title: "살까말까 글 작성하기") {
+                store.send(.viewEvent(.addButtonTapped))
+            }
+        }
+        .padding(.top, 40)
+        .frame(width: UIScreen.main.bounds.width / 2)
     }
     
     private func setLikeAndBadColor(goodOrBadOrNot: GoodOrBadOrNot, by: GoodOrBadOrNot) -> Color {
