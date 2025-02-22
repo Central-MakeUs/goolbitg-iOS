@@ -18,12 +18,18 @@ final class UserMapper: Sendable {
         if let imageURLString = model.spendingType.imageURL{
             url = URL(string: imageURLString)
         }
+        var shareImageURL: URL? = nil
+        
+        if let shareImageUrl = model.spendingType.onboardingResultUrl {
+            shareImageURL = URL(string: shareImageUrl)
+        }
         
         return UserHabitResultEntity(
             topTitle: model.nickname + "님은\n" + model.spendingType.title + " 유형입니다",
             stepTitle: String(model.spendingType.id) + "단계 굴비",
             nameTitle: model.spendingType.title,
             imageUrl: url,
+            shareImageUrl: shareImageURL,
             spendingScore: String(model.spendingHabitScore) + "점",
             sameCount: String(model.spendingType.peopleCount ?? 0) + "명"
         )

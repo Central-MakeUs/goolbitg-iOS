@@ -19,6 +19,7 @@ struct ResultHabitFeature: GBReducer {
             stepTitle: " ",
             nameTitle: " ",
             imageUrl: nil,
+            shareImageUrl: nil,
             spendingScore: " ",
             sameCount: " "
         )

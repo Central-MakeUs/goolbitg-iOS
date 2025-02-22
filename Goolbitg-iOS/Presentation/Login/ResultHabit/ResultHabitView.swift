@@ -7,12 +7,15 @@
 
 import SwiftUI
 import ComposableArchitecture
+import Kingfisher
 
 struct ResultHabitView: View {
     
     @Perception.Bindable var store: StoreOf<ResultHabitFeature>
     
     @State private var cardRotate: Bool = false
+    @State private var isShareImageTrigger = false
+    @State private var isShareImage: UIImage? = nil
     
     var body: some View {
         WithPerceptionTracking {
@@ -32,6 +35,18 @@ struct ResultHabitView: View {
                     cardRotate.toggle()
                 }
                 store.send(.viewCycle(.onAppear))
+            }
+            .onChange(of: isShareImage) {  newValue in
+                isShareImageTrigger = newValue != nil
+            }
+            .sheet(isPresented: $isShareImageTrigger) {
+                isShareImage = nil
+            } content: {
+                if let isShareImage {
+                    ShareSheet(items: [isShareImage])
+                        .presentationDragIndicator(.visible)
+                        .presentationDetents([.medium])
+                }
             }
         }
     }
@@ -72,8 +87,8 @@ extension ResultHabitView {
     private var cardView: some View {
         ZStack {
             cardAnimationView
-            replaceView
-//            userInfoCardView
+//            replaceView
+            userInfoCardView
                 .padding(.horizontal, SpacingHelper.xl.pixel)
         }
     }
@@ -109,7 +124,7 @@ extension ResultHabitView {
                   Text("나의 소비 점수")
                         .font(FontHelper.body4.font)
                     Text(store.resultModel.spendingScore)
-                        .font(FontHelper.h2.font)
+                        .font(FontHelper.btn2.font)
                 }
                 
                 Spacer()
@@ -123,26 +138,33 @@ extension ResultHabitView {
                         .font(FontHelper.body4.font)
                     
                     Text(store.resultModel.sameCount)
-                          .font(FontHelper.h2.font)
+                        .font(FontHelper.btn2.font)
                 }
                 
                 Spacer()
             }
             .padding(.bottom, SpacingHelper.md.pixel)
             
-            VStack(alignment: .center, spacing: 0) {
-                Text("나의 소비습관 공유하기")
-                    .font(FontHelper.h3.font)
-                    .foregroundStyle(GBColor.grey500.asColor)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-            }
-            .background(GBColor.white.asColor)
-            .clipShape(Capsule())
-            .padding(.horizontal, SpacingHelper.lg.pixel)
-            .padding(.bottom, SpacingHelper.lg.pixel)
-            .asButton {
-                
+            if let imageURL = store.resultModel.shareImageUrl {
+                VStack(alignment: .center, spacing: 0) {
+                    Text("나의 소비습관 공유하기")
+                        .font(FontHelper.btn4.font)
+                        .foregroundStyle(GBColor.grey500.asColor)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 11)
+                }
+                .background(GBColor.white.asColor)
+                .clipShape(Capsule())
+                .padding(.horizontal, SpacingHelper.lg.pixel)
+                .padding(.bottom, SpacingHelper.lg.pixel)
+                .asButton {
+                    Task {
+                        let result = try? await ImageHelper.downLoadImage(url: imageURL)
+                        guard let result else { return }
+    
+                        isShareImage = result
+                    }
+                }
             }
         }
         .frame(maxWidth: .infinity)
@@ -239,6 +261,15 @@ extension ResultHabitView {
 }
 #if DEBUG
 #Preview {
+    let spendingType = SpendingTypeDTO(
+        id: 0,
+        title: "ㅁㄴㅇㅁㄴㅇ",
+        imageURL: nil,
+        profileUrl: nil,
+        onboardingResultUrl: "https://goolbitg.s3.ap-northeast-2.amazonaws.com/onboardingResult_type/02.png",
+        goal: 2000,
+        peopleCount: 10
+    )
     ResultHabitView(store: Store(initialState: ResultHabitFeature.State(userModel: UserInfoDTO(
         id: "",
         nickname: "테스트",
@@ -255,7 +286,7 @@ extension ResultHabitView {
         primeUseDay: nil,
         primeUseTime: nil,
         spendingHabitScore: 315,
-        spendingType: SpendingTypeDTO(id: 0, title: "asdasd", imageURL: nil, goal: 3, peopleCount: 3),
+        spendingType: spendingType,
         challengeCount: 3,
         postCount: 3,
         achievementGuage: 0.3
