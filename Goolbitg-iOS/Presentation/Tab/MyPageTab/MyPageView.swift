@@ -14,6 +14,7 @@ struct MyPageView: View {
     
     @Perception.Bindable var store: StoreOf<MyPageViewFeature>
     
+    @State private var showShareLink: Bool = false
     @Environment(\.safeAreaInsets) var safeAreaInsets
     
     var body: some View {
@@ -27,6 +28,13 @@ struct MyPageView: View {
                 }
                 .onAppear {
                     store.send(.viewCycle(.onAppear))
+                }
+                .sheet(isPresented: $showShareLink) {
+                    if let url = store.userEntity.shareImageUrl {
+                        ShareSheet(items: [url])
+                            .presentationDragIndicator(.visible)
+                            .presentationDetents([.medium])
+                    }
                 }
                 // MARK: LogOut
                 .popup(item: $store.logoutAlert.sending(\.alertState)) { item in
@@ -130,14 +138,18 @@ extension MyPageView {
                 
                 Spacer()
                 
-//
-//                Text(TextHelper.sharedTitle)
-//                    .font(FontHelper.body5.font)
-//                    .foregroundStyle(GBColor.white.asColor)
-//                    .padding(.horizontal, SpacingHelper.sm.pixel)
-//                    .padding(.vertical, 4)
-//                    .background(GBColor.white.asColor.opacity(0.2))
-//                    .clipShape(Capsule())
+                if let url = store.userEntity.shareImageUrl {
+                    Text(TextHelper.sharedTitle)
+                        .font(FontHelper.body5.font)
+                        .foregroundStyle(GBColor.white.asColor)
+                        .padding(.horizontal, SpacingHelper.sm.pixel)
+                        .padding(.vertical, 4)
+                        .background(GBColor.white.asColor.opacity(0.2))
+                        .clipShape(Capsule())
+                        .asButton {
+                            showShareLink = true
+                        }
+                }
             }
             
             HStack(spacing:0) {

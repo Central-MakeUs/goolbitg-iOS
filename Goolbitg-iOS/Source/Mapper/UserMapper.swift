@@ -83,11 +83,12 @@ final class UserMapper: Sendable {
             typeDetail: model.spendingType.title,
             spandingScore: String(model.spendingHabitScore) + "점",
             totalChallengeCount: String(model.challengeCount),
+            shareImageUrl: URL(string: model.spendingType.imageURL ?? ""),
             writeCount: String(model.postCount),
             nextGoolbTitle: "다음 굴비까지 " + nextGold + "원 남았어요",
             nextGoolBPercent: model.achievementGuage / Double(model.spendingType.goal ?? 0),
             userID: model.id,
-            userTypeImageUrl: model.spendingType.imageURL
+            userTypeImageUrl: model.spendingType.profileUrl
         )
     }
 }
