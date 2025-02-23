@@ -15,6 +15,7 @@ struct MyPageView: View {
     @Perception.Bindable var store: StoreOf<MyPageViewFeature>
     
     @State private var showShareLink: Bool = false
+    @State private var imageTrigger: UIImage? = nil
     @Environment(\.safeAreaInsets) var safeAreaInsets
     
     var body: some View {
@@ -30,8 +31,8 @@ struct MyPageView: View {
                     store.send(.viewCycle(.onAppear))
                 }
                 .sheet(isPresented: $showShareLink) {
-                    if let url = store.userEntity.shareImageUrl {
-                        ShareSheet(items: [url])
+                    if let image = imageTrigger {
+                        ShareSheet(items: [image])
                             .presentationDragIndicator(.visible)
                             .presentationDetents([.medium])
                     }
@@ -147,7 +148,12 @@ extension MyPageView {
                         .background(GBColor.white.asColor.opacity(0.2))
                         .clipShape(Capsule())
                         .asButton {
-                            showShareLink = true
+                            Task {
+                                let image = try? await ImageHelper.downLoadImage(url: url)
+                                guard let image else { return }
+                                imageTrigger = image
+                                showShareLink = true
+                            }
                         }
                 }
             }
