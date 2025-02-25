@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 enum ImageHelper {
     
@@ -208,5 +209,10 @@ enum ImageHelper {
         return Image(uiImage: self.image)
     }
     
+    
+    static func downLoadImage(url: URL) async throws -> UIImage {
+        let result = try await KingfisherManager.shared.retrieveImage(with: url)
+        return result.image
+    }
 }
 

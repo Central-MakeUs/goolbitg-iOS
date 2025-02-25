@@ -12,6 +12,7 @@ struct UserMyPageEntity: Entity {
     let typeDetail: String
     let spandingScore: String
     let totalChallengeCount: String
+    let shareImageUrl: URL?
     let writeCount: String
     let nextGoolbTitle: String
     let nextGoolBPercent: Double
@@ -24,6 +25,7 @@ struct UserMyPageEntity: Entity {
             typeDetail: "",
             spandingScore: "",
             totalChallengeCount: "",
+            shareImageUrl: nil,
             writeCount: "",
             nextGoolbTitle: "",
             nextGoolBPercent: 0,

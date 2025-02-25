@@ -13,6 +13,7 @@ struct UserHabitResultEntity: Entity {
     let stepTitle: String
     let nameTitle: String
     let imageUrl: URL?
+    let shareImageUrl: URL?
     let spendingScore: String
     let sameCount: String
 }

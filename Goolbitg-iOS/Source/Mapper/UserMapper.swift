@@ -18,12 +18,18 @@ final class UserMapper: Sendable {
         if let imageURLString = model.spendingType.imageURL{
             url = URL(string: imageURLString)
         }
+        var shareImageURL: URL? = nil
+        
+        if let shareImageUrl = model.spendingType.onboardingResultUrl {
+            shareImageURL = URL(string: shareImageUrl)
+        }
         
         return UserHabitResultEntity(
             topTitle: model.nickname + "님은\n" + model.spendingType.title + " 유형입니다",
             stepTitle: String(model.spendingType.id) + "단계 굴비",
             nameTitle: model.spendingType.title,
             imageUrl: url,
+            shareImageUrl: shareImageURL,
             spendingScore: String(model.spendingHabitScore) + "점",
             sameCount: String(model.spendingType.peopleCount ?? 0) + "명"
         )
@@ -77,11 +83,12 @@ final class UserMapper: Sendable {
             typeDetail: model.spendingType.title,
             spandingScore: String(model.spendingHabitScore) + "점",
             totalChallengeCount: String(model.challengeCount),
+            shareImageUrl: URL(string: model.spendingType.onboardingResultUrl ?? ""),
             writeCount: String(model.postCount),
             nextGoolbTitle: "다음 굴비까지 " + nextGold + "원 남았어요",
             nextGoolBPercent: model.achievementGuage / Double(model.spendingType.goal ?? 0),
             userID: model.id,
-            userTypeImageUrl: model.spendingType.imageURL
+            userTypeImageUrl: model.spendingType.profileUrl
         )
     }
 }
