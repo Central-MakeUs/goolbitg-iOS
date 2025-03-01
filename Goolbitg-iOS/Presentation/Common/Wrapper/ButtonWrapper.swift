@@ -14,7 +14,11 @@ struct ButtonWrapper: ViewModifier {
     func body(content: Content) -> some View {
         Button(
             action:action,
-            label: { content }
+            label: {
+                content
+                    .background(Color.clear)
+            }
         )
+        .buttonStyle(PlainButtonStyle())
     }
 }
