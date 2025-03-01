@@ -32,6 +32,11 @@ struct ChallengeTabFeature: GBReducer {
         var listLoad = false
         var pagingObj = PagingObj()
         var challengeList: [ChallengeEntity] = []
+        
+        /// 챌린지 그룹
+//        var chalengeGroupEntitys: [GroupChallengeListElementEntity] = []
+        var challengeGroupEntitys: [ChallengeGroupEntity] = []
+        var chalengeGroupPagingObj =  ChallegeGroupPagingObj()
     }
     
     enum Action {
@@ -56,6 +61,7 @@ struct ChallengeTabFeature: GBReducer {
     
     enum ViewCycle {
         case onAppear
+        case challengeGroupOnAppear
     }
     
     enum ViewEvent {
@@ -84,6 +90,11 @@ struct ChallengeTabFeature: GBReducer {
         
         case requestChallengeList(obj: PagingObj)
         case resultToChallengeList(dats: [ChallengeEntity])
+        
+        /// 챌린지 그룹
+        case requestChallengeGroup(obj: ChallegeGroupPagingObj)
+        case updateChallengeGroupOBJ(obj: ChallegeGroupPagingObj)
+        case resultChallengeGroup(result: [ChallengeGroupEntity], ifNeedAppend: Bool)
     }
     
     enum ParentEvent {
@@ -122,6 +133,11 @@ extension ChallengeTabFeature {
                 } else {
                     state.todayDate = Date()
                 }
+                
+            case .viewCycle(.challengeGroupOnAppear):
+                let pagingObj = ChallegeGroupPagingObj()
+                
+                return .send(.featureEvent(.requestChallengeGroup(obj: pagingObj)))
                 
             case .viewEvent(.checkPagingForWeekData):
                 let newValue = state.weekIndex
@@ -427,6 +443,51 @@ extension ChallengeTabFeature {
             case let .featureEvent(.resultToChallengeList(datas)):
                 state.challengeList = datas
                 state.listLoad = false
+                
+                
+            // MARK: ChallengeGroup
+            case let .featureEvent(.requestChallengeGroup(obj)):
+
+                return .run(priority: .medium) { send in
+                    let result = try await networkManager.requestNetworkWithRefresh(
+                        dto: ChallengeListDTO<ChallengeGroupDTO>.self,
+                        router: ChallengeRouter.challengeGroups(
+                            page: obj.pageNum,
+                            size: obj.size,
+                            searchText: obj.searchText,
+                            created: obj.created
+                        )
+                    )
+                    let pagging = ChallegeGroupPagingObj(
+                        pageNum: result.totalPages,
+                        size: result.size,
+                        searchText: obj.searchText,
+                        created: obj.created
+                    )
+                    await send(.featureEvent(.updateChallengeGroupOBJ(obj: pagging)))
+                    
+                    let mapping = await challengeMapper.challengeGroupToEntity(dtos: result.items)
+                    
+                    await send(.featureEvent(.resultChallengeGroup(result: mapping, ifNeedAppend: false)))
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        Logger.error(error)
+                        return
+                    }
+                }
+                
+                
+            // MARK: 챌린지 그룹 RESULT
+            case let .featureEvent(.updateChallengeGroupOBJ(obj)):
+                state.chalengeGroupPagingObj = obj
+                
+            case let .featureEvent(.resultChallengeGroup(result, ifNeedAppend)):
+                if ifNeedAppend {
+                    state.challengeGroupEntitys.append(contentsOf: result)
+                }
+                else {
+                    state.challengeGroupEntitys = result
+                }
                 
                 // MARK: Parent
             case .parentEvent(.reloadData):

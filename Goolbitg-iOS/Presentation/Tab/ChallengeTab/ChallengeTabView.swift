@@ -103,6 +103,9 @@ extension ChallengeTabView {
                         )
                 } else {
                     groupChallengeView
+                        .onAppear {
+                            store.send(.viewCycle(.challengeGroupOnAppear))
+                        }
                         .transition(
                             animationDirection == 1 ?
                                 .move(edge: .trailing) :
@@ -496,7 +499,41 @@ extension ChallengeTabView {
             }
             .padding(.horizontal, SpacingHelper.md.pixel)
             ScrollView {
+                challengeGroupListView
+            }
+        }
+    }
+    
+    private var challengeGroupListView: some View {
+        LazyVStack(spacing: 0) {
+            ForEach(Array(store.challengeGroupEntitys.enumerated()), id: \.element.id) { index, item in
+                challengeGroupElementView(index: index, item: item)
+            }
+        }
+    }
+    
+    private func challengeGroupElementView(index: Int, item: ChallengeGroupEntity) -> some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                Text(item.title)
                 
+                ImageHelper.lock.asImage
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                
+            }
+            HStack(spacing: 0) {
+                ImageHelper.group.asImage
+                    .resizable()
+                    .frame(width: 12, height: 12)
+                Text(item.currentPersonCount)
+                Text(item.totalPersonCount)
+                
+                Text(" ・ ")
+                
+                ForEach(item.hashTags, id: \.self) { hashTag in
+                    Text(hashTag)
+                }
             }
         }
     }

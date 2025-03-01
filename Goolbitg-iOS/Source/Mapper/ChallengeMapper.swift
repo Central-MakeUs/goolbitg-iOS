@@ -136,6 +136,23 @@ final class ChallengeMapper: Sendable {
         )
     }
     
+    /// 챌린지 그룹
+    func challengeGroupToEntity(dtos:[ChallengeGroupDTO]) async -> [ChallengeGroupEntity] {
+        return await dtos.asyncMap {
+            chaallengeGroupToEntity(dto:$0)
+        }
+    }
+    
+    /// 챌린지 그룹
+    func chaallengeGroupToEntity(dto: ChallengeGroupDTO) -> ChallengeGroupEntity {
+        return ChallengeGroupEntity(
+            id: String(dto.id),
+            title: dto.title,
+            currentPersonCount: String(dto.peopleCount),
+            totalPersonCount: String(dto.maxSize),
+            hashTags: dto.hashtags.map { "#\($0)" }
+        )
+    }
     
 }
 
