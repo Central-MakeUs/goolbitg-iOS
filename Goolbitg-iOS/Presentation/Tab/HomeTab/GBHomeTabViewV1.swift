@@ -18,6 +18,7 @@ struct GBHomeTabViewV1: View {
     @State private var currentOffset: CGFloat = 0
     
     @Environment(\.safeAreaInsets) var safeAreaInsets
+    @Dependency(\.pushNotiManager) var pushManager
     
     // 알림 카운트 가져와야함.
     @State private var noticount: Int = 0
@@ -27,9 +28,13 @@ struct GBHomeTabViewV1: View {
             contentView
                 .onAppear {
                     store.send(.viewCycle(.onAppear))
+                    noticount = UserDefaultsManager.fcmReciveCount
                 }
                 .onDisappear {
                     store.send(.viewCycle(.onDisappear))
+                }
+                .onReceive(pushManager.publishNewMessageCount) { count in
+                    noticount = count
                 }
         }
     }

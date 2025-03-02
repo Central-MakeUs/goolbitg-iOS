@@ -57,6 +57,7 @@ struct PushListViewFeature: GBReducer {
     
     @Dependency(\.networkManager) var networkManager
     @Dependency(\.noticeMapper) var noticeMapper
+    @Dependency(\.pushNotiManager) var pushManager
     
     
     var body: some ReducerOf<Self> {
@@ -72,6 +73,7 @@ extension PushListViewFeature {
             switch action {
                 
             case .viewCycle(.onAppear):
+                pushManager.resetBadgeCount()
                 state.dataEmptyCase = .loading
                 return .send(.featureEvent(.requestPushListItems))
                 
@@ -87,7 +89,7 @@ extension PushListViewFeature {
                 state.loadingTrigger = true
                 return .send(.featureEvent(.requestPushListItems))
                 
-            case let .viewEvent(.dismissTap):
+            case .viewEvent(.dismissTap):
                 return .send(.delegate(.dismiss))
                 
             // MARK: Request

@@ -27,6 +27,7 @@ final actor UserDefaultsManager {
         
         /// FCM  registrationToken
         case fcmRegistrationToken
+        case fcmReciveCount
         
         var value: String {
             return self.rawValue
@@ -63,6 +64,8 @@ final actor UserDefaultsManager {
     @UserDefaultsWrapper(key: Key.fcmRegistrationToken.value, placeValue: nil)
     static var fcmRegistrationToken: String?
     
+    @UserDefaultsWrapper(key: Key.fcmReciveCount.value, placeValue: 0)
+    static var fcmReciveCount: Int
 }
 
 extension UserDefaultsManager {

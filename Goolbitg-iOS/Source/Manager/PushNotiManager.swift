@@ -17,11 +17,22 @@ final class PushNotiManager: NSObject, @unchecked Sendable {
     private var deviceToken = UserDefaultsManager.deviceToken
     private let publishPushError = PassthroughSubject<Void, Never>()
     
+    let publishNewMessageCount = PassthroughSubject<Int, Never>()
+    
     @Dependency(\.networkManager) var networkManager
     
     override init() {
         super.init()
         center.delegate = self
+        
+        center.getDeliveredNotifications { [weak self] notifications in
+            guard let weakSelf = self else { return }
+            Task {
+                let result = await weakSelf.getNotificationCurrentSetting()
+                guard result == .authorized else { return }
+                weakSelf.setBadgeCount()
+            }
+        }
     }
 }
 
@@ -97,17 +108,42 @@ extension PushNotiManager: UNUserNotificationCenterDelegate {
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions
     {
-        let userInfo = notification.request.content.userInfo
+        Logger.debug("🔔 푸시 알림 수신 (포그라운드) 🔔")
+        UserDefaultsManager.fcmReciveCount += 1
+        setBadgeCount()
+        publishNewMessageCount.send(UserDefaultsManager.fcmReciveCount)
         return [.list, .banner, .badge, .sound]
     }
-    
+
     @MainActor
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse
     ) async {
-        let userInfo = response.notification.request.content.userInfo
-        
+        if UserDefaultsManager.fcmReciveCount > 0 {
+            UserDefaultsManager.fcmReciveCount -= 1
+            setBadgeCount()
+        }
+        Logger.debug("✅ 푸시 클릭 감지 ✅")
+    }
+    
+    func setBadgeCount() {
+        if #available(iOS 16.0, *) {
+            center.setBadgeCount(UserDefaultsManager.fcmReciveCount)
+        }
+        else {
+            UIApplication.shared.applicationIconBadgeNumber = UserDefaultsManager.fcmReciveCount
+        }
+    }
+    
+    func resetBadgeCount() {
+        UserDefaultsManager.fcmReciveCount = 0
+        if #available(iOS 16.0, *) {
+            center.setBadgeCount(0)
+        }
+        else {
+            UIApplication.shared.applicationIconBadgeNumber = 0
+        }
     }
 }
 

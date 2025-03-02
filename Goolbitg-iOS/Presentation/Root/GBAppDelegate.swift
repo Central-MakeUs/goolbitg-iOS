@@ -57,6 +57,15 @@ class GBAppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         return UIInterfaceOrientationMask.portrait
     }
+    
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        
+        Logger.debug("🔔 푸시 알림 수신 (포그라운드) 혹은 백그라운드 🔔")
+        UserDefaultsManager.fcmReciveCount += 1
+        pushManager.setBadgeCount()
+        completionHandler(.newData)
+    }
 }
 
 
