@@ -33,6 +33,7 @@ struct GBHomeTabViewFeature: GBReducer {
         
         enum Delegate {
             case moveToDetail(itemID: String)
+            case moveToPushListView
         }
         case moneyBinding(Double)
     }
@@ -44,6 +45,7 @@ struct GBHomeTabViewFeature: GBReducer {
     
     enum ViewEvent {
         case selectedItem(item: CommonCheckListConfiguration)
+        case pushAlertButtonTapped
     }
     
     enum FeatureEvent {
@@ -173,6 +175,11 @@ extension GBHomeTabViewFeature {
                 
             case let .featureEvent(.animationMoney(money)):
                 state.currentMoney = money
+                
+                
+                // MARK: 푸시 알림
+            case .viewEvent(.pushAlertButtonTapped):
+                return .send(.delegate(.moveToPushListView))
                 
             default:
                 break

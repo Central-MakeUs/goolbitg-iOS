@@ -19,6 +19,9 @@ struct GBHomeTabViewV1: View {
     
     @Environment(\.safeAreaInsets) var safeAreaInsets
     
+    // 알림 카운트 가져와야함.
+    @State private var noticount: Int = 0
+    
     var body: some View {
         WithPerceptionTracking {
             contentView
@@ -101,10 +104,10 @@ extension GBHomeTabViewV1 {
                 
                 Spacer()
                 
-//                NotiAlertView(count: "1")
-//                    .asButton {
-//                        
-//                    }
+                NotiAlertView(notiCount: $noticount)
+                    .asButton {
+                        store.send(.viewEvent(.pushAlertButtonTapped))
+                    }
             }
         }
     }

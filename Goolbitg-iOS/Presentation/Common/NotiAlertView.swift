@@ -9,7 +9,7 @@ import SwiftUI
 
 struct NotiAlertView: View {
     
-    let count: String
+    @Binding var notiCount: Int
     
     var body: some View {
         ZStack(alignment: .topTrailing) {
@@ -17,16 +17,18 @@ struct NotiAlertView: View {
                 .resizable()
                 .frame(width: 24, height: 24)
                 
-            ZStack {
-                Circle()
-                    .foregroundStyle(GBColor.error.asColor)
-                Text("1")
-                    .font(.system(size: 11, weight: .medium, design: .default))
-                    .foregroundStyle(GBColor.white.asColor)
+            if notiCount > 0 {
+                ZStack {
+                    Circle()
+                        .foregroundStyle(GBColor.error.asColor)
+                    Text(notiCount.toString)
+                        .font(.system(size: 11, weight: .medium, design: .default))
+                        .foregroundStyle(GBColor.white.asColor)
+                }
+                .frame(width: 16, height: 16)
+                .offset(y: -5)
+                .offset(x: 5)
             }
-            .frame(width: 16, height: 16)
-            .offset(y: -5)
-            .offset(x: 5)
         }
     }
 }

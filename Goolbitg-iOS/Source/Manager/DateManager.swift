@@ -30,6 +30,7 @@ final class DateManager: @unchecked Sendable {
         case timeHHmmss = "HH:mm:ss"
         case dicToDateForYYYYMMDD = "yyyy.MM.dd"
         case yyyymmddKorean = "yyyy년 MM월 dd일"
+        case serverDateFormat = "yyyy-MM-dd'T'HH:mm:ss"
         
         var format: String {
             return self.rawValue
@@ -150,6 +151,50 @@ extension DateManager {
 //        
 //        return date >= startOfWeek && date <= endOfWeek
 //    }
+}
+
+extension DateManager {
+    
+    func diffDate(_ date: String, format: FormatType) -> String {
+        let formatString = format.format
+        dateFormatter.dateFormat = formatString
+        dateFormatter.locale = Locale(identifier: "ko_KR")
+        
+        guard let givenDate = dateFormatter.date(from: date) else {
+            return "-"
+        }
+        
+        let now = Date()
+        let components = calendar.dateComponents(
+            [.year, .month, .weekOfYear, .day, .hour, .minute, .second],
+            from: givenDate,
+            to: now
+        )
+        
+        if let years = components.year, years > 0 {
+            return "\(years)년 전"
+        }
+        if let months = components.month, months > 0 {
+            return "\(months)개월 전"
+        }
+        if let weeks = components.weekOfYear, weeks > 0 {
+            return "\(weeks)주 전"
+        }
+        if let days = components.day, days > 0 {
+            return "\(days)일 전"
+        }
+        if let hours = components.hour, hours > 0 {
+            return "\(hours)시간 전"
+        }
+        if let minutes = components.minute, minutes > 0 {
+            return "\(minutes)분 전"
+        }
+        if let seconds = components.second, seconds > 10 {
+            return "\(seconds)초 전"
+        }
+        
+        return "방금 전"
+    }
 }
 
 extension DateManager: DependencyKey {

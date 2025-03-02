@@ -106,10 +106,11 @@ extension MyPageView {
     }
     
     private var alertView: some View {
-        NotiAlertView(count: "1")
-            .asButton {
-                store.send(.viewEvent(.alertButtonTapped))
-            }
+        EmptyView()
+//        NotiAlertView(count: "1")
+//            .asButton {
+//                store.send(.viewEvent(.alertButtonTapped))
+//            }
     }
 }
 

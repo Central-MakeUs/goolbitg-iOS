@@ -73,6 +73,13 @@ enum ImageHelper {
     case miniLikeHand
     case miniUnlikeHand
     
+    // MARK: Push Alert Part
+    case pushNull
+    case pushVote
+    case pushChatting
+    case pushChallenge
+    
+    
     var image: UIImage {
         switch self {
         case .splashBack:
@@ -194,6 +201,17 @@ enum ImageHelper {
             
         case .miniUnlikeHand:
             return UIImage(named: "miniUnLikeHand") ?? UIImage(resource: .miniUnLikeHand)
+            
+        // MARK: 푸시 알림 이미지
+            
+        case .pushNull:
+            return UIImage(named: "PushNull") ?? UIImage(resource: .pushNull)
+        case .pushVote:
+            return UIImage(named: "PushVote") ?? UIImage(resource: .pushVote)
+        case .pushChatting:
+            return UIImage(named: "PushChatting") ?? UIImage(resource: .pushChatting)
+        case .pushChallenge:
+            return UIImage(named: "PushChallenge") ?? UIImage(resource: .pushChallenge)
         }
     }
     

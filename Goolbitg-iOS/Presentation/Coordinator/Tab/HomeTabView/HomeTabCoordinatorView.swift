@@ -32,6 +32,10 @@ extension HomeTabCoordinatorView {
 //                    ChallengeDetailView(store: store)
 //                        .navigationBarBackButtonHidden()
 //                        .disableBackGesture(false)
+                    
+                case let .pushList(store):
+                    PushListView(store:store)
+                    
                 }
             }
         }
@@ -43,11 +47,15 @@ extension homeTabScreen.State: Identifiable {
         switch self {
         case .home:
             return .home
+            
+        case .pushList:
+            return .pushList
         }
     }
     
     enum ID: Identifiable {
         case home
+        case pushList
         
         var id: ID {
             return self

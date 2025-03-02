@@ -13,6 +13,7 @@ import TCACoordinators
 enum homeTabScreen {
     case home(GBHomeTabViewFeature)
 //    case challengeDetail(ChallengeDetailFeature)
+    case pushList(PushListViewFeature)
 }
 
 @Reducer
@@ -44,6 +45,16 @@ extension HomeTabCoordinator {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+                
+                
+                /// 푸시알림 이동
+            case .router(.routeAction(id: .home, action: .home(.delegate(.moveToPushListView)))):
+                
+                state.routes.presentCover(.pushList(PushListViewFeature.State()))
+                
+            case .router(.routeAction(id: .pushList, action: .pushList(.delegate(.dismiss)))):
+                
+                state.routes.dismiss()
                 
             default:
                 break
