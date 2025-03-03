@@ -27,6 +27,7 @@ struct MyPageViewFeature: GBReducer {
         enum Delegate {
             case logOutEvent
             case revokedEvent
+            case pushButtonTapped
         }
         
         case alertState(GBAlertViewComponents?)
@@ -70,7 +71,7 @@ extension MyPageViewFeature {
                     await send(.featureEvent(.requestUserInfo))
                     
                 }
-                
+            // MARK: ViewEvent
             case .viewEvent(.logOutButtonTapped):
                 state.logoutAlert = GBAlertViewComponents(
                     title: "로그아웃",
@@ -97,6 +98,9 @@ extension MyPageViewFeature {
                 
             case .viewEvent(.revokeButtonTapped):
                 return .send(.delegate(.revokedEvent))
+                
+            case .viewEvent(.alertButtonTapped):
+                return .send(.delegate(.pushButtonTapped))
                 
             case .featureEvent(.requestUserInfo):
                 return .run { send in

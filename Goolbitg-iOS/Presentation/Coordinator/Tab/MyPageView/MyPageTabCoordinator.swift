@@ -13,6 +13,7 @@ import TCACoordinators
 enum MyPageScreen {
     case home(MyPageViewFeature)
     case revokePage(RevokeFeature)
+    case pushList(PushListViewFeature)
 }
 
 @Reducer
@@ -54,6 +55,12 @@ extension MyPageTabCoordinator {
             case .router(.routeAction(id: .revokePage, action: .revokePage(.delegate(.dismiss)))):
                 state.routes.dismiss()
 //                return .send(.delegate(.tabViewShow))
+                
+            case .router(.routeAction(id: .home, action: .home(.delegate(.pushButtonTapped)))):
+                state.routes.presentCover(.pushList(PushListViewFeature.State()))
+                
+            case .router(.routeAction(id: .pushList, action: .pushList(.delegate(.dismiss)))):
+                state.routes.dismiss()
                 
             default:
                 break

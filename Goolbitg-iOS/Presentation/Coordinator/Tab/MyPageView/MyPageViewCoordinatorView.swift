@@ -31,6 +31,9 @@ extension MyPageViewCoordinatorView {
                 RevokeReasonView(store: store)
                     .navigationBarBackButtonHidden()
                     .disableBackGesture(false)
+                
+            case let .pushList(store):
+                PushListView(store: store)
             }
         }
     }
@@ -45,12 +48,15 @@ extension MyPageScreen.State: Identifiable {
             return .home
         case .revokePage:
             return .revokePage
+        case .pushList:
+            return .pushList
         }
     }
     
     enum ID: Identifiable {
         case home
         case revokePage
+        case pushList
         
         var id: ID {
             return self

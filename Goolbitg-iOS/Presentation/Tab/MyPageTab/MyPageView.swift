@@ -16,7 +16,10 @@ struct MyPageView: View {
     
     @State private var showShareLink: Bool = false
     @State private var imageTrigger: UIImage? = nil
+    @State private var pushCount: Int = 0
+
     @Environment(\.safeAreaInsets) var safeAreaInsets
+    @Dependency(\.pushNotiManager) var pushManager
     
     var body: some View {
         WithPerceptionTracking {
@@ -101,16 +104,18 @@ extension MyPageView {
                 .font(FontHelper.h1.font)
                 .foregroundStyle(GBColor.white.asColor)
             Spacer()
-//            alertView
+            alertView
         }
     }
     
     private var alertView: some View {
-        EmptyView()
-//        NotiAlertView(count: "1")
-//            .asButton {
-//                store.send(.viewEvent(.alertButtonTapped))
-//            }
+        NotiAlertView(notiCount: $pushCount)
+            .asButton {
+                store.send(.viewEvent(.alertButtonTapped))
+            }
+            .onReceive(pushManager.publishNewMessageCount) { count in
+                pushCount = count
+            }
     }
 }
 
