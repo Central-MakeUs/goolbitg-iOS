@@ -9,7 +9,6 @@ import Foundation
 import ComposableArchitecture
 @preconcurrency import TCACoordinators
 
-
 @Reducer
 struct RootCoordinator {
     
@@ -23,7 +22,9 @@ struct RootCoordinator {
         
         var tabState = TabNavigationCoordinator.State.initialState
         
-        var onAppear = false
+        var onAppear = true
+        
+        var showAppStorePopup: Bool = false
     }
     
     enum Action {
@@ -42,6 +43,9 @@ struct RootCoordinator {
         case subscribeToBackground
         case onAppearFromBackground
         case resetTab
+        
+        case showMoveToAppStore
+        case bindingAppStore(Bool)
     }
     
     enum ChangeRootView {
@@ -55,9 +59,10 @@ struct RootCoordinator {
     }
     
     @Dependency(\.networkManager) var networkManager
+    @Dependency(\.appVersionUpdateManager) var appVersionManager
     
     var body: some ReducerOf<Self> {
-        
+  
         Scope(state: \.splashLogin, action: \.splashLoginAction) {
             SplashLoginCoordinator()
         }
@@ -79,6 +84,12 @@ extension RootCoordinator {
                     state.onAppear = false
                     
                     return .run { send in
+                        if let appResult = await appVersionManager.checkBuildVersionUpdate() {
+                            if appResult {
+                                await send(.showMoveToAppStore)
+                                return
+                            }
+                        }
                         for await error in networkManager.getNetworkError() {
                             await send(.getRouterError(error))
                         }
@@ -145,6 +156,17 @@ extension RootCoordinator {
                         }
                         await send(.getRouterError(error))
                     }
+                }
+                
+            case .showMoveToAppStore:
+                state.showAppStorePopup = true
+                
+            /// 앱스토어 강제화 하기 위함
+            case .bindingAppStore(_):
+                state.showAppStorePopup = false
+                return .run { send in
+                    try? await Task.sleep(for: .seconds(1))
+                    await send(.showMoveToAppStore)
                 }
                 
             default:

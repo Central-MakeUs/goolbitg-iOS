@@ -16,8 +16,10 @@ struct RootCoordinatorView: View {
     
     @State private var currentView: RootCoordinator.ChangeRootView = .splashLogin
     @State private var currentLoading = false
+    @State private var moveToAppStoreTrigger = false
     
     @Environment(\.scenePhase) var scenePhase
+    @Dependency(\.moveURLManager) var moveURLManager
     
     var body: some View {
         WithPerceptionTracking {
@@ -29,6 +31,9 @@ struct RootCoordinatorView: View {
                     withAnimation {
                         currentView = newValue
                     }
+                }
+                .onChange(of: moveToAppStoreTrigger) { _ in
+                    moveURLManager.moveURL(caseOf: .appStore)
                 }
                 .popup(item: $store.alertItem.sending(\.alertItem)) { item in
                     GBAlertView(
@@ -52,6 +57,14 @@ struct RootCoordinatorView: View {
                 }
                 .onReceive(LoadingEnvironment.shared.isLoading) { output in
                     currentLoading = output
+                }
+                .alert("앱 업데이트 필요", isPresented: $store.showAppStorePopup.sending(\.bindingAppStore)) {
+                    Text("이동")
+                        .asButton {
+                            moveToAppStoreTrigger = true
+                        }
+                } message: {
+                    Text("앱스토어로 이동합니다.")
                 }
         }
     }

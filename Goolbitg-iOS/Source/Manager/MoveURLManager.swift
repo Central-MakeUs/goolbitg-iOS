@@ -14,6 +14,7 @@ final class MoveURLManager: Sendable {
         case inquiry
         case privacy
         case service
+        case appStore
         
         var url: URL? {
             switch self {
@@ -23,9 +24,12 @@ final class MoveURLManager: Sendable {
                 URL(string: "https://deep-twine-18f.notion.site/18b5dccdfca2805986d4ff2aa8eff647?pvs=4")
             case .service:
                 URL(string: "https://deep-twine-18f.notion.site/18b5dccdfca280128c3cc79c516a5b9d?pvs=4")
+            case .appStore:
+                URL(string: AppVersionUpdateManager.appStoreOpenUrlString)
             }
         }
     }
+    
     @discardableResult
     func moveURL(caseOf: MoveURLCase) -> Bool {
         guard let url = caseOf.url else { return false }
