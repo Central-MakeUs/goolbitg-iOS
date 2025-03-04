@@ -131,7 +131,7 @@ extension ChallengeTabFeature {
                         await send(.featureEvent(.requestPrevWeekData))
                     }
                 }
-                .throttle(id: CancelID.checkWeekDate, for: 0.4, scheduler: DispatchQueue.global(qos: .userInteractive).eraseToAnyScheduler(), latest: false)
+                .throttle(id: CancelID.checkWeekDate, for: 0.4, scheduler: RunLoop.main.eraseToAnyScheduler(), latest: false)
                 
                 
             case let .viewEvent(.selectedMonthDate(date)):
