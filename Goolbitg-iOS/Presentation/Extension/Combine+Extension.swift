@@ -6,17 +6,7 @@
 //
 
 import Combine
-
-extension Publisher where Failure == Never {
-    
-    func sinkTask(receiveValue: @escaping (Self.Output) async throws -> Void) -> AnyCancellable {
-        sink { value in
-            Task {
-                try await receiveValue(value)
-            }
-        }
-    }
-}
+import ConcurrencyExtras
 
 extension Publisher {
     

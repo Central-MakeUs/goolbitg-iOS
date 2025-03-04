@@ -46,7 +46,7 @@ final class NoticeMapper: Sendable {
 
 
 extension NoticeMapper: DependencyKey {
-    static var liveValue: NoticeMapper = NoticeMapper()
+    static let liveValue: NoticeMapper = NoticeMapper()
 }
 
 extension DependencyValues {

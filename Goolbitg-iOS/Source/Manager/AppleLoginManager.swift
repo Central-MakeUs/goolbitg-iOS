@@ -76,9 +76,12 @@ final class AppleLoginManager: Sendable {
     }
 }
 
-final class AppleSignInDelegateStore {
-    static let shared = AppleSignInDelegateStore()
+final class AppleSignInDelegateStore: @unchecked Sendable {
     var delegate: AppleSignProtocol?
+}
+
+extension AppleSignInDelegateStore {
+    static let shared = AppleSignInDelegateStore()
 }
 
 extension AppleLoginManager: DependencyKey {

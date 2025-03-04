@@ -297,6 +297,38 @@ extension NetworkManager {
     
 }
 
+extension NetworkManager {
+    
+    func ifNeedEscapingRequest<T: DTO, R: Router>(dto: T.Type, router: R, completion: @escaping @Sendable (Result<T, RouterError>) -> Void) {
+        do {
+            let urlRequest = try router.asURLRequest()
+            AF.request(urlRequest)
+                .validate(statusCode: 200..<300)
+                .responseDecodable(of: dto.self) { response in
+                    switch response.result {
+                        
+                    case let .success(success):
+                        completion(.success(success))
+                        
+                    case .failure(let error):
+                        guard let status = error.responseCode else {
+                            completion(.failure( RouterError.unknown(errorCode: "999")))
+                            return
+                        }
+                        guard let serverMessage = APIErrorEntity(rawValue: status) else {
+                            completion(.failure( RouterError.unknown(errorCode: "999")))
+                            return
+                        }
+                        completion(.failure( RouterError.serverMessage(serverMessage)))
+                        
+                    }
+                }
+        } catch {
+            completion(.failure(error))
+        }
+    }
+    
+}
 
 
 extension NetworkManager {

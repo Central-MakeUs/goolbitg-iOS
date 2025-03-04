@@ -75,7 +75,9 @@ extension GBHomeTabViewV1 {
                         .frame(height: safeAreaInsets.bottom + 20)
                 }
                 .onPreferenceChange(ScrollOffsetKey.self) { offsetY in
-                    currentOffset = offsetY
+                    Task { @MainActor in
+                        currentOffset = offsetY
+                    }
                 }
                 
                 headerView

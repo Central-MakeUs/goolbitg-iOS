@@ -30,7 +30,7 @@ final class PushNotiManager: NSObject, @unchecked Sendable {
             Task {
                 let result = await weakSelf.getNotificationCurrentSetting()
                 guard result == .authorized else { return }
-                weakSelf.setBadgeCount()
+                await weakSelf.setBadgeCount()
             }
         }
     }
@@ -100,7 +100,7 @@ extension PushNotiManager {
     }
 }
 
-extension PushNotiManager: UNUserNotificationCenterDelegate {
+extension PushNotiManager: @preconcurrency UNUserNotificationCenterDelegate {
     
     @MainActor
     func userNotificationCenter(
@@ -127,6 +127,7 @@ extension PushNotiManager: UNUserNotificationCenterDelegate {
         Logger.debug("✅ 푸시 클릭 감지 ✅")
     }
     
+    @MainActor
     func setBadgeCount() {
         if #available(iOS 16.0, *) {
             center.setBadgeCount(UserDefaultsManager.fcmReciveCount)
@@ -136,6 +137,7 @@ extension PushNotiManager: UNUserNotificationCenterDelegate {
         }
     }
     
+    @MainActor
     func resetBadgeCount() {
         UserDefaultsManager.fcmReciveCount = 0
         if #available(iOS 16.0, *) {

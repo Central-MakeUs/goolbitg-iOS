@@ -8,6 +8,7 @@
 import SwiftUI
 import PhotosUI
 
+@MainActor
 final class ImageCompressionManager {
     
     private let allowedExtensions: Set<String> = ["jpeg", "jpg", "png"]
@@ -59,7 +60,6 @@ final class ImageCompressionManager {
         }.value
     }
 
-    @MainActor
     func checkImageMimeType(item: PhotosPickerItem) async -> Result<UIImage, ImageManagerError> {
         do {
             guard let imageData = try await item.loadTransferable(type: Data.self),
@@ -94,7 +94,7 @@ final class ImageCompressionManager {
     }
 }
 
-extension ImageCompressionManager: EnvironmentKey {
+extension ImageCompressionManager: @preconcurrency EnvironmentKey {
     static let defaultValue: ImageCompressionManager = ImageCompressionManager()
 }
 

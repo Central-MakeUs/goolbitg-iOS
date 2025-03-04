@@ -85,15 +85,17 @@ extension MyPageViewFeature {
                 return .send(.featureEvent(.requestLogOut))
                 
             case let .viewEvent(.serviceSectionItemTapped(item)):
-                switch item {
-                case .appVersion:
-                    break
-                case .request:
-                    moveURLManager.moveURL(caseOf: .inquiry)
-                case .serviceInfo:
-                    moveURLManager.moveURL(caseOf: .service)
-                case .privacyPolicy:
-                    moveURLManager.moveURL(caseOf: .privacy)
+                return .run { _ in
+                    switch item {
+                    case .appVersion:
+                        break
+                    case .request:
+                        await moveURLManager.moveURL(caseOf: .inquiry)
+                    case .serviceInfo:
+                        await moveURLManager.moveURL(caseOf: .service)
+                    case .privacyPolicy:
+                        await moveURLManager.moveURL(caseOf: .privacy)
+                    }
                 }
                 
             case .viewEvent(.revokeButtonTapped):

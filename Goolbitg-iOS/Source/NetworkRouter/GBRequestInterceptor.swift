@@ -18,7 +18,7 @@ final class GBRequestInterceptor: RequestInterceptor {
         completion(.success(urlRequest))
     }
     
-    func retry(_ request: Request, for session: Session, dueTo error: any Error, completion: @escaping (RetryResult) -> Void) {
+    func retry(_ request: Request, for session: Session, dueTo error: any Error, completion: @escaping @Sendable (RetryResult) -> Void) {
         Task {
             guard let statusCode = request.response?.statusCode,
                   let apiResult = APIErrorEntity(rawValue: statusCode) else {

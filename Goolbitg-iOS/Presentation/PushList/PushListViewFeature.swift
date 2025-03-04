@@ -73,9 +73,12 @@ extension PushListViewFeature {
             switch action {
                 
             case .viewCycle(.onAppear):
-                pushManager.resetBadgeCount()
+                
                 state.dataEmptyCase = .loading
-                return .send(.featureEvent(.requestPushListItems))
+                return .run { send in
+                    await pushManager.resetBadgeCount()
+                    await send(.featureEvent(.requestPushListItems))
+                }
                 
             // MARK: ViewEvent
             case let .viewEvent(.postListIndex(index)):

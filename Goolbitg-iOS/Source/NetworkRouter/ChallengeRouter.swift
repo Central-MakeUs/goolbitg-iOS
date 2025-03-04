@@ -78,7 +78,7 @@ extension ChallengeRouter: Router {
             return defaultValue
             
         case let .challengeRecords(page, size, date, state):
-            var defaultValue: [String : Any] = [
+            var defaultValue: [String: any Any & Sendable] = [
                 "page" : page,
                 "size" : size,
                 "date" : date

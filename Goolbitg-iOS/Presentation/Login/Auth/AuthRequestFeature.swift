@@ -183,17 +183,18 @@ struct AuthRequestFeature {
                 
             case let .viewEvent(.agreeListRightButtonTapped(caseOf)):
                 
-                switch caseOf {
-                case .fourTeen:
-                    break
-                case .serviceAgree:
-                    moveURLManager.moveURL(caseOf: .service)
-                case .privateAgree:
-                    moveURLManager.moveURL(caseOf: .privacy)
-                case .adAgree:
-                    moveURLManager.moveURL(caseOf: .inquiry)
+                return .run { _ in
+                    switch caseOf {
+                    case .fourTeen:
+                        break
+                    case .serviceAgree:
+                        await moveURLManager.moveURL(caseOf: .service)
+                    case .privateAgree:
+                        await moveURLManager.moveURL(caseOf: .privacy)
+                    case .adAgree:
+                        await moveURLManager.moveURL(caseOf: .inquiry)
+                    }
                 }
-                
             case let .agreeStartButtonState(bool):
                 state.agreeStartButtonState = bool
                 

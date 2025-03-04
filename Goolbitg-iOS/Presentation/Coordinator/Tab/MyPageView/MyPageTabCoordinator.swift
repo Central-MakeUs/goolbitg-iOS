@@ -7,7 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
-import TCACoordinators
+@preconcurrency import TCACoordinators
 
 @Reducer(state: .equatable)
 enum MyPageScreen {
@@ -20,7 +20,7 @@ enum MyPageScreen {
 struct MyPageTabCoordinator {
     
     @ObservableState
-    struct State: Equatable {
+    struct State: Equatable, Sendable {
         static let initialState = State(routes: [.root(.home(MyPageViewFeature.State()), embedInNavigationView: true)])
         
         var routes: IdentifiedArrayOf<Route<MyPageScreen.State>>

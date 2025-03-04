@@ -35,11 +35,13 @@ final class CameraManager: @unchecked Sendable {
     }
     
     // 실행 시 권한 확인 및 카메라 세팅
+    @MainActor
     func start(delegate: AVCapturePhotoCaptureDelegate, completion: @escaping (Error?) -> Void) {
         self.delegate = delegate
         checkPermission(completion: completion)
     }
     
+    @MainActor
     private func checkPermission(completion: @escaping (Error?) -> Void) {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .notDetermined:

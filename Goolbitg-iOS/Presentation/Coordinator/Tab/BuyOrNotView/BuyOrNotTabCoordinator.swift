@@ -7,7 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
-import TCACoordinators
+@preconcurrency import TCACoordinators
 
 @Reducer(state: .equatable)
 enum BuyOrNotTabCoordinatorScreen {

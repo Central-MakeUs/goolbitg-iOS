@@ -13,6 +13,7 @@ import SwiftyBeaver
 
 let Logger = SwiftyBeaver.self
 
+@MainActor
 class GBAppDelegate: NSObject, UIApplicationDelegate {
     
     @Dependency(\.pushNotiManager) var pushManager
@@ -24,7 +25,9 @@ class GBAppDelegate: NSObject, UIApplicationDelegate {
         UserDefaultsManager.fcmRegistrationToken = Messaging.messaging().fcmToken
         
         NotificationCenter.default.addObserver(forName: .requestRemoteNotification, object: nil, queue: .main) { _ in
-            application.registerForRemoteNotifications()
+            DispatchQueue.main.async {
+                application.registerForRemoteNotifications()
+            }
         }
         return true
     }
@@ -69,7 +72,7 @@ class GBAppDelegate: NSObject, UIApplicationDelegate {
 }
 
 
-extension GBAppDelegate: MessagingDelegate {
+extension GBAppDelegate: @preconcurrency MessagingDelegate {
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         print("FireBase registration Token: \(String(describing: fcmToken))")

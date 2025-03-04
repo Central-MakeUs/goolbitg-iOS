@@ -72,7 +72,7 @@ extension BuyOrNotRouter: Router {
     var parameters: Parameters? {
         switch self {
         case .buyOtNots(let page, let size, let created):
-            let defaultValue: [String : Any] = [
+            let defaultValue: [String: any Any & Sendable] = [
                 "page" : page,
                 "size" : size,
                 "created" : created

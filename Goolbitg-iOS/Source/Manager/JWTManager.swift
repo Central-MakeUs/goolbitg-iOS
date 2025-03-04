@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 import SwiftJWT
 
-final class JWTManager {
+final class JWTManager: Sendable {
     func makeAppleClientSecretJWT() -> String {
         let header = Header(kid: SecretKeys.appleKeyID)
         

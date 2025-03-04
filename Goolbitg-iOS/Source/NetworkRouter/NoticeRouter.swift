@@ -41,7 +41,7 @@ extension NoticeRouter: Router {
     var parameters: Parameters? {
         switch self {
         case .getMyNotices(let page, let size, let type):
-            var defaultValue: [String: Any] = [
+            var defaultValue: [String: any Any & Sendable] = [
                 "page" : page,
                 "size" : size
             ]

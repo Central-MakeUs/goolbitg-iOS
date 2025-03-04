@@ -37,6 +37,7 @@ struct LoginViewFeature {
     
     @Dependency(\.networkManager) var networkManager
     @Dependency(\.jwtManager) var jwtManager
+    @Dependency(\.mainQueue) var mainQueue
     
     enum CancelID: Hashable, Sendable {
         case kakao
@@ -74,10 +75,12 @@ struct LoginViewFeature {
                     
                 } catch: { error, send in
                     LoadingEnvironment.shared.loading(false)
-                    guard let error = error as? KakaoLoginErrorCase else {
+                    guard error is KakaoLoginErrorCase else {
                         return
                     }
                 }
+                
+//                    .throttle(id: CancelID.kakao, for: 5, scheduler: mainQueue, latest: false)
                     .throttle(id: CancelID.kakao, for: 5, scheduler: DispatchQueue.main.eraseToAnyScheduler(), latest: false)
                 
             case .sendToServerIdToken(let type, let idToken, let auth):

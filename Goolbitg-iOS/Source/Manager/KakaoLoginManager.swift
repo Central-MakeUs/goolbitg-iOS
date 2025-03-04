@@ -83,7 +83,7 @@ struct KakaoLoginManager: KakaoLoginManagerType {
 
 
 extension KakaoLoginManager: DependencyKey {
-    static var liveValue: Self = Self()
+    static let liveValue: Self = Self()
 }
 
 extension DependencyValues {

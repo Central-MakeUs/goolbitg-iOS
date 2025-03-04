@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol DTO: Decodable {}
+protocol DTO: Decodable, Sendable {}
 
 protocol Entity: Equatable, Hashable {}

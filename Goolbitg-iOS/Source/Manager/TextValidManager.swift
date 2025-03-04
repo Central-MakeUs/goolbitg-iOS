@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-final class TextValidManager {
+final class TextValidManager: Sendable {
     enum TextValidMode {
         case nickNameKoreanAndEnglish
         

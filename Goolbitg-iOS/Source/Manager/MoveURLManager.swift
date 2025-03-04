@@ -30,6 +30,7 @@ final class MoveURLManager: Sendable {
         }
     }
     
+    @MainActor
     @discardableResult
     func moveURL(caseOf: MoveURLCase) -> Bool {
         guard let url = caseOf.url else { return false }
@@ -39,6 +40,7 @@ final class MoveURLManager: Sendable {
     /// 사파리 로 이동합니다.
     /// - Parameter url: 이동할 URL
     /// - Returns: 성공여부
+    @MainActor
     @discardableResult
     func moveToSafari(url: URL) -> Bool {
         if UIApplication.shared.canOpenURL(url) {

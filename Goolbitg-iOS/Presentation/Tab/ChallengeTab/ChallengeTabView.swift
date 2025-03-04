@@ -31,9 +31,10 @@ struct ChallengeTabView: View {
                     store.send(.viewCycle(.onAppear))
                 }
                 .onChange(of: store.weekIndex) { newValue in
-                    RunLoop.current.perform {
-                        store.send(.viewEvent(.checkPagingForWeekData))
-                    }
+//                    RunLoop.main.perform {
+//                       
+//                    }
+                    store.send(.viewEvent(.checkPagingForWeekData))
                 }
                 .onChange(of: store.selectedWeekDay) { newValue in
                     selectedWeekDay = newValue

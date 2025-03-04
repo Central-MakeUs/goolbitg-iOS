@@ -8,7 +8,7 @@
 import UIKit
 import ComposableArchitecture
 
-final class AppVersionUpdateManager {
+final class AppVersionUpdateManager: Sendable {
     
     /// 현재 앱 버전
     let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
