@@ -97,8 +97,13 @@ struct BuyOrNotCardListView: View {
     }
     
     /// 가장 가까운 카드 인덱스를 찾는 함수
+    /// lastOffset : 이전에 멈췄던 X 좌표 오프셋 (즉, 마지막으로 카드가 멈춘 위치)
+    /// dragOffset : 현재 드래그하고 있는 거리
     private func getNearestIndex() -> Int {
-        let approximateIndex = (-lastOffset - dragOffset) / (cardWidth * sidePaddingScale + horizontalPadding)
+        // 하나의 카드가 차지하는 총 너비
+        let oneCardWidth = cardWidth * sidePaddingScale + horizontalPadding
+        let approximateIndex = (-lastOffset - dragOffset) / oneCardWidth
+        // Min(count, round: 1.4 -> 1, 1.6 -> 2)
         return max(0, min(currentListEntity.count - 1, Int(round(approximateIndex))))
     }
 }

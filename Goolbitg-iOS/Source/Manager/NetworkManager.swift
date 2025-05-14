@@ -34,8 +34,9 @@ final class NetworkManager: Sendable, ThreadCheckable {
     }
     
     func requestNetworkWithRefresh<T:DTO, R: Router>(dto: T.Type, router: R) async throws(RouterError) -> T {
+#if DEBUG
         checkedMainThread() // 현재 쓰레드 확인
-        
+#endif
         let request = try router.asURLRequest()
         Logger.info(request)
         // MARK: 요청담당
