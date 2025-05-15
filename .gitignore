@@ -7,8 +7,8 @@
 Secret
 Secret/
 
-AppSettings/InfoPlist/
-Info.plist
+AppSettings/InfoPlist/Info.plist
+
 
 ### Swift ###
 # Xcode
