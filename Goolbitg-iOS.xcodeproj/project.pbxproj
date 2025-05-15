@@ -56,7 +56,7 @@
 		7BB0A26A2D414C6D006B209E /* Exceptions for "Goolbitg-iOS" folder in "Goolbitg-iOS" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				AppSettings/InfoPlist/Info.plist,
 			);
 			target = 7B29EF282D297812005A8495 /* Goolbitg-iOS */;
 		};
