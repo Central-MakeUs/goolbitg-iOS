@@ -7,7 +7,7 @@
 Secret
 Secret/
 
-AppSettings/InfoPlist/Info.plist
+**/Info.plist
 
 
 ### Swift ###
