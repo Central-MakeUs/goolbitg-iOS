@@ -52,22 +52,9 @@
 		7BB0A5802D496A7C006B209E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		7BB0A26A2D414C6D006B209E /* Exceptions for "Goolbitg-iOS" folder in "Goolbitg-iOS" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				AppSettings/InfoPlist/Info.plist,
-			);
-			target = 7B29EF282D297812005A8495 /* Goolbitg-iOS */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7B29EF2B2D297812005A8495 /* Goolbitg-iOS */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				7BB0A26A2D414C6D006B209E /* Exceptions for "Goolbitg-iOS" folder in "Goolbitg-iOS" target */,
-			);
 			path = "Goolbitg-iOS";
 			sourceTree = "<group>";
 		};
