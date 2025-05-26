@@ -78,6 +78,7 @@
 		C00376CCB9C51A2CEA1126D7 /* PushListFilterCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E71E96471C0065E06DE11326 /* PushListFilterCase.swift */; };
 		C234DB598E596ED39D4874EB /* UserWeeklyStatusDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 989F374E1DFF63DE45D57B79 /* UserWeeklyStatusDTO.swift */; };
 		C2B8314242989B1202FCCE3E /* AuthRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77540FB482F9767E9121F480 /* AuthRouter.swift */; };
+		C438E4A43FAC5F038F9D1558 /* SecretKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 513FB65F81FBECAC8C66454A /* SecretKeys.swift */; };
 		C5C3C5B1DF8A6AFA2B00F430 /* CheckPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82A162ED15B09DC6EE910B6 /* CheckPayload.swift */; };
 		C61AE094D07334C4EF047BEA /* Logging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E72B2217BC77BB840DD1A23 /* Logging.framework */; };
 		C63B88E63F8AF02368D18CA9 /* PushAuthCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A17F719315F408617BAC256 /* PushAuthCase.swift */; };
@@ -145,6 +146,7 @@
 		4D0592D08AC4532F0A8410CA /* BuyOrNotVoteRequestDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuyOrNotVoteRequestDTO.swift; sourceTree = "<group>"; };
 		4E75197C294DE74F5162FAA7 /* Data.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Data.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		50652B7329C3089F0748F31E /* ChallengeTabInMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeTabInMode.swift; sourceTree = "<group>"; };
+		513FB65F81FBECAC8C66454A /* SecretKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretKeys.swift; sourceTree = "<group>"; };
 		51CB141F07003EE53E87E5F3 /* LoginAccessDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginAccessDTO.swift; sourceTree = "<group>"; };
 		52568A402C229116B9A054F8 /* UserNickNameCheckRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNickNameCheckRequestModel.swift; sourceTree = "<group>"; };
 		5436B514DBE87896FBA8887C /* UserHabitReqeustModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserHabitReqeustModel.swift; sourceTree = "<group>"; };
@@ -499,6 +501,7 @@
 				427A51FE78DA24F2EE468914 /* Mappers */,
 				B2F71853569591A8DAFA9A20 /* RequestDTOs */,
 				D1B3A06E072CB50CAF152BDC /* Routers */,
+				E89AE4583263957874C50250 /* SecretFiles */,
 				372871D4BABFAA5D74FA794C /* Support */,
 			);
 			path = Sources;
@@ -554,6 +557,14 @@
 				51CB141F07003EE53E87E5F3 /* LoginAccessDTO.swift */,
 			);
 			path = Auth;
+			sourceTree = "<group>";
+		};
+		E89AE4583263957874C50250 /* SecretFiles */ = {
+			isa = PBXGroup;
+			children = (
+				513FB65F81FBECAC8C66454A /* SecretKeys.swift */,
+			);
+			path = SecretFiles;
 			sourceTree = "<group>";
 		};
 		EF3121301A12FEB266E0B923 /* Project */ = {
@@ -728,6 +739,7 @@
 				92038CEEDEB6F8F418BF47DD /* ImageRouter.swift in Sources */,
 				981B131A357BDE47DA22B9DB /* NoticeRouter.swift in Sources */,
 				E9E1755396AD68F273F89F1D /* UserRouter.swift in Sources */,
+				C438E4A43FAC5F038F9D1558 /* SecretKeys.swift in Sources */,
 				FFDA684FE875E8D7392CE575 /* AnyValueActor.swift in Sources */,
 				4FCC9201BACDE3821634FD89 /* UserDefaultActor.swift in Sources */,
 				B74E43B4E76554924FD5990B /* CodableManager.swift in Sources */,

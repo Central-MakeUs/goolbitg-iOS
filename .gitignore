@@ -10,7 +10,7 @@ Secret/
 **/Info.plist
 **/SecretConfig
 **/SecretFiles
-
+*.xcodeproj
 
 ### Swift ###
 # Xcode
