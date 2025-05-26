@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 55;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -49,6 +49,7 @@
 		700D481E3F92DD137010E994 /* ChallengeTabInMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50652B7329C3089F0748F31E /* ChallengeTabInMode.swift */; };
 		755F08FB80D0F75A17BAF205 /* UserInfoDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1916DF24F6C3E3C291DC143 /* UserInfoDTO.swift */; };
 		75E751F3CBA19D369A402AFD /* AuthLoginRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8132746EDF661FD93EAEBEDC /* AuthLoginRequestModel.swift */; };
+		7BD132352DE4AE3300306F15 /* SecretKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BD132332DE4AE3300306F15 /* SecretKeys.swift */; };
 		820759733A1F7C15E56A1E51 /* BuyOrNotRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE67FD95AFBEC2D2C1061012 /* BuyOrNotRequestModel.swift */; };
 		848CAFED347F9B07493F6DCA /* BuyOrNotPagedDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 715F56691C14C40D56C33069 /* BuyOrNotPagedDTO.swift */; };
 		87906FBA771E71D6AEFA14F9 /* ChallengeStatusCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A13124D2E3787889E3233CD /* ChallengeStatusCase.swift */; };
@@ -92,7 +93,6 @@
 		DF46106A6CEC328B5D2DDD1A /* PushListItemEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5565CFC39CB831D7E015FF61 /* PushListItemEntity.swift */; };
 		E9E1755396AD68F273F89F1D /* UserRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7FDEA69D61C0456B9588267 /* UserRouter.swift */; };
 		EB2E018C4BC2A7593ADDE404 /* GenderEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CEBD23C1A93CBCB32AF1125 /* GenderEnum.swift */; };
-		ECB7FC5972F651CE20D291C5 /* SecretKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD5E206EFF37EE7C6FC02515 /* SecretKeys.swift */; };
 		EDEA35B23F9648ADF172E922 /* SwiftyBeaver.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9DA2537E6C1F0C496B34D55 /* SwiftyBeaver.framework */; };
 		EF826E5A3A5FBBC8B54B3209 /* RevokeRequestDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DEFDAD9755568851F6BF0AB /* RevokeRequestDTO.swift */; };
 		EFA098457970F0A74A8AD69B /* AuthListEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8157DA93E84F1E520E85016 /* AuthListEnum.swift */; };
@@ -164,6 +164,7 @@
 		715F56691C14C40D56C33069 /* BuyOrNotPagedDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuyOrNotPagedDTO.swift; sourceTree = "<group>"; };
 		72D9D1777C30637B2C56A3BF /* ChallengeRecordDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeRecordDTO.swift; sourceTree = "<group>"; };
 		77540FB482F9767E9121F480 /* AuthRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthRouter.swift; sourceTree = "<group>"; };
+		7BD132332DE4AE3300306F15 /* SecretKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretKeys.swift; sourceTree = "<group>"; };
 		7CEBD23C1A93CBCB32AF1125 /* GenderEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenderEnum.swift; sourceTree = "<group>"; };
 		7DEFDAD9755568851F6BF0AB /* RevokeRequestDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevokeRequestDTO.swift; sourceTree = "<group>"; };
 		8132746EDF661FD93EAEBEDC /* AuthLoginRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthLoginRequestModel.swift; sourceTree = "<group>"; };
@@ -183,7 +184,6 @@
 		A42DD0953411E80DC2F7707D /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		A475E9D594BCCEF7277DF11C /* BuyOrNotVoteDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuyOrNotVoteDTO.swift; sourceTree = "<group>"; };
 		A9DA2537E6C1F0C496B34D55 /* SwiftyBeaver.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftyBeaver.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		AD5E206EFF37EE7C6FC02515 /* SecretKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretKeys.swift; sourceTree = "<group>"; };
 		AE36F6CC911309A776AA42E4 /* AgreeListCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgreeListCase.swift; sourceTree = "<group>"; };
 		B2B76ECC8AB3D9F9BFAF6429 /* CommonDTOBody.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDTOBody.swift; sourceTree = "<group>"; };
 		B5EE663E90491E44434578AF /* ChallengeEmptyCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeEmptyCase.swift; sourceTree = "<group>"; };
@@ -404,6 +404,14 @@
 			path = Notice;
 			sourceTree = "<group>";
 		};
+		7BD132342DE4AE3300306F15 /* SecretFiles */ = {
+			isa = PBXGroup;
+			children = (
+				7BD132332DE4AE3300306F15 /* SecretKeys.swift */,
+			);
+			path = SecretFiles;
+			sourceTree = "<group>";
+		};
 		8A6D38DA6706D1F4DD8A055B = {
 			isa = PBXGroup;
 			children = (
@@ -434,7 +442,6 @@
 				4DD23C4419897C2CF4CEEED1 /* Paging */,
 				38A4D7EA4858282A89FB548E /* User */,
 				46A7584A9531B546FC1D6981 /* APIErrorEntity.swift */,
-				AD5E206EFF37EE7C6FC02515 /* SecretKeys.swift */,
 			);
 			path = Entitys;
 			sourceTree = "<group>";
@@ -562,6 +569,7 @@
 		EF3121301A12FEB266E0B923 /* Project */ = {
 			isa = PBXGroup;
 			children = (
+				7BD132342DE4AE3300306F15 /* SecretFiles */,
 				C25E2D135BFBAC1019949D62 /* Derived */,
 				C590795A2658F92D49B27E8D /* Sources */,
 			);
@@ -623,8 +631,6 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = BDB112DA78B2B42275EC3A62 /* Build configuration list for PBXProject "Data" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -691,7 +697,6 @@
 				5B99AC3D5651364A708C506E /* GBAlertViewComponents.swift in Sources */,
 				DF46106A6CEC328B5D2DDD1A /* PushListItemEntity.swift in Sources */,
 				6927A5B7F75D3C63648BB4C4 /* PagingObj.swift in Sources */,
-				ECB7FC5972F651CE20D291C5 /* SecretKeys.swift in Sources */,
 				A4B877FD0143AB57349C9AFF /* HomeUserInfoEntity.swift in Sources */,
 				367D87E992248409140D8DDD /* UserHabitResultEntity.swift in Sources */,
 				4B5CCD2E58463AAF49B4C845 /* UserMyPageEntity.swift in Sources */,
@@ -728,6 +733,7 @@
 				AEB4328D8522D5E95C92C765 /* UserPatternRequestModel.swift in Sources */,
 				C2B8314242989B1202FCCE3E /* AuthRouter.swift in Sources */,
 				0581323D57705DDE2D0BA012 /* BuyOrNotRouter.swift in Sources */,
+				7BD132352DE4AE3300306F15 /* SecretKeys.swift in Sources */,
 				14471ED66E564BA6D0B5D8AF /* ChallengeRouter.swift in Sources */,
 				92038CEEDEB6F8F418BF47DD /* ImageRouter.swift in Sources */,
 				981B131A357BDE47DA22B9DB /* NoticeRouter.swift in Sources */,
@@ -773,21 +779,7 @@
 					"-fmodule-map-file=$(SRCROOT)/../../../Tuist/.build/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include/module.modulemap",
 					"-fmodule-map-file=$(SRCROOT)/../../../Tuist/.build/tuist-derived/UIKitNavigationShim/UIKitNavigationShim.modulemap",
 				);
-				OTHER_SWIFT_FLAGS = (
-					"$(inherited)",
-					"-Xcc",
-					"-fmodule-map-file=$(SRCROOT)/../../../Tuist/.build/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include/module.modulemap",
-					"-Xcc",
-					"-fmodule-map-file=$(SRCROOT)/../../../Tuist/.build/tuist-derived/UIKitNavigationShim/UIKitNavigationShim.modulemap",
-					"-load-plugin-executable",
-					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/CasePathsMacros#CasePathsMacros",
-					"-load-plugin-executable",
-					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/ComposableArchitectureMacros#ComposableArchitectureMacros",
-					"-load-plugin-executable",
-					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/DependenciesMacrosPlugin#DependenciesMacrosPlugin",
-					"-load-plugin-executable",
-					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/PerceptionMacros#PerceptionMacros",
-				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -Xcc -fmodule-map-file=$(SRCROOT)/../../../Tuist/.build/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include/module.modulemap -Xcc -fmodule-map-file=$(SRCROOT)/../../../Tuist/.build/tuist-derived/UIKitNavigationShim/UIKitNavigationShim.modulemap -load-plugin-executable $BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/CasePathsMacros#CasePathsMacros -load-plugin-executable $BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/ComposableArchitectureMacros#ComposableArchitectureMacros -load-plugin-executable $BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/DependenciesMacrosPlugin#DependenciesMacrosPlugin -load-plugin-executable $BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/PerceptionMacros#PerceptionMacros";
 				PRODUCT_BUNDLE_IDENTIFIER = com.frameWork.Data;
 				PRODUCT_NAME = Data;
 				SDKROOT = iphoneos;
@@ -795,10 +787,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = (
-					"$(inherited)",
-					DEBUG,
-				);
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
 				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -835,21 +824,7 @@
 					"-fmodule-map-file=$(SRCROOT)/../../../Tuist/.build/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include/module.modulemap",
 					"-fmodule-map-file=$(SRCROOT)/../../../Tuist/.build/tuist-derived/UIKitNavigationShim/UIKitNavigationShim.modulemap",
 				);
-				OTHER_SWIFT_FLAGS = (
-					"$(inherited)",
-					"-Xcc",
-					"-fmodule-map-file=$(SRCROOT)/../../../Tuist/.build/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include/module.modulemap",
-					"-Xcc",
-					"-fmodule-map-file=$(SRCROOT)/../../../Tuist/.build/tuist-derived/UIKitNavigationShim/UIKitNavigationShim.modulemap",
-					"-load-plugin-executable",
-					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/CasePathsMacros#CasePathsMacros",
-					"-load-plugin-executable",
-					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/ComposableArchitectureMacros#ComposableArchitectureMacros",
-					"-load-plugin-executable",
-					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/DependenciesMacrosPlugin#DependenciesMacrosPlugin",
-					"-load-plugin-executable",
-					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/PerceptionMacros#PerceptionMacros",
-				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -Xcc -fmodule-map-file=$(SRCROOT)/../../../Tuist/.build/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include/module.modulemap -Xcc -fmodule-map-file=$(SRCROOT)/../../../Tuist/.build/tuist-derived/UIKitNavigationShim/UIKitNavigationShim.modulemap -load-plugin-executable $BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/CasePathsMacros#CasePathsMacros -load-plugin-executable $BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/ComposableArchitectureMacros#ComposableArchitectureMacros -load-plugin-executable $BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/DependenciesMacrosPlugin#DependenciesMacrosPlugin -load-plugin-executable $BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/PerceptionMacros#PerceptionMacros";
 				PRODUCT_BUNDLE_IDENTIFIER = com.frameWork.Data;
 				PRODUCT_NAME = Data;
 				SDKROOT = iphoneos;
