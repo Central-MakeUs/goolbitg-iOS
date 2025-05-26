@@ -34,7 +34,7 @@ extension Project {
                     entitlements: appEntitlementsPath,
                     dependencies: config.dependencies,
                     settings: .settings(
-                        base: AppConfig.baseSettings,
+                        base: SecretConfig.baseSettings,
                         configurations: [
 
                         ]
@@ -59,7 +59,7 @@ extension Project {
                         entitlements: appEntitlementsPath,
                         dependencies: config.dependencies,
                         settings: .settings(
-                            base: AppConfig.baseSettings,
+                            base: SecretConfig.baseSettings,
                             configurations: [
                                 .debug(
                                     name: SchemeMode.dev.runActionConfiguration,
@@ -87,7 +87,7 @@ extension Project {
                         entitlements: appEntitlementsPath,
                         dependencies: config.dependencies,
                         settings: .settings(
-                            base: AppConfig.baseSettings,
+                            base: SecretConfig.baseSettings,
                             configurations: [
                                 .debug(
                                     name: SchemeMode.stage.runActionConfiguration,
