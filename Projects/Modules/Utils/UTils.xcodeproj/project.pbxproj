@@ -132,7 +132,7 @@
 		58DA15ADD936EE030AF5E7E5 /* SafeAreaInset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeAreaInset.swift; sourceTree = "<group>"; };
 		5DF087C0420B9110FD8E562E /* Utils.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Utils.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F4405107B3E94F52170545B /* Number+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Number+Extension.swift"; sourceTree = "<group>"; };
-		6068C4088A06A6E546B492EC /* KakaoSDKCertCore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = KakaoSDKCertCore.xcframework; sourceTree = "<group>"; };
+		6068C4088A06A6E546B492EC /* KakaoSDKCertCore.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:L75WVXX68A:Kakao Corp."; lastKnownFileType = wrapper.xcframework; path = KakaoSDKCertCore.xcframework; sourceTree = "<group>"; };
 		634301DF4AE9ACA60101C5BA /* Pretendard-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Regular.otf"; sourceTree = "<group>"; };
 		644F100E8AD898AD0EE8BFCE /* ComposableArchitecture.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ComposableArchitecture.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		64DF8662DE415B6B69FA8B46 /* HapTicManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapTicManager.swift; sourceTree = "<group>"; };
