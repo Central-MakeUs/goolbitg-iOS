@@ -34,7 +34,7 @@ extension Project {
                     entitlements: appEntitlementsPath,
                     dependencies: config.dependencies,
                     settings: .settings(
-                        base: SecretConfig.baseSettings,
+                        base: SecretConfig.baseSettings(productName: subAppName == nil ? AppConfig.productName : subAppName!),
                         configurations: [
 
                         ]
@@ -59,7 +59,7 @@ extension Project {
                         entitlements: appEntitlementsPath,
                         dependencies: config.dependencies,
                         settings: .settings(
-                            base: SecretConfig.baseSettings,
+                            base: SecretConfig.baseSettings(productName: subAppName == nil ? "App" : subAppName!),
                             configurations: [
                                 .debug(
                                     name: SchemeMode.dev.runActionConfiguration,
@@ -87,7 +87,7 @@ extension Project {
                         entitlements: appEntitlementsPath,
                         dependencies: config.dependencies,
                         settings: .settings(
-                            base: SecretConfig.baseSettings,
+                            base: SecretConfig.baseSettings(productName: subAppName == nil ? "App" : subAppName!),
                             configurations: [
                                 .debug(
                                     name: SchemeMode.stage.runActionConfiguration,
