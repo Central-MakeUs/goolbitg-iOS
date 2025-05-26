@@ -1,0 +1,701 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0031BCAD22D08B567E04FE22 /* FeatureTab.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BF51CF001E14DF2C593EC19 /* FeatureTab.framework */; };
+		09DD2C4A018E2757ECC73DF7 /* Pretendard-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = B78D9762A1215BB90D7D650D /* Pretendard-Thin.otf */; };
+		0B583B43D68171D94169FFCF /* Data.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75595E486D52CAE2F1DBBBA1 /* Data.framework */; };
+		0C54EAB7115941B4F190E5A7 /* Pretendard-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = CE1DB06FEBFC0EFDB0EE5444 /* Pretendard-Regular.otf */; };
+		141DB98F61AE3900F445A6E9 /* KakaoOpenSDK_KakaoSDKCommon.bundle in Dependencies */ = {isa = PBXBuildFile; fileRef = EEDFDF9881DEE729257AE6B2 /* KakaoOpenSDK_KakaoSDKCommon.bundle */; };
+		148B3C292E3BBA5A659451DD /* FeatureMyPage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1064459692AD4D2885B800EF /* FeatureMyPage.framework */; };
+		1552A906F45F4989ED0E7481 /* ChallengeTabCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B1F5AB2A2D3DE23E9E52D5 /* ChallengeTabCoordinatorView.swift */; };
+		15E9781C06B27AFAD50F385E /* ComposableArchitecture.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4E5F99CC95B8E278D7DA9C12 /* ComposableArchitecture.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		168208A00AC4E5A9914B3516 /* TCACoordinators.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE61DBC28041F02E832FE27 /* TCACoordinators.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		17A3E31CDEEB318E3562020C /* swift-sharing_Sharing.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 9A9E9138FEADC15A89B9FEAD /* swift-sharing_Sharing.bundle */; };
+		1BC2CA08094B7C5DD51ABE83 /* FeatureIntro.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A12300585B99AD7A56C8A08 /* FeatureIntro.framework */; };
+		2508DECD0EB4CC528DC78855 /* GB_Loading_v8.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 955E9D14B3FBF35B38D53DE6 /* GB_Loading_v8.lottie */; };
+		25BA430F9D0B8058BFB74A1C /* ChallengeBeforeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCF9192F9C29D5950CFEB57 /* ChallengeBeforeView.swift */; };
+		265F309716AA81413F80E224 /* TuistFonts+ChallengeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CC54246984BAEFC2B62ABA /* TuistFonts+ChallengeApp.swift */; };
+		2BBC5EE27DBD9810C528A4AE /* FeatureCommon.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3BDC861FC8342FF75A2C7396 /* FeatureCommon.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		308D96FF2E463B6BD2605D63 /* Pretendard-ExtraLight.otf in Resources */ = {isa = PBXBuildFile; fileRef = A27FFD78FF759653743F951B /* Pretendard-ExtraLight.otf */; };
+		372E53E4E0D435C1DF769B32 /* SwiftyBeaver.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 506D5AF0719ED9A05F0136FD /* SwiftyBeaver.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3AD500D302E2ED92A5A301FC /* FeatureIntro.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8A12300585B99AD7A56C8A08 /* FeatureIntro.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		41E62AB21D72F5F3D4DCE25A /* FeatureCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3BDC861FC8342FF75A2C7396 /* FeatureCommon.framework */; };
+		41ED23ABCA6437AFDA6F762D /* Utils.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDB8E0FD21BF7CC8C707AB15 /* Utils.framework */; };
+		4999BE118996C2B0BD434146 /* Utils.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CDB8E0FD21BF7CC8C707AB15 /* Utils.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4AE5CC27CF7D6BBD4F18D052 /* Pretendard-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8EC5C692E9B7E72080F8BC5B /* Pretendard-Black.otf */; };
+		4FE650DF35D0A6FEDEE9B693 /* PopupView.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B0833F40CE2F78E2BB73A968 /* PopupView.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		51CFC97E95006B3679846501 /* ChallengeTabFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D56B5E41DB0D48E69FD26A9 /* ChallengeTabFeature.swift */; };
+		527340CBDC3EE388457A4E50 /* ComposableArchitecture.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E5F99CC95B8E278D7DA9C12 /* ComposableArchitecture.framework */; };
+		550A9ADD4A0CFB734DE4628F /* Pretendard-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 0B14603534360C3505AF741E /* Pretendard-ExtraBold.otf */; };
+		5CF980B17E3F5D4ECC68DFD7 /* SwiftyGif_SwiftyGif.bundle in Dependencies */ = {isa = PBXBuildFile; fileRef = 081081EEC5A26D9F94E5769A /* SwiftyGif_SwiftyGif.bundle */; };
+		660F8A8D753FAE21267D3973 /* FeatureTab.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7BF51CF001E14DF2C593EC19 /* FeatureTab.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6AE6079B2954E469B5341DBE /* SwiftyGif_SwiftyGif.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 081081EEC5A26D9F94E5769A /* SwiftyGif_SwiftyGif.bundle */; };
+		6B3D6F8A8877CC4C938A988E /* Pretendard-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = C4231C8F66786D1DFF8529F7 /* Pretendard-Medium.otf */; };
+		6FFC7CF21314A4818CCBD1F4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 34E24DCABD40082615370DE3 /* GoogleService-Info.plist */; };
+		74EB30A9A1D65F3A843D92B3 /* TuistBundle+ChallengeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8409B855063794B1511E5079 /* TuistBundle+ChallengeApp.swift */; };
+		76399E9717D3FB487048EEEA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA3014F2A5DC94B06763C952 /* LaunchScreen.storyboard */; };
+		778603DB3D4A90E9BB65BBF4 /* KakaoOpenSDK_KakaoSDKCommon.bundle in Resources */ = {isa = PBXBuildFile; fileRef = EEDFDF9881DEE729257AE6B2 /* KakaoOpenSDK_KakaoSDKCommon.bundle */; };
+		7AC2D66D9CCCFB230806D477 /* FeatureHome.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 66DFEF0E36A91F2F7989DEA9 /* FeatureHome.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		824AC1718C0251E746A2FA0F /* ChallengeTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96B216ED9E85FE87B96DD8B2 /* ChallengeTabView.swift */; };
+		8B9FD8DA0314E0DBD22FCF3C /* TCACoordinators.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE61DBC28041F02E832FE27 /* TCACoordinators.framework */; };
+		8EBFF9269308B495621C4875 /* FeatureBuyOrNot.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C78105DCAAB8B50FB40CCA /* FeatureBuyOrNot.framework */; };
+		8FE531E458B291FC3512B425 /* PopupView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B0833F40CE2F78E2BB73A968 /* PopupView.framework */; };
+		9EA370EFE908C0EFDAB4F402 /* FeatureMyPage.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1064459692AD4D2885B800EF /* FeatureMyPage.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A25ABFA00E1999D886F3EA7E /* Kingfisher.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 005C7A0A05114CD4776B6E2F /* Kingfisher.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A3281810AE6DCF1919569F19 /* Alamofire.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D6D95F962AF789AA48F1297B /* Alamofire.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AAA6337054C2E6145E9D303D /* Pretendard-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 1E43A2AE6D9D5C0410F08F67 /* Pretendard-Light.otf */; };
+		B5C93F1DB971FD59553C650A /* FeatureHome.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66DFEF0E36A91F2F7989DEA9 /* FeatureHome.framework */; };
+		B5E1A9B2AA81FEFFB4F64384 /* TuistAssets+ChallengeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC6A08C82414CDBCF592646B /* TuistAssets+ChallengeApp.swift */; };
+		B76CD3754C84EAA4AC71BC48 /* Lottie.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = BEFC1F9C21254DED4CA2DD30 /* Lottie.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		BA6F38653C446B118D501612 /* FeatureChallenge.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4FE78C7B08F80F1921F70AA3 /* FeatureChallenge.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		BE78CA1C2FBDF1BAA70A89A2 /* swift-sharing_Sharing.bundle in Dependencies */ = {isa = PBXBuildFile; fileRef = 9A9E9138FEADC15A89B9FEAD /* swift-sharing_Sharing.bundle */; };
+		C549D4755128AD8EAD791C6C /* ChallengeTabCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 882806B8D94B2DBFF4996AF0 /* ChallengeTabCoordinator.swift */; };
+		C757BA7256CA8FF16F744F69 /* FeatureBuyOrNot.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 18C78105DCAAB8B50FB40CCA /* FeatureBuyOrNot.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DA698FBB0BE8C3EDAB87C59B /* Pretendard-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A14492E61F34B9682ECCC2C2 /* Pretendard-SemiBold.otf */; };
+		DA85A2BB7481A87E71CB58AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B8122DA2CC47F1F8E216782B /* Assets.xcassets */; };
+		DB7FC13A65771817858EB7D3 /* FeatureChallenge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FE78C7B08F80F1921F70AA3 /* FeatureChallenge.framework */; };
+		E42839F58FA33D6DC49A953C /* Domain.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9B057B3D22C8C248049E584F /* Domain.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E83385612F4573131293176B /* Pretendard-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 1EBE466B392E384C7C4B2EDE /* Pretendard-Bold.otf */; };
+		E8AB14BB24CD3DE63B941138 /* Data.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 75595E486D52CAE2F1DBBBA1 /* Data.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		ED95D648D024F7155E10BB81 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E9AF25C49B8057ECA6E3E856 /* PrivacyInfo.xcprivacy */; };
+		EF80CF37D15750F110100EAB /* ChallengeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93E28DC9A144116E786BF82 /* ChallengeApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		82F034C376F2D95A8BE6C1D2 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				A3281810AE6DCF1919569F19 /* Alamofire.framework in Embed Frameworks */,
+				15E9781C06B27AFAD50F385E /* ComposableArchitecture.framework in Embed Frameworks */,
+				E8AB14BB24CD3DE63B941138 /* Data.framework in Embed Frameworks */,
+				E42839F58FA33D6DC49A953C /* Domain.framework in Embed Frameworks */,
+				C757BA7256CA8FF16F744F69 /* FeatureBuyOrNot.framework in Embed Frameworks */,
+				BA6F38653C446B118D501612 /* FeatureChallenge.framework in Embed Frameworks */,
+				2BBC5EE27DBD9810C528A4AE /* FeatureCommon.framework in Embed Frameworks */,
+				7AC2D66D9CCCFB230806D477 /* FeatureHome.framework in Embed Frameworks */,
+				3AD500D302E2ED92A5A301FC /* FeatureIntro.framework in Embed Frameworks */,
+				9EA370EFE908C0EFDAB4F402 /* FeatureMyPage.framework in Embed Frameworks */,
+				660F8A8D753FAE21267D3973 /* FeatureTab.framework in Embed Frameworks */,
+				A25ABFA00E1999D886F3EA7E /* Kingfisher.framework in Embed Frameworks */,
+				B76CD3754C84EAA4AC71BC48 /* Lottie.framework in Embed Frameworks */,
+				4FE650DF35D0A6FEDEE9B693 /* PopupView.framework in Embed Frameworks */,
+				372E53E4E0D435C1DF769B32 /* SwiftyBeaver.framework in Embed Frameworks */,
+				168208A00AC4E5A9914B3516 /* TCACoordinators.framework in Embed Frameworks */,
+				4999BE118996C2B0BD434146 /* Utils.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		99DF349B8C3D3E35ECFC9A31 /* Dependencies */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 8;
+			dstSubfolderSpec = 16;
+			files = (
+				141DB98F61AE3900F445A6E9 /* KakaoOpenSDK_KakaoSDKCommon.bundle in Dependencies */,
+				5CF980B17E3F5D4ECC68DFD7 /* SwiftyGif_SwiftyGif.bundle in Dependencies */,
+				BE78CA1C2FBDF1BAA70A89A2 /* swift-sharing_Sharing.bundle in Dependencies */,
+			);
+			name = Dependencies;
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		005C7A0A05114CD4776B6E2F /* Kingfisher.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Kingfisher.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		081081EEC5A26D9F94E5769A /* SwiftyGif_SwiftyGif.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftyGif_SwiftyGif.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		0B14603534360C3505AF741E /* Pretendard-ExtraBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-ExtraBold.otf"; sourceTree = "<group>"; };
+		0D56B5E41DB0D48E69FD26A9 /* ChallengeTabFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeTabFeature.swift; sourceTree = "<group>"; };
+		1064459692AD4D2885B800EF /* FeatureMyPage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FeatureMyPage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		18C78105DCAAB8B50FB40CCA /* FeatureBuyOrNot.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FeatureBuyOrNot.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1E43A2AE6D9D5C0410F08F67 /* Pretendard-Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Light.otf"; sourceTree = "<group>"; };
+		1EBE466B392E384C7C4B2EDE /* Pretendard-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Bold.otf"; sourceTree = "<group>"; };
+		2BE61DBC28041F02E832FE27 /* TCACoordinators.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TCACoordinators.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		34E24DCABD40082615370DE3 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		37CC54246984BAEFC2B62ABA /* TuistFonts+ChallengeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TuistFonts+ChallengeApp.swift"; sourceTree = "<group>"; };
+		3BDC861FC8342FF75A2C7396 /* FeatureCommon.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FeatureCommon.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4E5F99CC95B8E278D7DA9C12 /* ComposableArchitecture.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ComposableArchitecture.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FE78C7B08F80F1921F70AA3 /* FeatureChallenge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FeatureChallenge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		506D5AF0719ED9A05F0136FD /* SwiftyBeaver.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftyBeaver.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A9442BC709F7CC28B233DAD /* ChallengeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChallengeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		66DFEF0E36A91F2F7989DEA9 /* FeatureHome.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FeatureHome.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		75595E486D52CAE2F1DBBBA1 /* Data.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Data.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7BF51CF001E14DF2C593EC19 /* FeatureTab.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FeatureTab.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8409B855063794B1511E5079 /* TuistBundle+ChallengeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TuistBundle+ChallengeApp.swift"; sourceTree = "<group>"; };
+		882806B8D94B2DBFF4996AF0 /* ChallengeTabCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeTabCoordinator.swift; sourceTree = "<group>"; };
+		8A12300585B99AD7A56C8A08 /* FeatureIntro.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FeatureIntro.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8BCF9192F9C29D5950CFEB57 /* ChallengeBeforeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeBeforeView.swift; sourceTree = "<group>"; };
+		8EC5C692E9B7E72080F8BC5B /* Pretendard-Black.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Black.otf"; sourceTree = "<group>"; };
+		91A2CCA4089FEF069D834701 /* Goolbitg-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Goolbitg-iOS.entitlements"; sourceTree = "<group>"; };
+		955E9D14B3FBF35B38D53DE6 /* GB_Loading_v8.lottie */ = {isa = PBXFileReference; path = GB_Loading_v8.lottie; sourceTree = "<group>"; };
+		96B216ED9E85FE87B96DD8B2 /* ChallengeTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeTabView.swift; sourceTree = "<group>"; };
+		9A9E9138FEADC15A89B9FEAD /* swift-sharing_Sharing.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "swift-sharing_Sharing.bundle"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9B057B3D22C8C248049E584F /* Domain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Domain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A14492E61F34B9682ECCC2C2 /* Pretendard-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-SemiBold.otf"; sourceTree = "<group>"; };
+		A27FFD78FF759653743F951B /* Pretendard-ExtraLight.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-ExtraLight.otf"; sourceTree = "<group>"; };
+		A93E28DC9A144116E786BF82 /* ChallengeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeApp.swift; sourceTree = "<group>"; };
+		AA3014F2A5DC94B06763C952 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		AC6A08C82414CDBCF592646B /* TuistAssets+ChallengeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TuistAssets+ChallengeApp.swift"; sourceTree = "<group>"; };
+		B0833F40CE2F78E2BB73A968 /* PopupView.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PopupView.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B78D9762A1215BB90D7D650D /* Pretendard-Thin.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Thin.otf"; sourceTree = "<group>"; };
+		B8122DA2CC47F1F8E216782B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BEFC1F9C21254DED4CA2DD30 /* Lottie.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Lottie.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C300ABF9E5BA5D89D0F6D2DD /* Info.Plist */ = {isa = PBXFileReference; path = Info.Plist; sourceTree = "<group>"; };
+		C4231C8F66786D1DFF8529F7 /* Pretendard-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Medium.otf"; sourceTree = "<group>"; };
+		CDB8E0FD21BF7CC8C707AB15 /* Utils.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Utils.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE1DB06FEBFC0EFDB0EE5444 /* Pretendard-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Regular.otf"; sourceTree = "<group>"; };
+		D6D95F962AF789AA48F1297B /* Alamofire.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Alamofire.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E8B1F5AB2A2D3DE23E9E52D5 /* ChallengeTabCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeTabCoordinatorView.swift; sourceTree = "<group>"; };
+		E9AF25C49B8057ECA6E3E856 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		EEDFDF9881DEE729257AE6B2 /* KakaoOpenSDK_KakaoSDKCommon.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KakaoOpenSDK_KakaoSDKCommon.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		73AB5D26BA67B934FB7BFD05 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				527340CBDC3EE388457A4E50 /* ComposableArchitecture.framework in Frameworks */,
+				0B583B43D68171D94169FFCF /* Data.framework in Frameworks */,
+				8EBFF9269308B495621C4875 /* FeatureBuyOrNot.framework in Frameworks */,
+				DB7FC13A65771817858EB7D3 /* FeatureChallenge.framework in Frameworks */,
+				41E62AB21D72F5F3D4DCE25A /* FeatureCommon.framework in Frameworks */,
+				B5C93F1DB971FD59553C650A /* FeatureHome.framework in Frameworks */,
+				1BC2CA08094B7C5DD51ABE83 /* FeatureIntro.framework in Frameworks */,
+				148B3C292E3BBA5A659451DD /* FeatureMyPage.framework in Frameworks */,
+				0031BCAD22D08B567E04FE22 /* FeatureTab.framework in Frameworks */,
+				8FE531E458B291FC3512B425 /* PopupView.framework in Frameworks */,
+				8B9FD8DA0314E0DBD22FCF3C /* TCACoordinators.framework in Frameworks */,
+				41ED23ABCA6437AFDA6F762D /* Utils.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0B49F84C6671A53431BA47C8 /* JSON */ = {
+			isa = PBXGroup;
+			children = (
+				955E9D14B3FBF35B38D53DE6 /* GB_Loading_v8.lottie */,
+			);
+			path = JSON;
+			sourceTree = "<group>";
+		};
+		0F8A2FDD6BC77C44994BCE14 /* Derived */ = {
+			isa = PBXGroup;
+			children = (
+				8CBF52171517C35A1648B6F9 /* Sources */,
+			);
+			path = Derived;
+			sourceTree = "<group>";
+		};
+		2E1AAA31FF761424B13B9E66 /* AppResources */ = {
+			isa = PBXGroup;
+			children = (
+				E0BC1F67BE15D816AA3FD702 /* Font */,
+				0B49F84C6671A53431BA47C8 /* JSON */,
+				B8122DA2CC47F1F8E216782B /* Assets.xcassets */,
+				34E24DCABD40082615370DE3 /* GoogleService-Info.plist */,
+				AA3014F2A5DC94B06763C952 /* LaunchScreen.storyboard */,
+				E9AF25C49B8057ECA6E3E856 /* PrivacyInfo.xcprivacy */,
+			);
+			path = AppResources;
+			sourceTree = "<group>";
+		};
+		2F00E50E9F0ED23AE9788513 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				3720304FD40CE0083D0DE468 /* Challenge */,
+			);
+			name = Features;
+			path = ../../Features;
+			sourceTree = "<group>";
+		};
+		3720304FD40CE0083D0DE468 /* Challenge */ = {
+			isa = PBXGroup;
+			children = (
+				9EF59A43E232D2CC75252A32 /* Sources */,
+			);
+			path = Challenge;
+			sourceTree = "<group>";
+		};
+		3882D2DA7D2DCBA0600E2EE9 = {
+			isa = PBXGroup;
+			children = (
+				8961687E6511F7077D29F612 /* Project */,
+				3D51296ACF46A9490EDF2FA3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3D51296ACF46A9490EDF2FA3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D6D95F962AF789AA48F1297B /* Alamofire.framework */,
+				5A9442BC709F7CC28B233DAD /* ChallengeApp.app */,
+				4E5F99CC95B8E278D7DA9C12 /* ComposableArchitecture.framework */,
+				75595E486D52CAE2F1DBBBA1 /* Data.framework */,
+				9B057B3D22C8C248049E584F /* Domain.framework */,
+				18C78105DCAAB8B50FB40CCA /* FeatureBuyOrNot.framework */,
+				4FE78C7B08F80F1921F70AA3 /* FeatureChallenge.framework */,
+				3BDC861FC8342FF75A2C7396 /* FeatureCommon.framework */,
+				66DFEF0E36A91F2F7989DEA9 /* FeatureHome.framework */,
+				8A12300585B99AD7A56C8A08 /* FeatureIntro.framework */,
+				1064459692AD4D2885B800EF /* FeatureMyPage.framework */,
+				7BF51CF001E14DF2C593EC19 /* FeatureTab.framework */,
+				EEDFDF9881DEE729257AE6B2 /* KakaoOpenSDK_KakaoSDKCommon.bundle */,
+				005C7A0A05114CD4776B6E2F /* Kingfisher.framework */,
+				BEFC1F9C21254DED4CA2DD30 /* Lottie.framework */,
+				B0833F40CE2F78E2BB73A968 /* PopupView.framework */,
+				9A9E9138FEADC15A89B9FEAD /* swift-sharing_Sharing.bundle */,
+				506D5AF0719ED9A05F0136FD /* SwiftyBeaver.framework */,
+				081081EEC5A26D9F94E5769A /* SwiftyGif_SwiftyGif.bundle */,
+				2BE61DBC28041F02E832FE27 /* TCACoordinators.framework */,
+				CDB8E0FD21BF7CC8C707AB15 /* Utils.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		67D761B3DCBC42964B5C6B9B /* InfoPlist */ = {
+			isa = PBXGroup;
+			children = (
+				C300ABF9E5BA5D89D0F6D2DD /* Info.Plist */,
+			);
+			path = InfoPlist;
+			sourceTree = "<group>";
+		};
+		6FB547F0BEC0C0C680B831ED /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				8BCF9192F9C29D5950CFEB57 /* ChallengeBeforeView.swift */,
+				0D56B5E41DB0D48E69FD26A9 /* ChallengeTabFeature.swift */,
+				96B216ED9E85FE87B96DD8B2 /* ChallengeTabView.swift */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		8961687E6511F7077D29F612 /* Project */ = {
+			isa = PBXGroup;
+			children = (
+				AE1580EB973F808B63385947 /* AppSettingFiles */,
+				0F8A2FDD6BC77C44994BCE14 /* Derived */,
+				2F00E50E9F0ED23AE9788513 /* Features */,
+			);
+			name = Project;
+			sourceTree = "<group>";
+		};
+		8CBF52171517C35A1648B6F9 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				AC6A08C82414CDBCF592646B /* TuistAssets+ChallengeApp.swift */,
+				8409B855063794B1511E5079 /* TuistBundle+ChallengeApp.swift */,
+				37CC54246984BAEFC2B62ABA /* TuistFonts+ChallengeApp.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		9EF59A43E232D2CC75252A32 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				6FB547F0BEC0C0C680B831ED /* Main */,
+				A93E28DC9A144116E786BF82 /* ChallengeApp.swift */,
+				882806B8D94B2DBFF4996AF0 /* ChallengeTabCoordinator.swift */,
+				E8B1F5AB2A2D3DE23E9E52D5 /* ChallengeTabCoordinatorView.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		AE1580EB973F808B63385947 /* AppSettingFiles */ = {
+			isa = PBXGroup;
+			children = (
+				2E1AAA31FF761424B13B9E66 /* AppResources */,
+				F42E57DE8BB714706C4A2C1C /* Entitlements */,
+				67D761B3DCBC42964B5C6B9B /* InfoPlist */,
+			);
+			name = AppSettingFiles;
+			path = ../../../../AppSettingFiles;
+			sourceTree = "<group>";
+		};
+		E0BC1F67BE15D816AA3FD702 /* Font */ = {
+			isa = PBXGroup;
+			children = (
+				8EC5C692E9B7E72080F8BC5B /* Pretendard-Black.otf */,
+				1EBE466B392E384C7C4B2EDE /* Pretendard-Bold.otf */,
+				0B14603534360C3505AF741E /* Pretendard-ExtraBold.otf */,
+				A27FFD78FF759653743F951B /* Pretendard-ExtraLight.otf */,
+				1E43A2AE6D9D5C0410F08F67 /* Pretendard-Light.otf */,
+				C4231C8F66786D1DFF8529F7 /* Pretendard-Medium.otf */,
+				CE1DB06FEBFC0EFDB0EE5444 /* Pretendard-Regular.otf */,
+				A14492E61F34B9682ECCC2C2 /* Pretendard-SemiBold.otf */,
+				B78D9762A1215BB90D7D650D /* Pretendard-Thin.otf */,
+			);
+			path = Font;
+			sourceTree = "<group>";
+		};
+		F42E57DE8BB714706C4A2C1C /* Entitlements */ = {
+			isa = PBXGroup;
+			children = (
+				91A2CCA4089FEF069D834701 /* Goolbitg-iOS.entitlements */,
+			);
+			path = Entitlements;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F60CEAB43D541DCCEF9B2C45 /* ChallengeApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F1D09C2311AC26BAFA63F19A /* Build configuration list for PBXNativeTarget "ChallengeApp" */;
+			buildPhases = (
+				4708E2078C5CC197DFCC5E28 /* Sources */,
+				2238C75C8D2CBC15F7F23949 /* Resources */,
+				73AB5D26BA67B934FB7BFD05 /* Frameworks */,
+				82F034C376F2D95A8BE6C1D2 /* Embed Frameworks */,
+				99DF349B8C3D3E35ECFC9A31 /* Dependencies */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ChallengeApp;
+			packageProductDependencies = (
+			);
+			productName = ChallengeApp;
+			productReference = 5A9442BC709F7CC28B233DAD /* ChallengeApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		70DB03A8E3EE65CCAB86BACF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = CD32237E06BE93073140E892 /* Build configuration list for PBXProject "ChallengeApp" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 3882D2DA7D2DCBA0600E2EE9;
+			productRefGroup = 3D51296ACF46A9490EDF2FA3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F60CEAB43D541DCCEF9B2C45 /* ChallengeApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2238C75C8D2CBC15F7F23949 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DA85A2BB7481A87E71CB58AD /* Assets.xcassets in Resources */,
+				4AE5CC27CF7D6BBD4F18D052 /* Pretendard-Black.otf in Resources */,
+				E83385612F4573131293176B /* Pretendard-Bold.otf in Resources */,
+				550A9ADD4A0CFB734DE4628F /* Pretendard-ExtraBold.otf in Resources */,
+				308D96FF2E463B6BD2605D63 /* Pretendard-ExtraLight.otf in Resources */,
+				AAA6337054C2E6145E9D303D /* Pretendard-Light.otf in Resources */,
+				6B3D6F8A8877CC4C938A988E /* Pretendard-Medium.otf in Resources */,
+				0C54EAB7115941B4F190E5A7 /* Pretendard-Regular.otf in Resources */,
+				DA698FBB0BE8C3EDAB87C59B /* Pretendard-SemiBold.otf in Resources */,
+				09DD2C4A018E2757ECC73DF7 /* Pretendard-Thin.otf in Resources */,
+				6FFC7CF21314A4818CCBD1F4 /* GoogleService-Info.plist in Resources */,
+				2508DECD0EB4CC528DC78855 /* GB_Loading_v8.lottie in Resources */,
+				76399E9717D3FB487048EEEA /* LaunchScreen.storyboard in Resources */,
+				ED95D648D024F7155E10BB81 /* PrivacyInfo.xcprivacy in Resources */,
+				778603DB3D4A90E9BB65BBF4 /* KakaoOpenSDK_KakaoSDKCommon.bundle in Resources */,
+				6AE6079B2954E469B5341DBE /* SwiftyGif_SwiftyGif.bundle in Resources */,
+				17A3E31CDEEB318E3562020C /* swift-sharing_Sharing.bundle in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4708E2078C5CC197DFCC5E28 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B5E1A9B2AA81FEFFB4F64384 /* TuistAssets+ChallengeApp.swift in Sources */,
+				74EB30A9A1D65F3A843D92B3 /* TuistBundle+ChallengeApp.swift in Sources */,
+				265F309716AA81413F80E224 /* TuistFonts+ChallengeApp.swift in Sources */,
+				EF80CF37D15750F110100EAB /* ChallengeApp.swift in Sources */,
+				C549D4755128AD8EAD791C6C /* ChallengeTabCoordinator.swift in Sources */,
+				1552A906F45F4989ED0E7481 /* ChallengeTabCoordinatorView.swift in Sources */,
+				25BA430F9D0B8058BFB74A1C /* ChallengeBeforeView.swift in Sources */,
+				51CFC97E95006B3679846501 /* ChallengeTabFeature.swift in Sources */,
+				824AC1718C0251E746A2FA0F /* ChallengeTabView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		89517ECED2D48B2C4CFE3111 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		BF2D501B15F49C3B9625508D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "../../../../AppSettingFiles/Entitlements/Goolbitg-iOS.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 0.2.5;
+				DEVELOPMENT_TEAM = H25F4B7J4U;
+				ENABLE_PREVIEWS = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../../../../Tuist/.build/checkouts/swift-navigation/Sources/UIKitNavigationShim/include",
+					"$(SRCROOT)/../../../../Tuist/.build/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include",
+				);
+				INFOPLIST_FILE = ../../../../AppSettingFiles/InfoPlist/Info.Plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.4;
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-fmodule-map-file=$(SRCROOT)/../../../../Tuist/.build/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include/module.modulemap",
+					"-fmodule-map-file=$(SRCROOT)/../../../../Tuist/.build/tuist-derived/UIKitNavigationShim/UIKitNavigationShim.modulemap",
+				);
+				OTHER_SWIFT_FLAGS = (
+					"$(inherited)",
+					"-Xcc",
+					"-fmodule-map-file=$(SRCROOT)/../../../../Tuist/.build/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include/module.modulemap",
+					"-Xcc",
+					"-fmodule-map-file=$(SRCROOT)/../../../../Tuist/.build/tuist-derived/UIKitNavigationShim/UIKitNavigationShim.modulemap",
+					"-load-plugin-executable",
+					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/CasePathsMacros#CasePathsMacros",
+					"-load-plugin-executable",
+					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/ComposableArchitectureMacros#ComposableArchitectureMacros",
+					"-load-plugin-executable",
+					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/DependenciesMacrosPlugin#DependenciesMacrosPlugin",
+					"-load-plugin-executable",
+					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/PerceptionMacros#PerceptionMacros",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Goolbitg-iOS-ChallengeApp";
+				PRODUCT_NAME = ChallengeApp;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		C4DEFDF53D4A837E46CE409B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "../../../../AppSettingFiles/Entitlements/Goolbitg-iOS.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 0.2.5;
+				DEVELOPMENT_TEAM = H25F4B7J4U;
+				ENABLE_PREVIEWS = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../../../../Tuist/.build/checkouts/swift-navigation/Sources/UIKitNavigationShim/include",
+					"$(SRCROOT)/../../../../Tuist/.build/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include",
+				);
+				INFOPLIST_FILE = ../../../../AppSettingFiles/InfoPlist/Info.Plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.4;
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-fmodule-map-file=$(SRCROOT)/../../../../Tuist/.build/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include/module.modulemap",
+					"-fmodule-map-file=$(SRCROOT)/../../../../Tuist/.build/tuist-derived/UIKitNavigationShim/UIKitNavigationShim.modulemap",
+				);
+				OTHER_SWIFT_FLAGS = (
+					"$(inherited)",
+					"-Xcc",
+					"-fmodule-map-file=$(SRCROOT)/../../../../Tuist/.build/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include/module.modulemap",
+					"-Xcc",
+					"-fmodule-map-file=$(SRCROOT)/../../../../Tuist/.build/tuist-derived/UIKitNavigationShim/UIKitNavigationShim.modulemap",
+					"-load-plugin-executable",
+					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/CasePathsMacros#CasePathsMacros",
+					"-load-plugin-executable",
+					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/ComposableArchitectureMacros#ComposableArchitectureMacros",
+					"-load-plugin-executable",
+					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/DependenciesMacrosPlugin#DependenciesMacrosPlugin",
+					"-load-plugin-executable",
+					"$BUILD_DIR/Debug$EFFECTIVE_PLATFORM_NAME/PerceptionMacros#PerceptionMacros",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Goolbitg-iOS-ChallengeApp";
+				PRODUCT_NAME = ChallengeApp;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = (
+					"$(inherited)",
+					DEBUG,
+				);
+				SWIFT_COMPILATION_MODE = singlefile;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		EC0AB5136E3D4E996EC21DD5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CD32237E06BE93073140E892 /* Build configuration list for PBXProject "ChallengeApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EC0AB5136E3D4E996EC21DD5 /* Debug */,
+				89517ECED2D48B2C4CFE3111 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F1D09C2311AC26BAFA63F19A /* Build configuration list for PBXNativeTarget "ChallengeApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C4DEFDF53D4A837E46CE409B /* Debug */,
+				BF2D501B15F49C3B9625508D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 70DB03A8E3EE65CCAB86BACF /* Project object */;
+}
