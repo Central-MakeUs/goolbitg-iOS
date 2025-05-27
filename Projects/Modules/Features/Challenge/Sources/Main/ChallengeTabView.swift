@@ -67,6 +67,7 @@ struct ChallengeTabView: View {
         }
     }
     
+    /// 날짜를 표현하는 바텀시트
     private var bottomSheetDateView: some View {
         VStack(spacing: 0) {
             DatePicker(
@@ -90,6 +91,7 @@ struct ChallengeTabView: View {
 }
 
 extension ChallengeTabView {
+    
     private var contentView: some View {
         VStack {
             headerView
@@ -112,6 +114,9 @@ extension ChallengeTabView {
                                 .move(edge: .trailing) :
                                     .move(edge: .leading)
                         )
+                        .onAppear {
+                            store.send(.viewCycle(.groupViewCycle(.onAppear)))
+                        }
                 }
             }
             .animation(.easeInOut, value: tabMode) // 전환 애니메이션 적용
@@ -120,6 +125,7 @@ extension ChallengeTabView {
         .background(GBColor.background1.asColor)
     }
     
+    /// 상단 헤더뷰 표현합니다.
     private var headerView: some View {
         HStack (spacing: 0) {
             
@@ -134,15 +140,15 @@ extension ChallengeTabView {
                 }
                 .padding(.trailing, 4)
             
-//            Text("그룹")
-//                .font(headerTitleFont(mode: .groups , by: tabMode))
-//                .foregroundStyle(headerTitleColor(mode: .groups, by: tabMode))
-//                .asButton {
-//                    withAnimation {
-//                        tabMode = .groups
-//                        animationDirection = 1
-//                    }
-//                }
+            Text("그룹")
+                .font(headerTitleFont(mode: .groups , by: tabMode))
+                .foregroundStyle(headerTitleColor(mode: .groups, by: tabMode))
+                .asButton {
+                    withAnimation {
+                        tabMode = .groups
+                        animationDirection = 1
+                    }
+                }
             
             Spacer()
             switch tabMode {
@@ -496,10 +502,97 @@ extension ChallengeTabView {
                 }
             }
             .padding(.horizontal, SpacingHelper.md.pixel)
+            .padding(.bottom, 18)
+            
             ScrollView {
+                if store.groupListLoad {
+                    loadingChallengeGroupListView
+                }
+                else {
+                    challengeGroupListView()
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func challengeGroupListView() -> some View {
+        let models = store.groupChallengeList
+        
+        if models.isEmpty {
+            emptyGroupView()
+        }
+        else {
+            LazyVStack(spacing: 0) {
+                ForEach(Array(models.enumerated()), id: \.element.id) { index, entity in
+                    challengeGroupElementView(entity: entity, index: index, last: models.count - 1)
+                        .asButton {
+                            store.send(.viewEvent(.groupChallengeViewEvent(.selectedParticipatingModel(entity: entity))))
+                        }
+                }
+            }
+        }
+        
+    }
+    
+    /// 참여중인 챌린지 그룹 리스트에서 사용할 뷰
+    /// - Parameters:
+    ///   - entity: entity
+    ///   - index: Index - ROW
+    ///   - last: Last Index
+    /// - Returns: challengeGroupElementView
+    private func challengeGroupElementView(
+        entity: ParticipatingGroupChallengeListEntity,
+        index: Int,
+        last: Int
+    ) -> some View {
+        VStack(spacing: 0) {
+            ParticipatingChallengeGroupElementView(entity: entity)
+                .padding(.horizontal, SpacingHelper.lg.pixel)
+            
+            
+            VStack(spacing:0) {
+                GBColor.grey600.asColor
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 1)
+            .padding(.horizontal, SpacingHelper.lg.pixel)
+            .opacity(index != last ? 1 : 0)
+        }
+    }
+    
+    /// 불러오는동안의 그룹 리스트 뷰
+    private var loadingChallengeGroupListView: some View {
+        let models: [ParticipatingGroupChallengeListEntity] = (1...5).map { _ in
+            return loadingChallengeGroupMockData()
+        }
+        return VStack(spacing: 0) {
+            ForEach(Array(models.enumerated()), id: \.element.id) { index, item in
+                challengeGroupElementView(entity: item, index: index, last: models.count - 1)
+                    .skeletonEffect()
+            }
+        }
+    }
+    
+    private func emptyGroupView() -> some View {
+        VStack {
+            ParticipatingGroupChallengeEmptyView {
                 
             }
         }
+    }
+    
+    /// 불러오는동안의 그룹 리스트 뷰의 -> 목 데이타
+    /// - Returns: 목 데이타
+    private func loadingChallengeGroupMockData() -> ParticipatingGroupChallengeListEntity {
+        return ParticipatingGroupChallengeListEntity(
+            id: UUID().hashValue,
+            ownerId: UUID().uuidString,
+            title: "거지방챌린지",
+            totalWithParticipatingPeopleCount: "3/6",
+            hashTags: ["배달줄이기"],
+            isSecret: false
+        )
     }
 }
 

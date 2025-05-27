@@ -156,3 +156,18 @@ public enum GBColor {
     }
     
 }
+
+public enum GBGradientColor {
+    case mainGradient
+    
+    public var shape: LinearGradient {
+        return LinearGradient(
+            colors: [
+                GBColor.primary600.asColor,
+                GBColor.primary400.asColor
+            ],
+            startPoint: .bottomLeading,
+            endPoint: .topTrailing
+        )
+    }
+}

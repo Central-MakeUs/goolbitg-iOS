@@ -86,6 +86,9 @@ public enum ImageHelper {
     case loginAppLogo
     case xSmall
     
+    case secretRoomLogo
+    case group
+    
     public var image: UIImage {
         switch self {
         case .splashBack:
@@ -264,6 +267,12 @@ public enum ImageHelper {
             
         case .xSmall:
             return UtilsAsset.xSmall.image
+            
+        case .secretRoomLogo:
+            return UtilsAsset.secretRoom.image
+            
+        case .group:
+            return UtilsAsset.group.image
         }
     }
     

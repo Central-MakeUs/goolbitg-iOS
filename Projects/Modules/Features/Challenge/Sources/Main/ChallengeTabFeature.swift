@@ -36,9 +36,14 @@ public struct ChallengeTabFeature: GBReducer {
         var todayDate = Date()
         var isToday: Bool = true
         
+        // MARK: - 개인 챌린지
+        var challengeList: [ChallengeEntity] = []
         var listLoad = false
         var pagingObj = PagingObj()
-        var challengeList: [ChallengeEntity] = []
+        // MARK: - 그룹 챌린지
+        var groupChallengeList: [ParticipatingGroupChallengeListEntity] = []
+        var groupListLoad = false
+        var groupChallengePagingObj = PagingObj()
     }
     
     public enum Action {
@@ -50,6 +55,9 @@ public struct ChallengeTabFeature: GBReducer {
         
         case selectedSwitchIndex(Int)
         case weekIndex(Int)
+        
+        // MARK: GroupChallenge
+        case groupChallengeFeatureEvent(GroupChallengeFeatureEvent)
         
         public enum Delegate {
             case moveToChallengeAdd
@@ -63,6 +71,11 @@ public struct ChallengeTabFeature: GBReducer {
     
     public enum ViewCycle {
         case onAppear
+        case groupViewCycle(GroupChallengeViewCycle)
+        
+        public enum GroupChallengeViewCycle {
+            case onAppear
+        }
     }
     
     public enum ViewEvent {
@@ -72,6 +85,12 @@ public struct ChallengeTabFeature: GBReducer {
         case selectedWeek(WeekDay)
         case selectedDetail(item: ChallengeEntity)
         case currentIndex(Int)
+        
+        case groupChallengeViewEvent(GroupChallengeViewEvent)
+        
+        public enum GroupChallengeViewEvent {
+            case selectedParticipatingModel(entity: ParticipatingGroupChallengeListEntity)
+        }
     }
     
     public enum FeatureEvent {
@@ -93,6 +112,12 @@ public struct ChallengeTabFeature: GBReducer {
         case resultToChallengeList(dats: [ChallengeEntity])
     }
     
+    public enum GroupChallengeFeatureEvent {
+        case requestGroupChallengeList(atFirst: Bool = true)
+        case changeLoadState(ifLoad: Bool)
+        case resultGroupChallengeList(models: [ParticipatingGroupChallengeListEntity], ifAppend: Bool)
+    }
+    
     public enum ParentEvent {
         case reloadData
     }
@@ -108,10 +133,13 @@ public struct ChallengeTabFeature: GBReducer {
     
     public var body: some ReducerOf<Self> {
         core
+        groupChallengeCore
     }
 }
 
+// MARK: 개인 챌린지 Core
 extension ChallengeTabFeature {
+    
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
@@ -462,6 +490,91 @@ extension ChallengeTabFeature {
                 
             case let .datePickerMonth(date):
                 state.datePickerMonth = date
+            default:
+                break
+            }
+            return .none
+        }
+    }
+    
+}
+
+// MARK: Group Challenge Core
+extension ChallengeTabFeature {
+    
+    private var groupChallengeCore: some ReducerOf<Self> {
+        Reduce {
+            state,
+            action in
+            switch action {
+            case .viewCycle(.groupViewCycle(.onAppear)):
+                return .run { send in
+                    await send(.groupChallengeFeatureEvent(.changeLoadState(ifLoad: true)))
+                    try await Task.sleep(for: .seconds(2)) // groupListLoad
+                    await send(.groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst: true)))
+                }
+                
+            case let .groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst)):
+                
+                if atFirst {
+                    // MARK: FIXME - API Bridge
+                    // ...
+                    
+                    let dummy: [ParticipatingGroupChallengeListEntity]
+                    if Bool.random() {
+                        dummy = [
+                            .init(
+                                id: UUID().hashValue,
+                                ownerId: UUID().uuidString,
+                                title: "거지방챌린지",
+                                totalWithParticipatingPeopleCount: "3/6",
+                                hashTags: ["배달줄이기", "배민", "야식"],
+                                isSecret: true
+                            ),
+                            .init(
+                                id: UUID().hashValue,
+                                ownerId: UUID().uuidString,
+                                title: "택시말고 막차타기",
+                                totalWithParticipatingPeopleCount: "3/6",
+                                hashTags: ["배달줄이기", "배민", "야식"],
+                                isSecret: false
+                            ),
+                            .init(
+                                id: UUID().hashValue,
+                                ownerId: UUID().uuidString,
+                                title: "야식 그만 주문하기",
+                                totalWithParticipatingPeopleCount: "3/6",
+                                hashTags: ["배달줄이기", "배민", "야식"],
+                                isSecret: true
+                            )
+                        ]
+                    }
+                    else {
+                        dummy = []
+                    }
+                    return .send(.groupChallengeFeatureEvent(.resultGroupChallengeList(models: dummy, ifAppend: false)))
+                }
+                // Pagenation
+                else {
+                    
+                }
+                
+            case let .groupChallengeFeatureEvent(.resultGroupChallengeList(models, ifAppend)):
+                
+                if ifAppend {
+                    state.groupChallengeList.append(contentsOf: models)
+                    print("STATE => \(models)")
+                }
+                else {
+                    print("STATE => \(models)")
+                    state.groupChallengeList = models
+                }
+                
+                return .send(.groupChallengeFeatureEvent(.changeLoadState(ifLoad: false)))
+                
+            case let .groupChallengeFeatureEvent(.changeLoadState(ifLoad)):
+                state.groupListLoad = ifLoad
+                
             default:
                 break
             }

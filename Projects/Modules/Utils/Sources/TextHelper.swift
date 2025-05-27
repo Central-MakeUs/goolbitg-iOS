@@ -9,7 +9,6 @@ import Foundation
 
 public enum TextHelper {
     
-    
     // MARK: LOGIN
     public static let kakaoLogin = "카카오톡으로 시작하기"
     public static let appleLogin = "Apple로 로그인"
@@ -144,4 +143,19 @@ public enum TextHelper {
     public static let buyOrNotWhyBuyPlaceHolder  = "20자 이내로 작성해주세요"
     public static let buyOrNotWhyNotBuyTitle = "사면 안되는 이유"
     public static let buyOrNotWhyNotBuyPlaceHolder = "20자 이내로 작성해주세요"
+    
+    // MARK: 그룹 챌린지
+    case groupChallengeTexts(GroupChallengeTexts)
+    
+    public enum GroupChallengeTexts: String {
+        case emptyParticipatingRoom = "아직 참여한 작심삼일 방이 없어요"
+        case emptyParticipatingRoomButtonText = "작심삼일 방 찾아보기"
+    }
+    
+    public var text: String {
+        switch self {
+        case .groupChallengeTexts(let groupChallengeTexts):
+            return groupChallengeTexts.rawValue
+        }
+    }
 }
