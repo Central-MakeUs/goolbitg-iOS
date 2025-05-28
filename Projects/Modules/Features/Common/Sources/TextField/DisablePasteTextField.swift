@@ -7,6 +7,34 @@
 
 import SwiftUI
 
+public struct DisablePasteTextFieldConfiguration {
+    public let textColor: Color
+    public let placeholder: String
+    public let placeholderColor: Color
+    public let edge: UIEdgeInsets
+    public let keyboardType: UIKeyboardType
+    public var isSecureTextEntry: Bool = false
+    public var ifLeadingEdge: CGFloat?
+    
+    public init(
+        textColor: Color,
+        placeholder: String,
+        placeholderColor: Color,
+        edge: UIEdgeInsets,
+        keyboardType: UIKeyboardType,
+        isSecureTextEntry: Bool,
+        ifLeadingEdge: CGFloat? = nil
+    ) {
+        self.textColor = textColor
+        self.placeholder = placeholder
+        self.placeholderColor = placeholderColor
+        self.edge = edge
+        self.keyboardType = keyboardType
+        self.isSecureTextEntry = isSecureTextEntry
+        self.ifLeadingEdge = ifLeadingEdge
+    }
+}
+
 public struct DisablePasteTextField: View {
     @Binding var text: String
     var isFocused: Binding<Bool>?
@@ -18,6 +46,7 @@ public struct DisablePasteTextField: View {
     public var isSecureTextEntry: Bool = false
     public var ifLeadingEdge: CGFloat?
     public let onCommit: (() -> Void)?
+    public var textColor: Color = .white
     
     public init(
         text: Binding<String>,
@@ -41,10 +70,29 @@ public struct DisablePasteTextField: View {
         self.onCommit = onCommit
     }
     
+    public init(
+        configuration: DisablePasteTextFieldConfiguration,
+        text: Binding<String>,
+        isFocused: Binding<Bool>? = nil,
+        onCommit: ( () -> Void)?
+    ) {
+        self._text = text
+        self.isFocused = isFocused
+        self.placeholder = configuration.placeholder
+        self.placeholderColor = configuration.placeholderColor
+        self.edge = configuration.edge
+        self.keyboardType = configuration.keyboardType
+        self.ifLeadingEdge = configuration.ifLeadingEdge
+        self.isSecureTextEntry = configuration.isSecureTextEntry
+        self.textColor = configuration.textColor
+        self.onCommit = onCommit
+    }
+    
     public var body: some View {
         VStack(spacing: 0) {
             DisablePasteTextFieldPrepresentable(
                 text: $text,
+                textColor: textColor,
                 isFocused: isFocused,
                 keyboardType: keyboardType,
                 isSecureTextEntry: isSecureTextEntry,
@@ -70,6 +118,7 @@ public struct DisablePasteTextField: View {
 public struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
     
     @Binding public var text: String
+    public var textColor: Color?
     public var isFocused: Binding<Bool>?
     public let keyboardType: UIKeyboardType
     public let isSecureTextEntry: Bool
@@ -86,6 +135,10 @@ public struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
         textField.autocapitalizationType = .none // 자동 대문자 활성화 여부
         textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldTapped), for: .editingDidBegin)
         textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        
+        if let textColor {
+            textField.textColor = UIColor(textColor)
+        }
         return textField
     }
     

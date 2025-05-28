@@ -148,8 +148,19 @@ public enum TextHelper {
     case groupChallengeTexts(GroupChallengeTexts)
     
     public enum GroupChallengeTexts: String {
+        case createGroupChallengeNavTitle = "작심삼일 방 생성하기"
+        case challengeName = "챌린지명"
+        case challengeNamePlaceholder = "진행할 챌린지명을 작성해주세요"
+        case challengePrice = "챌린지 금액"
+        case challengePricePlaceholder = "₩ 최소 1,000원~ 최대 50,000원"
+        case hashTag = "해시태그"
+        case hashTagPlaceholder = "한/영문,숫자로 입력해주세요"
+        case maxPeopleSetting = "최대 인원 설정"
+        case secretRoom = "비밀방"
+        case secretRoomPassword = "비밀방 비밀번호"
         case emptyParticipatingRoom = "아직 참여한 작심삼일 방이 없어요"
         case emptyParticipatingRoomButtonText = "작심삼일 방 찾아보기"
+        case onlyMakeMeShow = "내가 만든 방만 보기"
     }
     
     public var text: String {

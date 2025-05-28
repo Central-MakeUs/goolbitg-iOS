@@ -58,6 +58,10 @@ public enum GBColor {
     case black
     case white
     
+    // MARK: disabled
+    case disabledBG
+    case disabledText
+    
     public var color: UIColor {
         switch self {
         case .kakao:
@@ -111,6 +115,8 @@ public enum GBColor {
             return UIColor(hexCode: "#1E1E1E")
         case .background2:
             return UIColor(hexCode: "#FAFAFA")
+        case .disabledBG:
+            return UIColor(hexCode: "#212121")
             
             /// Semantic color
         case .warning:
@@ -148,6 +154,9 @@ public enum GBColor {
             return UIColor(hexCode: "#4BB329", alpha: 0.10)
         case .main5:
             return UIColor(hexCode: "#4BB329", alpha: 0.05)
+            
+        case .disabledText:
+            return UIColor(hexCode: "#3E3E3E", alpha: 0.89)
         }
     }
     

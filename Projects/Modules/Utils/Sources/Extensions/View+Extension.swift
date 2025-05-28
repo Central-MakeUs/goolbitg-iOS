@@ -135,3 +135,39 @@ public extension View {
             })
     }
 }
+
+// MARK: 동적 높이
+struct ViewHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+struct ViewWidthKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+extension View {
+    public func readHeight(onChange: @escaping (CGFloat) -> Void) -> some View {
+        background {
+            GeometryReader { proxy in
+                Color.clear
+                    .preference(key: ViewHeightKey.self, value: proxy.size.height)
+            }
+        }
+        .onPreferenceChange(ViewHeightKey.self, perform: onChange)
+    }
+    
+    public func readWidth(onChange: @escaping (CGFloat) -> Void) -> some View {
+        background {
+            GeometryReader { proxy in
+                Color.clear
+                    .preference(key: ViewWidthKey.self, value: proxy.size.width)
+            }
+        }
+        .onPreferenceChange(ViewWidthKey.self, perform: onChange)
+    }
+}

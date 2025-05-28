@@ -166,7 +166,7 @@ extension ChallengeTabView {
                     .aspectRatio(1, contentMode: .fit)
                     .frame(width: 32, height: 32)
                     .asButton {
-                        store.send(.viewEvent(.showChallengeAdd))
+                        store.send(.viewEvent(.groupChallengeViewEvent(.showGroupChallengeAddView)))
                     }
                     .padding(.trailing, 8)
                 
@@ -489,17 +489,7 @@ extension ChallengeTabView {
                     .foregroundStyle(GBColor.grey50.asColor)
                 Spacer()
                 
-                HStack(spacing: 0) {
-                    Image(uiImage: ImageHelper.checkMark2.image)
-                        .padding(.trailing, 8)
-                    
-                    Text("내가 만든 방만 보기")
-                        .font(FontHelper.body3.font)
-                        .foregroundStyle(GBColor.grey400.asColor)
-                }
-                .asButton {
-                    
-                }
+                showOnlySelfMakeRoomButton
             }
             .padding(.horizontal, SpacingHelper.md.pixel)
             .padding(.bottom, 18)
@@ -512,6 +502,21 @@ extension ChallengeTabView {
                     challengeGroupListView()
                 }
             }
+        }
+    }
+    
+    /// 본인이 만든 방만 보는 뷰
+    private var showOnlySelfMakeRoomButton: some View {
+        HStack(spacing: 0) {
+            Image(uiImage: ImageHelper.checkMark2.image)
+                .padding(.trailing, 8)
+            
+            Text(TextHelper.groupChallengeTexts(.onlyMakeMeShow).text)
+                .font(FontHelper.body3.font)
+                .foregroundStyle(GBColor.grey400.asColor)
+        }
+        .asButton {
+            store.send(.viewEvent(.groupChallengeViewEvent(.onlyMakeMeButtonTapped)))
         }
     }
     

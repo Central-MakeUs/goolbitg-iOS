@@ -43,6 +43,8 @@ public struct ChallengeTabFeature: GBReducer {
         // MARK: - 그룹 챌린지
         var groupChallengeList: [ParticipatingGroupChallengeListEntity] = []
         var groupListLoad = false
+        /// 본인이 만든것만 볼것인지
+        var groupOnlyMakeMeTrigger = false
         var groupChallengePagingObj = PagingObj()
     }
     
@@ -90,6 +92,8 @@ public struct ChallengeTabFeature: GBReducer {
         
         public enum GroupChallengeViewEvent {
             case selectedParticipatingModel(entity: ParticipatingGroupChallengeListEntity)
+            case onlyMakeMeButtonTapped
+            case showGroupChallengeAddView
         }
     }
     
@@ -507,12 +511,22 @@ extension ChallengeTabFeature {
             state,
             action in
             switch action {
+                // MARK: GroupViewCycle
             case .viewCycle(.groupViewCycle(.onAppear)):
                 return .run { send in
                     await send(.groupChallengeFeatureEvent(.changeLoadState(ifLoad: true)))
                     try await Task.sleep(for: .seconds(2)) // groupListLoad
                     await send(.groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst: true)))
                 }
+                // MARK: GroupView Event
+            case .viewEvent(.groupChallengeViewEvent(.onlyMakeMeButtonTapped)):
+                
+                state.groupOnlyMakeMeTrigger.toggle()
+                // Network 작업이 필요할지도
+                
+            case let .viewEvent(.groupChallengeViewEvent(.selectedParticipatingModel(entity))):
+                Logger.debug("TAPPED")
+                Logger.debug(entity)
                 
             case let .groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst)):
                 
@@ -559,6 +573,7 @@ extension ChallengeTabFeature {
                     
                 }
                 
+            // MARK: GroupViewFeatureEvent
             case let .groupChallengeFeatureEvent(.resultGroupChallengeList(models, ifAppend)):
                 
                 if ifAppend {
