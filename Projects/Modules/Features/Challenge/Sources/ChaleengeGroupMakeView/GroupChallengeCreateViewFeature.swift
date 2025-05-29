@@ -15,7 +15,7 @@ import Data
 public struct GroupChallengeCreateViewFeature {
     
     @ObservableState
-    public struct State {
+    public struct State: Equatable {
         public init() {}
         var challengeName = ""
         var challengePrice = ""
@@ -38,6 +38,9 @@ public struct GroupChallengeCreateViewFeature {
         case inputSecretRoomState(Bool)
         case inputPasswordText(String)
         case inputSecretRoomStateAnimation(Bool)
+        
+        // MARK: DELEGETE
+        case delegate(Delegate)
     }
     
     public enum ViewAction {
@@ -46,6 +49,10 @@ public struct GroupChallengeCreateViewFeature {
         case deleteHashTagTapped(index: Int)
         case maxLeadingButtonTapped
         case maxTrailingButtonTapped
+    }
+    
+    public enum Delegate {
+        case dismiss
     }
     
     public static let currentLowCount = 2 // DEFAULT
@@ -100,6 +107,9 @@ extension GroupChallengeCreateViewFeature {
             case .viewAction(.maxTrailingButtonTapped):
                 state.currentMaxCount += 1
                 return checkLeadingTrailingButtonEnable(state: &state)
+                
+            case .viewAction(.tappedDismiss):
+                return .send(.delegate(.dismiss))
                 
             default:
                 break

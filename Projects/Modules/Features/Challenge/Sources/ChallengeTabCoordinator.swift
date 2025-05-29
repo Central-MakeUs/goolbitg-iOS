@@ -12,8 +12,7 @@ import ComposableArchitecture
 @Reducer(state: .equatable)
 public enum ChallengeTabScreen {
     case home(ChallengeTabFeature)
-//    case challengeAdd(ChallengeAddViewFeature)
-//    case challengeDetail(ChallengeDetailFeature)
+    case groupChallengeCreate(GroupChallengeCreateViewFeature)
 }
 
 @Reducer
@@ -47,7 +46,18 @@ extension ChallengeTabCoordinator {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .router(.routeAction(id: .home, action: .home(.delegate(.moveToGroupChallengeCreate)))):
                 
+                state.routes.presentCover(
+                    .groupChallengeCreate(
+                        GroupChallengeCreateViewFeature.State()
+                    )
+                )
+                
+            // MARK: GroupChallenge
+            case .router(.routeAction(id: .groupChallengeCreate, action: .groupChallengeCreate(.delegate(.dismiss)))):
+                state.routes.dismiss()
+                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadGroupData)))))
             default:
                 break
             }

@@ -52,7 +52,7 @@ extension OnOffSwitchView {
                     Spacer()
                 }
                 Circle()
-                    .frame(width: viewHeight - 4, height: viewHeight - 4)
+                    .frame(width: max(0,viewHeight - 4), height: max(0,viewHeight - 4))
                     .foregroundStyle(GBColor.white.asColor)
                     .padding(.horizontal, 2)
                     .asButton {

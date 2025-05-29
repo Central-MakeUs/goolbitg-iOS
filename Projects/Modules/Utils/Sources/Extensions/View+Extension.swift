@@ -171,3 +171,23 @@ extension View {
         .onPreferenceChange(ViewWidthKey.self, perform: onChange)
     }
 }
+
+// MARK: FocusTextField
+extension View {
+    
+    @MainActor
+    public func scrollToFocusedField(
+        _ proxy: ScrollViewProxy,
+        filedNumber: Int,
+        completion: (() -> Void)?
+    ) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation(.linear(duration: 0.7)) {
+                proxy.scrollTo(filedNumber, anchor: .top)
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                completion?()
+            }
+        }
+    }
+}

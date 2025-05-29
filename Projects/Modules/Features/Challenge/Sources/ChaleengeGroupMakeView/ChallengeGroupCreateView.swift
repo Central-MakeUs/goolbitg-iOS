@@ -17,6 +17,11 @@ struct ChallengeGroupCreateView: View {
     @State private var focusedField: Int? = nil
     @State private var hashTextFieldHeight: CGFloat = 0
     
+    @State private var upKeyBoardState = false
+    @State private var downKeyBoardState = true
+    @State private var scrollOffsetBefore: CGFloat = 0
+    @State private var scrollOffset: CGFloat = 0
+    
     var body: some View {
         WithPerceptionTracking {
             contentView
@@ -48,7 +53,7 @@ extension ChallengeGroupCreateView {
                     .resizable()
                     .frame(width: 32, height: 32)
                     .asButton {
-                        
+                        store.send(.viewAction(.tappedDismiss))
                     }
                 Spacer()
             }
@@ -63,6 +68,10 @@ extension ChallengeGroupCreateView {
         ScrollViewReader { proxy in
             WithPerceptionTracking {
                 ScrollView {
+                    ScrollViewOffsetPreference { offset in
+                        scrollOffsetBefore = offset
+                        scrollOffset = offset
+                    }
                     challengeNameSectionView
                         .padding(.top, 14)
                         .padding(.horizontal, SpacingHelper.md.pixel + SpacingHelper.sm.pixel)
@@ -88,8 +97,36 @@ extension ChallengeGroupCreateView {
                         .padding(.top, SpacingHelper.lg.pixel)
                         .padding(.horizontal, SpacingHelper.md.pixel + SpacingHelper.sm.pixel)
                 }
-                .onChange(of: focusedField) { _ in
-                    scrollToFocusedField(proxy)
+                .onChange(of: focusedField) { number in
+                    guard let number,
+                          upKeyBoardState == false else {
+                        return
+                    }
+                    upKeyBoardState = true
+                    
+                    scrollToFocusedField(proxy, filedNumber: number) {
+                        upKeyBoardState = false
+                    }
+                }
+                .onPreferenceChange(ScrollOffsetKey.self) { offset in
+                    scrollOffset = offset
+                }
+                .onChange(of: scrollOffset) { newValue in
+                    let before = abs(scrollOffsetBefore)
+                    let current = abs(newValue)
+                    scrollOffsetBefore = newValue
+                    if (abs(current - before) > 10 ){
+                        downKeyBoardState = false
+                        endTextEditing()
+                    }
+                }
+                .onChange(of: downKeyBoardState) { newValue in
+                    if newValue == false {
+                        Task {
+                            try? await Task.sleep(for: .seconds(1))
+                            downKeyBoardState = true
+                        }
+                    }
                 }
             }
         }
@@ -358,14 +395,6 @@ extension ChallengeGroupCreateView {
         }
     }
     
-    private func scrollToFocusedField(_ proxy: ScrollViewProxy) {
-        guard let field = focusedField else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now()) {
-            withAnimation {
-                proxy.scrollTo(field, anchor: .top)
-            }
-        }
-    }
     
     private func commonDisablePasteTextFieldConfiguration(
         placeholder: String,

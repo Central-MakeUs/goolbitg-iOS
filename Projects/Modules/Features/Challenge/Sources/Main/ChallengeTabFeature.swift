@@ -66,6 +66,8 @@ public struct ChallengeTabFeature: GBReducer {
             case moveToDetail(itemID: String)
             case hiddenTabBar
             case showTabBar
+            
+            case moveToGroupChallengeCreate
         }
         
         case datePickerMonth(Date)
@@ -124,6 +126,7 @@ public struct ChallengeTabFeature: GBReducer {
     
     public enum ParentEvent {
         case reloadData
+        case reloadGroupData
     }
     
     enum CancelID: Hashable {
@@ -528,6 +531,9 @@ extension ChallengeTabFeature {
                 Logger.debug("TAPPED")
                 Logger.debug(entity)
                 
+            case .viewEvent(.groupChallengeViewEvent(.showGroupChallengeAddView)): // GroupChallengeCreate 뷰로 이동
+                return .send(.delegate(.moveToGroupChallengeCreate))
+                
             case let .groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst)):
                 
                 if atFirst {
@@ -589,6 +595,9 @@ extension ChallengeTabFeature {
                 
             case let .groupChallengeFeatureEvent(.changeLoadState(ifLoad)):
                 state.groupListLoad = ifLoad
+                
+            case .parentEvent(.reloadGroupData):
+                return .send(.groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst: true)))
                 
             default:
                 break

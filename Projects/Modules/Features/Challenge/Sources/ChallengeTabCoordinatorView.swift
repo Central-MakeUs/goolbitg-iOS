@@ -8,6 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 import TCACoordinators
+import Utils
 
 public struct ChallengeTabCoordinatorView: View {
     
@@ -33,15 +34,9 @@ extension ChallengeTabCoordinatorView {
                     ChallengeTabView(store: store)
                         .disableBackGesture(false)
                     
-//                case let .challengeAdd(store):
-//                    ChallengeAddView(store: store)
-//                        .navigationBarBackButtonHidden()
-//                        .disableBackGesture(false)
-//                    
-//                case let .challengeDetail(store):
-//                    ChallengeDetailView(store: store)
-//                        .navigationBarBackButtonHidden()
-//                        .disableBackGesture(false)
+                case let .groupChallengeCreate(store):
+                    ChallengeGroupCreateView(store: store)
+                        .disableBackGesture(false)
                 }
             }
         }
@@ -53,17 +48,14 @@ extension ChallengeTabScreen.State: Identifiable {
         switch self {
         case .home:
             return .home
-//        case .challengeAdd:
-//            return .challengeAdd
-//        case .challengeDetail:
-//            return .challengeDetail
+        case .groupChallengeCreate:
+            return .groupChallengeCreate
         }
     }
     
     public enum ID: Identifiable {
         case home
-        case challengeAdd
-        case challengeDetail
+        case groupChallengeCreate
         
         public var id: ID {
             return self
