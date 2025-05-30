@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import Utils
 import FeatureCommon
+import PopupView
 
 struct ChallengeGroupCreateView: View {
     
@@ -25,6 +26,26 @@ struct ChallengeGroupCreateView: View {
     var body: some View {
         WithPerceptionTracking {
             contentView
+                .popup(
+                    item: $store.alertViewComponent.sending(
+                        \.roomCreateStopAlertComponent
+                    )
+                ) { component in
+                    GBAlertView(model: component) {
+                        store.send(.viewAction(.popUpViewAction(.cancel)))
+                    } okTouch: {
+                        store.send(.viewAction(.popUpViewAction(.ok)))
+                    }
+                } customize: {
+                    $0
+                        .animation(.easeInOut)
+                        .type(.default)
+                        .displayMode(.sheet)
+                        .appearFrom(.centerScale)
+                        .closeOnTap(false)
+                        .closeOnTapOutside(false)
+                        .backgroundColor(Color.black.opacity(0.5))
+                }
         }
     }
 }
