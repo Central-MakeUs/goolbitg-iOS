@@ -110,7 +110,7 @@ public struct DisablePasteTextField: View {
                 }
             }
         )
-        .padding(EdgeInsets(top: edge.top, leading: edge.left, bottom: edge.right, trailing: edge.right))
+        .padding(EdgeInsets(top: edge.top, leading: edge.left, bottom: edge.bottom, trailing: edge.right))
     }
     
 }

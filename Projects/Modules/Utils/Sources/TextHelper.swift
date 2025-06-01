@@ -161,6 +161,8 @@ public enum TextHelper {
         case emptyParticipatingRoom = "아직 참여한 작심삼일 방이 없어요"
         case emptyParticipatingRoomButtonText = "작심삼일 방 찾아보기"
         case onlyMakeMeShow = "내가 만든 방만 보기"
+        
+        case findGroupChallengePlaceholder = "챌린지명, 해시태그를 검색해보세요"
     }
     
     public var text: String {
