@@ -21,10 +21,10 @@ extension Project {
         case .app:
             targets = [
                 .target( // 단일 타켓 여러 스킴
-                    name: subAppName == nil ? "App" : subAppName!,
+                    name: subAppName ?? "App",
                     destinations: AppConfig.destinations,
                     product: config.product,
-                    bundleId: config.bundleId == nil ? "\(AppConfig.bundleID)" : config.bundleId!,
+                    bundleId: config.bundleId ?? "$(PRODUCT_BUNDLE_IDENTIFIER)",
                     deploymentTargets: config.deploymentTargets,
                     infoPlist: .file(
                         path: Path.onesPlistName()
@@ -32,75 +32,20 @@ extension Project {
                     sources: config.sources,
                     resources: config.resources,
                     entitlements: appEntitlementsPath,
-                    dependencies: config.dependencies,
-                    settings: .settings(
-                        base: SecretConfig.baseSettings(productName: subAppName == nil ? AppConfig.productName : subAppName!),
-                        configurations: [
-
-                        ]
-                    )
-                ),
-                
+                    dependencies: config.dependencies
+                )
             ]
-            
-            if subAppName == nil {
-                targets.append(
-                    .target( // 단일 타켓 여러 스킴
-                        name: "DEV",
-                        destinations: AppConfig.destinations,
-                        product: config.product,
-                        bundleId: "\(AppConfig.bundleID)",
-                        deploymentTargets: config.deploymentTargets,
-                        infoPlist: .file(
-                            path: Path.onesPlistName()
-                        ),
-                        sources: config.sources,
-                        resources: config.resources,
-                        entitlements: appEntitlementsPath,
-                        dependencies: config.dependencies,
-                        settings: .settings(
-                            base: SecretConfig.baseSettings(productName: subAppName == nil ? "App" : subAppName!),
-                            configurations: [
-                                .debug(
-                                    name: SchemeMode.dev.runActionConfiguration,
-                                    settings: [
-                                        "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "\(SchemeMode.dev.schemeName)"
-                                    ]
-                                )
-                            ]
-                        )
-                    )
-                )
-                
-                targets.append(
-                    .target( // 단일 타켓 여러 스킴
-                        name: "STAGE",
-                        destinations: AppConfig.destinations,
-                        product: config.product,
-                        bundleId: "\(AppConfig.bundleID)",
-                        deploymentTargets: config.deploymentTargets,
-                        infoPlist: .file(
-                            path: Path.onesPlistName()
-                        ),
-                        sources: config.sources,
-                        resources: config.resources,
-                        entitlements: appEntitlementsPath,
-                        dependencies: config.dependencies,
-                        settings: .settings(
-                            base: SecretConfig.baseSettings(productName: subAppName == nil ? "App" : subAppName!),
-                            configurations: [
-                                .debug(
-                                    name: SchemeMode.stage.runActionConfiguration,
-                                    settings: [
-                                        "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "\(SchemeMode.stage.schemeName)"
-                                    ]
-                                )
-                            ]
-                        )
-                    )
-                )
-            }
-            
+            return Project(
+                name: AppConfig.noTuistAppName,
+                packages: config.packages,
+                settings: .appSettings,
+                targets: targets + config.customTargets,
+                schemes: Scheme.schemes(name: config.name, path: AppConfig.appPath),
+                resourceSynthesizers: [
+                    .custom(name: "Assets", parser: .assets, extensions: ["xcassets"]),
+                    .custom(name: "Fonts", parser: .fonts, extensions: ["otf"]),
+                ]
+            )
         case .framework:
             targets = [
                 .target(
@@ -122,6 +67,7 @@ extension Project {
         return Project(
             name: config.name,
             packages: config.packages,
+            settings: .appSettings,
             targets: targets + config.customTargets,
             schemes: config.schemes,
             resourceSynthesizers: [
@@ -131,17 +77,3 @@ extension Project {
         )
     }
 }
-
-
-//                            .release(
-//                                name: SchemeMode.stage.runActionConfiguration,
-//                                settings: [
-//                                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "\(SchemeMode.stage.schemeName)"
-//                                ]
-//                            )
-//                            , .release(
-//                                name: SchemeMode.live.runActionConfiguration,
-//                                settings: [
-//                                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "\(SchemeMode.live.schemeName)"
-//                                ]
-//                            )

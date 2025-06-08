@@ -189,5 +189,5 @@ public extension SwiftUI.Image {
 }
 #endif
 
-// swiftlint:enable all
 // swiftformat:enable all
+// swiftlint:enable all

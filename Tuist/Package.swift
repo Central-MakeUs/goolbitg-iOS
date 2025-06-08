@@ -3,6 +3,7 @@ import PackageDescription
 
 #if TUIST
     import ProjectDescription
+    import TuistExtensions
 
     let packageSettings = PackageSettings(
         // Customize the product types for specific package product
@@ -16,13 +17,14 @@ import PackageDescription
             "KakaoSDK": .framework,
             "Lottie": .framework,
             "Kingfisher" : .framework,
-            "PopupView" : .framework
-        ]
+            "PopupView" : .framework,
+        ],
+        baseSettings: .appSettings
     )
 #endif
 
 let package = Package(
-    name: "Goolbitg-iOS",
+    name: "Goolbitg-iOS-Lib",
     dependencies: [
         .package(url: "https://github.com/onevcat/Kingfisher", .upToNextMajor(from: "8.1.3")),
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", exact: "1.17.0"),

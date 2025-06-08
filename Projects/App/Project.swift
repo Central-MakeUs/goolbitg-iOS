@@ -10,7 +10,7 @@ import ProjectDescription
 
 let project = Project.create(
     config: ProjectConfig(
-        name: "App",
+        name: AppConfig.noTuistAppName,
         product: .app,
         deploymentTargets: AppConfig.deployTarget,
         schemes: [], // SchemeMode.getSchemes(targetName: "App", path: "App"),

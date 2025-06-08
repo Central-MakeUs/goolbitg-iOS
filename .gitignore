@@ -10,6 +10,7 @@ Secret/
 **/Info.plist
 **/SecretConfig
 **/SecretFiles
+**/Base.xcconfig
 *.xcodeproj
 *.xcworkspace
 *.xcworkspace/xcshareddata

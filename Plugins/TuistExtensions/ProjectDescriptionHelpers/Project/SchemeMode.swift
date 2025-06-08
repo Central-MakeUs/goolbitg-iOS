@@ -18,32 +18,17 @@ public var getProjectScheme: SchemeMode {
 public enum SchemeMode: CaseIterable {
     case dev
     case stage
-//    case live
+    case live
     
     public var schemeName: String {
         switch self {
         case .dev:
-            return "DEV"
-//        case .live:
-//            return "LIVE"
+            return "Dev"
+        case .live:
+            return "Live"
         case .stage:
-            return "STAGE"
+            return "Stage"
         }
-    }
-    
-    public var runActionConfiguration: ConfigurationName {
-        switch self {
-        case .dev:
-            return .debug
-//        case .live:
-//            return .release
-        case .stage:
-            return .debug
-        }
-    }
-    
-    public func getName() -> String {
-        return schemeName
     }
     
     public static func getSelf(schemeString: String) -> SchemeMode? {
@@ -52,31 +37,6 @@ public enum SchemeMode: CaseIterable {
     
     public var fullScheme: String {
         return AppConfig.appName + "-info-" + self.schemeName
-    }
-    
-    public static func getSchemes(targetName: String, path: Path) -> [Scheme] {
-        let all = Self.allCases
-        let mapping = all.map { mode -> Scheme in
-            print(mode.runActionConfiguration)
-            return Scheme.scheme(
-                name: mode.schemeName,
-                shared: true,
-                hidden: false,
-                buildAction: .buildAction(
-                    targets: [
-                        .project(path: path, target: targetName)
-                    ],
-                    findImplicitDependencies: true
-                ),
-                testAction: nil,
-                runAction: .runAction(configuration: mode.runActionConfiguration),
-                archiveAction: .archiveAction(configuration: mode.runActionConfiguration),
-                profileAction: .profileAction(configuration: mode.runActionConfiguration),
-                analyzeAction: .analyzeAction(configuration: mode.runActionConfiguration)
-            )
-        }
-        
-        return mapping
     }
 }
 
@@ -94,4 +54,66 @@ extension Path {
         .relativeToRoot("AppSettingFiles/XCConfigs/\(xcconfigName).xcconfig")
     }
 
+}
+
+extension Settings {
+    
+    public static var appSettings: Self {
+        return .settings(
+//            base: [
+//                "PROJECT_BASE": "PROJECT_BASE",
+//            ],
+            configurations: [
+                .debug,
+                .release,
+                .dev,
+                .stage
+            ]
+        )
+    }
+}
+
+extension Scheme {
+    
+    public static func schemes(name: String, path: Path) -> [Self] {
+        return [
+            .scheme( // Dev
+                name: name + "_DEV",
+                shared: true,
+                hidden: false,
+                buildAction: .buildAction(targets: ["App"]),
+                runAction: .runAction(configuration: .dev),
+                archiveAction: .archiveAction(configuration: .dev),
+                profileAction: .profileAction(configuration: .dev),
+                analyzeAction: .analyzeAction(configuration: .dev)
+            ),
+            .scheme(
+                name: name + "_Stage",
+                shared: true,
+                hidden: false,
+                buildAction: .buildAction(targets: ["App"]),
+                runAction: .runAction(configuration: .stage),
+                archiveAction: .archiveAction(configuration: .stage),
+                profileAction: .profileAction(configuration: .stage),
+                analyzeAction: .analyzeAction(configuration: .stage)
+            )
+        ]
+    }
+}
+
+extension ConfigurationName {
+    
+    public static let dev: Self = .configuration(SchemeMode.dev.schemeName)
+    
+    public static let stage: Self = .configuration(SchemeMode.stage.schemeName)
+    
+    public static let live: Self = .configuration(SchemeMode.live.schemeName)
+}
+
+extension Configuration {
+    public static let debug: Self = .debug(name: "Debug", xcconfig: .xcconfigPath("Debug"))
+    public static let release: Self = .debug(name: "Release", xcconfig: .xcconfigPath("Release"))
+    public static let dev: Self = .debug(name: "Dev", xcconfig: .xcconfigPath("Dev"))
+    public static let stage: Self = .debug(name: "Stage", xcconfig: .xcconfigPath("Stage"))
+    public static let live: Self = .release(name: "Live", xcconfig: .xcconfigPath("Live"))
 }
