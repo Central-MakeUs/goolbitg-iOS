@@ -13,13 +13,14 @@ struct HomeApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ChallengeTabCoordinatorView(
-                store: Store(initialState: ChallengeTabCoordinator.State.initialState, reducer: {
-                    ChallengeTabCoordinator()
-            }))
-            .onAppear {
-                
-            }
+//            ChallengeTabCoordinatorView(
+//                store: Store(initialState: ChallengeTabCoordinator.State.initialState, reducer: {
+//                    ChallengeTabCoordinator()
+//            }))
+//            .onAppear {
+//                
+//            }
+            ChallengeGroupDetailView()
         }
     }
 }

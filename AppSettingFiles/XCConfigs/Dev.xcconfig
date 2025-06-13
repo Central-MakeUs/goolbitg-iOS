@@ -3,7 +3,7 @@
 OTHER_SWIFT_FLAGS[config=STAGE][sdk=*]   = $(inherited) -DDEV
 //OTHER_SWIFT_FLAGS                       = $(inherited) -DDEV
 
-SWIFT_ACTIVE_COMPILATION_CONDITIONS     = DEV
+//SWIFT_ACTIVE_COMPILATION_CONDITIONS     = DEV
 
 PRODUCT_BUNDLE_IDENTIFIER               = com.Goolbitg-iOS.dev
 

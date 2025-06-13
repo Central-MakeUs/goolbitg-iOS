@@ -35,12 +35,14 @@ extension Project {
                     dependencies: config.dependencies
                 )
             ]
+            let name = subAppName ?? config.name
+            
             return Project(
-                name: AppConfig.noTuistAppName,
+                name: name,
                 packages: config.packages,
                 settings: .appSettings,
                 targets: targets + config.customTargets,
-                schemes: Scheme.schemes(name: config.name, path: AppConfig.appPath),
+                schemes: Scheme.schemes(name: name, root: subAppName == nil),
                 resourceSynthesizers: [
                     .custom(name: "Assets", parser: .assets, extensions: ["xcassets"]),
                     .custom(name: "Fonts", parser: .fonts, extensions: ["otf"]),
@@ -60,20 +62,20 @@ extension Project {
                     dependencies: config.dependencies
                 )
             ]
+            
+            return Project(
+                name: config.name,
+                packages: config.packages,
+                settings: .appSettings,
+                targets: targets + config.customTargets,
+                schemes: config.schemes,
+                resourceSynthesizers: [
+                    .custom(name: "Assets", parser: .assets, extensions: ["xcassets"]),
+                    .custom(name: "Fonts", parser: .fonts, extensions: ["otf"]),
+                ]
+            )
         default:
             fatalError()
         }
-        
-        return Project(
-            name: config.name,
-            packages: config.packages,
-            settings: .appSettings,
-            targets: targets + config.customTargets,
-            schemes: config.schemes,
-            resourceSynthesizers: [
-                .custom(name: "Assets", parser: .assets, extensions: ["xcassets"]),
-                .custom(name: "Fonts", parser: .fonts, extensions: ["otf"]),
-            ]
-        )
     }
 }

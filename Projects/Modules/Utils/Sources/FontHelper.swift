@@ -25,6 +25,7 @@ public enum FontHelper {
     
     case caption1
     case caption2
+    case caption3
     
     case btn1
     case btn2
@@ -49,6 +50,7 @@ public enum FontHelper {
             
         case .caption1: return PretendardFont.midFont.asFont(size: 16)
         case .caption2: return PretendardFont.regularFont.asFont(size: 16)
+        case .caption3: return PretendardFont.regularFont.asFont(size: 8)
             
         case .btn1: return PretendardFont.boldFont.asFont(size: 19)
         case .btn2: return PretendardFont.boldFont.asFont(size: 16)

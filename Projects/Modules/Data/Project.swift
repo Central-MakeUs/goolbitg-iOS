@@ -18,7 +18,7 @@ let dataFramework = Project.create(
             .tca,
             .alamofire,
             .swiftyBeaver,
-            .jwtToken
+//            .jwtToken
         ],
         sources: ["Sources/**"]
     )

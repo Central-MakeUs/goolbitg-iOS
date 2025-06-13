@@ -75,6 +75,7 @@ public enum UtilsAsset: Sendable {
   public static let pencilImg = UtilsImages(name: "pencilImg")
   public static let plusLogo = UtilsImages(name: "plusLogo")
   public static let rightCh = UtilsImages(name: "rightCh")
+  public static let settingBtn = UtilsImages(name: "settingBtn")
   public static let trash = UtilsImages(name: "trash")
   public static let unchecked = UtilsImages(name: "unchecked")
   public static let warning = UtilsImages(name: "warning")

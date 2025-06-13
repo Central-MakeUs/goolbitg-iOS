@@ -15,17 +15,20 @@ public struct DownImageView: View {
     public let option: Option
     public var fallbackURL: URL? = nil
     public var fallBackImg: UIImage? = nil
+    public var fallBackGrey: Bool = true
     
     public init(
         url: URL?,
         option: Option,
         fallbackURL: URL? = nil,
-        fallBackImg: UIImage? = nil
+        fallBackImg: UIImage? = nil,
+        fallBackGrey: Bool = true
     ) {
         self.url = url
         self.option = option
         self.fallbackURL = fallbackURL
         self.fallBackImg = fallBackImg
+        self.fallBackGrey = fallBackGrey
     }
     
     public enum Option {
@@ -60,7 +63,7 @@ public struct DownImageView: View {
                     if let fallBackImg {
                         Image(uiImage: fallBackImg)
                             .resizable()
-                            .saturation(0)
+                            .saturation(fallBackGrey ? 0 : 1)
                     } else {
                         KFImage(fallbackURL)
                             .resizable()

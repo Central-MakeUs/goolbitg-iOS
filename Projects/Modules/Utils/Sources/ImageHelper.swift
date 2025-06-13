@@ -88,6 +88,7 @@ public enum ImageHelper {
     
     case secretRoomLogo
     case group
+    case settingBtn
     
     public var image: UIImage {
         switch self {
@@ -273,6 +274,9 @@ public enum ImageHelper {
             
         case .group:
             return UtilsAsset.group.image
+            
+        case .settingBtn:
+            return UtilsAsset.settingBtn.image
         }
     }
     

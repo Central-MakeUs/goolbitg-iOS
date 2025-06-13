@@ -75,13 +75,22 @@ extension Settings {
 
 extension Scheme {
     
-    public static func schemes(name: String, path: Path) -> [Self] {
+    public static func schemes(name: String, root: Bool = true) -> [Self] {
+        var targets: [TargetReference] = []
+        if root {
+            targets.append("App")
+        }
+        else {
+//            targets.append(TargetReference(stringLiteral: name))
+            targets.append("App")
+        }
+        
         return [
             .scheme( // Dev
                 name: name + "_DEV",
                 shared: true,
                 hidden: false,
-                buildAction: .buildAction(targets: ["App"]),
+                buildAction: .buildAction(targets: targets),
                 runAction: .runAction(configuration: .dev),
                 archiveAction: .archiveAction(configuration: .dev),
                 profileAction: .profileAction(configuration: .dev),
@@ -91,7 +100,7 @@ extension Scheme {
                 name: name + "_Stage",
                 shared: true,
                 hidden: false,
-                buildAction: .buildAction(targets: ["App"]),
+                buildAction: .buildAction(targets: targets),
                 runAction: .runAction(configuration: .stage),
                 archiveAction: .archiveAction(configuration: .stage),
                 profileAction: .profileAction(configuration: .stage),
