@@ -15,6 +15,8 @@ public struct ChallengeGroupDetailView: View {
     @Environment(\.safeAreaInsets) private var safeArea
     @State private var currentOffset: CGFloat = 0
     
+    @State private var bottomSheetExpended: Bool = false
+    @State private var challengeStatus: [ChallengeStatusCase] = [.none, .wait, .wait]
     @State private var bottomListModels: [ChallengeRankEntity] = [
         .init(
             userID: UUID().uuidString,
@@ -60,6 +62,9 @@ public struct ChallengeGroupDetailView: View {
                 currentOffset = offsetY
             }
             .background(GBColor.main.asColor)
+            .dragBottomSheet(collapsedHeight: 36, isExpanded: $bottomSheetExpended) {
+                bottomSheetView()
+            }
     }
 }
 
@@ -201,6 +206,94 @@ extension ChallengeGroupDetailView {
                 Capsule()
                     .stroke(lineWidth: 1)
                     .foregroundStyle(GBColor.grey500.asColor)
+            }
+        }
+    }
+}
+
+// MARK: BottomSheetView
+extension ChallengeGroupDetailView {
+    
+    private func bottomSheetView() -> some View {
+        VStack {
+            Capsule()
+                .foregroundStyle(GBColor.grey400.asColor)
+                .frame(width: 32, height: 4)
+                .padding(.top, 16)
+            
+            VStack(spacing: 8) {
+                Text("챌린지 명")
+                    .foregroundStyle(GBColor.grey50.asColor)
+                    .font(FontHelper.h3.font)
+                    
+                
+                Text("#{해시태그1 해시태그1 해시태그1 해시태그1 해시태그1 해시태그1 해시태그1 해시태그1} #{해시태그2} #{해시태그3}")
+                    .lineLimit(2)
+                    .lineSpacing(4)
+                    .foregroundStyle(GBColor.white.asColor)
+                    .font(FontHelper.body5.font)
+                
+                HStack(spacing: 0) {
+                    Text("3일 연속 성공 시")
+                        .foregroundStyle(GBColor.grey200.asColor)
+                        .font(FontHelper.body4.font)
+                    Text(" \("1,500")원 절약")
+                        .foregroundStyle(GBColor.grey200.asColor)
+                        .font(FontHelper.body3.font)
+                }
+                
+                HStack {
+                    ImageHelper.group.asImage
+                        .resizable()
+                        .frame(width: 12, height: 12)
+                    
+                    Text("\("2/10")참여 완료")
+                        .font(FontHelper.body3.font)
+                        .foregroundStyle(GBColor.main.asColor)
+                }
+                .padding(.vertical, SpacingHelper.sm.pixel)
+                
+                ChallengeStatusThreeDayView
+            }
+            .padding(.horizontal, 46)
+            .padding(.vertical, 16)
+            .border(width: 1, edges: [.bottom], color: GBColor.grey500.asColor)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.bottom, safeArea.bottom)
+        .background(GBColor.grey600.asColor)
+        .cornerRadiusCorners(28, corners: [.topLeft, .topRight])
+    }
+    
+    private var ChallengeStatusThreeDayView: some View {
+        HStack(spacing: SpacingHelper.xl.pixel) {
+            ForEach(Array(challengeStatus.enumerated()), id: \.element.id) { index, item in
+                VStack (spacing: SpacingHelper.sm.pixel) {
+                    switch item {
+                    case .success:
+                        ImageHelper.checkChecked.asImage
+                            .resizable()
+                            .frame(width: 55.5, height: 55.5)
+                    case .fail:
+                        ImageHelper.checkDisabled.asImage
+                            .resizable()
+                            .frame(width: 55.5, height: 55.5)
+                    case .wait:
+                        ImageHelper.checkEnabled.asImage
+                            .resizable()
+                            .frame(width: 55.5, height: 55.5)
+                            .asButton {
+//                                store.send(.viewEvent(.selectedCaseItem(item: item)))
+                            }
+                    case .none:
+                        ImageHelper.checkDisabled.asImage
+                            .resizable()
+                            .frame(width: 55.5, height: 55.5)
+                    }
+                    
+                    Text("\(index + 1)일차")
+                        .foregroundStyle(GBColor.grey100.asColor)
+                }
             }
         }
     }
