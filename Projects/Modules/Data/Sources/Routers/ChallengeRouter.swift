@@ -22,12 +22,15 @@ public enum ChallengeRouter {
     case challengeRecordCheck(challengeID: String)
     /// 챌린지 취소하기
     case challengeRecordDelete(ChallengeID: String)
+    
+    // MARK: GroupChallenge
+    case groupChallengeList(page: Int = 0, size: Int = 10, searchText: String?, created: Bool = false)
 }
 
 extension ChallengeRouter: Router {
     public var method: HTTPMethod {
         switch self {
-        case .challengeList, .challengeRecords, .challengeTripple:
+        case .challengeList, .challengeRecords, .challengeTripple, .groupChallengeList:
             return .get
         case .challengeEnroll, .challengeRecordCheck:
             return .post
@@ -59,6 +62,10 @@ extension ChallengeRouter: Router {
             
         case let .challengeRecordDelete(challengeID):
             return "/challengeRecords/\(challengeID)"
+            
+            // MARK: Group
+        case .groupChallengeList:
+            return "/challengeGroups"
         }
     }
     
@@ -76,6 +83,7 @@ extension ChallengeRouter: Router {
             if let spendingTypeID {
                 defaultValue["spendingTypeId"] = spendingTypeID
             }
+            
             return defaultValue
             
         case let .challengeRecords(page, size, date, state):
@@ -87,6 +95,20 @@ extension ChallengeRouter: Router {
             if let state {
                 defaultValue["status"] = state
             }
+            
+            return defaultValue
+            
+        case let .groupChallengeList(page, size, searchText, created):
+            var defaultValue: [String: any Any & Sendable] = [
+                "page" : page,
+                "size" : size,
+                "created" : created
+            ]
+            
+            if let searchText {
+                defaultValue["search"] = searchText
+            }
+            
             return defaultValue
             
         case .challengeEnroll, .challengeTripple, .challengeRecordCheck, .challengeRecordDelete:
@@ -102,7 +124,8 @@ extension ChallengeRouter: Router {
                 .challengeRecords,
                 .challengeTripple,
                 .challengeRecordCheck,
-                .challengeRecordDelete:
+                .challengeRecordDelete,
+                .groupChallengeList:
             return nil
             
         }
@@ -116,7 +139,8 @@ extension ChallengeRouter: Router {
                 .challengeRecords,
                 .challengeTripple,
                 .challengeRecordCheck,
-                .challengeRecordDelete:
+                .challengeRecordDelete,
+                .groupChallengeList:
             return .url
         }
     }

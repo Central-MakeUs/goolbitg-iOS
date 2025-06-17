@@ -34,9 +34,6 @@ struct ChallengeTabView: View {
                     store.send(.viewCycle(.onAppear))
                 }
                 .onChange(of: store.weekIndex) { newValue in
-//                    RunLoop.main.perform {
-//                       
-//                    }
                     store.send(.viewEvent(.checkPagingForWeekData))
                 }
                 .onChange(of: store.selectedWeekDay) { newValue in
@@ -612,9 +609,10 @@ extension ChallengeTabView {
         return mode == by ? FontHelper.h1.font : FontHelper.h2.font
     }
 }
-
+#if DEBUG
 #Preview {
     ChallengeTabView(store: Store(initialState: ChallengeTabFeature.State(), reducer: {
         ChallengeTabFeature()
     }))
 }
+#endif

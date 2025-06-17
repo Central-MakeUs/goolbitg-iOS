@@ -40,12 +40,13 @@ public struct ChallengeTabFeature: GBReducer {
         var challengeList: [ChallengeEntity] = []
         var listLoad = false
         var pagingObj = PagingObj()
+        
         // MARK: - 그룹 챌린지
         var groupChallengeList: [ParticipatingGroupChallengeListEntity] = []
         var groupListLoad = false
         /// 본인이 만든것만 볼것인지
         var groupOnlyMakeMeTrigger = false
-        var groupChallengePagingObj = PagingObj()
+        var groupChallengePagingObj = GroupChallengePagingObj()
     }
     
     public enum Action {
@@ -122,6 +123,7 @@ public struct ChallengeTabFeature: GBReducer {
         case requestGroupChallengeList(atFirst: Bool = true)
         case changeLoadState(ifLoad: Bool)
         case resultGroupChallengeList(models: [ParticipatingGroupChallengeListEntity], ifAppend: Bool)
+        case updateGroupChallengePagingObj(totalSize: Int, totalPages: Int, page: Int, size: Int)
     }
     
     public enum ParentEvent {
@@ -536,48 +538,49 @@ extension ChallengeTabFeature {
                 
             case let .groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst)):
                 
+                let dummy: [ParticipatingGroupChallengeListEntity] = []
+                
                 if atFirst {
-                    // MARK: FIXME - API Bridge
-                    // ...
+                    state.groupChallengePagingObj = GroupChallengePagingObj()
+                }
+                let pagingObj = state.groupChallengePagingObj
+                
+                return .run { send in
+                    let result = try await networkManager
+                        .requestNetwork(
+                            dto: ChallengeListDTO<GroupChallengeDTO>.self,
+                            router: ChallengeRouter
+                                .groupChallengeList(
+                                    page: pagingObj.pageNum,
+                                    size: pagingObj.size,
+                                    searchText: pagingObj.searchText,
+                                    created: pagingObj.created
+                                )
+                    )
                     
-                    let dummy: [ParticipatingGroupChallengeListEntity]
-                    if Bool.random() {
-                        dummy = [
-                            .init(
-                                id: UUID().hashValue,
-                                ownerId: UUID().uuidString,
-                                title: "거지방챌린지",
-                                totalWithParticipatingPeopleCount: "3/6",
-                                hashTags: ["배달줄이기", "배민", "야식"],
-                                isSecret: true
-                            ),
-                            .init(
-                                id: UUID().hashValue,
-                                ownerId: UUID().uuidString,
-                                title: "택시말고 막차타기",
-                                totalWithParticipatingPeopleCount: "3/6",
-                                hashTags: ["배달줄이기", "배민", "야식"],
-                                isSecret: false
-                            ),
-                            .init(
-                                id: UUID().hashValue,
-                                ownerId: UUID().uuidString,
-                                title: "야식 그만 주문하기",
-                                totalWithParticipatingPeopleCount: "3/6",
-                                hashTags: ["배달줄이기", "배민", "야식"],
-                                isSecret: true
+                    let mapping = await challengeMapper.toMappingGroupChallengeList(dtos: result.items)
+                    
+                    await send(
+                        .groupChallengeFeatureEvent(
+                            .updateGroupChallengePagingObj(
+                                totalSize: result.totalSize,
+                                totalPages: result.totalPages,
+                                page: result.page,
+                                size: result.size
                             )
-                        ]
-                    }
-                    else {
-                        dummy = []
-                    }
-                    return .send(.groupChallengeFeatureEvent(.resultGroupChallengeList(models: dummy, ifAppend: false)))
-                }
-                // Pagenation
-                else {
+                        )
+                    )
                     
+                    await send(.groupChallengeFeatureEvent(.resultGroupChallengeList(models: mapping, ifAppend: !atFirst)))
                 }
+                
+            case let .groupChallengeFeatureEvent(.updateGroupChallengePagingObj(totalSize, totalPages, page, size)):
+                var copy = state.groupChallengePagingObj
+                copy.totalCount = totalSize
+                copy.totalPages = totalPages
+                copy.size = size
+                copy.pageNum = page
+                state.groupChallengePagingObj = copy
                 
             // MARK: GroupViewFeatureEvent
             case let .groupChallengeFeatureEvent(.resultGroupChallengeList(models, ifAppend)):

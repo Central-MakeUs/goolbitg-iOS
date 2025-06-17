@@ -136,9 +136,29 @@ public final class ChallengeMapper: Sendable {
             percent: percent
         )
     }
-    
-    
 }
+
+// MARK: GroupChallenge
+extension ChallengeMapper {
+    
+    public func toMappingGroupChallengeList(dtos: [GroupChallengeDTO]) async -> [ParticipatingGroupChallengeListEntity] {
+        await dtos.asyncMap {
+            toMappingGroupChallenge(dto: $0)
+        }
+    }
+    
+    public func toMappingGroupChallenge(dto: GroupChallengeDTO) -> ParticipatingGroupChallengeListEntity {
+        return ParticipatingGroupChallengeListEntity(
+            id: dto.id,
+            ownerId: dto.ownerId,
+            title: dto.title,
+            totalWithParticipatingPeopleCount: "\(dto.peopleCount)/\(dto.maxSize)",
+            hashTags: dto.hashtags.map{ "#" + $0 },
+            isSecret: dto.isHidden
+        )
+    }
+}
+
 
 extension ChallengeMapper: DependencyKey {
     public static let liveValue: ChallengeMapper = ChallengeMapper()
