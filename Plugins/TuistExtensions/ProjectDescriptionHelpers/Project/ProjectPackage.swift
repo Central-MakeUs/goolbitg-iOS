@@ -17,7 +17,6 @@ public var getProjectPackageSetting: [String: Product] {
 
 private let projectProductTypes: [String: Product] = [
     "Alamofire": .framework, // 제거 예상
-    "TCACoordinators" : .framework,
     "SwiftyBeaver": .framework, // 제거 예상
     "KakaoSDK": .framework,
     "Lottie": .framework,
@@ -27,24 +26,29 @@ private let projectProductTypes: [String: Product] = [
 
 private let tcaDynamics: [String : Product] = [
     "ComposableArchitecture": .framework,
+    "TCACoordinators" : .framework,
+    "CasePaths": .framework,
+    "FlowStacks": .framework,
+    "IssueReporting": .framework,
+    "XCTestDynamicOverlay": .framework,
+    "DependenciesMacros": .framework,
     "Dependencies": .framework,
     "CombineSchedulers": .framework,
-    "Sharing": .framework,
-    "SwiftUINavigation": .framework,
-    "UIKitNavigation": .framework,
-    "UIKitNavigationShim": .framework,
     "ConcurrencyExtras": .framework,
-    "Clocks": .framework,
+    "SwiftNavigation": .framework,
+//    "SwiftUINavigation": .framework,
+//    "UIKitNavigation": .framework,
+//    "UIKitNavigationShim": .framework,
     "CustomDump": .framework,
-    "IdentifiedCollections": .framework,
-    "XCTestDynamicOverlay": .framework,
-    "IssueReporting": .framework,
-    "_CollectionsUtilities": .framework,
-    "PerceptionCore": .framework,
-    "Perception": .framework,
     "OrderedCollections": .framework,
-    "CasePaths": .framework,
-    "DependenciesMacros": .framework,
-    "FlowStacks": .framework
+    "PerceptionCore": .framework,
+    "CasePathsMacros" : .framework,
+    "Perception": .framework,
+    "Sharing": .framework,
+    "IdentifiedCollections": .framework,
+    "SwiftUIIntrospect" : .framework,
+    "Clocks": .framework,
+//    "_CollectionsUtilities": .framework,
+
 ]
 

@@ -561,7 +561,7 @@ extension ChallengeTabFeature {
                     let mapping = await challengeMapper.toMappingGroupChallengeList(dtos: result.items)
                     
                     await send(
-                        .groupChallengeFeatureEvent(
+                            .groupChallengeFeatureEvent(
                             .updateGroupChallengePagingObj(
                                 totalSize: result.totalSize,
                                 totalPages: result.totalPages,

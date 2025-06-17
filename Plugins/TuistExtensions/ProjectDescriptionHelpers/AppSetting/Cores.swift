@@ -28,7 +28,6 @@ public extension TargetDependency {
 
 // MARK: TCA
 public extension TargetDependency {
-//    static let tca: Self = .package(product: "ComposableArchitecture", type: .runtime, condition: nil)
     static let tca: Self = .external(name: "ComposableArchitecture", condition: nil)
     static let tcaCoordinator: Self = .external(name: "TCACoordinators", condition: nil)
 }
@@ -44,7 +43,6 @@ public extension TargetDependency {
 public extension TargetDependency {
     static let kakaoSDKCommon: Self = .external(name: "KakaoSDKCommon", condition: nil)
     static let kakaoSDKAuth: Self = .external(name: "KakaoSDKAuth", condition: nil)
-//    static let kakaoSDK: Self = .sdk(name: "KakaoOpenSDK", type: .library, status: .required, condition: .none)
     static let kakaoSDK: Self = .external(name: "KakaoSDK", condition: nil)
 }
 
