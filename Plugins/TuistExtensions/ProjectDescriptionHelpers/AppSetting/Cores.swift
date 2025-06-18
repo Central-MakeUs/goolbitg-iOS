@@ -30,6 +30,8 @@ public extension TargetDependency {
 public extension TargetDependency {
     static let tca: Self = .external(name: "ComposableArchitecture", condition: nil)
     static let tcaCoordinator: Self = .external(name: "TCACoordinators", condition: nil)
+//    static let tca: Self = .package(product: "ComposableArchitecture", type: .runtime, condition: nil)
+//    static let tcaCoordinator: Self = .package(product: "TCACoordinators", type: .runtime, condition: nil)
 }
 
 // MARK: FireBase

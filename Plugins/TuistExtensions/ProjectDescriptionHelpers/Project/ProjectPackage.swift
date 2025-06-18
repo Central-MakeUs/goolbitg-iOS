@@ -25,13 +25,13 @@ private let projectProductTypes: [String: Product] = [
 ]
 
 private let tcaDynamics: [String : Product] = [
-    "ComposableArchitecture": .framework,
-    "TCACoordinators" : .framework,
+    "ComposableArchitecture": productType(),
+    "TCACoordinators" : productType(),
     "CasePaths": .framework,
     "FlowStacks": .framework,
     "IssueReporting": .framework,
     "XCTestDynamicOverlay": .framework,
-    "DependenciesMacros": .framework,
+//    "DependenciesMacros": .macro,
     "Dependencies": .framework,
     "CombineSchedulers": .framework,
     "ConcurrencyExtras": .framework,
@@ -42,13 +42,25 @@ private let tcaDynamics: [String : Product] = [
     "CustomDump": .framework,
     "OrderedCollections": .framework,
     "PerceptionCore": .framework,
-    "CasePathsMacros" : .framework,
+//    "CasePathsMacros" : .macro,
     "Perception": .framework,
     "Sharing": .framework,
     "IdentifiedCollections": .framework,
     "SwiftUIIntrospect" : .framework,
     "Clocks": .framework,
-//    "_CollectionsUtilities": .framework,
-
+    "_CollectionsUtilities": .framework,
 ]
 
+func productType() -> Product {
+    if case let .string(linking) = Environment.linking {
+        print("static: framework")
+        return linking == "static" ? .staticFramework : .framework
+    } else {
+        print("make: framework")
+        return .framework
+    }
+}
+
+
+
+ 
