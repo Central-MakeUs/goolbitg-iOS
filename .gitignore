@@ -102,6 +102,8 @@ iOSInjectionProject/
 
 # End of https://www.toptal.com/developers/gitignore/api/swift
 
+fastlane/**
+
 # fastlane specific
 **/fastlane/report.xml
 
