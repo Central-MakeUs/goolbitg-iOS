@@ -25,8 +25,14 @@ public struct PushListViewFeature: GBReducer {
         var currentFilterCase: PushListFilterCase = .all
         var dataEmptyCase: DataLoadCase = .loading
         
+        @ObservationStateIgnored
         var loadingTrigger = false
+        
+        @ObservationStateIgnored
         var pagingObj = PagingObj(pageNum: 0)
+        
+        @ObservationStateIgnored
+        var ifOnAppear: Bool = false
     }
     
     public enum Action {
@@ -35,6 +41,7 @@ public struct PushListViewFeature: GBReducer {
         case featureEvent(FeatureEvent)
         
         case delegate(Delegate)
+        case cancel(TCACoordinatorCancelID)
         
         public enum Delegate {
             case dismiss
@@ -70,6 +77,12 @@ public struct PushListViewFeature: GBReducer {
         core
     }
     
+    // MARK: TCA Coordinator 성능 문제로 인한 작업
+    public enum TCACoordinatorCancelID: Hashable, Equatable {
+        case onAppear
+        case requestCancel
+    }
+    
 }
 
 extension PushListViewFeature {
@@ -79,12 +92,19 @@ extension PushListViewFeature {
             switch action {
                 
             case .viewCycle(.onAppear):
-                
+                if state.ifOnAppear { return .none }
+                state.ifOnAppear = true
+                state.pagingObj = PagingObj()
                 state.dataEmptyCase = .loading
-                return .run { send in
+                return .run { [state] send in
+                    await send(.cancel(.requestCancel))
                     await pushManager.resetBadgeCount()
                     await send(.featureEvent(.requestPushListItems))
                 }
+                .debounce(id: TCACoordinatorCancelID.onAppear, for: 1, scheduler: DispatchQueue.immediate)
+                
+            case .cancel(let type):
+                return .cancel(id: type)
                 
             // MARK: ViewEvent
             case let .viewEvent(.postListIndex(index)):
@@ -103,12 +123,16 @@ extension PushListViewFeature {
                 
             // MARK: Request
             case .featureEvent(.requestPushListItems):
+                state.loadingTrigger = true
                 
                 let paging = state.pagingObj
                 let currentFilterCase = state.currentFilterCase
-                state.loadingTrigger = true
                 
                 return .run { send in
+                    if Task.isCancelled {
+                       return
+                    }
+                    
                     let result = try await networkManager.requestNetworkWithRefresh(
                         dto: ChallengeListDTO<NoticeDTO>.self,
                         router: NoticeRouter.getMyNotices(
@@ -133,13 +157,15 @@ extension PushListViewFeature {
                     Logger.error("error: \(error)")
                 }
                 .animation(.easeInOut)
+                .throttle(id: TCACoordinatorCancelID.requestCancel, for: 0.12, scheduler: DispatchQueue.main.eraseToAnyScheduler(), latest: false)
+                .cancellable(id: TCACoordinatorCancelID.requestCancel)
                 
             case .featureEvent(.requestPushListItemsNextPage):
+                state.loadingTrigger = true
                 let paging = state.pagingObj
                 let currentFilterCase = state.currentFilterCase
-                state.loadingTrigger = true
                 
-                return .run(priority: .medium) { send in
+                return .run { send in
                     let result = try await networkManager.requestNetworkWithRefresh(
                         dto: ChallengeListDTO<NoticeDTO>.self,
                         router: NoticeRouter.getMyNotices(
@@ -175,6 +201,7 @@ extension PushListViewFeature {
                 else {
                     state.items = datas
                     if datas.isEmpty {
+                        print("append : -> ",append)
                         state.dataEmptyCase = .empty
                     }
                     else {

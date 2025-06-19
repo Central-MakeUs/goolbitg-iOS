@@ -15,4 +15,5 @@ public enum RouterError: Error {
     case timeOut
     case serverMessage(APIErrorEntity)
     case unknown(errorCode: String)
+    case cancel
 }

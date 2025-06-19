@@ -73,7 +73,7 @@ public final class NetworkManager: Sendable, ThreadCheckable {
                 .response
         }
         Logger.info(request)
-        Logger.info(response.result)
+        
         switch response.result {
         case .success:
             return true
@@ -172,6 +172,9 @@ extension NetworkManager {
         case let .failure(GBError):
             Logger.error(response.data?.base64EncodedString() ?? "")
             Logger.error(GBError)
+            if GBError.isExplicitlyCancelledError {
+                throw .cancel
+            }
             do {
                 let retryResult = try await retryNetwork(dto: dto, router: router, ifRefresh: ifRefreshMode)
                 

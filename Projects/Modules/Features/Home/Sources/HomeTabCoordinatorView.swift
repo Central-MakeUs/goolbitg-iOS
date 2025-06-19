@@ -27,22 +27,14 @@ public struct HomeTabCoordinatorView: View {
 
 extension HomeTabCoordinatorView {
     private var content: some View {
-        VStack(spacing:0) {
-            TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
-                switch screen.case {
-                case let .home(store):
-                    GBHomeTabViewV1(store: store)
-                        .disableBackGesture(false)
-                    
-//                case let .challengeDetail(store):
-//                    ChallengeDetailView(store: store)
-//                        .navigationBarBackButtonHidden()
-//                        .disableBackGesture(false)
-                    
-                case let .pushList(store):
-                    PushListView(store:store)
-                    
-                }
+        TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
+            switch screen.case {
+            case let .home(store):
+                GBHomeTabViewV1(store: store)
+                    .disableBackGesture(false)
+                        
+            case let .pushList(store):
+                PushListView(store:store)
             }
         }
     }

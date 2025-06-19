@@ -17,11 +17,11 @@ public struct PushListView: View {
     }
     
     @Perception.Bindable var store: StoreOf<PushListViewFeature>
-    
+        
     public var body: some View {
         WithPerceptionTracking {
             contentView
-                .onAppear {
+                .onFirstAppear {
                     store.send(.viewCycle(.onAppear))
                 }
         }
