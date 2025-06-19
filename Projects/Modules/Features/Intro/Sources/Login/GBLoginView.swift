@@ -96,6 +96,7 @@ extension GBLoginView {
                 .foregroundStyle(Color.black.opacity(0.85))
         }
         .frame(height: 45)
+        .frame(maxWidth: 500)
         .background(Color(uiColor: GBColor.white.color))
         .clipShape(RoundedRectangle(cornerRadius: 6))
     }
@@ -118,6 +119,7 @@ extension GBLoginView {
                 .foregroundStyle(Color.black.opacity(0.85))
         }
         .frame(height: 45)
+        .frame(maxWidth: 500)
         .background(Color(uiColor: GBColor.kakao.color))
         .clipShape(RoundedRectangle(cornerRadius: 6))
     }

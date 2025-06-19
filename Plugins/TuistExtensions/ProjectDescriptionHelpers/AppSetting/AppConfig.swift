@@ -19,7 +19,7 @@ public enum AppConfig {
     
     public static let deployTarget: DeploymentTargets = .iOS("16.0")
     
-    public static let destinations: Destinations = [.iPhone]
+    public static let destinations: Destinations = [.iPhone, .iPad]
     
     public static let appPath: Path = .relativeToRoot("Projects/App")
 }

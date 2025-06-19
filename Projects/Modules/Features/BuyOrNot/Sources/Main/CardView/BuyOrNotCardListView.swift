@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Data
+import Utils
 
 struct BuyOrNotCardListView: View {
     
@@ -23,7 +24,7 @@ struct BuyOrNotCardListView: View {
     @State private var lastOffset: CGFloat = 0  // 마지막으로 멈춘 위치
     @State private var isDragging: Bool = false  // 드래그 중인지 확인
     
-    private let horizontalPadding: CGFloat = 24 // 좌우 여백
+    private let horizontalPadding: CGFloat = ifiPadOS ? 40 : 24 // 좌우 여백
     private let reducedScale: CGFloat = 0.8  // 좌우 카드 크기 축소 비율
     private let sidePaddingScale: CGFloat = 0.89 // 사이드 스케일
     private let velocityThreshold: CGFloat = 400 // 드래그 속도
@@ -111,7 +112,7 @@ struct BuyOrNotCardListView: View {
 
 #if DEBUG
 struct TestListView: View {
-    @State var currentList: [BuyOrNotCardViewEntity] = []
+    @State var currentList: [BuyOrNotCardViewEntity] = BuyOrNotCardViewEntity.dummy()
     
     @State var listIndex = 0
     

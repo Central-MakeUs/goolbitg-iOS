@@ -404,7 +404,8 @@ extension ChallengeTabView {
                         Spacer()
                         Image(uiImage: ImageHelper.bridge.image)
                             .resizable()
-                            .frame(width: 16, height: 16)
+//                            .frame(width: 16, height: 16)
+                            .frame(width: ifiPadOS ? 20 : 16, height: ifiPadOS ? 20 : 16)
                     }
                     .frame(
                         width: proxy.size.width,

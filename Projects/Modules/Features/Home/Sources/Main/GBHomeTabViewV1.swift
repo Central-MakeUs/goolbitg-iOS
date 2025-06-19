@@ -69,6 +69,7 @@ extension GBHomeTabViewV1 {
                     weekView
                         .padding(.horizontal, SpacingHelper.md.pixel)
                         .padding(.bottom, SpacingHelper.lg.pixel)
+                        .frame(maxHeight: 200)
                     
                     todayListView
                         .padding(.horizontal, SpacingHelper.md.pixel)

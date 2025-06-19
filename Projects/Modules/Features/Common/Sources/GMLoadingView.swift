@@ -18,16 +18,12 @@ public struct GBLoadingView: View {
 extension GBLoadingView {
     private var content: some View {
         VStack(spacing: 0) {
-//            LottieView {
-//                try await DotLottieFile.named("GB_Loading_v8")
-//            }
-//            .playing(loopMode: .loop)
-//            .resizable()
             LottieBridgeView(
                 dotLottieFileName: "GB_Loading_v8",
                 loopMode: .loop
             )
             .padding(.horizontal, 150)
+            .frame(maxWidth: 500)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black.opacity(0.5))

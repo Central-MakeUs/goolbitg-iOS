@@ -107,7 +107,7 @@ extension RootCoordinatorView {
     }
 }
 
-
+#if DEBUG
 #Preview {
     RootCoordinatorView(store: Store(
         initialState: RootCoordinator.State(),
@@ -115,3 +115,4 @@ extension RootCoordinatorView {
             RootCoordinator()
         }))
 }
+#endif
