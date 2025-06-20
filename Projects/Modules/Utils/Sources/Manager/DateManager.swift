@@ -65,14 +65,14 @@ extension DateManager {
         return weeks
     }
     
-    public func findNextWeak(_ lastDate: Date) -> Date? {
-        let start = weekCalendar.startOfDay(for: lastDate)
-        return calendar.date(byAdding: .day, value: 1, to: start)
+    public func findNextWeek(_ firstDate: Date) -> Date? {
+        let startOfWeek = weekCalendar.startOfDay(for: firstDate)
+        return calendar.date(byAdding: .day, value: 1, to: startOfWeek)
     }
-    
-    public func findPreviousWeek(_ lastDate: Date) -> Date? {
-        let start = weekCalendar.startOfDay(for: lastDate)
-        return calendar.date(byAdding: .day, value: -1, to: start)
+
+    public func findPreviousWeek(_ firstDate: Date) -> Date? {
+        let startOfWeek = weekCalendar.startOfDay(for: firstDate)
+        return calendar.date(byAdding: .day, value: -1, to: startOfWeek)
     }
     
     public func updateHour(_ value: Int) -> Date {

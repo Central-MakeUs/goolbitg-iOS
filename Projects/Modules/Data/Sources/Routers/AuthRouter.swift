@@ -20,6 +20,9 @@ public enum AuthRouter {
     case logOut
     /// 회원 탈퇴
     case signOut(RevokeRequestDTO)
+    
+    // MARK: ROOT LOGIN
+    case rootLogin
 }
 
 extension AuthRouter: Router {
@@ -27,12 +30,14 @@ extension AuthRouter: Router {
         switch self {
         case .register, .login, .refresh, .logOut, .signOut:
             return .post
+        case .rootLogin:
+            return .get
         }
     }
     
     public var version: String {
         switch self {
-        case .register, .login, .refresh, .logOut, .signOut:
+        case .register, .login, .refresh, .logOut, .signOut, .rootLogin:
             return "/v1"
         }
     }
@@ -49,16 +54,21 @@ extension AuthRouter: Router {
             return "/auth/logout"
         case .signOut:
             return "/auth/unregister"
+        case .rootLogin:
+            return "/token"
         }
     }
     
     public var optionalHeaders: HTTPHeaders? {
+        if case .rootLogin = self {
+            return ["accept" : "application/json"]
+        }
         return [ "application/json" : "Content-Type" ]
     }
     
     public var parameters: Parameters? {
         switch self {
-        case .register, .login, .refresh, .logOut, .signOut:
+        case .register, .login, .refresh, .logOut, .signOut, .rootLogin:
             return nil
         }
     }
@@ -78,7 +88,7 @@ extension AuthRouter: Router {
         case let .signOut(revokeModel):
             let data = try? CodableManager.shared.jsonEncodingStrategy(revokeModel)
             return data
-        case .logOut:
+        case .logOut, .rootLogin:
             return nil
             
         }
@@ -89,7 +99,7 @@ extension AuthRouter: Router {
         case .logOut:
             return .url
             
-        case .register, .login, .refresh, .signOut:
+        case .register, .login, .refresh, .signOut, .rootLogin:
             return .json
         }
     }

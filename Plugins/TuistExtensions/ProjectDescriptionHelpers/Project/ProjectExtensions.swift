@@ -40,7 +40,7 @@ extension Project {
             return Project(
                 name: name,
                 packages: config.packages,
-                settings: .appSettings,
+                settings: subAppName == nil ? .appSettings : .demoAppSetting(name: subAppName!),
                 targets: targets + config.customTargets,
                 schemes: Scheme.schemes(name: name, root: subAppName == nil),
                 resourceSynthesizers: [

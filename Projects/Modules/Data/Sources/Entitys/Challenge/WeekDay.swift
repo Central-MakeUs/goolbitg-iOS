@@ -65,22 +65,24 @@ extension DateManager {
     }
     
     public func fetchWeek(_ date: Date = Date()) -> [WeekDay] {
-        let dates = fetchWeekDate()
+        let dates = fetchWeekDate(date)
         let weeks = dates.map { WeekDay(date: $0, active: true) }
         return weeks
     }
     
-    public func createNextWeek(_ lastDate: Date) -> [WeekDay] {
-        guard let find = findNextWeak(lastDate) else {
+    public func createNextWeek(_ firstDate: Date) -> [WeekDay] {
+        guard let find = findNextWeek(firstDate) else {
             return []
         }
         return fetchWeek(find)
     }
     
-    public func createPreviousWeek(_ lastDate: Date) -> [WeekDay] {
-        guard let find = findPreviousWeek(lastDate) else {
+    public func createPreviousWeek(_ firstDate: Date) -> [WeekDay] {
+        guard let find = findPreviousWeek(firstDate) else {
             return []
         }
+        print("---- FIND PREV \(find)")
+        print("---- FIND PREV \(find)")
         
         return fetchWeek(find)
     }

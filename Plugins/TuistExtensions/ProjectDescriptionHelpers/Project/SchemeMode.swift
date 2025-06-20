@@ -71,6 +71,21 @@ extension Settings {
             ]
         )
     }
+    
+    public static func demoAppSetting(name: String) -> Self {
+        return .settings(
+            base: [
+                "DISPLAY_NAME" : "\(name)"
+            ],
+            configurations: [
+                .debug,
+                .release,
+                .dev,
+                .stage
+            ]
+
+        )
+    }
 }
 
 extension Scheme {
@@ -81,8 +96,7 @@ extension Scheme {
             targets.append("App")
         }
         else {
-//            targets.append(TargetReference(stringLiteral: name))
-            targets.append("App")
+            return []
         }
         
         return [

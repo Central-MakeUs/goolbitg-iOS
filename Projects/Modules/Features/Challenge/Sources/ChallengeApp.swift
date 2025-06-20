@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import Data
 
 @main
 struct HomeApp: App {
@@ -17,8 +18,8 @@ struct HomeApp: App {
                 store: Store(initialState: ChallengeTabCoordinator.State.initialState, reducer: {
                     ChallengeTabCoordinator()
             }))
-            .onAppear {
-                
+            .task {
+                await RootLoginManager.login()
             }
         }
     }

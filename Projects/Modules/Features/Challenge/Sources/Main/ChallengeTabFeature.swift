@@ -235,7 +235,7 @@ extension ChallengeTabFeature {
                         
                         let dateString = dateManager.format(
                             format: .infoBirthDay,
-                            date: previousWeekEntity.first?.date ?? Date()
+                            date: firstDate
                         )
                         
                         let previousWeek = try await networkManager.requestNetworkWithRefresh(

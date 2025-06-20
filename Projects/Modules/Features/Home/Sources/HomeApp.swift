@@ -23,6 +23,9 @@ struct HomeApp: App {
                     HomeTabCoordinator()
                 })
             )
+            .task {
+                await RootLoginManager.login()
+            }
         }
     }
 }
