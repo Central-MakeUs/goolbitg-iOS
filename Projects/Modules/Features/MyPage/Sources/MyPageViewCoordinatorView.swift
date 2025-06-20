@@ -31,6 +31,7 @@ extension MyPageViewCoordinatorView {
             switch screen.case {
             case let .home(store):
                 MyPageView(store: store)
+                    .hiddenNavigationBar()
             case let .revokePage(store):
                 RevokeReasonView(store: store)
                     .navigationBarBackButtonHidden()

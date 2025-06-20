@@ -8,6 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 import TCACoordinators
+import Utils
 
 public struct BuyOrNotTabCoordinatorView: View {
     
@@ -23,7 +24,7 @@ public struct BuyOrNotTabCoordinatorView: View {
                 switch screen.case {
                 case let .home(store):
                     BuyOrNotTabView(store: store)
-                     
+                        .hiddenNavigationBar()
                 case let .buyOrNotAdd(store):
                     BuyOrNotAddView(store: store)
                     

@@ -102,6 +102,13 @@ public extension View {
     }
 }
 
+// MARK: 네비게이션바 숨김
+public extension View {
+    func hiddenNavigationBar(_ hidden: Bool = true) -> some View {
+        self.navigationBarHidden(hidden)
+    }
+}
+
 public extension View {
     
     func subscribeKeyboardHeight(

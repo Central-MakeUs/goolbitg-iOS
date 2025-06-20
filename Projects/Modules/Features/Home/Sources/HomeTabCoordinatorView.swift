@@ -32,6 +32,7 @@ extension HomeTabCoordinatorView {
                 switch screen.case {
                 case let .home(store):
                     GBHomeTabViewV1(store: store)
+                        .hiddenNavigationBar()
                         .disableBackGesture(false)
                     
 //                case let .challengeDetail(store):

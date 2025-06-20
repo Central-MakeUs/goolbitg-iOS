@@ -33,6 +33,7 @@ extension ChallengeTabCoordinatorView {
                 case let .home(store):
                     ChallengeTabView(store: store)
                         .disableBackGesture(false)
+                        .hiddenNavigationBar()
                     
                 case let .groupChallengeCreate(store):
                     ChallengeGroupCreateView(store: store)

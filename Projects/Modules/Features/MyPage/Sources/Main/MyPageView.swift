@@ -76,14 +76,20 @@ extension MyPageView {
                 
                 profileView
                     .padding(.top, 6)
-                    .padding(.horizontal, SpacingHelper.md.pixel)
+                    .padding(
+                        .horizontal, ifiPadOS ? SpacingHelper.md.pixel + 20 : SpacingHelper.md.pixel
+                    )
                 
                 accountSection
-                    .padding(.horizontal, SpacingHelper.md.pixel)
+                    .padding(
+                        .horizontal, ifiPadOS ? SpacingHelper.md.pixel + 20 : SpacingHelper.md.pixel
+                    )
                     .padding(.top, SpacingHelper.md.pixel)
                 
                 serviceSectionView
-                    .padding(.horizontal, SpacingHelper.md.pixel)
+                    .padding(
+                        .horizontal, ifiPadOS ? SpacingHelper.md.pixel + 20 : SpacingHelper.md.pixel
+                    )
                     .padding(.vertical, SpacingHelper.md.pixel)
                 
                 logOutAndServiceRevoke
@@ -214,6 +220,7 @@ extension MyPageView {
             
             progressView(percentage: store.userEntity.nextGoolBPercent)
                 .padding(.vertical, SpacingHelper.xs.pixel)
+                .animation(.linear, value: store.userEntity.nextGoolBPercent)
             
         }
         .padding(.all, SpacingHelper.lg.pixel)
@@ -238,7 +245,7 @@ extension MyPageView {
                     .foregroundStyle(GBColor.black.asColor.opacity(0.1))
                 Capsule()
                     .frame(
-                        width: proxy.size.width * CGFloat(percentage),
+                        width: max(0,min(proxy.size.width, proxy.size.width * CGFloat(percentage))),
                         height: 17
                     )
                     .foregroundStyle(GBColor.white.asColor)
