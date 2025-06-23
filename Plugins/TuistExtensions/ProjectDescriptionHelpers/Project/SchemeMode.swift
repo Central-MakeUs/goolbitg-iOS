@@ -34,17 +34,13 @@ public enum SchemeMode: CaseIterable {
     public static func getSelf(schemeString: String) -> SchemeMode? {
         return SchemeMode.allCases.first { $0.schemeName == schemeString }
     }
-    
-    public var fullScheme: String {
-        return AppConfig.appName + "-info-" + self.schemeName
+
+    public var infoPlist: String {
+        return self.schemeName + ".Plist"
     }
 }
 
 extension Path {
-    
-    public static func plistName(schemeMode: SchemeMode) -> Path {
-        return .relativeToRoot("AppSettingFiles/\(schemeMode.fullScheme).Plist")
-    }
     
     public static func onesPlistName() -> Path {
         return .relativeToRoot("AppSettingFiles/InfoPlist/Info.Plist")
@@ -60,9 +56,6 @@ extension Settings {
     
     public static var appSettings: Self {
         return .settings(
-//            base: [
-//                "PROJECT_BASE": "PROJECT_BASE",
-//            ],
             configurations: [
                 .debug,
                 .release,
@@ -94,33 +87,33 @@ extension Scheme {
         var targets: [TargetReference] = []
         if root {
             targets.append("App")
+            
+            return [
+                .scheme( // Dev
+                    name: name + "_DEV",
+                    shared: true,
+                    hidden: false,
+                    buildAction: .buildAction(targets: targets),
+                    runAction: .runAction(configuration: .dev),
+                    archiveAction: .archiveAction(configuration: .dev),
+                    profileAction: .profileAction(configuration: .dev),
+                    analyzeAction: .analyzeAction(configuration: .dev)
+                ),
+                .scheme(
+                    name: name + "_Stage",
+                    shared: true,
+                    hidden: false,
+                    buildAction: .buildAction(targets: targets),
+                    runAction: .runAction(configuration: .stage),
+                    archiveAction: .archiveAction(configuration: .stage),
+                    profileAction: .profileAction(configuration: .stage),
+                    analyzeAction: .analyzeAction(configuration: .stage)
+                )
+            ]
         }
         else {
             return []
         }
-        
-        return [
-            .scheme( // Dev
-                name: name + "_DEV",
-                shared: true,
-                hidden: false,
-                buildAction: .buildAction(targets: targets),
-                runAction: .runAction(configuration: .dev),
-                archiveAction: .archiveAction(configuration: .dev),
-                profileAction: .profileAction(configuration: .dev),
-                analyzeAction: .analyzeAction(configuration: .dev)
-            ),
-            .scheme(
-                name: name + "_Stage",
-                shared: true,
-                hidden: false,
-                buildAction: .buildAction(targets: targets),
-                runAction: .runAction(configuration: .stage),
-                archiveAction: .archiveAction(configuration: .stage),
-                profileAction: .profileAction(configuration: .stage),
-                analyzeAction: .analyzeAction(configuration: .stage)
-            )
-        ]
     }
 }
 
@@ -136,7 +129,7 @@ extension ConfigurationName {
 extension Configuration {
     public static let debug: Self = .debug(name: "Debug", xcconfig: .xcconfigPath("Debug"))
     public static let release: Self = .debug(name: "Release", xcconfig: .xcconfigPath("Release"))
-    public static let dev: Self = .debug(name: "Dev", xcconfig: .xcconfigPath("Dev"))
-    public static let stage: Self = .debug(name: "Stage", xcconfig: .xcconfigPath("Stage"))
-    public static let live: Self = .release(name: "Live", xcconfig: .xcconfigPath("Live"))
+    public static let dev: Self = .debug(name: .dev, xcconfig: .xcconfigPath(SchemeMode.dev.schemeName))
+    public static let stage: Self = .debug(name: .stage, xcconfig: .xcconfigPath(SchemeMode.stage.schemeName))
+    public static let live: Self = .release(name: .live, xcconfig: .xcconfigPath(SchemeMode.live.schemeName))
 }

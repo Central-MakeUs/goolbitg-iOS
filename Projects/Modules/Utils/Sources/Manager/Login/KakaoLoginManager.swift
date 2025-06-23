@@ -45,6 +45,7 @@ public struct KakaoLoginManager: KakaoLoginManagerType {
                         Logger.info(" ㅗㅗㅗㅗㅗㅗㅗㅗ \(idToken)")
                         contin.resume(returning: .success(idToken))
                     } else {
+                        Logger.error(error)
                         contin.resume(returning:.failure(.error(.init(apiFailedMessage: "FAIL KAKAO"))))
                     }
                 }

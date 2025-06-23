@@ -161,7 +161,7 @@ extension NetworkManager {
         ifRefreshMode: Bool = false
     ) async throws(RouterError) -> T
     {
-        Logger.warning(response.response ?? "")
+        Logger.info(response.response ?? "")
         
         switch response.result {
         case let .success(data):
@@ -175,6 +175,11 @@ extension NetworkManager {
             if GBError.isExplicitlyCancelledError {
                 throw .cancel
             }
+            
+            if response.error?.responseCode == 500 {
+                await DiscordMessageManager.shared.sendMessage500(message: "500 -\(GBError)")
+            }
+            
             do {
                 let retryResult = try await retryNetwork(dto: dto, router: router, ifRefresh: ifRefreshMode)
                 

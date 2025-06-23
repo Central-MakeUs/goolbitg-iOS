@@ -19,9 +19,10 @@ extension Project {
         var targets: [Target] = []
         switch config.product {
         case .app:
+            let name = subAppName ?? config.name
             targets = [
                 .target( // 단일 타켓 여러 스킴
-                    name: subAppName ?? "App",
+                    name: name,
                     destinations: AppConfig.destinations,
                     product: config.product,
                     bundleId: config.bundleId ?? "$(PRODUCT_BUNDLE_IDENTIFIER)",
@@ -35,7 +36,6 @@ extension Project {
                     dependencies: config.dependencies
                 )
             ]
-            let name = subAppName ?? config.name
             
             return Project(
                 name: name,

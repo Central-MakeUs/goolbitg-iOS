@@ -65,7 +65,9 @@ extension GBLoginView {
                     }
                     .blendMode(.overlay)
                 }
-                
+#if DEV || STAGE
+            rootLoginView
+#endif
         }
     }
     
@@ -121,6 +123,21 @@ extension GBLoginView {
         .background(Color(uiColor: GBColor.kakao.color))
         .clipShape(RoundedRectangle(cornerRadius: 6))
     }
+#if DEV || STAGE
+    private var rootLoginView: some View {
+        VStack {
+            Text("ROOT LOGIN ONLY FOR TEST")
+                .foregroundStyle(.white)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 45)
+        .background(.black)
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .asButton {
+            store.send(.rootLoginStart)
+        }
+    }
+#endif
 }
 
 #if DEBUG

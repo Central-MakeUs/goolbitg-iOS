@@ -27,6 +27,8 @@ public struct LoginViewFeature {
         
         case kakaoLoginStart
         
+        case rootLoginStart
+        
         case sendToServerIdToken(type: String, idToken: String, authToken: String? = nil)
         case sendToLoginServerIdToken(type: String, idToken: String)
         
@@ -148,6 +150,16 @@ public struct LoginViewFeature {
                         Logger.warning(apiErrorEntity)
                     }
                 }
+                
+            case .rootLoginStart:
+                return .run { send in
+                    let request = try await networkManager.requestNetwork(dto: LoginAccessDTO.self, router: AuthRouter.rootLogin)
+                    saveToken(access: request.accessToken, refresh: request.refreshToken)
+                    await send(.delegate(.moveToOnBoarding(.registEnd)))
+                } catch: { error, send in
+                    Logger.error(error)
+                }
+                
             default:
                 break
             }
