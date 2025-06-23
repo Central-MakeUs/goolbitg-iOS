@@ -67,6 +67,10 @@ final actor DiscordMessageManager {
     }
     
     private func makeMessage(message: String) -> String {
-        return "\(serverDeveloper) iOS ServerError Message : \n\(message)"
+        return """
+\(serverDeveloper)
+# iOS ServerError Message : 
+> \(message)
+"""
     }
 }
