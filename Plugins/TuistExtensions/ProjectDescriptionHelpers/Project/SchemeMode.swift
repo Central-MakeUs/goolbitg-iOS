@@ -56,6 +56,9 @@ extension Settings {
     
     public static var appSettings: Self {
         return .settings(
+            base: [
+                "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym"
+            ],
             configurations: [
                 .debug,
                 .release,
@@ -68,6 +71,7 @@ extension Settings {
     public static func demoAppSetting(name: String) -> Self {
         return .settings(
             base: [
+                "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
                 "DISPLAY_NAME" : "\(name)"
             ],
             configurations: [

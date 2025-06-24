@@ -41,7 +41,6 @@ public struct LoginViewFeature {
     }
     
     @Dependency(\.networkManager) var networkManager
-//    @Dependency(\.jwtManager) var jwtManager
     @Dependency(\.mainQueue) var mainQueue
     
     enum CancelID: Hashable, Sendable {
@@ -76,6 +75,16 @@ public struct LoginViewFeature {
                         return
                     }
                     Logger.info(" ^^^^^^^^^^^ \(idToken)")
+                    
+                    FireBaseManager.logEvent(log: FireBaseLogModel(
+                        eventName: "KAKAO_Login",
+                        parameters: [
+                            "file": #file,
+                            "function" : #function
+                        ],
+                        logType: .login)
+                    )
+                    
                     await send(.sendToServerIdToken(type: "KAKAO", idToken: idToken))
                     
                 } catch: { error, send in
@@ -126,6 +135,16 @@ public struct LoginViewFeature {
                         )
                     )
                     saveToken(access: request.accessToken, refresh: request.refreshToken)
+                    
+                    FireBaseManager.logEvent(log: FireBaseLogModel(
+                        eventName: "APPLE_Login",
+                        parameters: [
+                            "file": #file,
+                            "function" : #function
+                        ],
+                        logType: .login)
+                    )
+                    
                     UserDefaultsManager.ifAppleLoginUser = type == "APPLE"
                     // MARK: 여기선 이제 로그인 후 필수정보 쓴사람인가 아닌가 분석
                     
@@ -155,6 +174,17 @@ public struct LoginViewFeature {
                 return .run { send in
                     let request = try await networkManager.requestNetwork(dto: LoginAccessDTO.self, router: AuthRouter.rootLogin)
                     saveToken(access: request.accessToken, refresh: request.refreshToken)
+                    
+                    FireBaseManager.logEvent(log: FireBaseLogModel(
+                        eventName: "RootLogin",
+                        parameters: [
+                            "file": #file,
+                            "function" : #function
+                        ],
+                        userID: "ROOT",
+                        logType: .login)
+                    )
+                    
                     await send(.delegate(.moveToOnBoarding(.registEnd)))
                 } catch: { error, send in
                     Logger.error(error)

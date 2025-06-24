@@ -19,7 +19,11 @@ let utilsFrameWork = Project.create(
             .kingfisher,
             .kakaoSDK,
             .swiftyGif,
-            .lottie
+            .lottie,
+            .fireBaseCrashlytics,
+            .firebaseCore,
+            .firebaseMessaging,
+            .fireBaseAnalytics
         ],
         resources: [
             "Resources/**"

@@ -14,13 +14,15 @@ let project = Project.create(
         product: .app,
         deploymentTargets: AppConfig.deployTarget,
         schemes: [], // SchemeMode.getSchemes(targetName: "App", path: "App"),
+        scripts: [
+            .fireBase,
+            .fireBaseCrashlyticsRun
+        ],
         dependencies: Module.features.map(\.projectTarget) + [
             Module.utils.projectTarget,
             Module.Data.projectTarget,
             .tca,
             .tcaCoordinator,
-            .firebaseCore,
-            .firebaseMessaging,
             .popupView
         ],
         resources: [
@@ -30,8 +32,8 @@ let project = Project.create(
                 tags: [],
                 inclusionCondition: nil
             )
-        ]
-        , sources: "Sources/**"
+        ],
+        sources: "Sources/**"
     )
 )
 // SchemeMode.getSchemes(targetName: "App", path: AppConfig.appPath)

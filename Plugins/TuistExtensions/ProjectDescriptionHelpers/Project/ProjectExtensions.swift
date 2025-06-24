@@ -33,6 +33,7 @@ extension Project {
                     sources: config.sources,
                     resources: config.resources,
                     entitlements: appEntitlementsPath,
+                    scripts: config.scripts,
                     dependencies: config.dependencies
                 )
             ]

@@ -17,10 +17,10 @@ class GBAppDelegate: NSObject, UIApplicationDelegate {
     @Dependency(\.pushNotiManager) var pushManager
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        FirebaseApp.configure()
-        Messaging.messaging().delegate = self
+        FireBaseManager.config()
         
-        UserDefaultsManager.fcmRegistrationToken = Messaging.messaging().fcmToken
+        let token = FireBaseManager.getFCMToken()
+        UserDefaultsManager.fcmRegistrationToken = token
         
         NotificationCenter.default.addObserver(
             forName: .requestRemoteNotification,
@@ -31,8 +31,6 @@ class GBAppDelegate: NSObject, UIApplicationDelegate {
                 application?.registerForRemoteNotifications()
             }
         }
-        let a = [1,2,3]
-        let test = a[safe: 1]
         
         return true
     }
@@ -42,20 +40,17 @@ class GBAppDelegate: NSObject, UIApplicationDelegate {
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
     ) {
         Logger.debug("didRegisterForRemoteNotificationsWithDeviceToken: \(deviceToken)")
-        Messaging.messaging().apnsToken = deviceToken
-        let deviceToken = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
+        
+        let deviceToken = FireBaseManager.regDeviceToken(deviceToken: deviceToken)
         pushManager.setDeviceToken(token: deviceToken)
         
-        Messaging.messaging().token {[weak self] token, _ in
+        FireBaseManager.reCheckFCMToken { [weak self] token in
             guard let self else { return }
-            if let token {
-                if let reCheckToken = Messaging.messaging().fcmToken {
-                    pushManager.setServerToToken(token: reCheckToken)
-                }
+            guard let _ = token else { return }
+            if let reCheckToken = FireBaseManager.getFCMToken() {
+                pushManager.setServerToToken(token: reCheckToken)
             }
-            Logger.debug("💜😀 \(token ?? "nil")")
         }
-        
     }
     
     func application(_ application: UIApplication, didFailToContinueUserActivityWithType userActivityType: String, error: any Error) {
@@ -73,17 +68,5 @@ class GBAppDelegate: NSObject, UIApplicationDelegate {
         UserDefaultsManager.fcmReciveCount += 1
         pushManager.setBadgeCount()
         completionHandler(.newData)
-    }
-}
-
-
-extension GBAppDelegate: @preconcurrency MessagingDelegate {
-    
-    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        print("FireBase registration Token: \(String(describing: fcmToken))")
-        guard let fcmToken = fcmToken else { return }
-        
-        let dataDict: [String: String] = ["token": fcmToken]
-        NotificationCenter.default.post(name: Notification.Name("FCMToken"), object: nil, userInfo: dataDict)
     }
 }

@@ -178,6 +178,8 @@ extension NetworkManager {
             
             if response.error?.responseCode == 500 {
                 await DiscordMessageManager.shared.sendMessage500(message: "500 -\(GBError)")
+                CrashlyticsManager.sendMessage(message: "SERVER_ERROR")
+                CrashlyticsManager.record(error: GBError)
             }
             
             do {

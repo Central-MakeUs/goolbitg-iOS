@@ -20,8 +20,8 @@ let onlyHomeProject = Project.create(
             Module.Data.projectTarget,
             .tca,
             .tcaCoordinator,
-            .firebaseCore,
-            .firebaseMessaging,
+//            .firebaseCore,
+//            .firebaseMessaging,
             .popupView
         ],
         resources: [

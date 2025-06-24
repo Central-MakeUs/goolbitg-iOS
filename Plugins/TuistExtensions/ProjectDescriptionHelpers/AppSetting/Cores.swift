@@ -38,6 +38,7 @@ public extension TargetDependency {
     static let firebaseCore: Self = .external(name: "FirebaseCore")
     static let firebaseMessaging: Self = .external(name: "FirebaseMessaging")
     static let fireBaseAnalytics: Self = .external(name: "FirebaseAnalytics", condition: nil)
+    static let fireBaseCrashlytics: Self = .external(name: "FirebaseCrashlytics", condition: nil)
 }
 
 // MARK: KAKAO
