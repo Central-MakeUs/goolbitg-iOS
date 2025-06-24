@@ -8,6 +8,7 @@ Secret
 Secret/
 
 **/Info.plist
+InfoPlist/**
 **/SecretConfig
 **/SecretFiles
 **/Base.xcconfig
