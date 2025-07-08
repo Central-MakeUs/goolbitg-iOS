@@ -25,8 +25,8 @@ public final class NetworkManager: Sendable, ThreadCheckable {
         checkedMainThread() // 현재 쓰레드 확인
 #endif
         let request = try router.asURLRequest()
-        Logger.debug(request)
-        Logger.debug(request.url)
+//        Logger.debug(request)
+        Logger.debug(request.url?.absoluteString ?? "reaquest: nil")
         // MARK: 요청담당
         let response = await getRequest(dto: dto, router: router, request: request)
         
@@ -42,10 +42,12 @@ public final class NetworkManager: Sendable, ThreadCheckable {
 #endif
         let request = try router.asURLRequest()
         Logger.info(request)
+        let ifRefreshMode = true
+        
         // MARK: 요청담당
-        let response = await getRequest(dto: dto, router: router, request: request, ifRefreshMode: true)
+        let response = await getRequest(dto: dto, router: router, request: request, ifRefreshMode: ifRefreshMode)
 
-        let result = try await getResponse(dto: dto, router: router, response: response, ifRefreshMode: true)
+        let result = try await getResponse(dto: dto, router: router, response: response, ifRefreshMode: ifRefreshMode)
         
         return result
     }
@@ -57,7 +59,6 @@ public final class NetworkManager: Sendable, ThreadCheckable {
 #endif
         let request = try router.asURLRequest()
         let accessCode: Set<Int> = Set(Array(200..<300))
-       
         
         // MARK: 요청담당
         let response: DataResponse<String, AFError>
@@ -211,10 +212,8 @@ extension NetworkManager {
                 switch response.result {
                 case let .success(data):
                     return data
-                case .failure(let error):
+                case .failure(_):
                     await downRetryCount()
-                    
-
                     return try await retryNetwork(dto: dto, router: router, ifRefresh: ifRefresh)
                 }
             } else {

@@ -145,15 +145,18 @@ extension RootCoordinator {
                 if !UserDefaultsManager.accessToken.isEmpty && !UserDefaultsManager.refreshToken.isEmpty {
 
                     return .run { send in
+#if DEV
+                        await RootLoginManager.login()
+#else
                         let result = try await networkManager.requestNetworkWithRefresh(
                             dto: AccessTokenDTO.self,
                             router: AuthRouter.refresh(
                                 refreshToken: UserDefaultsManager.refreshToken
                             )
                         )
-                        
                         UserDefaultsManager.accessToken = result.accessToken
                         UserDefaultsManager.refreshToken = result.refreshToken
+#endif
                     } catch: { error, send in
                         guard let error = error as? RouterError else {
                             await send(.getRouterError(.unknown(errorCode: "9999")))

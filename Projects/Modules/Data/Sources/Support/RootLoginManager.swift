@@ -21,6 +21,9 @@ public struct RootLoginManager: Sendable {
             print("RootLogin Fail")
             return
         }
+#if DEV
+        print("ROOT :\(result.accessToken) ")
+#endif
         UserDefaultsManager.accessToken = result.accessToken
         UserDefaultsManager.refreshToken = result.refreshToken
     }

@@ -27,19 +27,6 @@ public enum AuthRouter {
 
 extension AuthRouter: Router {
     
-    public var baseURL: String {
-        switch self {
-        case .rootLogin:
-            return SecretKeys.baseURL + version
-        default:
-#if DEV
-return SecretKeys.devBaseURL + version
-#else
-return SecretKeys.baseURL + version
-#endif
-        }
-    }
-    
     public var method: HTTPMethod {
         switch self {
         case .register, .login, .refresh, .logOut, .signOut:

@@ -172,8 +172,7 @@ public struct LoginViewFeature {
                 
             case .rootLoginStart:
                 return .run { send in
-                    let request = try await networkManager.requestNetwork(dto: LoginAccessDTO.self, router: AuthRouter.rootLogin)
-                    saveToken(access: request.accessToken, refresh: request.refreshToken)
+                    await RootLoginManager.login()
                     
                     FireBaseManager.logEvent(log: FireBaseLogModel(
                         eventName: "RootLogin",

@@ -28,6 +28,7 @@ let package = Package(
 //        .package(url: "https://github.com/Kitura/Swift-JWT.git", .upToNextMajor(from: "4.0.2")),
         .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", .upToNextMajor(from: "2.1.1")),
         .package(url: "https://github.com/alexiscreuzot/SwiftyGif.git", .upToNextMajor(from: "5.4.5")),
-        .package(url: "https://github.com/johnpatrickmorgan/TCACoordinators", exact: "0.11.0")
+        .package(url: "https://github.com/johnpatrickmorgan/TCACoordinators", exact: "0.11.0"),
+        .package(url: "https://github.com/Little-tale/SwiftImageCompressor.git", .upToNextMajor(from: "0.0.3"))
     ]
 )

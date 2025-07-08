@@ -64,7 +64,7 @@ extension AnalyzingConsumptionFeature {
             case .featureEvent(.requestUserInfo):
                 
                 return .run { send in
-                    Logger.info(UserDefaultsManager.accessToken)
+                    Logger.info("token : --\(UserDefaultsManager.accessToken)")
                     let result = try await networkManager.requestNetworkWithRefresh(
                         dto: UserInfoDTO.self,
                         router: UserRouter.currentUserInfos

@@ -23,7 +23,8 @@ let utilsFrameWork = Project.create(
             .fireBaseCrashlytics,
             .firebaseCore,
             .firebaseMessaging,
-            .fireBaseAnalytics
+            .fireBaseAnalytics,
+            .imageCompressor
         ],
         resources: [
             "Resources/**"

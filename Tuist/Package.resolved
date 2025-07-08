@@ -307,6 +307,15 @@
       }
     },
     {
+      "identity" : "swiftimagecompressor",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Little-tale/SwiftImageCompressor.git",
+      "state" : {
+        "revision" : "3863e153f5d91402e4bd6a89d86da8a42379de11",
+        "version" : "0.0.3"
+      }
+    },
+    {
       "identity" : "swiftui-introspect",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/siteline/swiftui-introspect",

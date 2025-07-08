@@ -538,8 +538,6 @@ extension ChallengeTabFeature {
                 
             case let .groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst)):
                 
-                let dummy: [ParticipatingGroupChallengeListEntity] = []
-                
                 if atFirst {
                     state.groupChallengePagingObj = GroupChallengePagingObj()
                 }
@@ -547,14 +545,15 @@ extension ChallengeTabFeature {
                 
                 return .run { send in
                     let result = try await networkManager
-                        .requestNetwork(
+                        .requestNetworkWithRefresh(
                             dto: ChallengeListDTO<GroupChallengeDTO>.self,
                             router: ChallengeRouter
                                 .groupChallengeList(
                                     page: pagingObj.pageNum,
                                     size: pagingObj.size,
                                     searchText: pagingObj.searchText,
-                                    created: pagingObj.created
+                                    created: pagingObj.created,
+                                    participating: pagingObj.participating
                                 )
                     )
                     

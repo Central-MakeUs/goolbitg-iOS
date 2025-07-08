@@ -16,6 +16,7 @@ public struct GroupChallengePagingObj: Equatable {
     public var size: Int
     public var searchText: String?
     public var created: Bool
+    public var participating: Bool
     
     public init(
         totalCount: Int? = nil,
@@ -23,7 +24,8 @@ public struct GroupChallengePagingObj: Equatable {
         pageNum: Int = 0,
         size: Int = 10,
         searchText: String? = nil,
-        created: Bool = false
+        created: Bool = false,
+        participating: Bool = false
     ) {
         self.totalCount = totalCount
         self.totalPages = totalPages
@@ -31,5 +33,6 @@ public struct GroupChallengePagingObj: Equatable {
         self.size = size
         self.searchText = searchText
         self.created = created
+        self.participating = participating
     }
 }

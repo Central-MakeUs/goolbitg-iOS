@@ -61,4 +61,5 @@ public extension TargetDependency {
     static let popupView: Self = .external(name: "PopupView", condition: nil)
     static let swiftyGif: Self = .external(name: "SwiftyGif", condition: nil)
     static let lottie: Self = .external(name: "Lottie", condition: nil)
+    static let imageCompressor: Self = .external(name: "SwiftImageCompressor", condition: .none)
 }

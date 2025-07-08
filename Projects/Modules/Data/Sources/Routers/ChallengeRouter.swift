@@ -24,7 +24,13 @@ public enum ChallengeRouter {
     case challengeRecordDelete(ChallengeID: String)
     
     // MARK: GroupChallenge
-    case groupChallengeList(page: Int = 0, size: Int = 10, searchText: String?, created: Bool = false)
+    case groupChallengeList(
+        page: Int = 0,
+        size: Int = 10,
+        searchText: String?,
+        created: Bool = false,
+        participating: Bool = false
+    )
 }
 
 extension ChallengeRouter: Router {
@@ -98,11 +104,12 @@ extension ChallengeRouter: Router {
             
             return defaultValue
             
-        case let .groupChallengeList(page, size, searchText, created):
+        case let .groupChallengeList(page, size, searchText, created, participating):
             var defaultValue: [String: any Any & Sendable] = [
                 "page" : page,
                 "size" : size,
-                "created" : created
+                "created" : created,
+                "participating": participating
             ]
             
             if let searchText {

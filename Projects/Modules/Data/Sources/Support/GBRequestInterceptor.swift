@@ -24,7 +24,10 @@ final class GBRequestInterceptor: RequestInterceptor {
                   let apiResult = APIErrorEntity(rawValue: statusCode) else {
                 if let statusCode = request.response?.statusCode,
                    statusCode == 401 {
-                    if await requestRefresh() {
+                    if UserDefaultsManager.refreshToken == "root_user_refresh_token" {
+                        await RootLoginManager.login()
+                        completion(.retry)
+                    } else if await requestRefresh() {
                         completion(.retry)
                     } else {
                         completion(.doNotRetry)
@@ -35,7 +38,10 @@ final class GBRequestInterceptor: RequestInterceptor {
                 return
             }
             if (apiResult == .tokenExpiration || statusCode == 401) && (UserDefaultsManager.refreshToken != "") {
-                if await requestRefresh() {
+                if UserDefaultsManager.refreshToken == "root_user_refresh_token" {
+                    await RootLoginManager.login()
+                    completion(.retry)
+                } else if await requestRefresh() {
                     completion(.retry)
                 } else {
                     completion(.doNotRetry)
@@ -63,7 +69,7 @@ final class GBRequestInterceptor: RequestInterceptor {
         )
         
         guard let result else { return false }
-        
+        print("마사카")
         UserDefaultsManager.accessToken = result.accessToken
         UserDefaultsManager.refreshToken = result.refreshToken
         await retryCount.withValue { num in

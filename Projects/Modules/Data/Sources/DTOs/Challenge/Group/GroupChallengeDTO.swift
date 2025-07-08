@@ -29,15 +29,17 @@ public struct GroupChallengeDTO: DTO {
     /// Participating People Count
     public let peopleCount: Int
     
-    /// Group Representative Image URL String
-    public let imageUrl: String
-    
     /// Secret Room Trigger
     public let isHidden: Bool
     
     /// Password
     ///
     /// `minimum: 4, maximum: 4`
-    public let password: String
+    public let password: String?
     
+    /// 평균 달성일
+    public let avgAchieveRatio: Double
+    
+    /// 최대 달성일
+    public let maxAchieveDays: Double
 }

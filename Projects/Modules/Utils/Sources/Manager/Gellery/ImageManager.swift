@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import SwiftImageCompressor
 
 @MainActor
 public final class ImageCompressionManager {
@@ -35,29 +36,7 @@ public final class ImageCompressionManager {
     ///   - zipRate: 최대 허용 크기 (MB 단위)
     /// - Returns: 압축된 `Data` 또는 실패 시 `nil`
     public func compressImageAsync(_ image: UIImage, zipRate: Double) async -> Data? {
-        return await Task.detached(priority: .userInitiated) {
-            let limitBytes = zipRate * 1024 * 1024  // MB -> Bytes 변환
-            Logger.debug("📌 클라이언트가 원하는 크기: \(limitBytes) bytes")
-            
-            var currentQuality: CGFloat = 1
-            var imageData = image.jpegData(compressionQuality: currentQuality)
-            
-            while let data = imageData,
-                  Double(data.count) > limitBytes && currentQuality > 0 {
-                Logger.debug("📉 현재 이미지 크기: \(data.count) bytes")
-                currentQuality -= 0.1
-                imageData = image.jpegData(compressionQuality: currentQuality)
-                Logger.debug("⚙️ 현재 압축중인 이미지 크기: \(imageData?.count ?? 0) bytes")
-            }
-            
-            if let data = imageData, Double(data.count) <= limitBytes {
-                Logger.debug("✅ 압축 완료: \(data.count) bytes, 최종 압축률: \(currentQuality)")
-                return data
-            } else {
-                Logger.error("❌ 압축 실패: 크기 초과")
-                return nil
-            }
-        }.value
+        return await image.reSizeWithCompressImage(type: .jpeg, targetMB: zipRate)
     }
 
     public func checkImageMimeType(item: PhotosPickerItem) async -> Result<UIImage, ImageManagerError> {
@@ -91,6 +70,10 @@ public final class ImageCompressionManager {
         if uti.contains("jpg") { return "jpg" }
         if uti.contains("png") { return "png" }
         return "unknown"
+    }
+    
+    init() {
+        print("FUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCK")
     }
 }
 
