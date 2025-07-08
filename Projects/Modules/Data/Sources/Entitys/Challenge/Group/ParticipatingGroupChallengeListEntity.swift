@@ -25,6 +25,9 @@ public struct ParticipatingGroupChallengeListEntity: Entity {
     ///  Ex) `3: Currrent / 6: Total`
     public let totalWithParticipatingPeopleCount: String
     
+    /// 챌린지 리워드
+    public let reward: String
+    
     /// hashTag
     ///
     ///  Ex) `#밥먹기 #시켜먹기`
@@ -39,6 +42,7 @@ public struct ParticipatingGroupChallengeListEntity: Entity {
         title: String,
         totalWithParticipatingPeopleCount: String,
         hashTags: [String],
+        reward: String,
         isSecret: Bool
     ) {
         self.id = id
@@ -46,6 +50,7 @@ public struct ParticipatingGroupChallengeListEntity: Entity {
         self.title = title
         self.totalWithParticipatingPeopleCount = totalWithParticipatingPeopleCount
         self.hashTags = hashTags
+        self.reward = reward
         self.isSecret = isSecret
     }
 

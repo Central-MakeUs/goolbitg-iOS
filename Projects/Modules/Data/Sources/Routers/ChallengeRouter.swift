@@ -31,12 +31,14 @@ public enum ChallengeRouter {
         created: Bool = false,
         participating: Bool = false
     )
+    /// GroupChallenge DETAIL
+    case groupChallengeDetail(groupID: String)
 }
 
 extension ChallengeRouter: Router {
     public var method: HTTPMethod {
         switch self {
-        case .challengeList, .challengeRecords, .challengeTripple, .groupChallengeList:
+        case .challengeList, .challengeRecords, .challengeTripple, .groupChallengeList, .groupChallengeDetail:
             return .get
         case .challengeEnroll, .challengeRecordCheck:
             return .post
@@ -72,6 +74,9 @@ extension ChallengeRouter: Router {
             // MARK: Group
         case .groupChallengeList:
             return "/challengeGroups"
+            
+        case let .groupChallengeDetail(groupID):
+            return "/challengeGroups/\(groupID)"
         }
     }
     
@@ -118,7 +123,7 @@ extension ChallengeRouter: Router {
             
             return defaultValue
             
-        case .challengeEnroll, .challengeTripple, .challengeRecordCheck, .challengeRecordDelete:
+        case .challengeEnroll, .challengeTripple, .challengeRecordCheck, .challengeRecordDelete, .groupChallengeDetail:
             return nil
         }
     }
@@ -132,7 +137,8 @@ extension ChallengeRouter: Router {
                 .challengeTripple,
                 .challengeRecordCheck,
                 .challengeRecordDelete,
-                .groupChallengeList:
+                .groupChallengeList,
+                .groupChallengeDetail:
             return nil
             
         }
@@ -147,7 +153,8 @@ extension ChallengeRouter: Router {
                 .challengeTripple,
                 .challengeRecordCheck,
                 .challengeRecordDelete,
-                .groupChallengeList:
+                .groupChallengeList,
+                .groupChallengeDetail:
             return .url
         }
     }

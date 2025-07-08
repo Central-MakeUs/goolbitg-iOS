@@ -37,6 +37,10 @@ extension ChallengeTabCoordinatorView {
                 case let .groupChallengeCreate(store):
                     ChallengeGroupCreateView(store: store)
                         .disableBackGesture(false)
+                    
+                case let .groupChallengeDetail(store):
+                    ChallengeGroupDetailView(store: store)
+                        .disableBackGesture(false)
                 }
             }
         }
@@ -50,12 +54,15 @@ extension ChallengeTabScreen.State: Identifiable {
             return .home
         case .groupChallengeCreate:
             return .groupChallengeCreate
+        case .groupChallengeDetail:
+            return .groupChallengeDetail
         }
     }
     
     public enum ID: Identifiable {
         case home
         case groupChallengeCreate
+        case groupChallengeDetail
         
         public var id: ID {
             return self

@@ -103,7 +103,7 @@ extension ParticipatingChallengeGroupElementView {
             ownerId: UUID().uuidString,
             title: "거지방챌린지",
             totalWithParticipatingPeopleCount: "3/6",
-            hashTags: ["배달줄이기", "배민", "야식", "배민1", "야식2", "배민3", "야식3"],
+            hashTags: ["배달줄이기", "배민", "야식", "배민1", "야식2", "배민3", "야식3"], reward: "5,000원",
             isSecret: false
         )
     )

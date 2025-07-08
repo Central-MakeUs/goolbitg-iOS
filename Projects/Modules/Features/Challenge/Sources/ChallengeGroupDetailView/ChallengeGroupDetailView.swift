@@ -6,65 +6,42 @@
 //
 
 import SwiftUI
-import Data
+import ComposableArchitecture
 import Utils
+import Data
 import FeatureCommon
 
-public struct ChallengeGroupDetailView: View {
+struct ChallengeGroupDetailView: View {
     
+    // MARK: UI Member
     @Environment(\.safeAreaInsets) private var safeArea
     @State private var currentOffset: CGFloat = 0
-    
     @State private var bottomSheetExpended: Bool = false
-    @State private var challengeStatus: [ChallengeStatusCase] = [.none, .wait, .wait]
-    @State private var bottomListModels: [ChallengeRankEntity] = [
-        .init(
-            userID: UUID().uuidString,
-            imageURL: "https://i.sstatic.net/GsDIl.jpg",
-            name: "호랑이",
-            priceText: "3,000,000원"
-        ),
-        .init(
-            userID: UUID().uuidString,
-            imageURL: "https://i.sstatic.net/GsDIl.jpg",
-            name: "호랑이",
-            priceText: "3,000,000원"
-        ),
-        .init(
-            userID: UUID().uuidString,
-            imageURL: "https://i.sstatic.net/GsDIl.jpg",
-            name: "호랑이",
-            priceText: "3,000,000원"
-        ),
-        .init(
-            userID: UUID().uuidString,
-            imageURL: "https://i.sstatic.net/GsDIl.jpg",
-            name: "호랑이",
-            priceText: "3,000,000원"
-        ),
-        .init(
-            userID: UUID().uuidString,
-            imageURL: "https://i.sstatic.net/GsDIl.jpg",
-            name: "호랑이",
-            priceText: "3,000,000원"
-        ),
-        .init(
-            userID: UUID().uuidString,
-            imageURL: "https://i.sstatic.net/GsDIl.jpg",
-            name: "호랑이",
-            priceText: "3,000,000원"
-        )
-    ]
+    
+    // MARK: Feature
+    @Perception.Bindable var store: StoreOf<ChallengeGroupDetailViewFeature>
     
     public var body: some View {
-        contentView
-            .onPreferenceChange(ScrollOffsetKey.self) { offsetY in
-                currentOffset = offsetY
-            }
-            .background(GBColor.main.asColor)
-            .dragBottomSheet(collapsedHeight: 36, isExpanded: $bottomSheetExpended) {
-                bottomSheetView()
-            }
+        WithPerceptionTracking {
+            contentView
+                .onPreferenceChange(ScrollOffsetKey.self) { offsetY in
+                    currentOffset = offsetY
+                }
+                .background(GBColor.main.asColor)
+                .dragBottomSheet(collapsedHeight: 36 + safeArea.bottom, isExpanded: $bottomSheetExpended) {
+                    bottomSheetView()
+                }
+                .onFirstAppear {
+                    store.send(.viewCycle(.onAppear))
+                }
+                .popup(item: $store.showErrorMessage.sending(\.showErrorMessage)) { message in
+                    GBAlertView(model: .init(title: "ERROR", message: message, okTitle: "확인", alertStyle: .warning)) {}
+                    okTouch: {
+                        store.send(.showErrorMessage(message: nil))
+                    }
+                }
+        }
+        
     }
 }
 
@@ -80,38 +57,20 @@ extension ChallengeGroupDetailView {
             
             ScrollView {
                 VStack (spacing: 0) {
-                    VStack (spacing: 0) {
-                        ScrollViewOffsetPreference { offsetY in
-                            currentOffset = offsetY
+                    if store.topPodiumModels.count == 3 {
+                        VStack (spacing: 0) {
+                            ScrollViewOffsetPreference { offsetY in
+                                currentOffset = offsetY
+                            }
+                            ChallengeProfilePodiumView(challengers: store.topPodiumModels)
+                                .padding(.horizontal, calcTopPodiumHorizontalPadding())
                         }
-                        
-                        ChallengeProfilePodiumView(challengers: [
-                            .init(
-                                userID: UUID().uuidString,
-                                imageURL: "https://i.sstatic.nets/GsDIl.jpg",
-                                name: "호랑이",
-                                priceText: "3,000,000원"
-                            ),
-                            .init(
-                                userID: UUID().uuidString,
-                                imageURL: "https://i.sstatic.nets/GsDIl.jpg",
-                                name: "호랑이",
-                                priceText: "3,000,000원"
-                            ),
-                            .init(
-                                userID: UUID().uuidString,
-                                imageURL: "https://i.sstatic.nets/GsDIl.jpg",
-                                name: "호랑이",
-                                priceText: "3,000,000원"
-                            )
-                        ])
-                        .padding(.horizontal, calcTopPodiumHorizontalPadding())
+                        .padding(.top, 64)
+                        .padding(.top, safeArea.top)
+                        .background(GBColor.main.asColor)
+                        .cornerRadiusCorners(40, corners: [.bottomLeft, .bottomRight])
+                        .background(GBColor.background1.asColor)
                     }
-                    .padding(.top, 64)
-                    .padding(.top, safeArea.top)
-                    .background(GBColor.main.asColor)
-                    .cornerRadiusCorners(40, corners: [.bottomLeft, .bottomRight])
-                    .background(GBColor.background1.asColor)
                     
                     bottomListView
                         .padding(.vertical, SpacingHelper.md.pixel)
@@ -135,12 +94,12 @@ extension ChallengeGroupDetailView {
                         .resizable()
                         .frame(width: 32, height: 32)
                         .asButton {
-
+                            store.send(.delegate(.back))
                         }
                     Spacer()
                 }
                 
-                Text("챌린지 명")
+                Text(store.challengeEntityState.title)
                     .font(FontHelper.h3.font)
                     .foregroundStyle(GBColor.white.asColor)
                 
@@ -166,7 +125,7 @@ extension ChallengeGroupDetailView {
     
     private var bottomListView: some View {
         LazyVStack(spacing: 0) {
-            ForEach(Array(bottomListModels.enumerated()), id: \.element.userID) { index, model in
+            ForEach(Array(store.bottomListModels.enumerated()), id: \.element.modelID) { index, model in
                 listElementView(entity: model, rank: index + 4)
                     .padding(.bottom, SpacingHelper.sm.pixel)
             }
@@ -222,12 +181,15 @@ extension ChallengeGroupDetailView {
                 .padding(.top, 16)
             
             VStack(spacing: 8) {
-                Text("챌린지 명")
-                    .foregroundStyle(GBColor.grey50.asColor)
-                    .font(FontHelper.h3.font)
-                    
+                VStack(spacing: 0) {
+                    Text(store.challengeEntityState.title)
+                        .foregroundStyle(GBColor.grey50.asColor)
+                        .font(FontHelper.h3.font)
+                }
+                .opacity(bottomSheetExpended ? 1 : 0)
+                .animation(.easeInOut, value: bottomSheetExpended)
                 
-                Text("#{해시태그1 해시태그1 해시태그1 해시태그1 해시태그1 해시태그1 해시태그1 해시태그1} #{해시태그2} #{해시태그3}")
+                Text(store.challengeEntityState.hashTags.joined(separator: " "))
                     .lineLimit(2)
                     .lineSpacing(4)
                     .foregroundStyle(GBColor.white.asColor)
@@ -237,7 +199,7 @@ extension ChallengeGroupDetailView {
                     Text("3일 연속 성공 시")
                         .foregroundStyle(GBColor.grey200.asColor)
                         .font(FontHelper.body4.font)
-                    Text(" \("1,500")원 절약")
+                    Text(" \("\(store.challengeEntityState.reward)")원 절약")
                         .foregroundStyle(GBColor.grey200.asColor)
                         .font(FontHelper.body3.font)
                 }
@@ -247,7 +209,7 @@ extension ChallengeGroupDetailView {
                         .resizable()
                         .frame(width: 12, height: 12)
                     
-                    Text("\("2/10")참여 완료")
+                    Text("\(store.challengeEntityState.totalWithParticipatingPeopleCount) 참여 완료")
                         .font(FontHelper.body3.font)
                         .foregroundStyle(GBColor.main.asColor)
                 }
@@ -267,7 +229,7 @@ extension ChallengeGroupDetailView {
     
     private var ChallengeStatusThreeDayView: some View {
         HStack(spacing: SpacingHelper.xl.pixel) {
-            ForEach(Array(challengeStatus.enumerated()), id: \.element.id) { index, item in
+            ForEach(Array(store.challengeStatus.enumerated()), id: \.element.id) { index, item in
                 VStack (spacing: SpacingHelper.sm.pixel) {
                     switch item {
                     case .success:
@@ -320,8 +282,10 @@ extension ChallengeGroupDetailView {
         let padding: CGFloat = 40
         
         let calc = padding * ( 1 - progress )
+#if DEBUG
         print("Current -> ",currentOffset)
         print("->",calc)
+#endif
         return calc
     }
     
@@ -333,6 +297,14 @@ extension ChallengeGroupDetailView {
     }
 }
 
+#if DEBUG
 #Preview {
-    ChallengeGroupDetailView()
+    ChallengeGroupDetailView(
+        store: Store(
+            initialState: ChallengeGroupDetailViewFeature.State(
+                groupID: "1"
+            ), reducer: {
+        ChallengeGroupDetailViewFeature()
+    }))
 }
+#endif

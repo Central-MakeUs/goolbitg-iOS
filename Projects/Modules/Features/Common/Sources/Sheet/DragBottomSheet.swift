@@ -16,19 +16,25 @@ struct DragBottomSheet<PopupContent: View>: ViewModifier {
     
     private let popupContent: PopupContent
     private let collapsedHeight: CGFloat
+    
+    let currentOffsetPercent: ((CGFloat) -> Void)?
 
     public init(
         isExpanded: Binding<Bool>,
         popupContent: PopupContent,
-        collapsedHeight: CGFloat
+        collapsedHeight: CGFloat,
+        currentOffsetPercent: ((CGFloat) -> Void)? = nil
     ) {
         self._isExpanded = isExpanded
         self.popupContent = popupContent
         self.collapsedHeight = collapsedHeight
+        self.currentOffsetPercent = currentOffsetPercent
     }
 
     public func body(content: Content) -> some View {
-        ZStack(alignment: .bottom) {
+        let offsetY = calculateOffsetY()
+        
+        return ZStack(alignment: .bottom) {
             content
             VStack(spacing: 0) {
                 Spacer()
@@ -43,7 +49,7 @@ struct DragBottomSheet<PopupContent: View>: ViewModifier {
                                 }
                         }
                     }
-                    .offset(y: calculateOffsetY())
+                    .offset(y: offsetY)
                     .gesture(
                         DragGesture()
                             .updating($dragOffset) { value, state, _ in
@@ -68,8 +74,13 @@ struct DragBottomSheet<PopupContent: View>: ViewModifier {
             }
             .frame(maxHeight: .infinity)
             .background {
+                let percent = calcPercent(offsetY)
                 BlurView(style: .systemUltraThinMaterialDark)
-                    .opacity(calculateBlur())
+                    .opacity(percent)
+                    .animation(.easeInOut(duration: 0.3), value: isExpanded)
+                    .onChange(of: percent) { newValue in
+                        currentOffsetPercent?(newValue)
+                    }
             }
         }
         .ignoresSafeArea()
@@ -84,12 +95,22 @@ struct DragBottomSheet<PopupContent: View>: ViewModifier {
         }
     }
     
-    private func calculateBlur() -> CGFloat {
+    private func calculateBlur(_ offsetY: CGFloat? = nil) -> CGFloat {
+        return calcPercent(offsetY)
+    }
+    
+    private func calcPercent(_ offsetY: CGFloat? = nil) -> CGFloat {
         let _min: CGFloat = 0
         let _max: CGFloat = 1
-        let offset = calculateOffsetY()
+        let offset: CGFloat
+        
+        if let offsetY {
+            offset = offsetY
+        } else {
+            offset = calculateOffsetY()
+        }
+        
         let normalized = _max - max(_min, min(offset / (sheetHeight - collapsedHeight), _max))
-        print(normalized)
         return normalized
     }
 }
@@ -98,13 +119,15 @@ extension View {
     public func dragBottomSheet<Content: View>(
         collapsedHeight: CGFloat = 0,
         isExpanded: Binding<Bool>,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
+        currentOffsetPercent: ((CGFloat) -> Void)? = nil
     ) -> some View {
         self.modifier(
             DragBottomSheet(
                 isExpanded: isExpanded,
                 popupContent: content(),
-                collapsedHeight: collapsedHeight
+                collapsedHeight: collapsedHeight,
+                currentOffsetPercent: currentOffsetPercent
             )
         )
     }

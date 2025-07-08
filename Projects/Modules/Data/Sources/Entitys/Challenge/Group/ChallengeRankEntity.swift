@@ -9,18 +9,18 @@ import Foundation
 import Domain
 
 public struct ChallengeRankEntity: Entity {
-    public let userID: String
+    public let modelID: String
     public let imageURL: String?
     public let name: String
     public let priceText: String
     
     public init(
-        userID: String,
+        modelID: String,
         imageURL: String?,
         name: String,
         priceText: String
     ) {
-        self.userID = userID
+        self.modelID = modelID
         self.imageURL = imageURL
         self.name = name
         self.priceText = priceText

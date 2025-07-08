@@ -593,6 +593,7 @@ extension ChallengeTabView {
             title: "거지방챌린지",
             totalWithParticipatingPeopleCount: "3/6",
             hashTags: ["배달줄이기"],
+            reward: "Loading",
             isSecret: false
         )
     }

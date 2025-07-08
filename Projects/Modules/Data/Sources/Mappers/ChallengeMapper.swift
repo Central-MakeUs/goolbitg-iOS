@@ -154,7 +154,22 @@ extension ChallengeMapper {
             title: dto.title,
             totalWithParticipatingPeopleCount: "\(dto.peopleCount)/\(dto.maxSize)",
             hashTags: dto.hashtags.map{ "#" + $0 },
+            reward: GBNumberForMatter.shared.changeFormatToString(number: Double(dto.reward), numberStyle: .decimal),
             isSecret: dto.isHidden
+        )
+    }
+    
+    public func toMappingGroupChallengeRank(dtos: [GroupChallengeRankDTO]) async -> [ChallengeRankEntity] {
+        return await dtos.asyncMap { toMappingGroupChallengeRank(dto: $0 ) }
+    }
+    
+    public func toMappingGroupChallengeRank(dto: GroupChallengeRankDTO) -> ChallengeRankEntity {
+        
+        return ChallengeRankEntity(
+            modelID: UUID().uuidString,
+            imageURL: dto.profileUrl,
+            name: dto.name,
+            priceText: GBNumberForMatter.shared.changeFormatToString(number: Double(dto.saving), numberStyle: .decimal)
         )
     }
 }

@@ -65,7 +65,7 @@ extension ChallengeProfilePodiumView {
     
     private func rankStackDummy() -> some View {
         let entity = ChallengeRankEntity(
-            userID: UUID().uuidString,
+            modelID: UUID().uuidString,
             imageURL: nil,
             name: "",
             priceText: ""
@@ -87,19 +87,19 @@ extension ChallengeProfilePodiumView {
 #Preview {
     ChallengeProfilePodiumView(challengers: [
         .init(
-            userID: UUID().uuidString,
+            modelID: UUID().uuidString,
             imageURL: "https://i.sstatic.nets/GsDIl.jpg",
             name: "호랑이",
             priceText: "3,000,000원"
         ),
         .init(
-            userID: UUID().uuidString,
+            modelID: UUID().uuidString,
             imageURL: "https://i.sstatic.nets/GsDIl.jpg",
             name: "호랑이",
             priceText: "3,000,000원"
         ),
         .init(
-            userID: UUID().uuidString,
+            modelID: UUID().uuidString,
             imageURL: "https://i.sstatic.nets/GsDIl.jpg",
             name: "호랑이",
             priceText: "3,000,000원"

@@ -31,6 +31,9 @@ public struct GroupChallengeDTO: DTO {
     
     /// Secret Room Trigger
     public let isHidden: Bool
+
+    /// reward
+    public let reward: Int
     
     /// Password
     ///

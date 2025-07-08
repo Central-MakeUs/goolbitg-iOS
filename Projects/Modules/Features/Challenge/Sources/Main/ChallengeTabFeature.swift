@@ -69,6 +69,7 @@ public struct ChallengeTabFeature: GBReducer {
             case showTabBar
             
             case moveToGroupChallengeCreate
+            case moveToGroupChallengeDetail(groupID: String)
         }
         
         case datePickerMonth(Date)
@@ -530,8 +531,7 @@ extension ChallengeTabFeature {
                 // Network 작업이 필요할지도
                 
             case let .viewEvent(.groupChallengeViewEvent(.selectedParticipatingModel(entity))):
-                Logger.debug("TAPPED")
-                Logger.debug(entity)
+                return .send(.delegate(.moveToGroupChallengeDetail(groupID: String(entity.id))))
                 
             case .viewEvent(.groupChallengeViewEvent(.showGroupChallengeAddView)): // GroupChallengeCreate 뷰로 이동
                 return .send(.delegate(.moveToGroupChallengeCreate))
