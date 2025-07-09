@@ -64,6 +64,8 @@ public struct GBHomeTabViewFeature: GBReducer {
         
         case resultTotalReward(String)
         case animationMoney(Double)
+        
+        case userInfoSave
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -91,6 +93,7 @@ extension GBHomeTabViewFeature {
                     await send(.featureEvent(.requestMockWeekState))
                     await send(.featureEvent(.requestWeekState))
                     await send(.featureEvent(.requestChallengeList))
+                    await send(.featureEvent(.userInfoSave))
                 }
                 .cancellable(id: CancelID.onAppearTaskCancel)
                 
@@ -181,6 +184,17 @@ extension GBHomeTabViewFeature {
             case let .featureEvent(.animationMoney(money)):
                 state.currentMoney = money
                 
+            case .featureEvent(.userInfoSave):
+                return .run { send in
+                    guard let result = try? await networkManager.requestNetworkWithRefresh(
+                        dto: UserInfoDTO.self,
+                        router: UserRouter.currentUserInfos
+                    ) else {
+                        return
+                    }
+                    UserDefaultsManager.userNickname = result.nickname
+                    UserDefaultsManager.userID = result.id
+                }
                 
                 // MARK: 푸시 알림
             case .viewEvent(.pushAlertButtonTapped):

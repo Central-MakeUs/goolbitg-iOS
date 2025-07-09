@@ -111,6 +111,7 @@ extension ChallengeGroupDetailView {
                         .asButton {
 
                         }
+                        .opacity(store.ifOwner ? 1 : 0)
                 }
             }
             .frame(height: 64)

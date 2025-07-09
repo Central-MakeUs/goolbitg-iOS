@@ -117,6 +117,26 @@ extension ChallengeGroupCreateView {
                     secretRoomPasswordSectionView
                         .padding(.top, SpacingHelper.lg.pixel)
                         .padding(.horizontal, SpacingHelper.md.pixel + SpacingHelper.sm.pixel)
+                    if store.currentState {
+                        VStack {
+                            Text("생성하기")
+                                .font(FontHelper.h3.font)
+                                .foregroundStyle(GBColor.white.asColor)
+                                .padding(.vertical, 18)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .background {
+                            Rectangle()
+                                .fill(
+                                    GBGradientColor.mainGradient.shape
+                                )
+                        }
+                        .clipShape(Capsule())
+                        .padding(16)
+                        .asButton {
+                            
+                        }
+                    }
                 }
                 .onChange(of: focusedField) { number in
                     guard let number,
@@ -208,6 +228,15 @@ extension ChallengeGroupCreateView {
                         .padding(.leading, 17)
                 }
             }
+            
+            if let text = store.challengePriceError {
+                HStack {
+                    Text(text)
+                        .font(FontHelper.caption2.font)
+                        .foregroundStyle(GBColor.error.asColor)
+                    Spacer()
+                }
+            }
         }
         .onTapGesture {
             focusedField = 2
@@ -227,7 +256,7 @@ extension ChallengeGroupCreateView {
                 DisablePasteTextField(
                     configuration: commonDisablePasteTextFieldConfiguration(
                         placeholder: TextHelper.groupChallengeTexts(.hashTagPlaceholder).text,
-                        keyBoardType: .numberPad,
+                        keyBoardType: .default,
                         secureTextEntry: false
                     ),
                     text: $store.hashTagText.sending(\.inputHashTagText),

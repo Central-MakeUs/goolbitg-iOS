@@ -19,6 +19,7 @@ public struct GroupChallengeCreateViewFeature {
         public init() {}
         var challengeName = ""
         var challengePrice = ""
+        var challengePriceError: String? = nil
         var hashTagText = ""
         var passwordText = ""
         var hashTagList: [String] = []
@@ -27,6 +28,8 @@ public struct GroupChallengeCreateViewFeature {
         var maxTrailingButtonState: Bool = true
         var secretRoomState = false
         var alertViewComponent: GBAlertViewComponents? = nil
+        
+        var currentState = false
     }
     
     public enum Action {
@@ -93,6 +96,15 @@ extension GroupChallengeCreateViewFeature {
                 state.challengeName = text
                 
             case let .inputChallengePriceText(text):
+                if let price = Int(text) {
+                    if price < 1000 || price > 50000 {
+                        state.challengePriceError = "1000원에서 50,000원 사이로 입력해주세요."
+                    } else {
+                        state.challengePriceError = nil
+                    }
+                } else {
+                    state.challengePriceError = "숫자만 입력해주세요."
+                }
                 state.challengePrice = text
                 
             case let .inputHashTagText(text):
@@ -110,14 +122,25 @@ extension GroupChallengeCreateViewFeature {
                 }
                 
             case let .inputPasswordText(text):
+                guard let _ = Int(text),
+                      text.count < 5 else  {
+                    if text.isEmpty {
+                        state.passwordText = ""
+                    }
+                    return .none
+                }
                 state.passwordText = text
                 
             // MARK: View Action
             case .viewAction(.hashTagAddTapped): // Hash Tag Button 클릭
-                let current = state.hashTagText
-                state.hashTagText = ""
-                state.hashTagList.append( "#"+current )
-                
+                if state.hashTagText.replacingOccurrences(of: " ", with: "")
+                    .isEmpty {
+                    state.hashTagText = ""
+                } else {
+                    let current = state.hashTagText
+                    state.hashTagText = ""
+                    state.hashTagList.append( "#"+current )
+                }
             case let .viewAction(.deleteHashTagTapped(index)):
                 state.hashTagList.remove(at: index)
                 
@@ -143,6 +166,27 @@ extension GroupChallengeCreateViewFeature {
     private func checkLeadingTrailingButtonEnable(state: inout State) -> Effect<Action> {
         state.maxLeadingButtonState = state.currentMaxCount > Self.currentLowCount
         state.maxTrailingButtonState = state.currentMaxCount < Self.currentMaxCount
+        return .none
+    }
+    
+    private func checkedValid(state: inout State) -> Effect<Action> {
+        var currentState = false
+        
+        if !state.challengeName.isEmpty,
+           !state.challengePrice.isEmpty,
+           state.challengePriceError == nil,
+           !state.hashTagList.isEmpty {
+            currentState = true
+        }
+        
+        if state.secretRoomState,
+           !state.passwordText.isEmpty {
+            currentState = true
+        } else {
+            currentState = false
+        }
+        
+        state.currentState = currentState
         return .none
     }
 }

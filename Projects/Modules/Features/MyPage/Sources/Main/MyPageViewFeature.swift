@@ -114,6 +114,7 @@ extension MyPageViewFeature {
                         router: UserRouter.currentUserInfos
                     )
                     UserDefaultsManager.userNickname = result.nickname
+                    UserDefaultsManager.userID = result.id
                     let mapping = userMapper.myPageUserMapping(model: result)
                     
                     await send(.featureEvent(.resultUserInfo(result: mapping)))

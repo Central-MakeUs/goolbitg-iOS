@@ -24,6 +24,7 @@ public struct ChallengeGroupDetailViewFeature: GBReducer {
         var topPodiumModels: [ChallengeRankEntity] = []
         var bottomListModels: [ChallengeRankEntity] = []
         var showErrorMessage: String? = nil
+        var ifOwner = false
         
         public init(groupID: String) {
             self.groupId = groupID
@@ -117,6 +118,8 @@ extension ChallengeGroupDetailViewFeature {
                 }
                 
             case let .featureEvent(.challengeInfoUpdate(entity)):
+                // ownerCheck
+                state.ifOwner = UserDefaultsManager.userID == entity.ownerId
                 state.challengeEntityState = entity
                 
             case let .featureEvent(.bottomRankUpdated(entitys)):
