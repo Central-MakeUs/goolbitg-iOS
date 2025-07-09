@@ -163,6 +163,10 @@ public enum TextHelper {
         case onlyMakeMeShow = "내가 만든 방만 보기"
         
         case findGroupChallengePlaceholder = "챌린지명, 해시태그를 검색해보세요"
+        case settingNavTitle = "작심삼일 방 설정"
+        
+        case onlyOneParticipantDeleteWarning = "참여자가 1명이라도 있는 경우, 삭제가 불가합니다"
+        case groupChallengeDelete = "작심삼일 삭제하기"
     }
     
     public var text: String {

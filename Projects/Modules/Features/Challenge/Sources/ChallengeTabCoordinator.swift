@@ -14,6 +14,7 @@ public enum ChallengeTabScreen {
     case home(ChallengeTabFeature)
     case groupChallengeCreate(GroupChallengeCreateViewFeature)
     case groupChallengeDetail(ChallengeGroupDetailViewFeature)
+    case groupChallengeSetting(ChallengeGroupSettingViewFeature)
 }
 
 @Reducer
@@ -58,7 +59,8 @@ extension ChallengeTabCoordinator {
                 state.routes.presentCover(
                     .groupChallengeDetail(
                         ChallengeGroupDetailViewFeature.State(groupID: groupID)
-                    )
+                    ),
+                    embedInNavigationView: true
                 )
             // MARK: GroupChallenge
             case .router(.routeAction(id: .groupChallengeCreate, action: .groupChallengeCreate(.delegate(.dismiss)))):
@@ -71,8 +73,22 @@ extension ChallengeTabCoordinator {
                 state.routes.dismiss()
                 return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadGroupData)))))
                 
+            // MARK: GroupChallengeDetail
             case .router(.routeAction(id: .groupChallengeDetail, action: .groupChallengeDetail(.delegate(.back)))):
                 state.routes.dismiss()
+                
+            case let .router(.routeAction(id: .groupChallengeDetail, action: .groupChallengeDetail(.delegate(.goSettingView(ifOwner, roomID))))):
+                
+                state.routes.push(.groupChallengeSetting(ChallengeGroupSettingViewFeature.State(ifOwner: ifOwner, roomID: roomID)))
+                
+            // MARK: GroupChallengeSetting
+            case .router(.routeAction(id: .groupChallengeSetting, action: .groupChallengeSetting(.delegate(.removeSuccess)))):
+                state.routes.dismiss()
+                
+                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadGroupData)))))
+                
+            case .router(.routeAction(id: .groupChallengeSetting, action: .groupChallengeSetting(.delegate(.back)))):
+                state.routes.pop()
                 
             default:
                 break

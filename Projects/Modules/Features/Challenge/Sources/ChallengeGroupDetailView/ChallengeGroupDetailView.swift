@@ -40,6 +40,7 @@ struct ChallengeGroupDetailView: View {
                         store.send(.showErrorMessage(message: nil))
                     }
                 }
+                
         }
         
     }
@@ -109,7 +110,7 @@ extension ChallengeGroupDetailView {
                         .resizable()
                         .frame(width: 32, height: 32)
                         .asButton {
-
+                            store.send(.viewEvent(.settingButtonTapped))
                         }
                         .opacity(store.ifOwner ? 1 : 0)
                 }

@@ -24,6 +24,7 @@ public struct ChallengeGroupDetailViewFeature: GBReducer {
         var topPodiumModels: [ChallengeRankEntity] = []
         var bottomListModels: [ChallengeRankEntity] = []
         var showErrorMessage: String? = nil
+        var ownerID: String = ""
         var ifOwner = false
         
         public init(groupID: String) {
@@ -41,11 +42,12 @@ public struct ChallengeGroupDetailViewFeature: GBReducer {
         
         public enum Delegate {
             case back
+            case goSettingView(ifOwner: Bool, roomID: String)
         }
     }
     
     public enum ViewEvent {
-        
+        case settingButtonTapped
     }
     
     public enum ViewCycle {
@@ -80,6 +82,12 @@ extension ChallengeGroupDetailViewFeature {
                 
                 return .send(.featureEvent(.requestChallengeGroupDetail(groupID: state.groupId)))
                 
+            case .viewEvent(.settingButtonTapped):
+                let roomID = state.groupId
+                let ownerID = state.ownerID
+                if !ownerID.isEmpty {
+                    return .send(.delegate(.goSettingView(ifOwner: state.ifOwner, roomID: roomID)))
+                }
                 
             // MARK: FeatureEvent
             case let .featureEvent(.requestChallengeGroupDetail(groupID)):
@@ -120,6 +128,7 @@ extension ChallengeGroupDetailViewFeature {
             case let .featureEvent(.challengeInfoUpdate(entity)):
                 // ownerCheck
                 state.ifOwner = UserDefaultsManager.userID == entity.ownerId
+                state.ownerID = entity.ownerId
                 state.challengeEntityState = entity
                 
             case let .featureEvent(.bottomRankUpdated(entitys)):

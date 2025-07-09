@@ -8,7 +8,7 @@
 import Foundation
 
 /// 공용 굴비잇기 팝업의 컴포넌트
-public struct GBAlertViewComponents: Equatable {
+public struct GBAlertViewComponents: Equatable, Hashable {
     
     /// ID가 필요하실 경우 이용해주세요
     public let ifNeedID: String
@@ -28,7 +28,7 @@ public struct GBAlertViewComponents: Equatable {
     /// 팝업 스타일을 정의하세요
     public let style: AlertStyle
     
-    public enum AlertStyle: Equatable {
+    public enum AlertStyle: Equatable, Hashable {
         case warning
         case normal
         case inTextFieldPassword

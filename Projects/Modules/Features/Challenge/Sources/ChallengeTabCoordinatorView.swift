@@ -41,6 +41,13 @@ extension ChallengeTabCoordinatorView {
                 case let .groupChallengeDetail(store):
                     ChallengeGroupDetailView(store: store)
                         .disableBackGesture(false)
+                        .navigationBarBackButtonHidden()
+                    
+                case let .groupChallengeSetting(store):
+                    
+                    ChallengeGroupSettingView(store: store)
+                        .disableBackGesture(false)
+                        .navigationBarBackButtonHidden()
                 }
             }
         }
@@ -56,6 +63,8 @@ extension ChallengeTabScreen.State: Identifiable {
             return .groupChallengeCreate
         case .groupChallengeDetail:
             return .groupChallengeDetail
+        case .groupChallengeSetting:
+            return .groupChallengeSetting
         }
     }
     
@@ -63,6 +72,7 @@ extension ChallengeTabScreen.State: Identifiable {
         case home
         case groupChallengeCreate
         case groupChallengeDetail
+        case groupChallengeSetting
         
         public var id: ID {
             return self

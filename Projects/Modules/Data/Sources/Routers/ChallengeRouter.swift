@@ -35,6 +35,8 @@ public enum ChallengeRouter {
     case groupChallengeDetail(groupID: String)
     /// GroupChallenge Create
     case groupChallengeCreate(requestDTO: ChallengeGroupCreateRequestDTO)
+    /// GroupChallenge Delete
+    case groupChallengeDelete(groupID: String)
 }
 
 extension ChallengeRouter: Router {
@@ -44,7 +46,7 @@ extension ChallengeRouter: Router {
             return .get
         case .challengeEnroll, .challengeRecordCheck, .groupChallengeCreate:
             return .post
-        case .challengeRecordDelete:
+        case .challengeRecordDelete, .groupChallengeDelete:
             return .delete
         }
     }
@@ -82,6 +84,9 @@ extension ChallengeRouter: Router {
             
         case .groupChallengeCreate:
             return "/challengeGroups"
+            
+        case let .groupChallengeDelete(groupID):
+            return "/challengeGroups/\(groupID)"
         }
     }
     
@@ -128,7 +133,15 @@ extension ChallengeRouter: Router {
             
             return defaultValue
             
-        case .challengeEnroll, .challengeTripple, .challengeRecordCheck, .challengeRecordDelete, .groupChallengeDetail, .groupChallengeCreate:
+        case
+                .challengeEnroll,
+                .challengeTripple,
+                .challengeRecordCheck,
+                .challengeRecordDelete,
+                .groupChallengeDetail,
+                .groupChallengeCreate,
+                .groupChallengeDelete :
+            
             return nil
         }
     }
@@ -143,8 +156,11 @@ extension ChallengeRouter: Router {
                 .challengeRecordCheck,
                 .challengeRecordDelete,
                 .groupChallengeList,
-                .groupChallengeDetail:
+                .groupChallengeDetail ,
+                .groupChallengeDelete :
+            
             return nil
+            
         case let .groupChallengeCreate(requestDTO):
             let data = try? CodableManager.shared.jsonEncodingStrategy(requestDTO)
             return data
@@ -161,7 +177,9 @@ extension ChallengeRouter: Router {
                 .challengeRecordCheck,
                 .challengeRecordDelete,
                 .groupChallengeList,
-                .groupChallengeDetail:
+                .groupChallengeDetail,
+                .groupChallengeDelete:
+            
             return .url
             
         case .groupChallengeCreate:
