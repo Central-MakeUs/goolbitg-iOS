@@ -19,7 +19,7 @@ public struct ChallengeGroupDetailViewFeature: GBReducer {
     public struct State: Equatable, Hashable {
         var onAppearTrigger = false
         let groupId: String
-        var challengeEntityState: ParticipatingGroupChallengeListEntity = ParticipatingGroupChallengeListEntity(id: 9999, ownerId: "...", title: "Loading", totalWithParticipatingPeopleCount: "loading", hashTags: [], reward: "Loading", isSecret: false)
+        var challengeEntityState: ParticipatingGroupChallengeListEntity = ParticipatingGroupChallengeListEntity(id: 9999, ownerId: "...", title: "Loading", totalWithParticipatingPeopleCount: "loading", hashTags: [], reward: "Loading", isSecret: false, password: nil)
         var challengeStatus: [ChallengeStatusCase] = [.none, .wait, .wait]
         var topPodiumModels: [ChallengeRankEntity] = []
         var bottomListModels: [ChallengeRankEntity] = []

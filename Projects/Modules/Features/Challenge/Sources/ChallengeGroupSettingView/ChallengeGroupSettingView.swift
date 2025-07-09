@@ -116,7 +116,7 @@ extension ChallengeGroupSettingView {
                         .padding(.vertical, SpacingHelper.md.pixel)
                         .background(GBColor.background1.asColor)
                         .asButton {
-                            
+                            store.send(.viewEvent(.tappedModifyRoomSetting))
                         }
                     }
                 }

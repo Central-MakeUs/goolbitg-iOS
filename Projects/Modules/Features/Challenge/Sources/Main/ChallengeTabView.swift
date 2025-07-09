@@ -594,7 +594,8 @@ extension ChallengeTabView {
             totalWithParticipatingPeopleCount: "3/6",
             hashTags: ["배달줄이기"],
             reward: "Loading",
-            isSecret: false
+            isSecret: false,
+            password: nil
         )
     }
 }

@@ -65,6 +65,7 @@ public struct ChallengeGroupSettingViewFeature: GBReducer {
     public enum Delegate {
         case removeSuccess
         case back
+        case modifyTapped(groupID: String)
     }
     
     public enum AlertID: String {
@@ -105,7 +106,7 @@ extension ChallengeGroupSettingViewFeature {
                 state.onAppearTrigger = true
                 
                 return .run { action in
-                    // MARK: FIX ME - 알림 설정 부분이 필요함 서버측 작업이 없음
+                    // MARK: FIXME - 알림 설정 부분이 필요함 서버측 작업이 없음
                     
                     await action(.featureEvent(.requestChallengeRoomInfo))
                 }
@@ -138,6 +139,10 @@ extension ChallengeGroupSettingViewFeature {
                 case .deleteFail:
                     return .send(.alertBinding(nil))
                 }
+                
+            case .viewEvent(.tappedModifyRoomSetting):
+                let id = state.roomID
+                return .send(.delegate(.modifyTapped(groupID: id)))
                 
             case let .featureEvent(.showAlert(id)):
                 let component: GBAlertViewComponents

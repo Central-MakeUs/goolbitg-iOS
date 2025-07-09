@@ -37,6 +37,8 @@ public enum ChallengeRouter {
     case groupChallengeCreate(requestDTO: ChallengeGroupCreateRequestDTO)
     /// GroupChallenge Delete
     case groupChallengeDelete(groupID: String)
+    /// GroupChallenge Modify (PUT)
+    case groupChallengeModify(groupID: String, requestDTO: ChallengeGroupCreateRequestDTO)
 }
 
 extension ChallengeRouter: Router {
@@ -48,6 +50,8 @@ extension ChallengeRouter: Router {
             return .post
         case .challengeRecordDelete, .groupChallengeDelete:
             return .delete
+        case .groupChallengeModify:
+            return .put
         }
     }
     
@@ -86,6 +90,9 @@ extension ChallengeRouter: Router {
             return "/challengeGroups"
             
         case let .groupChallengeDelete(groupID):
+            return "/challengeGroups/\(groupID)"
+            
+        case let .groupChallengeModify(groupID, _):
             return "/challengeGroups/\(groupID)"
         }
     }
@@ -140,7 +147,8 @@ extension ChallengeRouter: Router {
                 .challengeRecordDelete,
                 .groupChallengeDetail,
                 .groupChallengeCreate,
-                .groupChallengeDelete :
+                .groupChallengeDelete,
+                .groupChallengeModify :
             
             return nil
         }
@@ -164,6 +172,10 @@ extension ChallengeRouter: Router {
         case let .groupChallengeCreate(requestDTO):
             let data = try? CodableManager.shared.jsonEncodingStrategy(requestDTO)
             return data
+            
+        case let .groupChallengeModify(_, requestDTO):
+            let data = try? CodableManager.shared.jsonEncodingStrategy(requestDTO)
+            return data
         }
     }
     
@@ -182,7 +194,7 @@ extension ChallengeRouter: Router {
             
             return .url
             
-        case .groupChallengeCreate:
+        case .groupChallengeCreate, .groupChallengeModify:
             return .json
         }
     }

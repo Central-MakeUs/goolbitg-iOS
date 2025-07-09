@@ -15,6 +15,7 @@ public enum ChallengeTabScreen {
     case groupChallengeCreate(GroupChallengeCreateViewFeature)
     case groupChallengeDetail(ChallengeGroupDetailViewFeature)
     case groupChallengeSetting(ChallengeGroupSettingViewFeature)
+    case groupChallengeModify(GroupChallengeCreateViewFeature)
 }
 
 @Reducer
@@ -46,7 +47,9 @@ public struct ChallengeTabCoordinator {
 
 extension ChallengeTabCoordinator {
     private var core: some ReducerOf<Self> {
-        Reduce { state, action in
+        Reduce {
+            state,
+            action in
             switch action {
             case .router(.routeAction(id: .home, action: .home(.delegate(.moveToGroupChallengeCreate)))):
                 
@@ -62,7 +65,7 @@ extension ChallengeTabCoordinator {
                     ),
                     embedInNavigationView: true
                 )
-            // MARK: GroupChallenge
+                // MARK: GroupChallenge
             case .router(.routeAction(id: .groupChallengeCreate, action: .groupChallengeCreate(.delegate(.dismiss)))):
                 
                 state.routes.dismiss()
@@ -73,7 +76,7 @@ extension ChallengeTabCoordinator {
                 state.routes.dismiss()
                 return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadGroupData)))))
                 
-            // MARK: GroupChallengeDetail
+                // MARK: GroupChallengeDetail
             case .router(.routeAction(id: .groupChallengeDetail, action: .groupChallengeDetail(.delegate(.back)))):
                 state.routes.dismiss()
                 
@@ -81,7 +84,9 @@ extension ChallengeTabCoordinator {
                 
                 state.routes.push(.groupChallengeSetting(ChallengeGroupSettingViewFeature.State(ifOwner: ifOwner, roomID: roomID)))
                 
-            // MARK: GroupChallengeSetting
+                
+                
+                // MARK: GroupChallengeSetting
             case .router(.routeAction(id: .groupChallengeSetting, action: .groupChallengeSetting(.delegate(.removeSuccess)))):
                 state.routes.dismiss()
                 
@@ -89,6 +94,25 @@ extension ChallengeTabCoordinator {
                 
             case .router(.routeAction(id: .groupChallengeSetting, action: .groupChallengeSetting(.delegate(.back)))):
                 state.routes.pop()
+                
+            case let .router(.routeAction(id: .groupChallengeSetting, action: .groupChallengeSetting(.delegate(.modifyTapped(groupID))))):
+                state.routes
+                    .push(
+                        .groupChallengeModify(
+                            GroupChallengeCreateViewFeature.State(
+                                mode: .modify,
+                                ifModifyRoomID: groupID
+                            )
+                        )
+                    )
+                
+            case .router(.routeAction(id: .groupChallengeModify, action: .groupChallengeModify(.delegate(.dismiss)))):
+                state.routes.pop()
+                
+            case .router(.routeAction(id: .groupChallengeModify, action: .groupChallengeModify(.delegate(.modifySuccess)))):
+                state.routes.dismiss()
+                
+                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadGroupData)))))
                 
             default:
                 break

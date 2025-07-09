@@ -36,6 +36,9 @@ public struct ParticipatingGroupChallengeListEntity: Entity {
     /// Secret Room Trigger
     public let isSecret: Bool
     
+    /// password
+    public let password: String?
+    
     public init(
         id: Int,
         ownerId: String,
@@ -43,7 +46,8 @@ public struct ParticipatingGroupChallengeListEntity: Entity {
         totalWithParticipatingPeopleCount: String,
         hashTags: [String],
         reward: String,
-        isSecret: Bool
+        isSecret: Bool,
+        password: String?
     ) {
         self.id = id
         self.ownerId = ownerId
@@ -52,6 +56,7 @@ public struct ParticipatingGroupChallengeListEntity: Entity {
         self.hashTags = hashTags
         self.reward = reward
         self.isSecret = isSecret
+        self.password = password
     }
 
 }

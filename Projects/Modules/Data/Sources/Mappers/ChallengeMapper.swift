@@ -155,7 +155,8 @@ extension ChallengeMapper {
             totalWithParticipatingPeopleCount: "\(dto.peopleCount)/\(dto.maxSize)",
             hashTags: dto.hashtags.map{ "#" + $0 },
             reward: GBNumberForMatter.shared.changeFormatToString(number: Double(dto.reward), numberStyle: .decimal),
-            isSecret: dto.isHidden
+            isSecret: dto.isHidden,
+            password: dto.password
         )
     }
     

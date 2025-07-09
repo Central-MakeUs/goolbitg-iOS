@@ -16,7 +16,7 @@ public struct GroupChallengeCreateViewFeature {
     
     @ObservableState
     public struct State: Equatable {
-        public init() {}
+        var onAppearTrigger = false
         var challengeName = ""
         var challengePrice = ""
         var challengePriceError: String? = nil
@@ -30,10 +30,32 @@ public struct GroupChallengeCreateViewFeature {
         var alertViewComponent: GBAlertViewComponents? = nil
         
         var currentState = false
+        var mode: FeatureMode
+        var ifModifyRoomID: String
+        
+        public init(mode: FeatureMode = .create, ifModifyRoomID: String = "") {
+            self.mode = mode
+            self.ifModifyRoomID = ifModifyRoomID
+        }
+    }
+    
+    public enum FeatureMode {
+        case create
+        case modify
+        
+        var title: String {
+            switch self {
+            case .create:
+                return "생성하기"
+            case .modify:
+                return "수정하기"
+            }
+        }
     }
     
     public enum Action {
         case viewAction(ViewAction)
+        case viewCycle(ViewCycle)
         case featureAction(FeatureAction)
         
         // MARK: Binding
@@ -51,6 +73,10 @@ public struct GroupChallengeCreateViewFeature {
         case delegate(Delegate)
     }
     
+    public enum ViewCycle {
+        case onAppear
+    }
+    
     public enum ViewAction {
         case tappedDismiss
         case hashTagAddTapped
@@ -59,11 +85,13 @@ public struct GroupChallengeCreateViewFeature {
         case maxTrailingButtonTapped
         case popUpViewAction(PopupViewAction)
         case createButtonTapped
+        case modifyButtonTapped
     }
     
     public enum Delegate {
         case dismiss
         case createSuccess
+        case modifySuccess
     }
     
     public enum PopupViewAction {
@@ -74,10 +102,15 @@ public struct GroupChallengeCreateViewFeature {
     public enum AlertID: String, CaseIterable {
         case roomCreateStopAlert
         case createErrorToDuplicateRoomName
+        case noChallengeGroupData
     }
     
     public enum FeatureAction {
         case alertShow(alertID: AlertID)
+        case requestRoomInfo(roomId: String)
+        case writeInfoView(ParticipatingGroupChallengeListEntity)
+        case writeMaxCount(Int)
+        case requestModify
     }
     
     
@@ -85,10 +118,12 @@ public struct GroupChallengeCreateViewFeature {
     public static let currentMaxCount = 10
     
     @Dependency(\.networkManager) var networkManager
+    @Dependency(\.challengeMapper) var challengeMapper
     
     public var body: some ReducerOf<Self> {
         addCore
         alertCore
+        featureCore
     }
 }
 
@@ -99,6 +134,20 @@ extension GroupChallengeCreateViewFeature {
             action in
             switch action {
                 
+            case .viewCycle(.onAppear):
+                if state.onAppearTrigger {
+                    return .none
+                }
+                state.onAppearTrigger = true
+                
+                let roomID = state.ifModifyRoomID
+                
+                if state.mode == .modify,
+                   !roomID.isEmpty {
+                    return .run { send in
+                        await send(.featureAction(.requestRoomInfo(roomId: roomID)))
+                    }
+                }
             case let .inputChallengeNameText(text):
                 state.challengeName = text
                 
@@ -194,6 +243,9 @@ extension GroupChallengeCreateViewFeature {
             case .viewAction(.tappedDismiss):
                 return .send(.featureAction(.alertShow(alertID: .roomCreateStopAlert)))
                 
+            case .viewAction(.modifyButtonTapped):
+                return .send(.featureAction(.requestModify))
+                
             default:
                 break
             }
@@ -226,7 +278,10 @@ extension GroupChallengeCreateViewFeature {
     }
     
     private func makeRequestBody(state: State) -> ChallengeGroupCreateRequestDTO? {
-        guard let reward = Int(state.challengePrice) else {
+        let intPrice = state.challengePrice.compactMap { Int(String($0)) }
+            .map { String($0) }.joined()
+        
+        guard let reward = Int(intPrice) else {
             return nil
         }
         
@@ -270,6 +325,8 @@ extension GroupChallengeCreateViewFeature {
                     return groupCrateStopAlertAction(state: &state, action: actions)
                 case .createErrorToDuplicateRoomName:
                     return .send(.roomCreateStopAlertComponent(nil))
+                case .noChallengeGroupData:
+                    return .send(.roomCreateStopAlertComponent(nil))
                 }
             default:
                 break
@@ -283,9 +340,10 @@ extension GroupChallengeCreateViewFeature {
         
         switch alertID {
         case .roomCreateStopAlert:
+            let text = state.mode == .create ? "생성" : "삭제"
             component = GBAlertViewComponents(
-                title: "작심삼일 생성 중단",
-                message: "작심삼일 생성하기를\n정말 중단하시겠어요?",
+                title: "작심삼일 \(text) 중단",
+                message: "작심삼일 \(text)하기를\n정말 중단하시겠어요?",
                 cancelTitle: "취소",
                 okTitle: "중단",
                 alertStyle: .warning,
@@ -295,6 +353,14 @@ extension GroupChallengeCreateViewFeature {
             component = GBAlertViewComponents(
                 title: "생성 실패",
                 message: "같은 이름의 챌린지가 이미 존재합니다.",
+                okTitle: "확인",
+                alertStyle: .warning,
+                ifNeedID: alertID.rawValue
+            )
+        case .noChallengeGroupData:
+            component = GBAlertViewComponents(
+                title: "삭제 실패",
+                message: "챌린지가 존재하지 않아요!",
                 okTitle: "확인",
                 alertStyle: .warning,
                 ifNeedID: alertID.rawValue
@@ -322,6 +388,69 @@ extension GroupChallengeCreateViewFeature {
             }
         case .cancel:
             state.alertViewComponent = nil
+            return .none
+        }
+    }
+}
+
+extension GroupChallengeCreateViewFeature {
+    
+    private var featureCore: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case let .featureAction(.requestRoomInfo(roomId)):
+                return .run { send in
+                    let result = try await networkManager.requestNetworkWithRefresh(
+                        dto: GroupChallengeDetailDTO.self,
+                        router: ChallengeRouter.groupChallengeDetail(groupID: roomId)
+                    )
+                    
+                    let challengeMapping = challengeMapper.toMappingGroupChallenge(dto: result.group)
+                    await send(.featureAction(.writeMaxCount(result.group.maxSize)))
+                    await send(.featureAction(.writeInfoView(challengeMapping)))
+                }
+                
+            case let .featureAction(.writeMaxCount(count)):
+                state.currentMaxCount = count
+                return checkLeadingTrailingButtonEnable(state: &state)
+                
+            case let .featureAction(.writeInfoView(model)):
+                state.challengeName = model.title
+                let intPrice = model.reward.compactMap { Int(String($0)) }
+                    .map { String($0) }.joined()
+                state.challengePrice = intPrice
+                state.hashTagList = model.hashTags
+                state.secretRoomState = model.isSecret
+                state.passwordText = model.password ?? ""
+                return checkedValid(state: &state)
+                
+            case .featureAction(.requestModify):
+                guard let model = makeRequestBody(state: state),
+                      !state.ifModifyRoomID.isEmpty else {
+                    return .none
+                }
+                let id = state.ifModifyRoomID
+                
+                return .run { send in
+                    let _ = try await networkManager.requestNetworkWithRefresh(
+                        dto: GroupChallengeDTO.self,
+                        router: ChallengeRouter.groupChallengeModify(groupID: id, requestDTO: model)
+                    )
+                    await send(.delegate(.modifySuccess))
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        return
+                    }
+                    if case .serverMessage(.duplicateChallengeName) = error {
+                        await send(.featureAction(.alertShow(alertID: .createErrorToDuplicateRoomName)))
+                    } else if case .serverMessage(.challengeNotFound) = error {
+                        await send(.featureAction(.alertShow(alertID: .noChallengeGroupData)))
+                    }
+                }
+                
+            default:
+                break
+            }
             return .none
         }
     }

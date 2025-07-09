@@ -26,6 +26,9 @@ struct ChallengeGroupCreateView: View {
     var body: some View {
         WithPerceptionTracking {
             contentView
+                .onAppear {
+                    store.send(.viewCycle(.onAppear))
+                }
                 .popup(
                     item: $store.alertViewComponent.sending(
                         \.roomCreateStopAlertComponent
@@ -119,7 +122,7 @@ extension ChallengeGroupCreateView {
                         .padding(.horizontal, SpacingHelper.md.pixel + SpacingHelper.sm.pixel)
                     if store.currentState {
                         VStack {
-                            Text("생성하기")
+                            Text(store.mode.title)
                                 .font(FontHelper.h3.font)
                                 .foregroundStyle(GBColor.white.asColor)
                                 .padding(.vertical, 18)
@@ -134,7 +137,12 @@ extension ChallengeGroupCreateView {
                         .clipShape(Capsule())
                         .padding(16)
                         .asButton {
-                            store.send(.viewAction(.createButtonTapped))
+                            switch store.mode {
+                            case .create:
+                                store.send(.viewAction(.createButtonTapped))
+                            case .modify:
+                                store.send(.viewAction(.modifyButtonTapped))
+                            }
                         }
                     }
                 }
