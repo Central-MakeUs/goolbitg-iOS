@@ -134,7 +134,7 @@ extension ChallengeGroupCreateView {
                         .clipShape(Capsule())
                         .padding(16)
                         .asButton {
-                            
+                            store.send(.viewAction(.createButtonTapped))
                         }
                     }
                 }

@@ -62,6 +62,12 @@ extension ChallengeTabCoordinator {
                 )
             // MARK: GroupChallenge
             case .router(.routeAction(id: .groupChallengeCreate, action: .groupChallengeCreate(.delegate(.dismiss)))):
+                
+                state.routes.dismiss()
+                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadGroupData)))))
+                
+            case .router(.routeAction(id: .groupChallengeCreate, action: .groupChallengeCreate(.delegate(.createSuccess)))):
+                
                 state.routes.dismiss()
                 return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadGroupData)))))
                 

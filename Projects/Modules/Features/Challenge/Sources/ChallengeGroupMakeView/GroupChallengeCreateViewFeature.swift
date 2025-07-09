@@ -58,10 +58,12 @@ public struct GroupChallengeCreateViewFeature {
         case maxLeadingButtonTapped
         case maxTrailingButtonTapped
         case popUpViewAction(PopupViewAction)
+        case createButtonTapped
     }
     
     public enum Delegate {
         case dismiss
+        case createSuccess
     }
     
     public enum PopupViewAction {
@@ -71,6 +73,7 @@ public struct GroupChallengeCreateViewFeature {
     
     public enum AlertID: String, CaseIterable {
         case roomCreateStopAlert
+        case createErrorToDuplicateRoomName
     }
     
     public enum FeatureAction {
@@ -81,6 +84,8 @@ public struct GroupChallengeCreateViewFeature {
     public static let currentLowCount = 2 // DEFAULT
     public static let currentMaxCount = 10
     
+    @Dependency(\.networkManager) var networkManager
+    
     public var body: some ReducerOf<Self> {
         addCore
         alertCore
@@ -89,11 +94,15 @@ public struct GroupChallengeCreateViewFeature {
 
 extension GroupChallengeCreateViewFeature {
     private var addCore: some ReducerOf<Self> {
-        Reduce { state, action in
+        Reduce {
+            state,
+            action in
             switch action {
                 
             case let .inputChallengeNameText(text):
                 state.challengeName = text
+                
+                return checkedValid(state: &state)
                 
             case let .inputChallengePriceText(text):
                 if let price = Int(text) {
@@ -107,9 +116,11 @@ extension GroupChallengeCreateViewFeature {
                 }
                 state.challengePrice = text
                 
+                return checkedValid(state: &state)
+                
             case let .inputHashTagText(text):
                 state.hashTagText = text
-            
+                
             case let .inputSecretRoomState(bool):
                 return .run { send in
                     await send(.inputSecretRoomStateAnimation(bool))
@@ -120,6 +131,7 @@ extension GroupChallengeCreateViewFeature {
                 if !bool {
                     state.passwordText = ""
                 }
+                return checkedValid(state: &state)
                 
             case let .inputPasswordText(text):
                 guard let _ = Int(text),
@@ -130,8 +142,8 @@ extension GroupChallengeCreateViewFeature {
                     return .none
                 }
                 state.passwordText = text
-                
-            // MARK: View Action
+                return checkedValid(state: &state)
+                // MARK: View Action
             case .viewAction(.hashTagAddTapped): // Hash Tag Button 클릭
                 if state.hashTagText.replacingOccurrences(of: " ", with: "")
                     .isEmpty {
@@ -141,8 +153,13 @@ extension GroupChallengeCreateViewFeature {
                     state.hashTagText = ""
                     state.hashTagList.append( "#"+current )
                 }
+                
+                return checkedValid(state: &state)
+                
             case let .viewAction(.deleteHashTagTapped(index)):
                 state.hashTagList.remove(at: index)
+                
+                return checkedValid(state: &state)
                 
             case .viewAction(.maxLeadingButtonTapped):
                 state.currentMaxCount -= 1
@@ -152,8 +169,29 @@ extension GroupChallengeCreateViewFeature {
                 state.currentMaxCount += 1
                 return checkLeadingTrailingButtonEnable(state: &state)
                 
+                // 생성하기 버튼
+            case .viewAction(.createButtonTapped):
+                guard let requestModel = makeRequestBody(state: state) else {
+                    return .none
+                }
+                return .run { send in
+                    let _ = try await networkManager.requestNetworkWithRefresh(
+                        dto: GroupChallengeDTO.self,
+                        router: ChallengeRouter.groupChallengeCreate(requestDTO: requestModel)
+                    )
+                    await send(.delegate(.createSuccess))
+                } catch: {
+                    error,
+                    send in
+                    guard let error = error as? RouterError else {
+                        return
+                    }
+                    if case .serverMessage(.duplicateChallengeName) = error {
+                        await send(.featureAction(.alertShow(alertID: .createErrorToDuplicateRoomName)))
+                    }
+                }
+                // 뒤로가기
             case .viewAction(.tappedDismiss):
-                
                 return .send(.featureAction(.alertShow(alertID: .roomCreateStopAlert)))
                 
             default:
@@ -179,15 +217,29 @@ extension GroupChallengeCreateViewFeature {
             currentState = true
         }
         
-        if state.secretRoomState,
-           !state.passwordText.isEmpty {
-            currentState = true
-        } else {
-            currentState = false
+        if state.secretRoomState {
+            currentState = state.passwordText.count == 4
         }
         
         state.currentState = currentState
         return .none
+    }
+    
+    private func makeRequestBody(state: State) -> ChallengeGroupCreateRequestDTO? {
+        guard let reward = Int(state.challengePrice) else {
+            return nil
+        }
+        
+        let removeSp = state.hashTagList.map { $0.replacingOccurrences(of: "#", with: "") }
+        
+        return ChallengeGroupCreateRequestDTO(
+            title: state.challengeName,
+            hashtags: removeSp,
+            reward: reward,
+            maxSize: state.currentMaxCount,
+            isHidden: state.secretRoomState,
+            password: state.passwordText.isEmpty ? nil : state.passwordText
+        )
     }
 }
 
@@ -216,6 +268,8 @@ extension GroupChallengeCreateViewFeature {
                 switch caseOf {
                 case .roomCreateStopAlert:
                     return groupCrateStopAlertAction(state: &state, action: actions)
+                case .createErrorToDuplicateRoomName:
+                    return .send(.roomCreateStopAlertComponent(nil))
                 }
             default:
                 break
@@ -234,6 +288,14 @@ extension GroupChallengeCreateViewFeature {
                 message: "작심삼일 생성하기를\n정말 중단하시겠어요?",
                 cancelTitle: "취소",
                 okTitle: "중단",
+                alertStyle: .warning,
+                ifNeedID: alertID.rawValue
+            )
+        case .createErrorToDuplicateRoomName:
+            component = GBAlertViewComponents(
+                title: "생성 실패",
+                message: "같은 이름의 챌린지가 이미 존재합니다.",
+                okTitle: "확인",
                 alertStyle: .warning,
                 ifNeedID: alertID.rawValue
             )

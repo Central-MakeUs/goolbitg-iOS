@@ -83,8 +83,7 @@ extension ParticipatingChallengeGroupElementView {
     }
     
     private func hashTagsView(hashTags: [String]) -> some View {
-        let mapping = hashTags.map { return "#" + $0 }
-        let oneLine = mapping.joined(separator: " ")
+        let oneLine = hashTags.joined(separator: " ")
         
         return HStack(spacing: 0) {
             Text(oneLine)

@@ -33,6 +33,8 @@ public enum ChallengeRouter {
     )
     /// GroupChallenge DETAIL
     case groupChallengeDetail(groupID: String)
+    /// GroupChallenge Create
+    case groupChallengeCreate(requestDTO: ChallengeGroupCreateRequestDTO)
 }
 
 extension ChallengeRouter: Router {
@@ -40,7 +42,7 @@ extension ChallengeRouter: Router {
         switch self {
         case .challengeList, .challengeRecords, .challengeTripple, .groupChallengeList, .groupChallengeDetail:
             return .get
-        case .challengeEnroll, .challengeRecordCheck:
+        case .challengeEnroll, .challengeRecordCheck, .groupChallengeCreate:
             return .post
         case .challengeRecordDelete:
             return .delete
@@ -77,6 +79,9 @@ extension ChallengeRouter: Router {
             
         case let .groupChallengeDetail(groupID):
             return "/challengeGroups/\(groupID)"
+            
+        case .groupChallengeCreate:
+            return "/challengeGroups"
         }
     }
     
@@ -123,7 +128,7 @@ extension ChallengeRouter: Router {
             
             return defaultValue
             
-        case .challengeEnroll, .challengeTripple, .challengeRecordCheck, .challengeRecordDelete, .groupChallengeDetail:
+        case .challengeEnroll, .challengeTripple, .challengeRecordCheck, .challengeRecordDelete, .groupChallengeDetail, .groupChallengeCreate:
             return nil
         }
     }
@@ -140,7 +145,9 @@ extension ChallengeRouter: Router {
                 .groupChallengeList,
                 .groupChallengeDetail:
             return nil
-            
+        case let .groupChallengeCreate(requestDTO):
+            let data = try? CodableManager.shared.jsonEncodingStrategy(requestDTO)
+            return data
         }
     }
     
@@ -156,6 +163,9 @@ extension ChallengeRouter: Router {
                 .groupChallengeList,
                 .groupChallengeDetail:
             return .url
+            
+        case .groupChallengeCreate:
+            return .json
         }
     }
   
