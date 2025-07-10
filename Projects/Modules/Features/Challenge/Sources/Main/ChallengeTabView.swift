@@ -173,7 +173,7 @@ extension ChallengeTabView {
                     .frame(width: 24)
                     .foregroundStyle(GBColor.grey300.asColor)
                     .asButton {
-                       
+                        store.send(.viewEvent(.groupChallengeRoomSearchViewMoveTapped))
                     }
             }
             

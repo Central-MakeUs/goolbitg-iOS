@@ -70,6 +70,7 @@ public struct ChallengeTabFeature: GBReducer {
             
             case moveToGroupChallengeCreate
             case moveToGroupChallengeDetail(groupID: String)
+            case moveToGroupChallengeSearchView
         }
         
         case datePickerMonth(Date)
@@ -93,6 +94,7 @@ public struct ChallengeTabFeature: GBReducer {
         case currentIndex(Int)
         
         case groupChallengeViewEvent(GroupChallengeViewEvent)
+        case groupChallengeRoomSearchViewMoveTapped
         
         public enum GroupChallengeViewEvent {
             case selectedParticipatingModel(entity: ParticipatingGroupChallengeListEntity)
@@ -530,16 +532,19 @@ extension ChallengeTabFeature {
             case .viewEvent(.groupChallengeViewEvent(.onlyMakeMeButtonTapped)):
                 
                 return .run { send in
-                    
                     await send(.groupChallengeFeatureEvent(.toggleToOnlyMakeMeButton))
-                               
-                }.throttle(id: CancelID.onlyMakeMeButtonTapped, for: 2, scheduler: GBUISchedulerInstance, latest: false)
+                }
+                .throttle(id: CancelID.onlyMakeMeButtonTapped, for: 2, scheduler: GBUISchedulerInstance, latest: false)
+                   
                 
             case let .viewEvent(.groupChallengeViewEvent(.selectedParticipatingModel(entity))):
                 return .send(.delegate(.moveToGroupChallengeDetail(groupID: String(entity.id))))
                 
             case .viewEvent(.groupChallengeViewEvent(.showGroupChallengeAddView)): // GroupChallengeCreate 뷰로 이동
                 return .send(.delegate(.moveToGroupChallengeCreate))
+                
+            case .viewEvent(.groupChallengeRoomSearchViewMoveTapped):
+                return .send(.delegate(.moveToGroupChallengeSearchView))
                 
             case let .groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst, doNotReset)):
                 

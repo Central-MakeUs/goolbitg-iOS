@@ -16,6 +16,7 @@ public enum ChallengeTabScreen {
     case groupChallengeDetail(ChallengeGroupDetailViewFeature)
     case groupChallengeSetting(ChallengeGroupSettingViewFeature)
     case groupChallengeModify(GroupChallengeCreateViewFeature)
+    case groupChallengeSearch(ChallengeGroupSearchViewFeature)
 }
 
 @Reducer
@@ -58,6 +59,14 @@ extension ChallengeTabCoordinator {
                         GroupChallengeCreateViewFeature.State()
                     )
                 )
+            case .router(.routeAction(id: .home, action: .home(.delegate(.moveToGroupChallengeSearchView)))):
+                
+                state.routes.presentCover(
+                    .groupChallengeSearch(
+                        ChallengeGroupSearchViewFeature.State()
+                    )
+                )
+                
             case let .router(.routeAction(id: .home, action: .home(.delegate(.moveToGroupChallengeDetail(groupID))))):
                 state.routes.presentCover(
                     .groupChallengeDetail(

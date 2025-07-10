@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct GroupChallengePagingObj: Equatable {
+public struct GroupChallengePagingObj: Equatable, Hashable {
     
     public var totalCount: Int?
     public var totalPages: Int?
