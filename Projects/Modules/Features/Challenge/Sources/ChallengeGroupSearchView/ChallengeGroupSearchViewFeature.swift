@@ -25,6 +25,11 @@ public struct ChallengeGroupSearchViewFeature: GBReducer {
         var listItems: [ParticipatingGroupChallengeListEntity] = []
         
         var groupChallengePagingObj = GroupChallengePagingObj()
+        
+        var popUpGroupID: String? = nil
+        var popUpGroupIsSecret: Bool = false
+        var selectedRoomPopupComponent: ParticipationAlertViewComponents? = nil
+        var popupPasswordText: String = ""
     }
     
     public enum Action {
@@ -33,6 +38,8 @@ public struct ChallengeGroupSearchViewFeature: GBReducer {
         case featureEvent(FeatureEvent)
 
         case searchTextBinding(String)
+        case selectedRoomPopupComponentBinding(ParticipationAlertViewComponents?)
+        case popupPasswordTextBinding(String)
     }
     
     public enum ViewCycle {
@@ -42,6 +49,9 @@ public struct ChallengeGroupSearchViewFeature: GBReducer {
     public enum ViewEvent {
         case moreItem
         case tappedItem(ParticipatingGroupChallengeListEntity)
+        
+        case popUpCancel
+        case popUpJoin
     }
     
     public enum FeatureEvent {
@@ -96,6 +106,39 @@ extension ChallengeGroupSearchViewFeature {
                     }
                     .debounce(id: CancelID.paging, for: 0.5, scheduler: GBUISchedulerInstance)
                 }
+                
+            case let .viewEvent(.tappedItem(model)):
+                let id = model.id
+                let component = ParticipationAlertViewComponents(
+                    title: model.title,
+                    hashTags: model.hashTags,
+                    isHidden: model.isSecret,
+                    minMaxText: model.totalWithParticipatingPeopleCount
+                )
+                state.popUpGroupID = String(id)
+                state.popUpGroupIsSecret = model.isSecret
+                
+                return .send(.selectedRoomPopupComponentBinding(component))
+                
+            case .viewEvent(.popUpCancel):
+                state.popUpGroupID = nil
+                state.popupPasswordText = ""
+                return .send(.selectedRoomPopupComponentBinding(nil))
+                
+            case .viewEvent(.popUpJoin):
+                guard let id = state.popUpGroupID else {
+                    state.popupPasswordText = ""
+                    state.popUpGroupID = nil
+                    return .send(.selectedRoomPopupComponentBinding(nil))
+                }
+                
+                return .run { send in
+//                    let result = networkManager.requestNotDtoNetwork(
+//                        router: ChallengeRouter.groupChallengeDelete(groupID: String),
+//                        ifRefreshNeed: <#T##Bool#>
+//                    )
+                }
+                
             case let .searchTextBinding(text):
                 state.searchText = text
                 
@@ -103,6 +146,12 @@ extension ChallengeGroupSearchViewFeature {
                     await send(.featureEvent(.requestSearchItem(text: text, append: false)))
                 }
                 .debounce(id: CancelID.searchItem, for: 0.6, scheduler: GBUISchedulerInstance)
+                
+            case let .selectedRoomPopupComponentBinding(model):
+                state.selectedRoomPopupComponent = model
+                
+            case let .popupPasswordTextBinding(text):
+                state.popupPasswordText = text
                 
             case .featureEvent(.resetSearchItem):
                 state.groupChallengePagingObj = GroupChallengePagingObj()

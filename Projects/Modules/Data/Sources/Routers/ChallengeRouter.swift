@@ -39,6 +39,8 @@ public enum ChallengeRouter {
     case groupChallengeDelete(groupID: String)
     /// GroupChallenge Modify (PUT)
     case groupChallengeModify(groupID: String, requestDTO: ChallengeGroupCreateRequestDTO)
+    /// ChallengeGroup Join (Post)
+//    case groupChallengeJoin(groupID: String)
 }
 
 extension ChallengeRouter: Router {

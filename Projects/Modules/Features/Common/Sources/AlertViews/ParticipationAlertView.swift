@@ -7,27 +7,23 @@
 
 import SwiftUI
 import Utils
-
-public struct ParticipationAlertViewComponents {
-    public let title: String
-    public let hashTags: [String]
-    public let isHidden: Bool
-    public let minMaxText: String
-}
+import Data
 
 public struct ParticipationAlertView: View {
     
     private let components: ParticipationAlertViewComponents
-    @State public var password: String = ""
+    @Binding public var password: String
     public let onClose: () -> Void
     public let onJoin: () -> Void
     
     public init(
         components: ParticipationAlertViewComponents,
+        textBinding: Binding<String>,
         onClose: @escaping () -> Void,
         onJoin: @escaping () -> Void
     ) {
         self.components = components
+        self._password = textBinding
         self.onClose = onClose
         self.onJoin = onJoin
     }
@@ -207,7 +203,10 @@ extension ParticipationAlertView {
 
 
 #if DEBUG
+@available(iOS 17, *)
 #Preview {
+    @Previewable @State var testText = ""
+    
     ParticipationAlertView(
         components: ParticipationAlertViewComponents(
             title: "커피 값 모아 태산",
@@ -220,7 +219,7 @@ extension ParticipationAlertView {
             ],
             isHidden: true,
             minMaxText: "2/10"
-        )
+        ), textBinding: $testText
     ) {
         
     } onJoin: {
@@ -228,5 +227,4 @@ extension ParticipationAlertView {
     }
 
 }
-
 #endif

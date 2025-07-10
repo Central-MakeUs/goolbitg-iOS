@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import PopupView
 import Utils
 import FeatureCommon
 
@@ -23,6 +24,25 @@ struct ChallengeGroupSearchView: View {
                 .background(GBColor.background1.asColor)
                 .onAppear {
                     store.send(.viewCycle(.onAppear))
+                }
+                .popup(item: $store.selectedRoomPopupComponent.sending(\.selectedRoomPopupComponentBinding)) { model in
+                    ParticipationAlertView(
+                        components: model,
+                        textBinding: $store.popupPasswordText.sending(\.popupPasswordTextBinding)
+                    ) {
+                        store.send(.viewEvent(.popUpCancel))
+                    } onJoin: {
+                        store.send(.viewEvent(.popUpJoin))
+                    }
+                } customize: {
+                    $0
+                        .animation(.easeInOut)
+                        .type(.default)
+                        .displayMode(.sheet)
+                        .appearFrom(.centerScale)
+                        .closeOnTap(false)
+                        .closeOnTapOutside(false)
+                        .backgroundColor(Color.black.opacity(0.5))
                 }
         }
     }
