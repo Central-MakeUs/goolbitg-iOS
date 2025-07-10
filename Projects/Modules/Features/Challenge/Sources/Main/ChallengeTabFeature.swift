@@ -121,10 +121,11 @@ public struct ChallengeTabFeature: GBReducer {
     }
     
     public enum GroupChallengeFeatureEvent {
-        case requestGroupChallengeList(atFirst: Bool = true)
+        case requestGroupChallengeList(atFirst: Bool = true, doNotReset: Bool = false)
         case changeLoadState(ifLoad: Bool)
         case resultGroupChallengeList(models: [ParticipatingGroupChallengeListEntity], ifAppend: Bool)
         case updateGroupChallengePagingObj(totalSize: Int, totalPages: Int, page: Int, size: Int)
+        case toggleToOnlyMakeMeButton
     }
     
     public enum ParentEvent {
@@ -135,6 +136,7 @@ public struct ChallengeTabFeature: GBReducer {
     enum CancelID: Hashable {
         case switchToggle
         case checkWeekDate
+        case onlyMakeMeButtonTapped
     }
     
     @Dependency(\.dateManager) var dateManager
@@ -527,8 +529,11 @@ extension ChallengeTabFeature {
                 // MARK: GroupView Event
             case .viewEvent(.groupChallengeViewEvent(.onlyMakeMeButtonTapped)):
                 
-                state.groupOnlyMakeMeTrigger.toggle()
-                // Network 작업이 필요할지도
+                return .run { send in
+                    
+                    await send(.groupChallengeFeatureEvent(.toggleToOnlyMakeMeButton))
+                               
+                }.throttle(id: CancelID.onlyMakeMeButtonTapped, for: 2, scheduler: GBUISchedulerInstance, latest: false)
                 
             case let .viewEvent(.groupChallengeViewEvent(.selectedParticipatingModel(entity))):
                 return .send(.delegate(.moveToGroupChallengeDetail(groupID: String(entity.id))))
@@ -536,9 +541,9 @@ extension ChallengeTabFeature {
             case .viewEvent(.groupChallengeViewEvent(.showGroupChallengeAddView)): // GroupChallengeCreate 뷰로 이동
                 return .send(.delegate(.moveToGroupChallengeCreate))
                 
-            case let .groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst)):
+            case let .groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst, doNotReset)):
                 
-                if atFirst {
+                if atFirst && !doNotReset {
                     state.groupChallengePagingObj = GroupChallengePagingObj()
                 }
                 let pagingObj = state.groupChallengePagingObj
@@ -597,6 +602,15 @@ extension ChallengeTabFeature {
                 
             case let .groupChallengeFeatureEvent(.changeLoadState(ifLoad)):
                 state.groupListLoad = ifLoad
+                
+            case .groupChallengeFeatureEvent(.toggleToOnlyMakeMeButton):
+                state.groupOnlyMakeMeTrigger.toggle()
+                state.groupChallengePagingObj = GroupChallengePagingObj()
+                state.groupChallengePagingObj.created = state.groupOnlyMakeMeTrigger
+                
+                return .run { send in
+                    await send(.groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst: true, doNotReset: true)))
+                }
                 
             case .parentEvent(.reloadGroupData):
                 return .send(.groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst: true)))

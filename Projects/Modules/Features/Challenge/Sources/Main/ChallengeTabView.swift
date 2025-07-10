@@ -505,12 +505,16 @@ extension ChallengeTabView {
     /// 본인이 만든 방만 보는 뷰
     private var showOnlySelfMakeRoomButton: some View {
         HStack(spacing: 0) {
-            Image(uiImage: ImageHelper.checkMark2.image)
-                .padding(.trailing, 8)
+            Image(uiImage: store.groupOnlyMakeMeTrigger ? ImageHelper.checked.image : ImageHelper.unChecked.image)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 16)
+                .padding(.trailing, 2)
+                
             
             Text(TextHelper.groupChallengeTexts(.onlyMakeMeShow).text)
                 .font(FontHelper.body3.font)
-                .foregroundStyle(GBColor.grey400.asColor)
+                .foregroundStyle(store.groupOnlyMakeMeTrigger ? GBColor.white.asColor : GBColor.grey400.asColor)
         }
         .asButton {
             store.send(.viewEvent(.groupChallengeViewEvent(.onlyMakeMeButtonTapped)))
