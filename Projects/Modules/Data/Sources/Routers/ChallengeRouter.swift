@@ -39,6 +39,8 @@ public enum ChallengeRouter {
     case groupChallengeDelete(groupID: String)
     /// GroupChallenge Modify (PUT)
     case groupChallengeModify(groupID: String, requestDTO: ChallengeGroupCreateRequestDTO)
+    /// ChallengeGroupTripple
+    case groupChallengeTripple(groupID: String)
     /// ChallengeGroup Join (Post)
 //    case groupChallengeJoin(groupID: String)
 }
@@ -54,6 +56,8 @@ extension ChallengeRouter: Router {
             return .delete
         case .groupChallengeModify:
             return .put
+        case .groupChallengeTripple:
+            return .get
         }
     }
     
@@ -96,6 +100,9 @@ extension ChallengeRouter: Router {
             
         case let .groupChallengeModify(groupID, _):
             return "/challengeGroups/\(groupID)"
+            
+        case let .groupChallengeTripple(groupID):
+            return "/challengeGroups/\(groupID)/tripple"
         }
     }
     
@@ -150,7 +157,8 @@ extension ChallengeRouter: Router {
                 .groupChallengeDetail,
                 .groupChallengeCreate,
                 .groupChallengeDelete,
-                .groupChallengeModify :
+                .groupChallengeModify,
+                .groupChallengeTripple :
             
             return nil
         }
@@ -167,7 +175,8 @@ extension ChallengeRouter: Router {
                 .challengeRecordDelete,
                 .groupChallengeList,
                 .groupChallengeDetail ,
-                .groupChallengeDelete :
+                .groupChallengeDelete,
+                .groupChallengeTripple :
             
             return nil
             
@@ -192,7 +201,8 @@ extension ChallengeRouter: Router {
                 .challengeRecordDelete,
                 .groupChallengeList,
                 .groupChallengeDetail,
-                .groupChallengeDelete:
+                .groupChallengeDelete,
+                .groupChallengeTripple :
             
             return .url
             

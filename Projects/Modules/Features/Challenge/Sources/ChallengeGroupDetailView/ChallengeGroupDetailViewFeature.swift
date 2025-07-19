@@ -56,10 +56,13 @@ public struct ChallengeGroupDetailViewFeature: GBReducer {
     
     public enum FeatureEvent {
         case requestChallengeGroupDetail(groupID: String)
+        case requestBottomSheetInfo(groupID: String)
         
         case topRankUpdated([ChallengeRankEntity])
         case bottomRankUpdated([ChallengeRankEntity])
         case challengeInfoUpdate(ParticipatingGroupChallengeListEntity)
+        
+        case updateBottomSheetTripple([ChallengeStatusCase])
     }
     
     @Dependency(\.networkManager) var networkManager
@@ -80,7 +83,11 @@ extension ChallengeGroupDetailViewFeature {
                 if state.onAppearTrigger { return .none }
                 state.onAppearTrigger = true
                 
-                return .send(.featureEvent(.requestChallengeGroupDetail(groupID: state.groupId)))
+                return .run { [state] send in
+                    await send(.featureEvent(.requestChallengeGroupDetail(groupID: state.groupId)))
+                    
+                    await send(.featureEvent(.requestBottomSheetInfo(groupID: state.groupId)))
+                }
                 
             case .viewEvent(.settingButtonTapped):
                 let roomID = state.groupId
@@ -118,6 +125,29 @@ extension ChallengeGroupDetailViewFeature {
                         if case .serverMessage(let model) = error {
                             if model.rawValue == 4004 {
                                 await send(.showErrorMessage(message: "챌린지가 존재하지 않습니다."))
+                            }
+                        }
+                    } else {
+                        await send(.showErrorMessage(message: "문제가 발생하였습니다."))
+                    }
+                }
+                
+            case let .featureEvent(.requestBottomSheetInfo(groupID)):
+                
+                return .run { send in
+                    let result = try await networkManager.requestNetworkWithRefresh(dto: ChallengeGroupTrippleDTO.self, router: ChallengeRouter.groupChallengeTripple(groupID: groupID))
+                    
+                    let mapping = challengeMapper.toMappingGroupChallengeTippleInfo(dto: result)
+                    
+                    await send(.featureEvent(.updateBottomSheetTripple(mapping)))
+                    
+                } catch: { error, send in
+                    if let error = error as? RouterError {
+                        if case .serverMessage(let model) = error {
+                            if model.rawValue == 4004 {
+                                await send(.showErrorMessage(message: "챌린지가 존재하지 않습니다."))
+                            } else if model.rawValue == 4002 {
+                                await send(.showErrorMessage(message: "해당 챌린지를 참여하고 있지 않습니다."))
                             }
                         }
                     } else {

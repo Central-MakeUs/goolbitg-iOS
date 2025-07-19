@@ -173,6 +173,13 @@ extension ChallengeMapper {
             priceText: GBNumberForMatter.shared.changeFormatToString(number: Double(dto.saving), numberStyle: .decimal)
         )
     }
+    
+    
+    public func toMappingGroupChallengeTippleInfo(dto: ChallengeGroupTrippleDTO) -> [ChallengeStatusCase] {
+        
+        return [dto.check1, dto.check2, dto.check3].map { ChallengeStatusCase.getSelf(initValue: $0.rawValue)
+        }
+    }
 }
 
 
