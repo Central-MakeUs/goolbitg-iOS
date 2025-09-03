@@ -9,74 +9,105 @@ import Foundation
 import Alamofire
 
 final class GBRequestInterceptor: RequestInterceptor {
-    
-    private let retryCount = AnyValueActor(3)
-    
-    func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, any Error>) -> Void) {
-        var urlRequest = urlRequest
-        urlRequest.headers.add(.authorization(bearerToken: UserDefaultsManager.accessToken))
-        completion(.success(urlRequest))
+
+    private let maxRetryCountPerRequest = 2
+
+    private let isRefreshing = LockIsRefreshing()
+
+    func adapt(_ urlRequest: URLRequest, for session: Session,
+               completion: @escaping (Result<URLRequest, Error>) -> Void) {
+        var req = urlRequest
+        req.headers.add(.authorization(bearerToken: UserDefaultsManager.accessToken))
+        completion(.success(req))
     }
-    
-    func retry(_ request: Request, for session: Session, dueTo error: any Error, completion: @escaping @Sendable (RetryResult) -> Void) {
-        Task {
-            guard let statusCode = request.response?.statusCode,
-                  let apiResult = APIErrorEntity(rawValue: statusCode) else {
-                if let statusCode = request.response?.statusCode,
-                   statusCode == 401 {
-                    if UserDefaultsManager.refreshToken == "root_user_refresh_token" {
-                        await RootLoginManager.login()
-                        completion(.retry)
-                    } else if await requestRefresh() {
-                        completion(.retry)
-                    } else {
-                        completion(.doNotRetry)
-                    }
-                } else {
-                    completion(.doNotRetry)
+
+    func retry(_ request: Request, for session: Session, dueTo error: Error,
+               completion: @escaping (RetryResult) -> Void) {
+
+        // refresh 엔드포인트는 재시도 금지
+        if let path = request.request?.url?.path,
+           path.contains("/auth/refresh") {
+            completion(.doNotRetry); return
+        }
+
+        // 요청 단위 상한
+        if request.retryCount >= maxRetryCountPerRequest {
+            completion(.doNotRetry); return
+        }
+
+        // HTTP 상태 확인
+        guard let statusCode = request.response?.statusCode else {
+            completion(.doNotRetry); return
+        }
+
+        // 401 --> 만료 처리
+        if statusCode == 401 || APIErrorEntity(rawValue: statusCode) == .tokenExpiration {
+            // 리프레시 토큰 없으면 재시도 X
+            guard !UserDefaultsManager.refreshToken.isEmpty else {
+                completion(.doNotRetry); return
+            }
+
+            // DEBUG 특수 케이스
+            if UserDefaultsManager.refreshToken == "root_user_refresh_token" {
+                Task {
+                    await RootLoginManager.login()
+                    completion(.retry) // 새 토큰으로 재시도
                 }
                 return
             }
-            if (apiResult == .tokenExpiration || statusCode == 401) && (UserDefaultsManager.refreshToken != "") {
-                if UserDefaultsManager.refreshToken == "root_user_refresh_token" {
-                    await RootLoginManager.login()
-                    completion(.retry)
-                } else if await requestRefresh() {
-                    completion(.retry)
+
+            Task {
+                let refreshed = await refreshIfNeeded()
+
+                if refreshed {
+                    completion(.retry); return
                 } else {
-                    completion(.doNotRetry)
+                    completion(.doNotRetry); return
                 }
             }
-            else {
-                completion(.doNotRetry)
-            }
+            return
         }
+
+        // 그 외 상태코드: 재시도 안 함
+        completion(.doNotRetry); return
     }
-    
-    private func requestRefresh() async -> Bool {
-        
-        let retryCurrent = await retryCount.withValue {
-           return $0 > 0
+
+    // MARK: - Refresh
+    private func refreshIfNeeded() async -> Bool {
+        if await isRefreshing.startIfNotRunning() == false {
+            try? await Task.sleep(nanoseconds: 300_000_000) // 0.3s
+            return !UserDefaultsManager.accessToken.isEmpty
         }
         
-        if !retryCurrent { return false }
-        
+        defer { Task { await isRefreshing.finish() } }
+
+        // 실제 리프레시
+        if UserDefaultsManager.refreshToken == "root_user_refresh_token" {
+            return true
+        }
+
         let result = try? await NetworkManager.shared.requestNetwork(
             dto: AccessTokenDTO.self,
-            router: AuthRouter.refresh(
-                refreshToken: UserDefaultsManager.refreshToken
-            )
+            router: AuthRouter.refresh(refreshToken: UserDefaultsManager.refreshToken)
         )
-        
-        guard let result else { return false }
-        print("마사카")
-        UserDefaultsManager.accessToken = result.accessToken
-        UserDefaultsManager.refreshToken = result.refreshToken
-        await retryCount.withValue { num in
-            num -= 1
-        }
+
+        guard let dto = result else { return false }
+        UserDefaultsManager.accessToken = dto.accessToken
+        UserDefaultsManager.refreshToken = dto.refreshToken
+        return true
+    }
+}
+
+/// 단순 동기화 유틸
+actor LockIsRefreshing {
+    
+    private var running = false
+    
+    func startIfNotRunning() -> Bool {
+        if running { return false }
+        running = true
         return true
     }
     
+    func finish() { running = false }
 }
-
