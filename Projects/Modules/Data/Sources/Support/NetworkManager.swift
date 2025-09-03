@@ -200,30 +200,30 @@ extension NetworkManager {
     }
     
     private func retryNetwork<T: DTO, R: Router>(dto: T.Type, router: R, ifRefresh: Bool) async throws(RouterError) -> T {
-        let ifRetry = await retryActor.withValue { value in
-            Logger.info("retry Count : \(value)")
-            return value > 0
-        }
-        
+       
         do {
-            if ifRetry {
-                let response = try await getRequest(dto: dto, router: router, request: router.asURLRequest())
-                
-                switch response.result {
-                case let .success(data):
-                    return data
-                case .failure(_):
-                    await downRetryCount()
+            let response = try await getRequest(dto: dto, router: router, request: router.asURLRequest())
+            
+            switch response.result {
+            case let .success(data):
+                return data
+            case .failure(_):
+                await downRetryCount()
+                if await retryActor.withValue({ $0 <= 0 }) {
+                    if response.response?.statusCode == 401 {
+                        throw RouterError.refreshFailGoRoot
+                    } else {
+                        throw RouterError.retryFail
+                    }
+                } else {
                     return try await retryNetwork(dto: dto, router: router, ifRefresh: ifRefresh)
                 }
-            } else {
-                throw RouterError.retryFail
             }
         } catch {
             throw RouterError.unknown(errorCode: String(-999999))
         }
     }
-    
+//    
     private func downRetryCount() async {
         await retryActor.withValue { value in
             value -= 1
@@ -239,7 +239,7 @@ extension NetworkManager {
                 let errorResponse = try CodableManager.shared.jsonDecoding(model: APIErrorDTO.self, from: data)
                 
                 guard let errorModel = APIErrorEntity.getSelf(code: errorResponse.code) else {
-                    return RouterError.unknown(errorCode: "ERROR MODEL DECODING FAIL")
+                    return RouterError.errorModelDecodingFail
                 }
                 
                 let errorMessage = RouterError.serverMessage(errorModel)
@@ -247,25 +247,10 @@ extension NetworkManager {
                 return errorMessage
                 
             } catch {
-                return RouterError.unknown(errorCode: "ERROR MODEL DECODING FAIL")
+                return RouterError.errorModelDecodingFail
             }
         } else {
-            return catchURLError(error)
-        }
-    }
-    
-    private func catchURLError(_ error: AFError) -> RouterError {
-        if let afError = error.asAFError, let urlError = afError.underlyingError as? URLError {
-            switch urlError.code {
-            case .timedOut:
-                networkError.send(.timeOut)
-                return .timeOut
-                
-            default:
-                return .unknown(errorCode: "TIME OUT")
-            }
-        } else {
-            return .unknown(errorCode: "TIME OUT")
+            return .unknown(errorCode: "999999")
         }
     }
     
