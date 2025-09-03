@@ -85,7 +85,7 @@ extension ChallengeGroupDetailViewFeature {
                 
                 return .run { [state] send in
                     await send(.featureEvent(.requestChallengeGroupDetail(groupID: state.groupId)))
-                    
+                    // MARK: TODO - "해당 액션에서 사이드 이펙트 발생 서버 에러"
                     await send(.featureEvent(.requestBottomSheetInfo(groupID: state.groupId)))
                 }
                 

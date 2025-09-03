@@ -23,6 +23,7 @@ public struct RootLoginManager: Sendable {
         }
 #if DEV
         print("ROOT :\(result.accessToken) ")
+        print("ROOT: \(result.refreshToken)")
 #endif
         UserDefaultsManager.accessToken = result.accessToken
         UserDefaultsManager.refreshToken = result.refreshToken

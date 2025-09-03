@@ -16,4 +16,6 @@ public enum RouterError: Error {
     case serverMessage(APIErrorEntity)
     case unknown(errorCode: String)
     case cancel
+    case errorModelDecodingFail
+    case refreshFailGoRoot
 }

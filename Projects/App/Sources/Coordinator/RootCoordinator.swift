@@ -129,16 +129,26 @@ extension RootCoordinator {
                 
             case .getRouterError(let error):
                 
-                guard case .serverMessage(let entity) = error else {
+                switch error {
+                case .decodingFail, .encodingFail, .cancel, .errorModelDecodingFail:
+                    return .none
+                    
+                case .refreshFailGoRoot:
                     UserDefaultsManager.resetUser()
                     state.splashLogin.routes.popToRoot()
                     state.currentView = .splashLogin
                     return .none
-                }
-                
-                if entity == .tokenExpiration || entity == .noCredentials || entity == .notRegisteredMember {
+                    
+                case .serverMessage(let entity):
+                    if entity == .tokenExpiration || entity == .noCredentials || entity == .notRegisteredMember {
+                        state.currentView = .splashLogin
+                        state.splashLogin.routes.push(.login(LoginViewFeature.State()))
+                    }
+                    
+                default:
+                    UserDefaultsManager.resetUser()
+                    state.splashLogin.routes.popToRoot()
                     state.currentView = .splashLogin
-                    state.splashLogin.routes.push(.login(LoginViewFeature.State()))
                 }
                 
             case .onAppearFromBackground:
