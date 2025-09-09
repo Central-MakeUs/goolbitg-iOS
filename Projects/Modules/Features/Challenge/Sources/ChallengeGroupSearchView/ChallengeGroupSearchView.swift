@@ -52,8 +52,11 @@ extension ChallengeGroupSearchView {
     private var contentView: some View {
         VStack {
             navigationView
+                .padding(.top, 12)
                 .padding(.horizontal, 16)
+            
             searchResultTopSection
+                .padding(.top, 24)
                 .padding(.horizontal, 16)
                 .padding(.bottom, SpacingHelper.md.pixel)
             
@@ -72,7 +75,7 @@ extension ChallengeGroupSearchView {
                     .resizable()
                     .frame(width: 32, height: 32)
                     .asButton {
-                        
+                        store.send(.viewEvent(.backButtonTapped))
                     }
             }
             HStack(spacing: 0) {
@@ -136,7 +139,6 @@ extension ChallengeGroupSearchView {
     
     var searchResultListView: some View {
         LazyVStack(spacing: 0) {
-            // ParticipatingChallengeGroupElementView
             ForEach(Array(store.listItems.enumerated()), id: \.element.self) { index, item in
                 VStack(spacing: 0) {
                     ParticipatingChallengeGroupElementView(entity: item)

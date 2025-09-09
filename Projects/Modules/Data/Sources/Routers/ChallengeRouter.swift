@@ -110,7 +110,7 @@ extension ChallengeRouter: Router {
     }
     
     public var optionalHeaders: HTTPHeaders? {
-        return [ "application/json" : "Content-Type" ]
+        return [ "Content-Type" : "application/json" ]
     }
     
     public var parameters: Parameters? {
@@ -142,8 +142,8 @@ extension ChallengeRouter: Router {
             var defaultValue: [String: any Any & Sendable] = [
                 "page" : page,
                 "size" : size,
-                "created" : created,
-                "participating": participating
+                "created" : created.description,
+                "participating": participating.description
             ]
             
             if let searchText {

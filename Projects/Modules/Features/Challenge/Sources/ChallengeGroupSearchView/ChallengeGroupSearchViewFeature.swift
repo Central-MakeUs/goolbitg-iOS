@@ -36,10 +36,15 @@ public struct ChallengeGroupSearchViewFeature: GBReducer {
         case viewCycle(ViewCycle)
         case viewEvent(ViewEvent)
         case featureEvent(FeatureEvent)
-
+        case delegate(Delegate)
+        
         case searchTextBinding(String)
         case selectedRoomPopupComponentBinding(ParticipationAlertViewComponents?)
         case popupPasswordTextBinding(String)
+        
+        public enum Delegate {
+            case backButtonTapped
+        }
     }
     
     public enum ViewCycle {
@@ -52,6 +57,8 @@ public struct ChallengeGroupSearchViewFeature: GBReducer {
         
         case popUpCancel
         case popUpJoin
+        
+        case backButtonTapped
     }
     
     public enum FeatureEvent {
@@ -71,17 +78,17 @@ public struct ChallengeGroupSearchViewFeature: GBReducer {
     @Dependency(\.challengeMapper) var challengeMapper
     
     public var body: some ReducerOf<Self> {
+        viewEventCore
+        bindingCore
         core
     }
 }
 
 extension ChallengeGroupSearchViewFeature {
-    private var core: some Reducer<State, Action> {
-        Reduce {
-            state,
-            action in
+    
+    private var viewEventCore: some Reducer<State, Action> {
+        Reduce { state, action in
             switch action {
-                
             case .viewCycle(.onAppear):
                 if state.onAppearTrigger {
                     return .none
@@ -97,11 +104,11 @@ extension ChallengeGroupSearchViewFeature {
                 
                 let current = state.groupChallengePagingObj.pageNum
                 let totalPage = state.groupChallengePagingObj.totalPages ?? 100
-                
+                let text = state.searchText
                 if totalPage >= current {
                     state.groupChallengePagingObj.pageNum += 1
                     return .run { send in
-                        let text = ""
+                        
                         await send(.featureEvent(.requestSearchItem(text: text, append: true)))
                     }
                     .debounce(id: CancelID.paging, for: 0.5, scheduler: GBUISchedulerInstance)
@@ -139,7 +146,22 @@ extension ChallengeGroupSearchViewFeature {
 //                    )
                 }
                 
+                
+            case .viewEvent(.backButtonTapped):
+                return .send(.delegate(.backButtonTapped))
+                
+            default:
+                break
+            }
+            return .none
+        }
+    }
+    
+    private var bindingCore: some Reducer<State, Action> {
+        Reduce { state, action in
+            switch action {
             case let .searchTextBinding(text):
+                
                 state.searchText = text
                 
                 return .run { send in
@@ -153,10 +175,24 @@ extension ChallengeGroupSearchViewFeature {
             case let .popupPasswordTextBinding(text):
                 state.popupPasswordText = text
                 
+            default:
+                break
+            }
+            return .none
+        }
+    }
+    
+    private var core: some Reducer<State, Action> {
+        Reduce {
+            state,
+            action in
+            switch action {
+          
             case .featureEvent(.resetSearchItem):
                 state.groupChallengePagingObj = GroupChallengePagingObj()
                 
             case let .featureEvent(.requestSearchItem(text, append)):
+                let text = text.isEmpty ? nil : text
                 state.groupChallengePagingObj.searchText = text
                 state.apiLoadTrigger = true
                 
@@ -203,11 +239,10 @@ extension ChallengeGroupSearchViewFeature {
                 }
                 state.apiLoadTrigger = false
                 
-            case let .featureEvent(.updateGroupChallengePagingObj(totalSize, totalPages, page, size)):
+            case let .featureEvent(.updateGroupChallengePagingObj(totalSize, totalPages, page, _)):
                 var copy = state.groupChallengePagingObj
                 copy.totalCount = totalSize
                 copy.totalPages = totalPages
-                copy.size = size
                 copy.pageNum = page
                 state.groupChallengePagingObj = copy
                 

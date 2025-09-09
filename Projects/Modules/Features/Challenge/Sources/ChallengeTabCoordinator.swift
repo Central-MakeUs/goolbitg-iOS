@@ -123,6 +123,10 @@ extension ChallengeTabCoordinator {
                 
                 return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadGroupData)))))
                 
+            // MARK: GroupChallenge Search
+            case .router(.routeAction(id: .groupChallengeSearch, action: .groupChallengeSearch(.delegate(.backButtonTapped)))):
+                state.routes.dismiss()
+                
             default:
                 break
             }

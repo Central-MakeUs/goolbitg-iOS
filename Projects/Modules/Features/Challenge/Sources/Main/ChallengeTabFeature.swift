@@ -94,12 +94,14 @@ public struct ChallengeTabFeature: GBReducer {
         case currentIndex(Int)
         
         case groupChallengeViewEvent(GroupChallengeViewEvent)
-        case groupChallengeRoomSearchViewMoveTapped
+        
         
         public enum GroupChallengeViewEvent {
             case selectedParticipatingModel(entity: ParticipatingGroupChallengeListEntity)
             case onlyMakeMeButtonTapped
             case showGroupChallengeAddView
+            case showFindGroupChallengeView
+            case groupChallengeRoomSearchViewMoveTapped
         }
     }
     
@@ -543,9 +545,10 @@ extension ChallengeTabFeature {
             case .viewEvent(.groupChallengeViewEvent(.showGroupChallengeAddView)): // GroupChallengeCreate 뷰로 이동
                 return .send(.delegate(.moveToGroupChallengeCreate))
                 
-            case .viewEvent(.groupChallengeRoomSearchViewMoveTapped):
+            case .viewEvent(.groupChallengeViewEvent(.groupChallengeRoomSearchViewMoveTapped)):
                 return .send(.delegate(.moveToGroupChallengeSearchView))
                 
+            // MARK: GroupViewFeatureEvent
             case let .groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst, doNotReset)):
                 
                 if atFirst && !doNotReset {
@@ -587,11 +590,11 @@ extension ChallengeTabFeature {
                 var copy = state.groupChallengePagingObj
                 copy.totalCount = totalSize
                 copy.totalPages = totalPages
-                copy.size = size
+//                copy.size = size
                 copy.pageNum = page
                 state.groupChallengePagingObj = copy
                 
-            // MARK: GroupViewFeatureEvent
+           
             case let .groupChallengeFeatureEvent(.resultGroupChallengeList(models, ifAppend)):
                 
                 if ifAppend {

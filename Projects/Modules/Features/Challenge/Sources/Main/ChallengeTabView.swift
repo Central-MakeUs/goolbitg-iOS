@@ -173,7 +173,7 @@ extension ChallengeTabView {
                     .frame(width: 24)
                     .foregroundStyle(GBColor.grey300.asColor)
                     .asButton {
-                        store.send(.viewEvent(.groupChallengeRoomSearchViewMoveTapped))
+                        store.send(.viewEvent(.groupChallengeViewEvent(.groupChallengeRoomSearchViewMoveTapped)))
                     }
             }
             
@@ -583,7 +583,7 @@ extension ChallengeTabView {
     private func emptyGroupView() -> some View {
         VStack {
             ParticipatingGroupChallengeEmptyView {
-                store.send(.viewEvent(.showChallengeAdd))
+                store.send(.viewEvent(.groupChallengeViewEvent(.groupChallengeRoomSearchViewMoveTapped)))
             }
         }
     }
