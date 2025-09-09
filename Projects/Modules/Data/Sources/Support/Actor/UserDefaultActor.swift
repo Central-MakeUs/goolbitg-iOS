@@ -23,6 +23,9 @@ public final actor UserDefaultsManager {
         case appleLoginAccess
         case appleLoginRefresh
         
+        /// 루트 로그인 유저인지
+        case rootLoginUser
+        
         /// 애플 로그인 유저인지 구분합니다.
         case ifAppleLoginUser
         
@@ -70,6 +73,9 @@ public final actor UserDefaultsManager {
     
     @UserDefaultsWrapper(key: Key.fcmReciveCount.value, placeValue: 0)
     public static var fcmReciveCount: Int
+    
+    @UserDefaultsWrapper(key: Key.rootLoginUser.value, placeValue: false)
+    public static var rootLoginUser: Bool
 }
 
 extension UserDefaultsManager {

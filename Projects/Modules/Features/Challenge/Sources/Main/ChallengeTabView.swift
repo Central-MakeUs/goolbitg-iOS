@@ -583,7 +583,7 @@ extension ChallengeTabView {
     private func emptyGroupView() -> some View {
         VStack {
             ParticipatingGroupChallengeEmptyView {
-                
+                store.send(.viewEvent(.showChallengeAdd))
             }
         }
     }

@@ -156,7 +156,9 @@ extension RootCoordinator {
 
                     return .run { send in
 #if DEV
-                        await RootLoginManager.login()
+                        if UserDefaultsManager.rootLoginUser {
+                            await RootLoginManager.login()
+                        }
 #else
                         let result = try await networkManager.requestNetworkWithRefresh(
                             dto: AccessTokenDTO.self,

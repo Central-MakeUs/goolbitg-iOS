@@ -10,6 +10,7 @@ import Foundation
 public struct RootLoginManager: Sendable {
     
     public static func login() async {
+        UserDefaultsManager.rootLoginUser = true
         let result = try? await NetworkManager
             .shared
             .requestNetwork(

@@ -42,7 +42,7 @@ public enum ChallengeRouter {
     /// ChallengeGroupTripple
     case groupChallengeTripple(groupID: String)
     /// ChallengeGroup Join (Post)
-//    case groupChallengeJoin(groupID: String)
+    case groupChallengeJoin(groupID: String, passwd: String?)
 }
 
 extension ChallengeRouter: Router {
@@ -50,7 +50,7 @@ extension ChallengeRouter: Router {
         switch self {
         case .challengeList, .challengeRecords, .challengeTripple, .groupChallengeList, .groupChallengeDetail:
             return .get
-        case .challengeEnroll, .challengeRecordCheck, .groupChallengeCreate:
+        case .challengeEnroll, .challengeRecordCheck, .groupChallengeCreate, .groupChallengeJoin:
             return .post
         case .challengeRecordDelete, .groupChallengeDelete:
             return .delete
@@ -103,6 +103,9 @@ extension ChallengeRouter: Router {
             
         case let .groupChallengeTripple(groupID):
             return "/challengeGroups/\(groupID)/tripple"
+            
+        case let .groupChallengeJoin(groupID, _):
+            return "/challengeGroups/\(groupID)/enroll"
         }
     }
     
@@ -149,6 +152,12 @@ extension ChallengeRouter: Router {
             
             return defaultValue
             
+        case let .groupChallengeJoin(_, passwd):
+            if let passwd {
+                return ["password": passwd]
+            } else {
+                return nil
+            }
         case
                 .challengeEnroll,
                 .challengeTripple,
@@ -176,7 +185,8 @@ extension ChallengeRouter: Router {
                 .groupChallengeList,
                 .groupChallengeDetail ,
                 .groupChallengeDelete,
-                .groupChallengeTripple :
+                .groupChallengeTripple,
+                .groupChallengeJoin:
             
             return nil
             
@@ -202,7 +212,8 @@ extension ChallengeRouter: Router {
                 .groupChallengeList,
                 .groupChallengeDetail,
                 .groupChallengeDelete,
-                .groupChallengeTripple :
+                .groupChallengeTripple,
+                .groupChallengeJoin:
             
             return .url
             
