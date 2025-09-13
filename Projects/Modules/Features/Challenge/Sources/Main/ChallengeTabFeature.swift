@@ -46,7 +46,7 @@ public struct ChallengeTabFeature: GBReducer {
         var groupListLoad = false
         /// 본인이 만든것만 볼것인지
         var groupOnlyMakeMeTrigger = false
-        var groupChallengePagingObj = GroupChallengePagingObj()
+        var groupChallengePagingObj = GroupChallengePagingObj(participating: true)
     }
     
     public enum Action {
@@ -552,7 +552,7 @@ extension ChallengeTabFeature {
             case let .groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst, doNotReset)):
                 
                 if atFirst && !doNotReset {
-                    state.groupChallengePagingObj = GroupChallengePagingObj()
+                    state.groupChallengePagingObj = GroupChallengePagingObj(participating: true)
                 }
                 let pagingObj = state.groupChallengePagingObj
                 
@@ -613,7 +613,7 @@ extension ChallengeTabFeature {
                 
             case .groupChallengeFeatureEvent(.toggleToOnlyMakeMeButton):
                 state.groupOnlyMakeMeTrigger.toggle()
-                state.groupChallengePagingObj = GroupChallengePagingObj()
+                state.groupChallengePagingObj = GroupChallengePagingObj(participating: true)
                 state.groupChallengePagingObj.created = state.groupOnlyMakeMeTrigger
                 
                 return .run { send in
