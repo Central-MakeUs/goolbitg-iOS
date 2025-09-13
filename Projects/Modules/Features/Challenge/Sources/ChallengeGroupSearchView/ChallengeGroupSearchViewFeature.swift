@@ -29,6 +29,7 @@ public struct ChallengeGroupSearchViewFeature: GBReducer {
         var popUpGroupID: String? = nil
         var popUpGroupIsSecret: Bool = false
         var selectedRoomPopupComponent: ParticipationAlertViewComponents? = nil
+        var errorPopupComponent: GBAlertViewComponents? = nil
         var popupPasswordText: String = ""
     }
     
@@ -40,10 +41,12 @@ public struct ChallengeGroupSearchViewFeature: GBReducer {
         
         case searchTextBinding(String)
         case selectedRoomPopupComponentBinding(ParticipationAlertViewComponents?)
+        case errorPopupComponentBinding(GBAlertViewComponents?)
         case popupPasswordTextBinding(String)
         
         public enum Delegate {
             case backButtonTapped
+            case backAndReload
         }
     }
     
@@ -138,12 +141,39 @@ extension ChallengeGroupSearchViewFeature {
                     state.popUpGroupID = nil
                     return .send(.selectedRoomPopupComponentBinding(nil))
                 }
-                
+                let passwd = state.popupPasswordText.isEmpty ? nil : state.popupPasswordText
                 return .run { send in
-//                    let result = networkManager.requestNotDtoNetwork(
-//                        router: ChallengeRouter.groupChallengeDelete(groupID: String),
-//                        ifRefreshNeed: <#T##Bool#>
-//                    )
+                    let result = try await networkManager.requestNotDtoNetwork(
+                        router: ChallengeRouter.groupChallengeJoin(groupID: id, passwd: passwd),
+                        ifRefreshNeed: true
+                    )
+                    if result {
+                        await send(.delegate(.backAndReload))
+                    } else {
+                        await send(.errorPopupComponentBinding(GBAlertViewComponents(title: "ERROR", message: "알 수 없는 에러", okTitle: "확인", alertStyle: .warning)))
+                    }
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        Logger.error("알수없음 - \(#file)")
+                        return
+                    }
+                    guard case .serverMessage(let errorCase) = error else {
+                        Logger.error("알수없음 - \(#file)")
+                        return
+                    }
+                    var errorText: String = ""
+                    switch errorCase {
+                    case .challengeNotFound:
+                        errorText = "해당 챌린지를 찾을 수 없습니다."
+                    case .alreadyParticipatingChallenge:
+                        errorText = "이미 해당 챌린지에 참여중입니다."
+                    case .passwordError:
+                        errorText = "비밀번호가 일치하지 않습니다."
+                    default:
+                        errorText = "알수없는 에러"
+                    }
+                    
+                    await send(.errorPopupComponentBinding(GBAlertViewComponents(title: "ERROR", message: errorText, okTitle: "확인", alertStyle: .warning)))
                 }
                 
                 
@@ -174,6 +204,9 @@ extension ChallengeGroupSearchViewFeature {
                 
             case let .popupPasswordTextBinding(text):
                 state.popupPasswordText = text
+                
+            case let .errorPopupComponentBinding(model):
+                state.errorPopupComponent = model
                 
             default:
                 break

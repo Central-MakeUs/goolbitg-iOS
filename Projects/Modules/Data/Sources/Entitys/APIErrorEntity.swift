@@ -9,6 +9,10 @@ import Foundation
 import Domain
 
 public enum APIErrorEntity: Int, Entity {
+    
+    // Passwd 불일치 에러
+    case passwordError = 1000
+    
     // 일반 오류
     /// 입력 오류
     case inputError = 1001

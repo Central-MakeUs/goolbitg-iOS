@@ -44,6 +44,18 @@ struct ChallengeGroupSearchView: View {
                         .closeOnTapOutside(false)
                         .backgroundColor(Color.black.opacity(0.5))
                 }
+                .popup(item: $store.errorPopupComponent.sending(\.errorPopupComponentBinding)) { model in
+                    GBAlertView(model: model) {} okTouch: {}
+                } customize: {
+                    $0
+                        .animation(.easeInOut)
+                        .type(.default)
+                        .displayMode(.window)
+                        .appearFrom(.none)
+                        .closeOnTap(true)
+                        .backgroundColor(Color.black.opacity(0.5))
+                }
+
         }
     }
 }
@@ -153,7 +165,7 @@ extension ChallengeGroupSearchView {
                     .opacity(index != store.listItems.count - 1 ? 1 : 0)
                 }
                 .asButton {
-                    
+                    store.send(.viewEvent(.tappedItem(item)))
                 }
                 .onAppear {
                     if !store.apiLoadTrigger && index > store.listItems.count - 3 && store.onAppearTrigger {
