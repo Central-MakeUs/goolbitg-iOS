@@ -142,6 +142,7 @@ extension ChallengeGroupSearchViewFeature {
                     return .send(.selectedRoomPopupComponentBinding(nil))
                 }
                 let passwd = state.popupPasswordText.isEmpty ? nil : state.popupPasswordText
+                
                 return .run { send in
                     let result = try await networkManager.requestNotDtoNetwork(
                         router: ChallengeRouter.groupChallengeJoin(groupID: id, passwd: passwd),

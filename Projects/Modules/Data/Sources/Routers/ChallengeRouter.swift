@@ -156,7 +156,7 @@ extension ChallengeRouter: Router {
             if let passwd {
                 return ["password": passwd]
             } else {
-                return nil
+                return [:]
             }
         case
                 .challengeEnroll,
@@ -212,12 +212,11 @@ extension ChallengeRouter: Router {
                 .groupChallengeList,
                 .groupChallengeDetail,
                 .groupChallengeDelete,
-                .groupChallengeTripple,
-                .groupChallengeJoin:
+                .groupChallengeTripple:
             
             return .url
             
-        case .groupChallengeCreate, .groupChallengeModify:
+        case .groupChallengeCreate, .groupChallengeModify, .groupChallengeJoin:
             return .json
         }
     }
