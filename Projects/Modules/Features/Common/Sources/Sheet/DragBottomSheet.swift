@@ -11,21 +11,26 @@ struct DragBottomSheet<PopupContent: View>: ViewModifier {
     
     @GestureState private var dragOffset: CGFloat = 0
     @State private var sheetHeight: CGFloat = 0
+    
+    // 외부 주입
     @Binding private var isExpanded: Bool
-    @State private var animated = false
+    @Binding private var isDragging: Bool
     
     private let popupContent: PopupContent
     private let collapsedHeight: CGFloat
+    
     
     let currentOffsetPercent: ((CGFloat) -> Void)?
 
     public init(
         isExpanded: Binding<Bool>,
+        isDraging: Binding<Bool>,
         popupContent: PopupContent,
         collapsedHeight: CGFloat,
         currentOffsetPercent: ((CGFloat) -> Void)? = nil
     ) {
         self._isExpanded = isExpanded
+        self._isDragging = isDraging
         self.popupContent = popupContent
         self.collapsedHeight = collapsedHeight
         self.currentOffsetPercent = currentOffsetPercent
@@ -53,24 +58,22 @@ struct DragBottomSheet<PopupContent: View>: ViewModifier {
                     .gesture(
                         DragGesture()
                             .updating($dragOffset) { value, state, _ in
-                                if isExpanded && value.location.y < 0 {
-                                    return
-                                }
-                                else if value.location.y < collapsedHeight {
+                                isDragging = true
+                                if value.location.y < 0 {
                                     return
                                 }
                                 state = min(value.translation.height, sheetHeight)
                             }
                             .onEnded { value in
-                                if value.translation.height < -50 {
+                                if value.translation.height < -80 {
                                     isExpanded = true
-                                } else if value.translation.height > 50 {
+                                } else if value.translation.height > 80 {
                                     isExpanded = false
                                 }
-                                animated.toggle()
+                                isDragging = false
                             }
                     )
-                    .animation(.easeOut(duration: 0.3), value: animated)
+                    .animation(.easeOut(duration: 0.3), value: isExpanded)
             }
             .frame(maxHeight: .infinity)
             .background {
@@ -119,12 +122,14 @@ extension View {
     public func dragBottomSheet<Content: View>(
         collapsedHeight: CGFloat = 0,
         isExpanded: Binding<Bool>,
+        isDraging: Binding<Bool>,
         @ViewBuilder content: () -> Content,
         currentOffsetPercent: ((CGFloat) -> Void)? = nil
     ) -> some View {
         self.modifier(
             DragBottomSheet(
                 isExpanded: isExpanded,
+                isDraging: isDraging,
                 popupContent: content(),
                 collapsedHeight: collapsedHeight,
                 currentOffsetPercent: currentOffsetPercent

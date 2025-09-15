@@ -17,6 +17,7 @@ struct ChallengeGroupDetailView: View {
     @Environment(\.safeAreaInsets) private var safeArea
     @State private var currentOffset: CGFloat = 0
     @State private var bottomSheetExpended: Bool = false
+    @State private var bottomSheetIsDragging: Bool = false
     
     // MARK: Feature
     @Perception.Bindable var store: StoreOf<ChallengeGroupDetailViewFeature>
@@ -28,7 +29,7 @@ struct ChallengeGroupDetailView: View {
                     currentOffset = offsetY
                 }
                 .background(GBColor.main.asColor)
-                .dragBottomSheet(collapsedHeight: 36 + safeArea.bottom, isExpanded: $bottomSheetExpended) {
+                .dragBottomSheet(collapsedHeight: 30 + safeArea.bottom, isExpanded: $bottomSheetExpended, isDraging: $bottomSheetIsDragging) {
                     bottomSheetView()
                 }
                 .onFirstAppear {
@@ -49,7 +50,8 @@ struct ChallengeGroupDetailView: View {
 extension ChallengeGroupDetailView {
     
     private var contentView: some View {
-        ZStack(alignment: .top) {
+        let isOnTop = store.topPodiumModels.count == 3
+        return ZStack(alignment: .top) {
             
             GBColor.main.asColor
                 .frame(height: calculateHeight())
@@ -58,7 +60,7 @@ extension ChallengeGroupDetailView {
             
             ScrollView {
                 VStack (spacing: 0) {
-                    if store.topPodiumModels.count == 3 {
+                    if isOnTop {
                         VStack (spacing: 0) {
                             ScrollViewOffsetPreference { offsetY in
                                 currentOffset = offsetY
@@ -73,8 +75,10 @@ extension ChallengeGroupDetailView {
                         .background(GBColor.background1.asColor)
                     }
                     
-                    bottomListView
+                    bottomListView(onTop: isOnTop)
                         .padding(.vertical, SpacingHelper.md.pixel)
+                        .padding(.top, isOnTop ? 0 : 64)
+                        .padding(.top, isOnTop ? 0 : safeArea.top)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -125,10 +129,10 @@ extension ChallengeGroupDetailView {
         }
     }
     
-    private var bottomListView: some View {
+    private func bottomListView(onTop: Bool) -> some View {
         LazyVStack(spacing: 0) {
             ForEach(Array(store.bottomListModels.enumerated()), id: \.element.modelID) { index, model in
-                listElementView(entity: model, rank: index + 4)
+                listElementView(entity: model, rank: index + (onTop ? 4 : 1))
                     .padding(.bottom, SpacingHelper.sm.pixel)
             }
         }
@@ -183,13 +187,10 @@ extension ChallengeGroupDetailView {
                 .padding(.top, 16)
             
             VStack(spacing: 8) {
-                VStack(spacing: 0) {
-                    Text(store.challengeEntityState.title)
-                        .foregroundStyle(GBColor.grey50.asColor)
-                        .font(FontHelper.h3.font)
-                }
-                .opacity(bottomSheetExpended ? 1 : 0)
-                .animation(.easeInOut, value: bottomSheetExpended)
+                Text(store.challengeEntityState.title)
+                    .foregroundStyle(GBColor.grey50.asColor)
+                    .font(FontHelper.h3.font)
+                    .opacity(bottomSheetExpended ? 1 : 0)
                 
                 Text(store.challengeEntityState.hashTags.joined(separator: " "))
                     .lineLimit(2)
@@ -218,6 +219,7 @@ extension ChallengeGroupDetailView {
                 .padding(.vertical, SpacingHelper.sm.pixel)
                 
                 ChallengeStatusThreeDayView
+                    .allowsHitTesting(!bottomSheetIsDragging)
             }
             .padding(.horizontal, 46)
             .padding(.vertical, 16)
