@@ -10,9 +10,6 @@ import Domain
 
 public enum APIErrorEntity: Int, Entity {
     
-    // Passwd 불일치 에러
-    case passwordError = 1000
-    
     // 일반 오류
     /// 입력 오류
     case inputError = 1001
@@ -48,6 +45,9 @@ public enum APIErrorEntity: Int, Entity {
     case challengeNotFound = 4004
     /// 이미 완료한 챌린지
     case challengeAlreadyCompleted = 4005
+    
+    // Passwd 불일치 에러
+    case passwordError = 4007
 
     // 살까말까 오류
     /// 포스트 등록 한도 초과
