@@ -68,7 +68,7 @@ extension ChallengeGroupCreateView {
     
     private var navigationBar: some View {
         ZStack(alignment: .center) {
-            Text(TextHelper.groupChallengeTexts(.createGroupChallengeNavTitle).text)
+            Text("작심삼일 방 \(store.mode.title)")
                 .font(FontHelper.h3.font)
                 .foregroundStyle(GBColor.white.asColor)
             

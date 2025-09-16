@@ -335,7 +335,7 @@ extension GroupChallengeCreateViewFeature {
         
         switch alertID {
         case .roomCreateStopAlert:
-            let text = state.mode == .create ? "생성" : "삭제"
+            let text = state.mode == .create ? "생성" : "수정"
             component = GBAlertViewComponents(
                 title: "작심삼일 \(text) 중단",
                 message: "작심삼일 \(text)하기를\n정말 중단하시겠어요?",
