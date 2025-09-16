@@ -116,7 +116,7 @@ extension ChallengeGroupDetailView {
                         .asButton {
                             store.send(.viewEvent(.settingButtonTapped))
                         }
-                        .opacity(store.ifOwner ? 1 : 0)
+//                        .opacity(store.ifOwner ? 1 : 0) // 설정은 그대로 유지 (나가기, 삭제하기)
                 }
             }
             .frame(height: 64)

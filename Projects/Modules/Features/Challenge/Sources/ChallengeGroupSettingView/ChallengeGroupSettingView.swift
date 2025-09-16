@@ -54,6 +54,12 @@ extension ChallengeGroupSettingView {
             if store.ifOwner {
                 ownerOnlyMessageView
                     .padding(.horizontal, SpacingHelper.md.pixel)
+            } else {
+                exitButtonView
+                    .asButton {
+                        store.send(.viewEvent(.tappedRoomExit))
+                    }
+                    .padding(.horizontal, SpacingHelper.md.pixel)
             }
             
             Spacer()
@@ -121,7 +127,7 @@ extension ChallengeGroupSettingView {
                     }
                 }
                 
-                if index != ChallengeGroupSettingViewFeature.ChallengeSettings.allCases.count - 1 {
+                if index != ChallengeGroupSettingViewFeature.ChallengeSettings.allCases.count - 1 && store.ifOwner {
                     GBColor.grey500.asColor
                         .frame(height: 1)
                 }
@@ -173,6 +179,23 @@ extension ChallengeGroupSettingView {
                 .foregroundStyle(GBColor.grey300.asColor)
         }
         
+    }
+    
+    private var exitButtonView: some View {
+        VStack {
+            Text(TextHelper.groupChallengeTexts(.groupChallengeExit).text)
+                .foregroundStyle(GBColor.grey300.asColor)
+                .font(FontHelper.btn3.font)
+                .padding(SpacingHelper.lg.pixel)
+        }
+        .frame(maxWidth: .infinity)
+        .background(GBColor.background1.asColor)
+        .clipShape(Capsule())
+        .background {
+            Capsule()
+                .stroke(lineWidth: 1)
+                .foregroundStyle(GBColor.grey300.asColor)
+        }
     }
 }
 

@@ -46,6 +46,7 @@ public struct ChallengeGroupSettingViewFeature: GBReducer {
     public enum ViewEvent {
         case tappedModifyRoomSetting
         case tappedRoomDelete
+        case tappedRoomExit
         
         case alertOkTapped(String)
         case alertCancelTapped(String)
@@ -58,12 +59,14 @@ public struct ChallengeGroupSettingViewFeature: GBReducer {
     public enum FeatureEvent {
         case showAlert(AlertID)
         case requestRoomDelete
+        case requestRoomExit
         case requestChallengeRoomInfo
         case buttonStateUpdate(Bool)
     }
     
     public enum Delegate {
         case removeSuccess
+        case exitSuccess
         case back
         case modifyTapped(groupID: String)
     }
@@ -71,6 +74,8 @@ public struct ChallengeGroupSettingViewFeature: GBReducer {
     public enum AlertID: String {
         case deleteRoom
         case deleteFail
+        case exitRoom
+        case exitRoomFail
     }
     
     public enum ChallengeSettings: Equatable, CaseIterable {
@@ -90,13 +95,14 @@ public struct ChallengeGroupSettingViewFeature: GBReducer {
     @Dependency(\.networkManager) var networkManager
 
     public var body: some ReducerOf<Self> {
+        viewEventCore
         core
     }
 }
 
 extension ChallengeGroupSettingViewFeature {
     
-    private var core: some ReducerOf<Self> {
+    private var viewEventCore: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .viewCycle(.onAppear):
@@ -125,24 +131,39 @@ extension ChallengeGroupSettingViewFeature {
                         await send(.alertBinding(nil))
                         await send(.featureEvent(.requestRoomDelete))
                     }
-                case .deleteFail:
+                case .deleteFail, .exitRoomFail:
                     return .send(.alertBinding(nil))
+                case .exitRoom:
+                    return .run { send in
+                        await send(.alertBinding(nil))
+                        await send(.featureEvent(.requestRoomExit))
+                    }
                 }
                 
             case let .viewEvent(.alertCancelTapped(id)):
                 guard let id = AlertID(rawValue: id) else {
                     return .send(.alertBinding(nil))
                 }
-                switch id {
-                case .deleteRoom:
-                    return .send(.alertBinding(nil))
-                case .deleteFail:
-                    return .send(.alertBinding(nil))
-                }
+                return .send(.alertBinding(nil))
                 
             case .viewEvent(.tappedModifyRoomSetting):
                 let id = state.roomID
                 return .send(.delegate(.modifyTapped(groupID: id)))
+                
+            case .viewEvent(.tappedRoomExit):
+                return .send(.featureEvent(.showAlert(.exitRoom)))
+                
+            default:
+                break
+            }
+            return .none
+        }
+    }
+    
+    private var core: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            
                 
             case let .featureEvent(.showAlert(id)):
                 let component: GBAlertViewComponents
@@ -160,6 +181,23 @@ extension ChallengeGroupSettingViewFeature {
                     component = GBAlertViewComponents(
                         title: "삭제 실패",
                         message: "삭제를 실패 하였습니다.(네트워크 혹은 이미 삭제됨)",
+                        okTitle: "확인",
+                        alertStyle: .warning,
+                        ifNeedID: id.rawValue
+                    )
+                case .exitRoom:
+                    component = GBAlertViewComponents(
+                        title: "작심삼일 방 나가기",
+                        message: "작심삼일 방을\n정말 나가시겠어요?",
+                        cancelTitle: "취소",
+                        okTitle: "나가기",
+                        alertStyle: .warning,
+                        ifNeedID: id.rawValue
+                    )
+                case .exitRoomFail:
+                    component = GBAlertViewComponents(
+                        title: "나가기 실패",
+                        message: "나가기를 실패 하였습니다.(네트워크 혹은 이미 삭제됨)",
                         okTitle: "확인",
                         alertStyle: .warning,
                         ifNeedID: id.rawValue
@@ -197,6 +235,19 @@ extension ChallengeGroupSettingViewFeature {
                     }
                 } catch: { _, send in
                     await send(.featureEvent(.showAlert(.deleteFail)))
+                }
+                
+            case .featureEvent(.requestRoomExit):
+                let roomID = state.roomID
+                
+                return .run { send in
+                    let result = try await networkManager.requestNotDtoNetwork(router: ChallengeRouter.groupChallengeExit(groupID: roomID), ifRefreshNeed: true)
+                    
+                    if result {
+                        await send(.delegate(.exitSuccess))
+                    } else {
+                        await send(.featureEvent(.showAlert(.exitRoomFail)))
+                    }
                 }
                 
             case let .featureEvent(.buttonStateUpdate(bool)):

@@ -43,6 +43,8 @@ public enum ChallengeRouter {
     case groupChallengeTripple(groupID: String)
     /// ChallengeGroup Join (Post)
     case groupChallengeJoin(groupID: String, passwd: String?)
+    /// ChallengeGroup Exit (Post)
+    case groupChallengeExit(groupID: String)
 }
 
 extension ChallengeRouter: Router {
@@ -50,7 +52,7 @@ extension ChallengeRouter: Router {
         switch self {
         case .challengeList, .challengeRecords, .challengeTripple, .groupChallengeList, .groupChallengeDetail:
             return .get
-        case .challengeEnroll, .challengeRecordCheck, .groupChallengeCreate, .groupChallengeJoin:
+        case .challengeEnroll, .challengeRecordCheck, .groupChallengeCreate, .groupChallengeJoin, .groupChallengeExit:
             return .post
         case .challengeRecordDelete, .groupChallengeDelete:
             return .delete
@@ -106,6 +108,9 @@ extension ChallengeRouter: Router {
             
         case let .groupChallengeJoin(groupID, _):
             return "/challengeGroups/\(groupID)/enroll"
+            
+        case let .groupChallengeExit(groupID):
+            return "/challengeGroups/\(groupID)/exit"
         }
     }
     
@@ -158,6 +163,7 @@ extension ChallengeRouter: Router {
             } else {
                 return [:]
             }
+            
         case
                 .challengeEnroll,
                 .challengeTripple,
@@ -167,7 +173,8 @@ extension ChallengeRouter: Router {
                 .groupChallengeCreate,
                 .groupChallengeDelete,
                 .groupChallengeModify,
-                .groupChallengeTripple :
+                .groupChallengeTripple,
+                .groupChallengeExit :
             
             return nil
         }
@@ -186,7 +193,8 @@ extension ChallengeRouter: Router {
                 .groupChallengeDetail ,
                 .groupChallengeDelete,
                 .groupChallengeTripple,
-                .groupChallengeJoin:
+                .groupChallengeJoin,
+                .groupChallengeExit :
             
             return nil
             
@@ -212,7 +220,8 @@ extension ChallengeRouter: Router {
                 .groupChallengeList,
                 .groupChallengeDetail,
                 .groupChallengeDelete,
-                .groupChallengeTripple:
+                .groupChallengeTripple,
+                .groupChallengeExit :
             
             return .url
             

@@ -167,6 +167,7 @@ public enum TextHelper {
         
         case onlyOneParticipantDeleteWarning = "참여자가 1명이라도 있는 경우, 삭제가 불가합니다"
         case groupChallengeDelete = "작심삼일 삭제하기"
+        case groupChallengeExit = "작심삼일 나가기"
     }
     
     public var text: String {

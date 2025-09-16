@@ -115,6 +115,11 @@ extension ChallengeTabCoordinator {
                         )
                     )
                 
+            case .router(.routeAction(id: .groupChallengeSetting, action: .groupChallengeSetting(.delegate(.exitSuccess)))):
+                state.routes.dismiss()
+                
+                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadGroupData)))))
+                
             case .router(.routeAction(id: .groupChallengeModify, action: .groupChallengeModify(.delegate(.dismiss)))):
                 state.routes.pop()
                 

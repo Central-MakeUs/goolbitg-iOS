@@ -157,6 +157,8 @@ extension ChallengeGroupDetailViewFeature {
                 
             case let .featureEvent(.challengeInfoUpdate(entity)):
                 // ownerCheck
+                
+                Logger.debug("ME: \(UserDefaultsManager.userID) File \(entity.ownerId)")
                 state.ifOwner = UserDefaultsManager.userID == entity.ownerId
                 state.ownerID = entity.ownerId
                 state.challengeEntityState = entity
