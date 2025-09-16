@@ -249,7 +249,7 @@ extension ChallengeGroupDetailView {
                             .resizable()
                             .frame(width: 55.5, height: 55.5)
                             .asButton {
-//                                store.send(.viewEvent(.selectedCaseItem(item: item)))
+                                // TODO: STORE EVENT -> NETWORK
                             }
                     case .none:
                         ImageHelper.checkDisabled.asImage

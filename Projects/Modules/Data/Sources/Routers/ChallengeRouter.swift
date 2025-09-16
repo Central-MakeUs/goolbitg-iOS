@@ -110,7 +110,7 @@ extension ChallengeRouter: Router {
     }
     
     public var optionalHeaders: HTTPHeaders? {
-        return [ "Content-Type" : "application/json" ]
+        return nil
     }
     
     public var parameters: Parameters? {
