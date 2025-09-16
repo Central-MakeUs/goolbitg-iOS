@@ -119,6 +119,7 @@ public struct GroupChallengeCreateViewFeature {
     
     @Dependency(\.networkManager) var networkManager
     @Dependency(\.challengeMapper) var challengeMapper
+    @Dependency(\.gbNumberForMatter) var numberForMatter
     
     public var body: some ReducerOf<Self> {
         addCore
@@ -154,16 +155,10 @@ extension GroupChallengeCreateViewFeature {
                 return checkedValid(state: &state)
                 
             case let .inputChallengePriceText(text):
-                if let price = Int(text) {
-                    if price < 1000 || price > 50000 {
-                        state.challengePriceError = "1000원에서 50,000원 사이로 입력해주세요."
-                    } else {
-                        state.challengePriceError = nil
-                    }
-                } else {
-                    state.challengePriceError = "숫자만 입력해주세요."
-                }
-                state.challengePrice = text
+                let result = processingForPrice(text)
+                
+                state.challengePriceError = result.error
+                state.challengePrice = result.price
                 
                 return checkedValid(state: &state)
                 
@@ -452,6 +447,35 @@ extension GroupChallengeCreateViewFeature {
                 break
             }
             return .none
+        }
+    }
+}
+
+// MARK: Text Preprocessing
+extension GroupChallengeCreateViewFeature {
+
+    /// Price Text Processing
+    /// - count: 10
+    /// - Parameter price: ex) 3,000
+    /// - Returns: result
+    private func processingForPrice(_ price: String?) -> (price: String, error: String?) {
+        guard var price else { return ("", nil) }
+        if price.count > 10 {
+            price.removeLast()
+            return (price, nil)
+        }
+        
+        var priceNumber = price.replacingOccurrences(of: ",", with: "")
+        let numFormat = numberForMatter.changeForCommaNumber(priceNumber)
+        
+        if let priceNumberInt = Int(priceNumber) {
+            if priceNumberInt < 1000 || priceNumberInt > 50000 {
+                return (numFormat, "1000원에서 50,000원 사이로 입력해주세요.")
+            } else {
+                return (numFormat, nil)
+            }
+        } else {
+            return (price, "숫자만 입력해주세요.")
         }
     }
 }
