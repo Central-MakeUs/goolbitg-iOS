@@ -21,7 +21,7 @@ class GBAppDelegate: NSObject, UIApplicationDelegate {
         
         let token = FireBaseManager.getFCMToken()
         UserDefaultsManager.fcmRegistrationToken = token
-        
+        UserDefaultsManager.rootLoginUser = false
         NotificationCenter.default.addObserver(
             forName: .requestRemoteNotification,
             object: nil,
