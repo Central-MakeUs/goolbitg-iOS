@@ -16,6 +16,7 @@ public struct ButtonWrapper: ViewModifier {
             action:action,
             label: {
                 content
+                    .contentShape(Rectangle())
                     .background(Color.clear)
             }
         )
