@@ -62,6 +62,9 @@ struct DragBottomSheet<PopupContent: View>: ViewModifier {
                                 if value.location.y < 0 {
                                     return
                                 }
+                                if isExpanded && value.startLocation.y - value.location.y > 0 {
+                                    return
+                                }
                                 state = min(value.translation.height, sheetHeight)
                             }
                             .onEnded { value in
@@ -73,14 +76,14 @@ struct DragBottomSheet<PopupContent: View>: ViewModifier {
                                 isDragging = false
                             }
                     )
-                    .animation(.easeOut(duration: 0.3), value: isExpanded)
+                    .animation(.easeOut(duration: 0.1), value: isExpanded)
             }
             .frame(maxHeight: .infinity)
             .background {
                 let percent = calcPercent(offsetY)
                 BlurView(style: .systemUltraThinMaterialDark)
                     .opacity(percent)
-                    .animation(.easeInOut(duration: 0.3), value: isExpanded)
+                    .animation(.easeInOut(duration: 0.15), value: isExpanded)
                     .onChange(of: percent) { newValue in
                         currentOffsetPercent?(newValue)
                     }
