@@ -158,6 +158,8 @@ extension GBHomeTabViewFeature {
                     let totalString =  GBNumberForMatter.shared.changeForCommaNumber(String(currentTotal))
                     await send(.featureEvent(.resultChallengeList(mapping)))
                     await send(.featureEvent(.resultTotalReward(totalString)))
+                } catch: { error, send in
+                    Logger.error(error)
                 }
                 .cancellable(id: CancelID.onAppearTaskCancel)
                 
@@ -194,6 +196,8 @@ extension GBHomeTabViewFeature {
                     }
                     UserDefaultsManager.userNickname = result.nickname
                     UserDefaultsManager.userID = result.id
+                } catch: { error, send in
+                    Logger.error(error)
                 }
                 
                 // MARK: 푸시 알림
