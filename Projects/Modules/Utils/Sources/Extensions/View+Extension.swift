@@ -9,7 +9,7 @@ import SwiftUI
 
 public extension View {
     func asButton(action: @escaping () -> Void ) -> some View {
-        modifier(ButtonWrapper(action: action))
+        return modifier(ButtonWrapper(action: action))
     }
     
     func endTextEditing() {

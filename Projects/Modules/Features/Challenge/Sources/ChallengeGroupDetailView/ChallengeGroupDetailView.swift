@@ -250,6 +250,7 @@ extension ChallengeGroupDetailView {
                             .frame(width: 55.5, height: 55.5)
                             .asButton {
                                 // TODO: STORE EVENT -> NETWORK
+                                store.send(.viewEvent(.touchBottomSheetButton))
                             }
                     case .none:
                         ImageHelper.checkDisabled.asImage

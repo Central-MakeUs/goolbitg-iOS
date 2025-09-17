@@ -27,6 +27,9 @@ public struct ChallengeGroupDetailViewFeature: GBReducer {
         var ownerID: String = ""
         var ifOwner = false
         
+        var ifRequestTripple = false
+        var bottomSheetDateScope = 0
+        
         public init(groupID: String) {
             self.groupId = groupID
         }
@@ -48,6 +51,7 @@ public struct ChallengeGroupDetailViewFeature: GBReducer {
     
     public enum ViewEvent {
         case settingButtonTapped
+        case touchBottomSheetButton
     }
     
     public enum ViewCycle {
@@ -62,13 +66,22 @@ public struct ChallengeGroupDetailViewFeature: GBReducer {
         case bottomRankUpdated([ChallengeRankEntity])
         case challengeInfoUpdate(ParticipatingGroupChallengeListEntity)
         
-        case updateBottomSheetTripple([ChallengeStatusCase])
+        case updateBottomSheetTripple([ChallengeStatusCase], scope: Int)
+        
+        case requestBottomSheetButtonTapped
+        
+        case catchErrorMessage(APIErrorEntity)
+    }
+    
+    private enum CancelID: Hashable {
+        case touchBottomSheetButton
     }
     
     @Dependency(\.networkManager) var networkManager
     @Dependency(\.challengeMapper) var challengeMapper
     
     public var body: some ReducerOf<Self> {
+        viewCore
         core
     }
 }
@@ -77,25 +90,6 @@ extension ChallengeGroupDetailViewFeature {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-                
-            // MARK: ViCycle
-            case .viewCycle(.onAppear):
-                if state.onAppearTrigger { return .none }
-                state.onAppearTrigger = true
-                
-                return .run { [state] send in
-                    await send(.featureEvent(.requestChallengeGroupDetail(groupID: state.groupId)))
-                    // MARK: TODO - "해당 액션에서 사이드 이펙트 발생 서버 에러"
-                    await send(.featureEvent(.requestBottomSheetInfo(groupID: state.groupId)))
-                }
-                
-            case .viewEvent(.settingButtonTapped):
-                let roomID = state.groupId
-                let ownerID = state.ownerID
-                if !ownerID.isEmpty {
-                    return .send(.delegate(.goSettingView(ifOwner: state.ifOwner, roomID: roomID)))
-                }
-                
             // MARK: FeatureEvent
             case let .featureEvent(.requestChallengeGroupDetail(groupID)):
                 return .run { send in
@@ -139,7 +133,7 @@ extension ChallengeGroupDetailViewFeature {
                     
                     let mapping = challengeMapper.toMappingGroupChallengeTippleInfo(dto: result)
                     
-                    await send(.featureEvent(.updateBottomSheetTripple(mapping)))
+                    await send(.featureEvent(.updateBottomSheetTripple(mapping.items, scope: mapping.scope)))
                     
                 } catch: { error, send in
                     if let error = error as? RouterError {
@@ -163,6 +157,39 @@ extension ChallengeGroupDetailViewFeature {
                 state.ownerID = entity.ownerId
                 state.challengeEntityState = entity
                 
+            case .featureEvent(.requestBottomSheetButtonTapped):
+                let id = state.groupId
+//                let scope = state.bottomSheetDateScope
+                state.ifRequestTripple = true
+                return .run { send in
+                    let result = try await networkManager.requestNotDtoNetwork(router: ChallengeRouter.groupChallengeCheck(groupID: id), ifRefreshNeed: true)
+                    
+                    if result {
+                        await send(.featureEvent(.requestBottomSheetInfo(groupID: id)))
+                    }
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        return
+                    }
+                    switch error {
+                    case let .serverMessage(errorMessage):
+                        await send(.featureEvent(.catchErrorMessage(errorMessage)))
+                    default:
+                        break
+                    }
+                }
+                .cancellable(id: CancelID.touchBottomSheetButton)
+                
+            case let .featureEvent(.catchErrorMessage(model)):
+                
+                let errorMessage = model.errorMessage
+                
+                return .send(.showErrorMessage(message: errorMessage))
+                
+            case let .featureEvent(.updateBottomSheetTripple(models, scope)):
+                state.challengeStatus = models
+                state.bottomSheetDateScope = scope
+                
             case let .featureEvent(.bottomRankUpdated(entitys)):
                 state.bottomListModels = entitys
                 
@@ -176,6 +203,47 @@ extension ChallengeGroupDetailViewFeature {
             default:
                 break
             }
+            return .none
+        }
+    }
+}
+
+// MARK: View Event + Cycle
+extension ChallengeGroupDetailViewFeature {
+    
+    private var viewCore: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+                // MARK: ViCycle
+            case .viewCycle(.onAppear):
+                if state.onAppearTrigger { return .none }
+                state.onAppearTrigger = true
+                
+                return .run { [state] send in
+                    await send(.featureEvent(.requestChallengeGroupDetail(groupID: state.groupId)))
+                    // MARK: TODO - "해당 액션에서 사이드 이펙트 발생 서버 에러"
+                    await send(.featureEvent(.requestBottomSheetInfo(groupID: state.groupId)))
+                }
+                
+            case .viewEvent(.settingButtonTapped):
+                let roomID = state.groupId
+                let ownerID = state.ownerID
+                if !ownerID.isEmpty {
+                    return .send(.delegate(.goSettingView(ifOwner: state.ifOwner, roomID: roomID)))
+                }
+                
+            case .viewEvent(.touchBottomSheetButton):
+                if state.ifRequestTripple { return .none }
+                return .run { action in
+                    await action(.featureEvent(.requestBottomSheetButtonTapped))
+                }
+                .throttle(id: CancelID.touchBottomSheetButton, for: 2, scheduler: DispatchQueue.main, latest: false)
+                
+                
+            default:
+                break
+            }
+            
             return .none
         }
     }

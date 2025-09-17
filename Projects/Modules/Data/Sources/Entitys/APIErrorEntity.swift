@@ -67,4 +67,49 @@ public enum APIErrorEntity: Int, Entity {
     public static func getSelf(code: Int) -> APIErrorEntity? {
         return APIErrorEntity(rawValue: code)
     }
+    
+    public var errorMessage: String {
+        switch self {
+        case .inputError:
+            return "입력 오류가 발생했습니다."
+        case .invalidToken:
+            return "유효하지 않은 토큰입니다."
+        case .tokenExpiration:
+            return "토큰이 만료되었습니다."
+        case .noCredentials:
+            return "토큰이 필요합니다."
+        case .noAccess:
+            return "접근이 제한되었습니다."
+        case .logoutCase:
+            return "로그아웃 되었습니다."
+        case .alreadyMember:
+            return "이미 회원입니다."
+        case .notRegisteredMember:
+            return "회원이 아닙니다."
+        case .incompleteMemberInfo:
+            return "회원정보가 불완전합니다."
+        case .alreadyParticipatingChallenge:
+            return "이미 참여한 챌린지입니다."
+        case .notParticipatingChallenge:
+            return "참여하지 않은 챌린지입니다."
+        case .duplicateChallengeName:
+            return "중복된 챌린지 이름입니다."
+        case .challengeNotFound:
+            return "챌린지가 존재하지 않습니다."
+        case .challengeAlreadyCompleted:
+            return "챌린지가 이미 완료되었습니다."
+        case .passwordError:
+            return "비밀번호가 틀렸습니다."
+        case .postLimitExceeded:
+            return "포스트가 작성할 수 있는 한계를 초과하였습니다."
+        case .postNotFound:
+            return "포스트가 존재하지 않습니다."
+        case .alreadyReportedPost:
+            return "이미 신고한 포스트입니다."
+        case .notificationNotFound:
+            return "알림이 존재하지 않습니다."
+        case .notificationAlreadyRead:
+            return "알림을 이미 읽었습니다."
+        }
+    }
 }

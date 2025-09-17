@@ -175,10 +175,16 @@ extension ChallengeMapper {
     }
     
     
-    public func toMappingGroupChallengeTippleInfo(dto: ChallengeGroupTrippleDTO) -> [ChallengeStatusCase] {
+    public func toMappingGroupChallengeTippleInfo(dto: ChallengeGroupTrippleDTO) -> (items: [ChallengeStatusCase], scope: Int) {
         
-        return [dto.check1, dto.check2, dto.check3].map { ChallengeStatusCase.getSelf(initValue: $0.rawValue)
+        let scope = dto.location
+        let mapping = [dto.check1, dto.check2, dto.check3].enumerated().map { index, element in
+            if index+1 > scope {
+                return ChallengeStatusCase.none
+            }
+            return ChallengeStatusCase.getSelf(initValue: element.rawValue)
         }
+        return (mapping, scope)
     }
 }
 

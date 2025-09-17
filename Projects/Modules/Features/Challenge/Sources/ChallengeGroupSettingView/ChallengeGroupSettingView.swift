@@ -46,7 +46,7 @@ extension ChallengeGroupSettingView {
         VStack(spacing: 0) {
             navigationBar
                 .padding(.horizontal, SpacingHelper.md.pixel)
-            
+                .padding(.top, SpacingHelper.md.pixel)
             settingListView
                 .padding(.horizontal, SpacingHelper.md.pixel)
                 .padding(.top, SpacingHelper.lg.pixel)
