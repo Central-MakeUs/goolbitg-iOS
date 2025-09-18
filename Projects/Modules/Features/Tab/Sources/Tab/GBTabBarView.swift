@@ -25,6 +25,10 @@ struct GBTabBarView: View {
     
     init(store: StoreOf<GBTabBarCoordinator>) {
         self.store = store
+        
+        if #available(iOS 18.0, *) {
+            return
+        }
         if let tabBarController = UIApplication.shared.getKeyWindow()?.rootViewController as? UITabBarController {
             tabBarController.tabBar.isHidden = true
         }
@@ -57,16 +61,22 @@ extension GBTabBarView {
 }
 
 extension GBTabBarView {
+    
+    @ViewBuilder
     private var customTabBarView: some View {
-        TabView(selection: $store.currentTab.sending(\.currentTab)) {
-            scopeView
-                .toolbar(.hidden, for: .tabBar)
+        if #available(iOS 26.0, *) {
+            liquidGlassTabView()
+        } else {
+            TabView(selection: $store.currentTab.sending(\.currentTab)) {
+                scopeView
+                    .toolbar(.hidden, for: .tabBar)
+            }
+            .overlay(alignment: .bottom) {
+                customTabView
+            }
+            .ignoresSafeArea(edges: .bottom)
+            .background(Color.red)
         }
-        .overlay(alignment: .bottom) {
-            customTabView
-        }
-        .ignoresSafeArea(edges: .bottom)
-        .background(Color.red)
     }
     
     private var scopeView: some View {
@@ -158,6 +168,40 @@ extension GBTabBarView {
     }
     
 }
+
+// MARK: liquidGlass
+extension GBTabBarView {
+    
+    @available(iOS 26.0, *)
+    private func liquidGlassTabView() -> some View {
+        return TabView {
+            Tab(TabCase.homeTab.title, systemImage: "paperplane.fill") {
+                HomeTabCoordinatorView(
+                    store: store.scope(state: \.homeTabState, action: \.homeTabAction)
+                )
+            }
+            
+            Tab(TabCase.ChallengeTab.title, systemImage: "paperplane.fill") {
+                ChallengeTabCoordinatorView(
+                    store: store.scope(state: \.chalengeTabState, action: \.challengeTabAction)
+                )
+            }
+            
+            Tab(TabCase.buyOrNotTab.title, systemImage: "paperplane.fill") {
+                BuyOrNotTabCoordinatorView(
+                    store: store.scope(state: \.buyOrNotTabState, action: \.buyOrNotTabAction)
+                )
+            }
+            
+            Tab(TabCase.myPageTab.title, systemImage: "paperplane.fill") {
+                MyPageViewCoordinatorView(
+                    store: store.scope(state: \.myPageTabState, action: \.myPageTabAction)
+                )
+            }
+        }
+    }
+}
+
 
 #if DEBUG
 #Preview {
