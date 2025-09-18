@@ -28,7 +28,7 @@ struct GBTabBarView: View {
     init(store: StoreOf<GBTabBarCoordinator>) {
         self.store = store
         
-        if #available(iOS 18.0, *) {
+        if #available(iOS 26.0, *) {
 //            UITabBar.appearance().unselectedItemTintColor = .red // 안먹힘
             return
         }
@@ -67,6 +67,12 @@ extension GBTabBarView {
         customTabBarView
             .onChange(of: store.currentTab) { newValue in
                 currentTab = newValue
+            }
+            .onChange(of: currentTab) { newValue in
+                if #available(iOS 26.0, *) {
+                    store.send(.currentTab(newValue))
+                    HapticFeedbackManager.shared.impact(style: .soft)
+                }
             }
     }
 }
