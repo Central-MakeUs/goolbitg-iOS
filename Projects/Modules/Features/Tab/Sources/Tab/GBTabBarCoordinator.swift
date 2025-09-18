@@ -57,6 +57,8 @@ public struct GBTabBarCoordinator {
         case myPageTabAction(MyPageTabCoordinator.Action)
         case delegate(Delegate)
         
+        case testOnAppear
+        
         public enum Delegate {
             
         }
@@ -84,6 +86,13 @@ extension GBTabBarCoordinator {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+                
+            case .testOnAppear:
+                return .run { send in
+                    try? await Task.sleep(for: .seconds(3))
+                    
+                    await send(.currentTab(.myPageTab))
+                }
                 
             case let .currentTab(tabCase):
                 state.currentTab = tabCase

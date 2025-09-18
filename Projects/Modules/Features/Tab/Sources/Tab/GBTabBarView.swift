@@ -23,10 +23,13 @@ struct GBTabBarView: View {
     
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     
+    @State var currentTab: TabCase = .homeTab
+    
     init(store: StoreOf<GBTabBarCoordinator>) {
         self.store = store
         
         if #available(iOS 18.0, *) {
+//            UITabBar.appearance().unselectedItemTintColor = .red // 안먹힘
             return
         }
         if let tabBarController = UIApplication.shared.getKeyWindow()?.rootViewController as? UITabBarController {
@@ -50,6 +53,11 @@ struct GBTabBarView: View {
     var body: some View {
         WithPerceptionTracking {
             contentView
+                .onFirstAppear {
+                    #if DEBUG
+//                    store.send(.testOnAppear)
+                    #endif
+                }
         }
     }
 }
@@ -57,6 +65,9 @@ struct GBTabBarView: View {
 extension GBTabBarView {
     private var contentView: some View {
         customTabBarView
+            .onChange(of: store.currentTab) { newValue in
+                currentTab = newValue
+            }
     }
 }
 
@@ -174,31 +185,44 @@ extension GBTabBarView {
     
     @available(iOS 26.0, *)
     private func liquidGlassTabView() -> some View {
-        return TabView {
-            Tab(TabCase.homeTab.title, systemImage: "paperplane.fill") {
+        return TabView(selection: $currentTab) {
+            // HOME
+            Tab(value: .homeTab){
                 HomeTabCoordinatorView(
                     store: store.scope(state: \.homeTabState, action: \.homeTabAction)
                 )
+            } label: {
+                tabItemView(tabItem: .homeTab)
             }
             
-            Tab(TabCase.ChallengeTab.title, systemImage: "paperplane.fill") {
+            // CHALLENGE
+            Tab(value: .ChallengeTab){
                 ChallengeTabCoordinatorView(
                     store: store.scope(state: \.chalengeTabState, action: \.challengeTabAction)
                 )
+            } label: {
+                tabItemView(tabItem: .ChallengeTab)
             }
             
-            Tab(TabCase.buyOrNotTab.title, systemImage: "paperplane.fill") {
+            // BUY OT NOT
+            Tab(value: .buyOrNotTab){
                 BuyOrNotTabCoordinatorView(
                     store: store.scope(state: \.buyOrNotTabState, action: \.buyOrNotTabAction)
                 )
+            } label: {
+                tabItemView(tabItem: .buyOrNotTab)
             }
             
-            Tab(TabCase.myPageTab.title, systemImage: "paperplane.fill") {
+            // MY PAGE
+            Tab(value: .myPageTab) {
                 MyPageViewCoordinatorView(
                     store: store.scope(state: \.myPageTabState, action: \.myPageTabAction)
                 )
+            } label: {
+                tabItemView(tabItem: .myPageTab)
             }
         }
+        .tint(GBColor.main.asColor)
     }
 }
 
