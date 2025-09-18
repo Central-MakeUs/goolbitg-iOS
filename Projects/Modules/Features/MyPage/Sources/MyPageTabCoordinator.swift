@@ -10,7 +10,7 @@ import ComposableArchitecture
 @preconcurrency import TCACoordinators
 import FeatureCommon
 
-@Reducer(state: .equatable)
+@Reducer(state: .hashable)
 public enum MyPageScreen {
     case home(MyPageViewFeature)
     case revokePage(RevokeFeature)
@@ -23,7 +23,7 @@ public struct MyPageTabCoordinator {
     public init() {}
     
     @ObservableState
-    public struct State: Equatable, Sendable {
+    public struct State: Equatable, Sendable, Hashable {
         public static let initialState = State(routes: [.root(.home(MyPageViewFeature.State()), embedInNavigationView: true)])
         
         var routes: IdentifiedArrayOf<Route<MyPageScreen.State>>

@@ -12,7 +12,7 @@ import Data
 import Utils
 import FeatureCommon
 
-@Reducer(state: .equatable)
+@Reducer(state: .hashable)
 public enum SplashLoginScreen {
     case splash(SplashFeature)
     case login(LoginViewFeature)
@@ -33,7 +33,7 @@ public struct SplashLoginCoordinator {
     public init() {}
     
     @ObservableState
-    public struct State: Equatable, Sendable {
+    public struct State: Equatable, Sendable, Hashable {
         public static let initialState = State(routes: [.root(.splash(SplashFeature.State()), embedInNavigationView: true)])
         
         public var routes: IdentifiedArrayOf<Route<SplashLoginScreen.State>>

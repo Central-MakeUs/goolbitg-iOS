@@ -20,7 +20,7 @@ public struct ShoppingCheckListViewFeature: GBReducer {
     }
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         var isShowView: Bool = false
         var buttonState: Bool = false
         

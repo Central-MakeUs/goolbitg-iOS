@@ -15,7 +15,7 @@ import Data
 public struct RevokeFeature {
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         var item: RevokeCase? = nil
         
         var content: String = ""

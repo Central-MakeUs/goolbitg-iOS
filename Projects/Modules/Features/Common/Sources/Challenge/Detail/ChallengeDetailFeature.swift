@@ -16,7 +16,7 @@ public struct ChallengeDetailFeature: GBReducer {
     public init() {}
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         let challengeID: String
         
         var onLoad = false

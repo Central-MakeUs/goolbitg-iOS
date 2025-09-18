@@ -15,7 +15,7 @@ import Data
 public struct BuyOrNotTabViewFeature: GBReducer {
     public init () {}
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         public init () {}
         var tabMode: BuyOrNotTabInMode = .buyOrNot
         var currentList: [BuyOrNotCardViewEntity] = []
@@ -491,13 +491,13 @@ extension BuyOrNotTabViewFeature {
         }
     }
     
-    enum CurrentAlertType: Equatable {
+    enum CurrentAlertType: Equatable, Hashable {
         case deleteModel(model: BuyOrNotCardViewEntity, idx: Int)
     }
 }
     
 
-public struct BuyOrNotPagingObj: Equatable {
+public struct BuyOrNotPagingObj: Equatable, Hashable {
     var totalSize = 0
     var page: Int
     let size = 10

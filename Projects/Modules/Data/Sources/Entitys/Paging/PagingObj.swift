@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct PagingObj: Equatable {
+public struct PagingObj: Equatable, Hashable {
     
     public var totalCount: Int? = nil
     public var totalPages: Int? = nil

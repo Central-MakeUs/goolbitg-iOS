@@ -15,13 +15,13 @@ public struct AuthRequestFeature {
     
     public init () {}
     
-    public enum BirthDayShowTextState {
+    public enum BirthDayShowTextState: Hashable {
         case show
         case placeholder
     }
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         public init () {}
         
         var nickName: String = ""

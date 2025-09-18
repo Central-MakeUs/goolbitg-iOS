@@ -12,7 +12,7 @@ import Domain
 import Data
 
 
-public enum BuyOrNotAddOrModify: Equatable {
+public enum BuyOrNotAddOrModify: Equatable, Hashable {
     case add
     case modifier(BuyOrNotCardViewEntity, idx: Int)
     
@@ -39,7 +39,7 @@ public enum BuyOrNotAddOrModify: Equatable {
 public struct BuyOrNotAddViewFeature: GBReducer {
     public init () {}
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         let stateMode: BuyOrNotAddOrModify
         var currentImageData: Data? = nil // 무조건 JPEG 로 변환
         var alertComponents: GBAlertViewComponents? = nil

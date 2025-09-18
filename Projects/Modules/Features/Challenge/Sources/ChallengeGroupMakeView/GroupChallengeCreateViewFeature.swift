@@ -15,7 +15,7 @@ import Data
 public struct GroupChallengeCreateViewFeature {
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         var onAppearTrigger = false
         var challengeName = ""
         var challengePrice = ""

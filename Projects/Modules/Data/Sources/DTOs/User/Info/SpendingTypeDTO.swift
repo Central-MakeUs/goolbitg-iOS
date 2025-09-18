@@ -9,7 +9,7 @@ import Foundation
 import Domain
 
 // MARK: - SpendingType
-public struct SpendingTypeDTO: DTO, Equatable {
+public struct SpendingTypeDTO: DTO, Equatable, Hashable {
     /// 소비 유형 ID
     public let id: Int
     /// 소비 유형 이름 (예: "자린고비 굴비")

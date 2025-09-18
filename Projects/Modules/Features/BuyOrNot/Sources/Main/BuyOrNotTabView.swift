@@ -12,7 +12,7 @@ import Utils
 import Data
 import FeatureCommon
 
-public enum BuyOrNotTabInMode {
+public enum BuyOrNotTabInMode: Equatable, Hashable {
     case buyOrNot
     case records
     

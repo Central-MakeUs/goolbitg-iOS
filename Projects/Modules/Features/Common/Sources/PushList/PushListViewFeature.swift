@@ -17,7 +17,7 @@ public struct PushListViewFeature: GBReducer {
     public init() {}
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         public init() {}
         
         var items: [PushListItemEntity] = []
