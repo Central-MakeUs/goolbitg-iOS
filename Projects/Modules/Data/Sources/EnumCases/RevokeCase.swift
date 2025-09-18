@@ -8,7 +8,7 @@
 import Foundation
 import Utils
 
-public enum RevokeCase: Equatable, CaseIterable {
+public enum RevokeCase: Equatable, CaseIterable, Hashable {
     case inconvenientToUse
     case notUsedOften
     case errorOccurred

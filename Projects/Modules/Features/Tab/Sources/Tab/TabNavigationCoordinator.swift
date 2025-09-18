@@ -10,7 +10,7 @@ import ComposableArchitecture
 @preconcurrency import TCACoordinators
 import FeatureCommon
 
-@Reducer(state: .equatable)
+@Reducer(state: .hashable)
 public enum TabNavigationScreen {
     case tabView(GBTabBarCoordinator)
     case challengeDetail(ChallengeDetailFeature)
@@ -24,7 +24,7 @@ public struct TabNavigationCoordinator {
     public init() {}
     
     @ObservableState
-    public struct State: Equatable, Sendable {
+    public struct State: Equatable, Sendable, Hashable {
         public static let initialState = State(routes: [.root(.tabView(GBTabBarCoordinator.State()), embedInNavigationView: true)])
         public var routes: IdentifiedArrayOf<Route<TabNavigationScreen.State>>
     }

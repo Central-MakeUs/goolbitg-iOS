@@ -15,7 +15,7 @@ import Data
 public struct GBHomeTabViewFeature: GBReducer {
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         public init () {}
         
         var currentMoney: Double = 0

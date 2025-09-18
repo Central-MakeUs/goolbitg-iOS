@@ -15,7 +15,7 @@ public struct ExpressExpenditureDateViewFeature {
     public init() {}
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         public init () {}
         var selectedWeak: WeakEnum? = nil
         var selectedDate = Date()

@@ -18,7 +18,7 @@ import FeatureIntro
 struct RootCoordinator {
     
     @ObservableState
-    struct State: Equatable, Sendable {
+    struct State: Equatable, Sendable, Hashable {
         var currentView: ChangeRootView = .splashLogin
         
         var alertItem: GBAlertViewComponents? = nil
@@ -53,7 +53,7 @@ struct RootCoordinator {
         case bindingAppStore(Bool)
     }
     
-    enum ChangeRootView {
+    enum ChangeRootView: Hashable {
         case splashLogin
         case mainTab
     }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum GenderType: Equatable {
+public enum GenderType: Equatable, Hashable {
     case male
     case female
     

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum WeakEnum: Equatable, CaseIterable {
+public enum WeakEnum: Equatable, CaseIterable, Hashable {
     case monday
     case tuesday
     case wednesday

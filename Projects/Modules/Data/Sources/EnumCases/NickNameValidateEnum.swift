@@ -8,7 +8,7 @@
 import Foundation
 import Utils
 
-public enum NickNameValidateEnum {
+public enum NickNameValidateEnum: Hashable {
     /// 비활성
     case none
     /// 검사 통과

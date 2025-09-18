@@ -15,7 +15,7 @@ import Data
 public struct MyPageViewFeature: GBReducer {
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         var userEntity: UserMyPageEntity = UserMyPageEntity.getSelf
         let version = MyPageViewFeature.getVersion
         var logoutAlert: GBAlertViewComponents? = nil

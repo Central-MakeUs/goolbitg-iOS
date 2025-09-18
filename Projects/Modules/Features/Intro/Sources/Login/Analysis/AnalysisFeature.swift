@@ -12,7 +12,7 @@ import ComposableArchitecture
 public struct AnalysisFeature {
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         public init () {}
     }
     

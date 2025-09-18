@@ -16,7 +16,7 @@ public struct ChallengeAddViewFeature: GBReducer {
     public init () {}
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         
         var currentFamousList: [ChallengeEntity]? = nil
         var currentAnotherList: [ChallengeEntity]? = nil

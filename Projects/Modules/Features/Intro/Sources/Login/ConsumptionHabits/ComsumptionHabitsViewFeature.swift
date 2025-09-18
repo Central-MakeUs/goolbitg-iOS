@@ -15,7 +15,7 @@ public struct ComsumptionHabitsViewFeature: GBReducer {
     public init() {}
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         public init() {}
         
         var closeToolTipTrigger = false

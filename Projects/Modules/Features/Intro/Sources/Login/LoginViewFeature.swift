@@ -15,7 +15,7 @@ import Data
 public struct LoginViewFeature {
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         public init() {}
         let requestAppleLoginList: [ASAuthorization.Scope] = [.fullName, .email]
         

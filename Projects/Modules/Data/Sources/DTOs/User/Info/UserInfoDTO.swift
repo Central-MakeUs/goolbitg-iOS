@@ -9,7 +9,7 @@ import Foundation
 import Domain
 
 // MARK: - UserInfoDTO
-public struct UserInfoDTO: DTO, Equatable {
+public struct UserInfoDTO: DTO, Equatable, Hashable {
     /// 사용자 고유 ID
     public let id: String
     /// 사용자 닉네임

@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 @preconcurrency import TCACoordinators
 
-@Reducer(state: .equatable)
+@Reducer(state: .hashable)
 public enum BuyOrNotTabCoordinatorScreen {
     case home(BuyOrNotTabViewFeature)
     case buyOrNotAdd(BuyOrNotAddViewFeature)
@@ -19,7 +19,7 @@ public enum BuyOrNotTabCoordinatorScreen {
 public struct BuyOrNotTabCoordinator {
     public init () {}
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         public static let initialState = State(routes: [.root(.home(BuyOrNotTabViewFeature.State()), embedInNavigationView: true)])
         var routes: IdentifiedArrayOf<Route<BuyOrNotTabCoordinatorScreen.State>>
     }

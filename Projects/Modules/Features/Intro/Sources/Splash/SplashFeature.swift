@@ -12,7 +12,7 @@ import ComposableArchitecture
 public struct SplashFeature {
     
     @ObservableState
-    public struct State: Equatable {}
+    public struct State: Equatable, Hashable {}
     
     public enum Action {
         case viewCycle(ViewCycle)

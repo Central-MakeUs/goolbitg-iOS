@@ -17,7 +17,7 @@ public struct ChallengeTabFeature: GBReducer {
     public init () {}
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         public init () {}
         
         var toggleSwitchCase: [ChallengeStatusCase] = [.wait, .success]

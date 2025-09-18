@@ -37,7 +37,7 @@ public enum TabCase: Hashable, CaseIterable {
 public struct GBTabBarCoordinator {
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         public static let initialState = State()
         
         var currentTab: TabCase = .homeTab
