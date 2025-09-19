@@ -98,11 +98,9 @@ extension GBChallengeBottomSheetView {
     }
     
     private var challengeButton: some View {
-        VStack (spacing: 0) {
-            GBButtonV2(title: buttonTitle) {
-                onTabButton()
-            }
-            .padding(.all, SpacingHelper.md.pixel)
+        GBButtonV2(title: buttonTitle) {
+            onTabButton()
         }
+        .padding(.all, SpacingHelper.md.pixel)
     }
 }

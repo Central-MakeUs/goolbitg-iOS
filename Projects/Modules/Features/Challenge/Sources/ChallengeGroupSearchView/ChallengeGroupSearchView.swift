@@ -50,7 +50,7 @@ struct ChallengeGroupSearchView: View {
                     $0
                         .animation(.easeInOut)
                         .type(.default)
-                        .displayMode(.window)
+                        .displayMode(.overlay)
                         .appearFrom(.none)
                         .closeOnTap(true)
                         .backgroundColor(Color.black.opacity(0.5))

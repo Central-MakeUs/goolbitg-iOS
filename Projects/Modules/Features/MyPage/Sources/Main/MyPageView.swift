@@ -55,6 +55,7 @@ struct MyPageView: View {
                 } customize: {
                     $0
                         .type(.default)
+                        .displayMode(.sheet)
                         .animation(.bouncy)
                         .appearFrom(.centerScale)
                         .closeOnTap(false)

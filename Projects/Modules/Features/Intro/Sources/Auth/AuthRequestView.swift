@@ -37,6 +37,7 @@ struct AuthRequestView: View {
                 } customize: {
                     $0
                         .type(.toast)
+                        .displayMode(.sheet)
                         .animation(.spring)
                         .closeOnTapOutside(true)
                         .closeOnTap(false)
@@ -57,6 +58,7 @@ struct AuthRequestView: View {
                 } customize: {
                     $0
                         .type(.toast)
+                        .displayMode(.sheet)
                         .animation(.spring)
                         .closeOnTap(false)
                         .closeOnTapOutside(true)

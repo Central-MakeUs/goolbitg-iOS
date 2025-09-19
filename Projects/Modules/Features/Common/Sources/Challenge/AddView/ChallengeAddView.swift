@@ -52,6 +52,7 @@ public struct ChallengeAddView: View {
                 } customize: {
                     $0
                         .type(.toast)
+                        .displayMode(.sheet)
                         .animation(.spring)
                         .closeOnTapOutside(true)
                         .closeOnTap(false)
@@ -67,6 +68,7 @@ public struct ChallengeAddView: View {
                     $0
                         .animation(.easeInOut)
                         .type(.default)
+                        .displayMode(.sheet)
                         .appearFrom(.centerScale)
                         .closeOnTap(false)
                         .closeOnTapOutside(false)

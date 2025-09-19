@@ -151,6 +151,7 @@ extension ChallengeGroupSearchViewFeature {
                     if result {
                         await send(.delegate(.backAndReload))
                     } else {
+                        await send(.selectedRoomPopupComponentBinding(nil))
                         await send(.errorPopupComponentBinding(GBAlertViewComponents(title: "ERROR", message: "알 수 없는 에러", okTitle: "확인", alertStyle: .warning)))
                     }
                 } catch: { error, send in
@@ -174,6 +175,7 @@ extension ChallengeGroupSearchViewFeature {
                         errorText = "알수없는 에러"
                     }
                     
+                    await send(.selectedRoomPopupComponentBinding(nil))
                     await send(.errorPopupComponentBinding(GBAlertViewComponents(title: "ERROR", message: errorText, okTitle: "확인", alertStyle: .warning)))
                 }
                 

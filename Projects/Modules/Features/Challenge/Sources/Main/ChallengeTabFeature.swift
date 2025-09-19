@@ -488,6 +488,8 @@ extension ChallengeTabFeature {
                 return .run { send in
                     await send(.featureEvent(.requestResettingWeekDatas(Date())))
                     await send(.featureEvent(.requestChallengeList(obj: page)))
+                } catch: { error, send in
+                    Logger.error(error)
                 }
                 
             case let .selectedSwitchIndex(index):
@@ -498,6 +500,8 @@ extension ChallengeTabFeature {
                 state.listLoad = true
                 return .run { send in
                     await send(.featureEvent(.requestChallengeList(obj: obj)))
+                } catch: { error, send in
+                    Logger.error(error)
                 }
                 .debounce(id: CancelID.switchToggle, for: 0.5, scheduler: DispatchQueue.main.eraseToAnyScheduler())
                 
