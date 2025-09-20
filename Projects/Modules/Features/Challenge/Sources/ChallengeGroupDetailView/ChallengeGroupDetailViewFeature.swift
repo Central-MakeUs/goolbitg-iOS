@@ -71,6 +71,8 @@ public struct ChallengeGroupDetailViewFeature: GBReducer {
         case requestBottomSheetButtonTapped
         
         case catchErrorMessage(APIErrorEntity)
+        
+        case setRequestTrigger(Bool)
     }
     
     private enum CancelID: Hashable {
@@ -166,8 +168,11 @@ extension ChallengeGroupDetailViewFeature {
                     
                     if result {
                         await send(.featureEvent(.requestBottomSheetInfo(groupID: id)))
+                        await send(.featureEvent(.requestChallengeGroupDetail(groupID: id)))
                     }
+                    await send(.featureEvent(.setRequestTrigger(false)))
                 } catch: { error, send in
+                    await send(.featureEvent(.setRequestTrigger(false)))
                     guard let error = error as? RouterError else {
                         return
                     }
@@ -196,6 +201,9 @@ extension ChallengeGroupDetailViewFeature {
             case let .featureEvent(.topRankUpdated(entitys)):
                 state.topPodiumModels = entitys
                 
+            case let .featureEvent(.setRequestTrigger(trigger)):
+                state.ifRequestTripple = trigger
+                
             // MARK: Binding
             case let .showErrorMessage(message):
                 state.showErrorMessage = message
@@ -221,7 +229,7 @@ extension ChallengeGroupDetailViewFeature {
                 
                 return .run { [state] send in
                     await send(.featureEvent(.requestChallengeGroupDetail(groupID: state.groupId)))
-                    // MARK: TODO - "해당 액션에서 사이드 이펙트 발생 서버 에러"
+                    
                     await send(.featureEvent(.requestBottomSheetInfo(groupID: state.groupId)))
                 }
                 
@@ -234,6 +242,7 @@ extension ChallengeGroupDetailViewFeature {
                 
             case .viewEvent(.touchBottomSheetButton):
                 if state.ifRequestTripple { return .none }
+                
                 return .run { action in
                     await action(.featureEvent(.requestBottomSheetButtonTapped))
                 }
