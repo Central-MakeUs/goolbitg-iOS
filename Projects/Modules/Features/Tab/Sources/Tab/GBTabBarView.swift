@@ -228,6 +228,7 @@ extension GBTabBarView {
                 tabItemView(tabItem: .myPageTab)
             }
         }
+        .tabBarMinimizeBehavior(.onScrollDown)
         .tint(GBColor.main.asColor)
     }
 }

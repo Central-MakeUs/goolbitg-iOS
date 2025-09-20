@@ -212,6 +212,7 @@ extension ChallengeTabView {
                     }
                 }
             }
+            
         }
     }
     
@@ -534,6 +535,9 @@ extension ChallengeTabView {
                     challengeGroupElementView(entity: entity, index: index, last: models.count - 1)
                         .asButton {
                             store.send(.viewEvent(.groupChallengeViewEvent(.selectedParticipatingModel(entity: entity))))
+                        }
+                        .onAppear {
+                            store.send(.viewEvent(.groupChallengeViewEvent(.currentIndex(index))))
                         }
                 }
             }

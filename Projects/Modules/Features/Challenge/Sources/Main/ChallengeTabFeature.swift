@@ -102,6 +102,7 @@ public struct ChallengeTabFeature: GBReducer {
             case showGroupChallengeAddView
             case showFindGroupChallengeView
             case groupChallengeRoomSearchViewMoveTapped
+            case currentIndex(Int)
         }
     }
     
@@ -552,12 +553,23 @@ extension ChallengeTabFeature {
             case .viewEvent(.groupChallengeViewEvent(.groupChallengeRoomSearchViewMoveTapped)):
                 return .send(.delegate(.moveToGroupChallengeSearchView))
                 
+            case let .viewEvent(.groupChallengeViewEvent(.currentIndex(index))):
+                if !state.groupListLoad, index > 5 {
+                    let count = state.groupChallengeList.count
+                    
+                    if index >= count - 4 && state.groupChallengePagingObj.pageNum <= state.groupChallengePagingObj.totalPages ?? 0 {
+                        state.groupListLoad = true
+                        return .send(.groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst: false, doNotReset: true)))
+                    }
+                }
+                
             // MARK: GroupViewFeatureEvent
             case let .groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst, doNotReset)):
                 
                 if atFirst && !doNotReset {
                     state.groupChallengePagingObj = GroupChallengePagingObj(participating: true)
                 }
+                
                 let pagingObj = state.groupChallengePagingObj
                 
                 return .run { send in
@@ -581,16 +593,15 @@ extension ChallengeTabFeature {
                             .updateGroupChallengePagingObj(
                                 totalSize: result.totalSize,
                                 totalPages: result.totalPages,
-                                page: result.page,
-                                size: result.size
+                                page: result.page + 1,
+                                size: 10
                             )
                         )
                     )
-                    
                     await send(.groupChallengeFeatureEvent(.resultGroupChallengeList(models: mapping, ifAppend: !atFirst)))
                 }
                 
-            case let .groupChallengeFeatureEvent(.updateGroupChallengePagingObj(totalSize, totalPages, page, size)):
+            case let .groupChallengeFeatureEvent(.updateGroupChallengePagingObj(totalSize, totalPages, page, _)):
                 var copy = state.groupChallengePagingObj
                 copy.totalCount = totalSize
                 copy.totalPages = totalPages

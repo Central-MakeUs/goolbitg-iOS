@@ -104,7 +104,7 @@ extension ChallengeGroupSearchViewFeature {
                 
             case .viewEvent(.moreItem):
                 if state.apiLoadTrigger { return .none }
-                
+                state.apiLoadTrigger = true
                 let current = state.groupChallengePagingObj.pageNum
                 let totalPage = state.groupChallengePagingObj.totalPages ?? 100
                 let text = state.searchText
