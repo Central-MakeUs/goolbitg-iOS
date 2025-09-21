@@ -22,7 +22,7 @@ struct BuyOrNotCardView: View {
         content
             .opacity(hidden ? 0 : 1)
             .task {
-                try? await Task.sleep(for: .milliseconds(300))
+                try? await Task.sleep(for: .milliseconds(100))
                 withAnimation(.linear(duration: 1)) {
                     hidden = false
                 }
