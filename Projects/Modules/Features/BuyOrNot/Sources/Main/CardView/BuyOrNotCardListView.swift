@@ -27,6 +27,7 @@ struct BuyOrNotCardListView: View {
     private let reducedScale: CGFloat = 0.8  // 좌우 카드 크기 축소 비율
     private let sidePaddingScale: CGFloat = 0.89 // 사이드 스케일
     private let velocityThreshold: CGFloat = 400 // 드래그 속도
+    private let bouncyAnimateDuration: TimeInterval = 0.3
     
     var cardWidth: CGFloat {
         let cardWidth: CGFloat = size.width - (horizontalPadding * 2)
@@ -58,8 +59,8 @@ struct BuyOrNotCardListView: View {
             }
             .padding(.leading, horizontalPadding)
             .offset(x: dragOffset + lastOffset)
-            .gesture(
-                DragGesture(minimumDistance: 1)
+            .simultaneousGesture( // 0.3초 딜레이 없이 바로 제스처 감지
+                DragGesture(minimumDistance: 20)
                     .onChanged { value in
                         let verticalDrag = abs(value.predictedEndTranslation.height)
                         let horizontalDrag = abs(value.predictedEndTranslation.width)
@@ -67,22 +68,28 @@ struct BuyOrNotCardListView: View {
                         if verticalDrag > horizontalDrag {
                             return
                         }
-                        withAnimation(.easeInOut(duration: 0.1)) {
-                            dragOffset = value.translation.width
-                        }
+                        
+                        dragOffset = value.translation.width
                     }
                     .onEnded { value in
-                        let newIndex = getNearestIndex()
+                        var targetIndex = currentIndex
+                        let velocityX = value.velocity.width
                         
-                        let newOffset = -CGFloat(newIndex) * (cardWidth * sidePaddingScale + horizontalPadding)
-                        
-                        withAnimation(.bouncy(duration: 0.4)) {
-                            currentIndex = newIndex
-                            lastOffset = newOffset
-                            dragOffset = 0
+                        if abs(velocityX) > velocityThreshold {
+                            targetIndex = getNextIndex(velocityX: velocityX)
+                        } else {
+                            targetIndex = getNearestIndex()
                         }
+                        
+                        let newOffset = -CGFloat(targetIndex) * (cardWidth * sidePaddingScale + horizontalPadding)
+                        
+                        currentIndex = targetIndex
+                        lastOffset = newOffset
+                        dragOffset = 0
                     }
             )
+            .animation(.smooth(duration: bouncyAnimateDuration), value: currentIndex)
+            .animation(.linear(duration: 0.2), value: dragOffset)
         }
         .scrollIndicators(.hidden)
     }
@@ -106,6 +113,17 @@ struct BuyOrNotCardListView: View {
         let approximateIndex = (-lastOffset - dragOffset) / oneCardWidth
         // Min(count, round: 1.4 -> 1, 1.6 -> 2)
         return max(0, min(currentListEntity.count - 1, Int(round(approximateIndex))))
+    }
+    
+    /// 속도의 의한 인덱스 이동 함수
+    /// - Parameter velocityX: 이동거리
+    /// - Returns: 다음 인덱스
+    private func getNextIndex(velocityX: CGFloat) -> Int {
+        if velocityX < 0 {
+            return min(currentListEntity.count - 1, currentIndex + 1)
+        } else {
+            return max(0, currentIndex - 1)
+        }
     }
 }
 
