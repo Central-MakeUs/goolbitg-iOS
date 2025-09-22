@@ -475,9 +475,17 @@ extension BuyOrNotTabViewFeature {
                 
                 // MARK: ParentAction
             case .parentEvent(.newBuyOrNotItem):
-                state.buyOrNotPagingObj = BuyOrNotPagingObj(page: 0, created: true)
-                return .send(.featureEvent(.requestUserRecordList(state.buyOrNotPagingObj)))
+                var obj = BuyOrNotPagingObj(page: 0, created: false)
                 
+                if state.tabMode == .buyOrNot {
+                    state.buyOrNotPagingObj = obj
+                    state.currentList.removeAll()
+                    return .send(.featureEvent(.requestBuyOrNotList(obj)))
+                } else {
+                    obj.created = true
+                    state.buyOrNotRecordPagingObj = obj
+                    return .send(.featureEvent(.requestUserRecordList(state.buyOrNotPagingObj)))
+                }
             case let .parentEvent(.modifierSuccess(model, idx)):
                 state.currentUserList[idx] = model
                 
@@ -499,7 +507,10 @@ extension BuyOrNotTabViewFeature {
 
 public struct BuyOrNotPagingObj: Equatable, Hashable {
     var totalSize = 0
+    /// 페이지 번호
     var page: Int
-    let size = 10
-    let created: Bool
+    /// 페이지 사이즈
+    var size = 10
+    /// 내가 작성한 포스트만 가져올지 여부
+    var created: Bool
 }
