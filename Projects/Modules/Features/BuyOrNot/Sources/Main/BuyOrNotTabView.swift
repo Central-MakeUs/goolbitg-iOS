@@ -106,6 +106,7 @@ struct BuyOrNotTabView: View {
                     } customize: {
                         $0
                             .type(.toast)
+                            .displayMode(.sheet)
                             .closeOnTap(false)
                             .closeOnTapOutside(true)
                             .animation(.smooth)

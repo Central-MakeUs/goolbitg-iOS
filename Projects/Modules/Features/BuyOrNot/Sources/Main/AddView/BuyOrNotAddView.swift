@@ -202,7 +202,7 @@ extension BuyOrNotAddView {
                 .padding(.horizontal, 10)
             }
         }
-        .ignoresSafeArea(.keyboard)
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .background(GBColor.background1.asColor)
         .subscribeKeyboardHeight { height in
             keyboardHeight = height
@@ -366,7 +366,8 @@ extension BuyOrNotAddView {
                     placeholderColor: GBColor.grey500.asColor,
                     edge: UIEdgeInsets(top: 17, left: 18, bottom: 17, right: 18),
                     keyboardType: .numberPad,
-                    ifLeadingEdge: 20
+                    ifLeadingEdge: 20,
+                    items: [.keyboardDown]
                 ) {
                     
                 }

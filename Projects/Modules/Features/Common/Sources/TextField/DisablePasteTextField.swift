@@ -15,6 +15,7 @@ public struct DisablePasteTextFieldConfiguration {
     public let keyboardType: UIKeyboardType
     public var isSecureTextEntry: Bool = false
     public var ifLeadingEdge: CGFloat?
+    public var items: [KeyboardItem]
     
     public init(
         textColor: Color,
@@ -23,7 +24,8 @@ public struct DisablePasteTextFieldConfiguration {
         edge: UIEdgeInsets,
         keyboardType: UIKeyboardType,
         isSecureTextEntry: Bool,
-        ifLeadingEdge: CGFloat? = nil
+        ifLeadingEdge: CGFloat? = nil,
+        items: [KeyboardItem] = []
     ) {
         self.textColor = textColor
         self.placeholder = placeholder
@@ -32,7 +34,12 @@ public struct DisablePasteTextFieldConfiguration {
         self.keyboardType = keyboardType
         self.isSecureTextEntry = isSecureTextEntry
         self.ifLeadingEdge = ifLeadingEdge
+        self.items = items
     }
+}
+
+public enum KeyboardItem: Hashable {
+    case keyboardDown
 }
 
 public struct DisablePasteTextField: View {
@@ -47,6 +54,7 @@ public struct DisablePasteTextField: View {
     public var ifLeadingEdge: CGFloat?
     public let onCommit: (() -> Void)?
     public var textColor: Color = .white
+    public var items: [KeyboardItem]
     
     public init(
         text: Binding<String>,
@@ -57,6 +65,7 @@ public struct DisablePasteTextField: View {
         edge: UIEdgeInsets,
         keyboardType: UIKeyboardType,
         ifLeadingEdge: CGFloat? = nil,
+        items: [KeyboardItem] = [],
         onCommit: ( () -> Void)?
     ) {
         self._text = text
@@ -68,6 +77,7 @@ public struct DisablePasteTextField: View {
         self.ifLeadingEdge = ifLeadingEdge
         self.isSecureTextEntry = isSecureTextEntry
         self.onCommit = onCommit
+        self.items = items
     }
     
     public init(
@@ -85,6 +95,7 @@ public struct DisablePasteTextField: View {
         self.ifLeadingEdge = configuration.ifLeadingEdge
         self.isSecureTextEntry = configuration.isSecureTextEntry
         self.textColor = configuration.textColor
+        self.items = configuration.items
         self.onCommit = onCommit
     }
     
@@ -96,6 +107,7 @@ public struct DisablePasteTextField: View {
                 isFocused: isFocused,
                 keyboardType: keyboardType,
                 isSecureTextEntry: isSecureTextEntry,
+                items: items,
                 onCommit: onCommit
             )
             .padding(.leading, ifLeadingEdge ?? 0)
@@ -122,6 +134,7 @@ public struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
     public var isFocused: Binding<Bool>?
     public let keyboardType: UIKeyboardType
     public let isSecureTextEntry: Bool
+    public var items: [KeyboardItem]
     public let onCommit: (() -> Void)?
     
     public typealias UIViewType = ProtectedTextField
@@ -135,7 +148,9 @@ public struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
         textField.autocapitalizationType = .none // 자동 대문자 활성화 여부
         textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldTapped), for: .editingDidBegin)
         textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        
+        if !items.isEmpty {
+            textField.inputAccessoryView = makeToolbar(items: items, coordinator: context.coordinator)
+        }
         if let textColor {
             textField.textColor = UIColor(textColor)
         }
@@ -156,6 +171,25 @@ public struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
                 }
             }
         }
+    }
+    
+    private func makeToolbar(items: [KeyboardItem], coordinator: Coordinator) -> UIToolbar {
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        
+        toolbar.items = items.map {
+            switch $0 {
+            case .keyboardDown:
+                return UIBarButtonItem(barButtonSystemItem: .done, target: coordinator, action: #selector(Coordinator.keyboardDownTapped))
+            }
+        }
+        
+        if let items = toolbar.items, !items.isEmpty {
+            let flexible = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+            toolbar.items = [flexible] + items
+        }
+        
+        return toolbar
     }
     
     public func makeCoordinator() -> Coordinator {
@@ -190,6 +224,14 @@ public struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
             onCommit?()
             textField.resignFirstResponder()
             return true
+        }
+        
+        @objc func keyboardDownTapped() {
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            if let isFocused = isFocused, isFocused.wrappedValue {
+                isFocused.wrappedValue = false
+            }
+            onCommit?()
         }
     }
 }
