@@ -30,6 +30,7 @@ public struct BuyOrNotTabCoordinator {
     
     public var body: some ReducerOf<Self> {
         core
+        addAndModifierCore
     }
 }
 
@@ -41,6 +42,26 @@ extension BuyOrNotTabCoordinator {
             case .router(.routeAction(id: .home, action: .home(.delegate(.moveToAddView)))):
                 state.routes.presentCover(.buyOrNotAdd(BuyOrNotAddViewFeature.State(stateMode: .add)))
                 
+            case let .router(.routeAction(id: .home, action: .home(.delegate(.moveToModifierView(model, idx))))):
+                
+                state.routes.presentCover(.buyOrNotAdd(BuyOrNotAddViewFeature.State(stateMode: .modifier(model, idx: idx))))
+                  
+            default:
+                break
+            }
+            return .none
+        }
+        .forEachRoute(\.routes, action: \.router)
+    }
+    
+    private var addAndModifierCore: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case let .router(.routeAction(id: .add, action: .buyOrNotAdd(.delegate(.successModifer(model, idx))))):
+                
+                state.routes.dismiss()
+                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.modifierSuccess(model, idx: idx))))))
+                
             case .router(.routeAction(id: .add, action: .buyOrNotAdd(.delegate(.dismiss)))):
                 state.routes.dismiss()
                 
@@ -49,20 +70,11 @@ extension BuyOrNotTabCoordinator {
                 
                 return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.newBuyOrNotItem)))))
                 
-            case let .router(.routeAction(id: .home, action: .home(.delegate(.moveToModifierView(model, idx))))):
-                
-                state.routes.presentCover(.buyOrNotAdd(BuyOrNotAddViewFeature.State(stateMode: .modifier(model, idx: idx))))
-                
-            case let .router(.routeAction(id: .add, action: .buyOrNotAdd(.delegate(.successModifer(model, idx))))):
-                
-                state.routes.dismiss()
-                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.modifierSuccess(model, idx: idx))))))
-                
             default:
                 break
             }
+            
             return .none
         }
-        .forEachRoute(\.routes, action: \.router)
     }
 }
