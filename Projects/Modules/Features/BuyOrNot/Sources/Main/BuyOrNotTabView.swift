@@ -217,10 +217,6 @@ extension BuyOrNotTabView {
                 }
             }
             Spacer()
-            
-            Color.clear
-                .frame(height: safeAreaInsets.bottom)
-            
         }
         .background(GBColor.background1.asColor)
     }
@@ -293,6 +289,9 @@ extension BuyOrNotTabView {
             .padding(.bottom, 24)
             
             likeOrNotView
+            
+            Color.clear
+                .frame(height: safeAreaInsets.bottom)
         }
     }
     
@@ -386,6 +385,9 @@ extension BuyOrNotTabView {
                                 }
                         }
                     }
+                    
+                    Color.clear
+                        .frame(height: safeAreaInsets.bottom)
                 }
             }
             else {
