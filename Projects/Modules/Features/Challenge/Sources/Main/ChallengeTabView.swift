@@ -537,7 +537,9 @@ extension ChallengeTabView {
                             store.send(.viewEvent(.groupChallengeViewEvent(.selectedParticipatingModel(entity: entity))))
                         }
                         .onAppear {
-                            store.send(.viewEvent(.groupChallengeViewEvent(.currentIndex(index))))
+                            if store.challengeList.count - 2 < index {
+                                store.send(.viewEvent(.groupChallengeViewEvent(.currentIndex(index))))
+                            }
                         }
                 }
             }
