@@ -44,6 +44,7 @@ public struct ChallengeTabFeature: GBReducer {
         // MARK: - 그룹 챌린지
         var groupChallengeList: [ParticipatingGroupChallengeListEntity] = []
         var groupListLoad = false
+        var groupListPageNationLoad = false
         /// 본인이 만든것만 볼것인지
         var groupOnlyMakeMeTrigger = false
         var groupChallengePagingObj = GroupChallengePagingObj(participating: true)
@@ -142,6 +143,7 @@ public struct ChallengeTabFeature: GBReducer {
         case switchToggle
         case checkWeekDate
         case onlyMakeMeButtonTapped
+        case requestGroupChallengeList
     }
     
     @Dependency(\.dateManager) var dateManager
@@ -183,7 +185,7 @@ extension ChallengeTabFeature {
                         await send(.featureEvent(.requestPrevWeekData))
                     }
                 }
-                .throttle(id: CancelID.checkWeekDate, for: 0.4, scheduler: RunLoop.main.eraseToAnyScheduler(), latest: false)
+                .throttle(id: CancelID.checkWeekDate, for: 1, scheduler: AnySchedulerOf<DispatchQueue>.main, latest: false)
                 
                 
             case let .viewEvent(.selectedMonthDate(date)):
@@ -554,11 +556,11 @@ extension ChallengeTabFeature {
                 return .send(.delegate(.moveToGroupChallengeSearchView))
                 
             case let .viewEvent(.groupChallengeViewEvent(.currentIndex(index))):
-                if !state.groupListLoad, index > 5 {
+                if !state.groupListPageNationLoad, index > 5, !state.groupChallengeList.isEmpty {
                     let count = state.groupChallengeList.count
                     
-                    if index >= count - 4 && state.groupChallengePagingObj.pageNum <= state.groupChallengePagingObj.totalPages ?? 0 {
-                        state.groupListLoad = true
+                    if index >= count - 2 && state.groupChallengePagingObj.pageNum <= state.groupChallengePagingObj.totalPages ?? 0 {
+                        state.groupListPageNationLoad = true
                         return .send(.groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst: false, doNotReset: true)))
                     }
                 }
@@ -599,7 +601,9 @@ extension ChallengeTabFeature {
                         )
                     )
                     await send(.groupChallengeFeatureEvent(.resultGroupChallengeList(models: mapping, ifAppend: !atFirst)))
-                }
+                } catch: { error, send in
+                    Logger.error(error)
+                }.debounce(id: CancelID.requestGroupChallengeList, for: 0.3, scheduler: AnySchedulerOf<DispatchQueue>.main)
                 
             case let .groupChallengeFeatureEvent(.updateGroupChallengePagingObj(totalSize, totalPages, page, _)):
                 var copy = state.groupChallengePagingObj
@@ -613,14 +617,15 @@ extension ChallengeTabFeature {
             case let .groupChallengeFeatureEvent(.resultGroupChallengeList(models, ifAppend)):
                 
                 if ifAppend {
-                    state.groupChallengeList.append(contentsOf: models)
-                    print("STATE => \(models)")
+                    if !models.isEmpty {
+                        state.groupChallengeList.append(contentsOf: models)
+                    }
                 }
                 else {
                     print("STATE => \(models)")
                     state.groupChallengeList = models
                 }
-                
+                state.groupListPageNationLoad = false
                 return .send(.groupChallengeFeatureEvent(.changeLoadState(ifLoad: false)))
                 
             case let .groupChallengeFeatureEvent(.changeLoadState(ifLoad)):
