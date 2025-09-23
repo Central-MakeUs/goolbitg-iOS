@@ -477,15 +477,17 @@ extension BuyOrNotTabViewFeature {
             case .parentEvent(.newBuyOrNotItem):
                 var obj = BuyOrNotPagingObj(page: 0, created: false)
                 
-                if state.tabMode == .buyOrNot {
+                switch state.tabMode {
+                case .buyOrNot:
                     state.buyOrNotPagingObj = obj
                     state.currentList.removeAll()
                     return .send(.featureEvent(.requestBuyOrNotList(obj)))
-                } else {
+                case .records:
                     obj.created = true
                     state.buyOrNotRecordPagingObj = obj
-                    return .send(.featureEvent(.requestUserRecordList(state.buyOrNotPagingObj)))
+                    return .send(.featureEvent(.requestUserRecordList(obj)))
                 }
+                
             case let .parentEvent(.modifierSuccess(model, idx)):
                 state.currentUserList[idx] = model
                 
