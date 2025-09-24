@@ -132,6 +132,8 @@ public struct ChallengeTabFeature: GBReducer {
         case resultGroupChallengeList(models: [ParticipatingGroupChallengeListEntity], ifAppend: Bool)
         case updateGroupChallengePagingObj(totalSize: Int, totalPages: Int, page: Int, size: Int)
         case toggleToOnlyMakeMeButton
+        
+        case updateGroupListPageNationLoad(bool: Bool)
     }
     
     public enum ParentEvent {
@@ -143,6 +145,7 @@ public struct ChallengeTabFeature: GBReducer {
         case switchToggle
         case checkWeekDate
         case onlyMakeMeButtonTapped
+        case scrollToIndexForGroupChallenge
         case requestGroupChallengeList
     }
     
@@ -556,20 +559,24 @@ extension ChallengeTabFeature {
                 return .send(.delegate(.moveToGroupChallengeSearchView))
                 
             case let .viewEvent(.groupChallengeViewEvent(.currentIndex(index))):
-                if !state.groupListPageNationLoad, index > 5, !state.groupChallengeList.isEmpty {
-                    let count = state.groupChallengeList.count
-                    
-                    if index >= count - 2 && state.groupChallengePagingObj.pageNum <= state.groupChallengePagingObj.totalPages ?? 0 {
-                        state.groupListPageNationLoad = true
-                        return .send(.groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst: false, doNotReset: true)))
+                
+                return .run { [state] send in
+                    if !state.groupListPageNationLoad, index > 5, !state.groupChallengeList.isEmpty {
+                        let count = state.groupChallengeList.count
+                        
+                        if index >= count - 2 && state.groupChallengePagingObj.pageNum <= state.groupChallengePagingObj.totalPages ?? 0 {
+                            await send(.groupChallengeFeatureEvent(.updateGroupListPageNationLoad(bool: true)))
+                            await send(.groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst: false, doNotReset: true)))
+                        }
                     }
                 }
+                .debounce(id: CancelID.scrollToIndexForGroupChallenge, for: 0.4, scheduler: AnySchedulerOf<DispatchQueue>.main, options: .none)
                 
             // MARK: GroupViewFeatureEvent
             case let .groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst, doNotReset)):
                 
                 if atFirst && !doNotReset {
-                    state.groupChallengePagingObj = GroupChallengePagingObj(participating: true)
+                    state.groupChallengePagingObj = GroupChallengePagingObj(size: 20, participating: true)
                 }
                 
                 let pagingObj = state.groupChallengePagingObj
@@ -605,11 +612,11 @@ extension ChallengeTabFeature {
                     Logger.error(error)
                 }.debounce(id: CancelID.requestGroupChallengeList, for: 0.3, scheduler: AnySchedulerOf<DispatchQueue>.main)
                 
-            case let .groupChallengeFeatureEvent(.updateGroupChallengePagingObj(totalSize, totalPages, page, _)):
+            case let .groupChallengeFeatureEvent(.updateGroupChallengePagingObj(totalSize, totalPages, page, size)):
                 var copy = state.groupChallengePagingObj
                 copy.totalCount = totalSize
                 copy.totalPages = totalPages
-//                copy.size = size
+                copy.size = size
                 copy.pageNum = page
                 state.groupChallengePagingObj = copy
                 
@@ -619,13 +626,17 @@ extension ChallengeTabFeature {
                 if ifAppend {
                     if !models.isEmpty {
                         state.groupChallengeList.append(contentsOf: models)
+                        state.groupListPageNationLoad = false
+                    } else {
+                        state.groupListPageNationLoad = true // 끝
                     }
                 }
                 else {
                     print("STATE => \(models)")
                     state.groupChallengeList = models
+                    state.groupListPageNationLoad = false
                 }
-                state.groupListPageNationLoad = false
+                
                 return .send(.groupChallengeFeatureEvent(.changeLoadState(ifLoad: false)))
                 
             case let .groupChallengeFeatureEvent(.changeLoadState(ifLoad)):
@@ -639,6 +650,9 @@ extension ChallengeTabFeature {
                 return .run { send in
                     await send(.groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst: true, doNotReset: true)))
                 }
+                
+            case let .groupChallengeFeatureEvent(.updateGroupListPageNationLoad(bool)):
+                state.groupListPageNationLoad = bool
                 
             case .parentEvent(.reloadGroupData):
                 return .send(.groupChallengeFeatureEvent(.requestGroupChallengeList(atFirst: true)))

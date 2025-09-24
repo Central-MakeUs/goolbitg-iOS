@@ -13,7 +13,7 @@ public struct GroupChallengePagingObj: Equatable, Hashable {
     public var totalPages: Int?
     
     public var pageNum: Int
-    public let size: Int
+    public var size: Int
     public var searchText: String?
     public var created: Bool
     public var participating: Bool
