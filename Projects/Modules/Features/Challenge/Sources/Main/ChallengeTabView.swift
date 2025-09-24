@@ -492,13 +492,33 @@ extension ChallengeTabView {
             .padding(.horizontal, SpacingHelper.md.pixel)
             .padding(.bottom, 18)
             
-            ScrollView {
-                if store.groupListLoad {
+            // MARK: ScrollView -> List
+//            ScrollView {
+//                if store.groupListLoad {
+//                    loadingChallengeGroupListView
+//                }
+//                else {
+//                    challengeGroupListView()
+//                }
+//            }
+            if store.groupListLoad {
+                ScrollView {
                     loadingChallengeGroupListView
                 }
-                else {
-                    challengeGroupListView()
+            } else {
+                List(Array(store.groupChallengeList.enumerated()), id: \.element.self) { index, item in
+                    challengeGroupListView(item: item, index: index)
+                        .resetRowStyle()
+                        .listRowBackground(GBColor.background1.asColor)
+                        .onAppear {
+                            if store.challengeList.count - 2 < index && !store.groupListPageNationLoad {
+                                store.send(.viewEvent(.groupChallengeViewEvent(.currentIndex(index))))
+                            }
+                        }
                 }
+                .listStyle(.plain)
+                .background(GBColor.background1.asColor)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
     }
@@ -544,7 +564,13 @@ extension ChallengeTabView {
                 }
             }
         }
-        
+    }
+    
+    private func challengeGroupListView(item:  ParticipatingGroupChallengeListEntity, index: Int) -> some View {
+        return challengeGroupElementView(entity: item, index: index, last: store.groupChallengeList.count - 1)
+            .asButton {
+                store.send(.viewEvent(.groupChallengeViewEvent(.selectedParticipatingModel(entity: item))))
+            }
     }
     
     /// 참여중인 챌린지 그룹 리스트에서 사용할 뷰
