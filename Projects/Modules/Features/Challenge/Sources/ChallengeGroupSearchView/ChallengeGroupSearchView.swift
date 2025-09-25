@@ -22,7 +22,10 @@ struct ChallengeGroupSearchView: View {
     var body: some View {
         WithPerceptionTracking {
             contentView
-                .background(GBColor.background1.asColor)
+                .background {
+                    GBColor.background1.asColor
+                        .ignoresSafeArea()
+                }
                 .onAppear {
                     store.send(.viewCycle(.onAppear))
                 }
@@ -151,6 +154,7 @@ extension ChallengeGroupSearchView {
         }
     }
     
+    @available(*, deprecated, renamed: "searchResultListViewV2", message: "ScrollView -> List Changged.")
     var searchResultListView: some View {
         LazyVStack(spacing: 0) {
             ForEach(Array(store.listItems.enumerated()), id: \.element.self) { index, item in
@@ -179,7 +183,9 @@ extension ChallengeGroupSearchView {
                 .resetRowStyle()
                 .listRowBackground(GBColor.background1.asColor)
                 .onAppear {
-                    if !store.apiLoadTrigger && index > store.listItems.count - 3 && store.onAppearTrigger {
+                    if !store.apiLoadTrigger,
+                        let last = store.listItems.last,
+                       last.id == item.id {
                         store.send(.viewEvent(.moreItem))
                     }
                 }
