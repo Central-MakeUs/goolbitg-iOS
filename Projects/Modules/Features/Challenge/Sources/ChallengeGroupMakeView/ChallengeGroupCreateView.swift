@@ -63,7 +63,7 @@ extension ChallengeGroupCreateView {
             scrollViewSection
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(GBColor.background1.asColor)
+        .ignoreAreaBackgroundColor(GBColor.background1.asColor)
     }
     
     private var navigationBar: some View {

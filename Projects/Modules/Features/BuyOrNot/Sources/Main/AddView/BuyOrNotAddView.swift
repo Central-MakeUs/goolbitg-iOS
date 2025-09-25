@@ -203,7 +203,7 @@ extension BuyOrNotAddView {
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .background(GBColor.background1.asColor)
+        .ignoreAreaBackgroundColor(GBColor.background1.asColor)
         .subscribeKeyboardHeight { height in
             keyboardHeight = height
         }

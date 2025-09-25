@@ -213,3 +213,13 @@ extension View {
         modifier(OnFirstAppearModifier(perform: perform))
     }
 }
+
+extension View {
+    public func ignoreAreaBackgroundColor(_ color: Color) -> some View {
+        self
+            .background {
+                color
+                    .ignoresSafeArea()
+            }
+    }
+}

@@ -22,10 +22,7 @@ struct ChallengeGroupSearchView: View {
     var body: some View {
         WithPerceptionTracking {
             contentView
-                .background {
-                    GBColor.background1.asColor
-                        .ignoresSafeArea()
-                }
+                .ignoreAreaBackgroundColor(GBColor.background1.asColor)
                 .onAppear {
                     store.send(.viewCycle(.onAppear))
                 }
