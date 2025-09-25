@@ -17,8 +17,7 @@ struct MyPageView: View {
     
     @Perception.Bindable var store: StoreOf<MyPageViewFeature>
     
-    @State private var showShareLink: Bool = false
-    @State private var imageTrigger: UIImage? = nil
+    @State private var userDownImage: AnyIdentifier<UIImage>? = nil
     @State private var pushCount: Int = 0
 
     @Environment(\.safeAreaInsets) var safeAreaInsets
@@ -36,12 +35,10 @@ struct MyPageView: View {
                 .onAppear {
                     store.send(.viewCycle(.onAppear))
                 }
-                .sheet(isPresented: $showShareLink) {
-                    if let image = imageTrigger {
-                        ShareSheet(items: [image])
-                            .presentationDragIndicator(.visible)
-                            .presentationDetents([.medium])
-                    }
+                .sheet(item: $userDownImage) { image in
+                    ShareSheet(items: [image.rawValue])
+                        .presentationDragIndicator(.visible)
+                        .presentationDetents([.medium])
                 }
                 // MARK: LogOut
                 .popup(item: $store.logoutAlert.sending(\.alertState)) { item in
@@ -161,8 +158,7 @@ extension MyPageView {
                             Task {
                                 let image = try? await ImageHelper.downLoadImage(url: url)
                                 guard let image else { return }
-                                imageTrigger = image
-                                showShareLink = true
+                                userDownImage = AnyIdentifier(image)
                             }
                         }
                 }
