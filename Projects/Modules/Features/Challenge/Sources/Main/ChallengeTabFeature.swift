@@ -23,6 +23,7 @@ public struct ChallengeTabFeature: GBReducer {
         var toggleSwitchCase: [ChallengeStatusCase] = [.wait, .success]
         var selectedSwitchIndex: Int = 0
         
+        @ObservationStateIgnored
         var onAppearTrigger = false
         
         let maxCalendar = Calendar.current.date(byAdding: .year, value: -100, to: Date())!...Date()
@@ -69,6 +70,8 @@ public struct ChallengeTabFeature: GBReducer {
         
         // MARK: GroupChallenge
         case groupChallengeFeatureEvent(GroupChallengeFeatureEvent)
+        @ReducerCaseIgnored
+        case groupChallengePageIndex(Int)
         
         public enum Delegate {
             case moveToChallengeAdd
@@ -99,6 +102,8 @@ public struct ChallengeTabFeature: GBReducer {
         case selectedMonthDate(Date)
         case selectedWeek(WeekDay)
         case selectedDetail(item: ChallengeEntity)
+        
+        @ReducerCaseIgnored
         case currentIndex(Int)
         
         case groupChallengeViewEvent(GroupChallengeViewEvent)
@@ -110,7 +115,7 @@ public struct ChallengeTabFeature: GBReducer {
             case showGroupChallengeAddView
             case showFindGroupChallengeView
             case groupChallengeRoomSearchViewMoveTapped
-            case currentIndex(Int)
+//            case currentIndex(Int)
         }
     }
     
@@ -134,7 +139,6 @@ public struct ChallengeTabFeature: GBReducer {
     }
     
     public enum GroupChallengeFeatureEvent {
-//        case requestGroupChallengeList(atFirst: Bool = true, doNotReset: Bool = false) // Will Deplicate
         
         case requestGroupChallengeList(obj: GroupChallengePagingObj)
         
@@ -571,11 +575,12 @@ extension ChallengeTabFeature {
                 
             case .viewEvent(.groupChallengeViewEvent(.groupChallengeRoomSearchViewMoveTapped)):
                 return .send(.delegate(.moveToGroupChallengeSearchView))
+            
+            case let .groupChallengePageIndex(index):
+                if !(state.groupChallengeList.count - 2 < index) { return .none }
                 
-            case let .viewEvent(.groupChallengeViewEvent(.currentIndex(index))):
-                
-                return .run { [state] send in
-                    if !state.groupListPageNationLoad, index > 5, !state.groupChallengeList.isEmpty {
+                return .run(priority: .background) { [state] send in
+                    if index > 5, !state.groupChallengeList.isEmpty {
                         let count = state.groupChallengeList.count
                         
                         if index >= count - 2 && state.groupChallengePagingObj.pageNum <= state.groupChallengePagingObj.totalPages ?? 0 {
@@ -584,7 +589,7 @@ extension ChallengeTabFeature {
                         }
                     }
                 }
-                .debounce(id: CancelID.scrollToIndexForGroupChallenge, for: 0.4, scheduler: AnySchedulerOf<DispatchQueue>.main, options: .none)
+                .debounce(id: CancelID.scrollToIndexForGroupChallenge, for: 0.2, scheduler: AnySchedulerOf<DispatchQueue>.global(), options: .none)
                 
             // MARK: GroupViewFeatureEvent
             case let .groupChallengeFeatureEvent(.requestGroupChallengeList(obj)):
@@ -617,9 +622,10 @@ extension ChallengeTabFeature {
                     )
                     
                     await send(.groupChallengeFeatureEvent(.resultGroupChallengeList(models: mapping, ifAppend: obj.pageNum != 0)))
+                    
                 } catch: { error, send in
                     Logger.error(error)
-                }.debounce(id: CancelID.requestGroupChallengeList, for: 0.3, scheduler: AnySchedulerOf<DispatchQueue>.main)
+                }
                 
             case let .groupChallengeFeatureEvent(.updateGroupChallengePagingObj(totalSize, totalPages, page, size)):
                 var copy = state.groupChallengePagingObj

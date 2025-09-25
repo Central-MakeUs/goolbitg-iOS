@@ -511,8 +511,8 @@ extension ChallengeTabView {
                         .resetRowStyle()
                         .listRowBackground(GBColor.background1.asColor)
                         .onAppear {
-                            if store.challengeList.count - 2 < index && !store.groupListPageNationLoad {
-                                store.send(.viewEvent(.groupChallengeViewEvent(.currentIndex(index))))
+                            if item.id == store.groupChallengeList.last?.id {
+                                store.send(.groupChallengePageIndex(index))
                             }
                         }
                 }
@@ -557,9 +557,7 @@ extension ChallengeTabView {
                             store.send(.viewEvent(.groupChallengeViewEvent(.selectedParticipatingModel(entity: entity))))
                         }
                         .onAppear {
-                            if store.challengeList.count - 2 < index {
-                                store.send(.viewEvent(.groupChallengeViewEvent(.currentIndex(index))))
-                            }
+                            store.send(.groupChallengePageIndex(index))
                         }
                 }
             }
