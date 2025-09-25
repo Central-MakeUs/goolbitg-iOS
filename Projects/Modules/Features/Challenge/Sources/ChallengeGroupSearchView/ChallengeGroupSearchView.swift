@@ -10,6 +10,7 @@ import ComposableArchitecture
 import PopupView
 import Utils
 import FeatureCommon
+import Data
 
 struct ChallengeGroupSearchView: View {
     
@@ -72,9 +73,10 @@ extension ChallengeGroupSearchView {
                 .padding(.horizontal, 16)
                 .padding(.bottom, SpacingHelper.md.pixel)
             
-            ScrollView {
-                searchResultListView
-            }
+//            ScrollView {
+//                searchResultListView
+//            }
+            searchResultListViewV2
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -152,27 +154,56 @@ extension ChallengeGroupSearchView {
     var searchResultListView: some View {
         LazyVStack(spacing: 0) {
             ForEach(Array(store.listItems.enumerated()), id: \.element.self) { index, item in
-                VStack(spacing: 0) {
-                    ParticipatingChallengeGroupElementView(entity: item)
-                        .padding(.horizontal, SpacingHelper.lg.pixel)
-                    
-                    VStack(spacing:0) {
-                        GBColor.grey600.asColor
+                searchListElementView(item: item, index: index)
+                    .asButton {
+                        store.send(.viewEvent(.tappedItem(item)))
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 1)
-                    .padding(.horizontal, SpacingHelper.lg.pixel)
-                    .opacity(index != store.listItems.count - 1 ? 1 : 0)
-                }
+                    .asButton {
+                        store.send(.viewEvent(.tappedItem(item)))
+                    }
+                    .onAppear {
+                        if !store.apiLoadTrigger && index > store.listItems.count - 3 && store.onAppearTrigger {
+                            store.send(.viewEvent(.moreItem))
+                        }
+                    }
+            }
+        }
+    }
+    
+    var searchResultListViewV2: some View {
+        List(Array(store.listItems.enumerated()), id: \.element.id) { index, item in
+            searchListElementView(item: item, index: index)
                 .asButton {
                     store.send(.viewEvent(.tappedItem(item)))
                 }
+                .resetRowStyle()
+                .listRowBackground(GBColor.background1.asColor)
                 .onAppear {
                     if !store.apiLoadTrigger && index > store.listItems.count - 3 && store.onAppearTrigger {
                         store.send(.viewEvent(.moreItem))
                     }
                 }
+        }
+        .listStyle(.plain)
+        .background(GBColor.background1.asColor)
+    }
+    
+    
+    func searchListElementView(
+        item: ParticipatingGroupChallengeListEntity,
+        index: Int
+    ) -> some View {
+        VStack(spacing: 0) {
+            ParticipatingChallengeGroupElementView(entity: item)
+                .padding(.horizontal, SpacingHelper.lg.pixel)
+            
+            VStack(spacing:0) {
+                GBColor.grey600.asColor
             }
+            .frame(maxWidth: .infinity)
+            .frame(height: 1)
+            .padding(.horizontal, SpacingHelper.lg.pixel)
+            .opacity(index != store.listItems.count - 1 ? 1 : 0)
         }
     }
 }
