@@ -17,13 +17,17 @@ public struct ChallengeGroupSearchViewFeature: GBReducer {
     @ObservableState
     public struct State: Equatable, Hashable {
         public init() {}
+        
+        @ObservationStateIgnored
         var onAppearTrigger = false
+        
         var searchText: String = ""
         var searchItemCount: Int = 0
         var apiLoadTrigger = false
         
         var listItems: [ParticipatingGroupChallengeListEntity] = []
         
+        @ObservationStateIgnored
         var groupChallengePagingObj = GroupChallengePagingObj()
         
         var popUpGroupID: String? = nil
@@ -229,6 +233,9 @@ extension ChallengeGroupSearchViewFeature {
                 
             case let .featureEvent(.requestSearchItem(text, append)):
                 let text = text.isEmpty ? nil : text
+                if !append {
+                    state.groupChallengePagingObj = GroupChallengePagingObj()
+                }
                 state.groupChallengePagingObj.searchText = text
                 state.apiLoadTrigger = true
                 
