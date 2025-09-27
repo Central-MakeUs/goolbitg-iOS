@@ -71,16 +71,15 @@ extension MyPageView {
     private var content: some View {
         ZStack(alignment: .top) {
             ScrollView {
+                ScrollViewOffsetPreference { offset in
+                    currentOffset = offset
+                }
                 
                 navigationBar
                     .padding(.horizontal, SpacingHelper.lg.pixel)
                     .padding(.vertical, SpacingHelper.sm.pixel)
                     .opacity(0)
                     .padding(.top, safeAreaInsets.top)
-                
-                ScrollViewOffsetPreference { offset in
-                    currentOffset = offset
-                }
                 
                 profileView
                     .padding(.top, 6)
@@ -111,13 +110,16 @@ extension MyPageView {
                     LinearGradient(
                         colors: [
                             Color.black.opacity(1),
-                            Color.black.opacity(0.8),
+                            Color.black.opacity(0.9),
+                            Color.black.opacity(0.83),
                             Color.black.opacity(0.6),
+                            Color.black.opacity(0.3),
                             Color.black.opacity(0)
                         ],
                         startPoint: .top,
                         endPoint: .bottom
                     )
+                    .opacity(navOffsetBackgroundOpacity(currentOffset))
                 }
         }
         .ignoreAreaBackgroundColor(GBColor.background1.asColor)
@@ -388,6 +390,17 @@ extension MyPageView {
                     store.send(.viewEvent(.revokeButtonTapped))
                 }
         }
+    }
+}
+
+// MARK: UI Logic
+extension MyPageView {
+    
+    private func navOffsetBackgroundOpacity(_ offset: CGFloat) -> Double {
+        let absOffset = abs(offset)
+        if absOffset == 0 { return 0 }
+        let clamped = max(min(1, abs(offset) / 100), 0)
+        return clamped
     }
 }
 
