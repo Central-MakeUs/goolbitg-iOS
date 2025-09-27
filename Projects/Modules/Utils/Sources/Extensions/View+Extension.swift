@@ -15,6 +15,31 @@ public extension View {
     func endTextEditing() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
+    
+    /// LiquidGlassButton
+    /// - Parameters:
+    ///   - type: LiquidGlassButtonStyleType
+    ///   - action: callBack
+    func asLiquidGlassButton(
+        type: LiquidGlassButtonStyleType = .glass,
+        action: @escaping () -> Void
+    ) -> some View {
+        return modifier(LiquidGlassButtonWrapper(type: type, action: action))
+    }
+    
+    /// asLiquidGlassView
+    /// - Parameters:
+    ///   - type: LiquidGlassType
+    ///   - defaultShape: iff True -> DefaultGlassEffectShape() So ignored Shape
+    ///   - shape: CustomShape
+    func asLiquidGlassView(
+        _ type: LiquidGlassType,
+        defaultShape: Bool = true,
+        shape: some Shape = .capsule
+    ) -> some View {
+        return modifier(LiquidViewStyleWrapper(type, defaultShape: defaultShape, shape: shape))
+    }
+    
 }
 
 public extension View {
