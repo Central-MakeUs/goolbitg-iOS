@@ -87,7 +87,7 @@ struct BuyOrNotTabView: View {
                         AnyView(modifierBottomSheetBottom)
                     }
                     .frame(maxWidth: .infinity)
-                    .background(GBColor.grey600.asColor)
+                    .background(GBColor.grey700.asColor) // 600 -> 700
                     .cornerRadiusCorners(12, corners: [.topLeft, .topRight])
                     } customize: {
                         $0
@@ -180,7 +180,7 @@ struct BuyOrNotTabView: View {
                 .padding(.vertical, 16)
         }
         .frame(maxWidth: .infinity)
-        .background(GBColor.grey500.asColor)
+        .background(GBColor.grey600.asColor) // 500 -> 600
         .clipShape(Capsule())
         .padding(.all, 16)
         .asButton {
