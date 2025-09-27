@@ -19,6 +19,7 @@ struct MyPageView: View {
     
     @State private var userDownImage: AnyIdentifier<UIImage>? = nil
     @State private var pushCount: Int = 0
+    @State private var currentOffset: CGFloat = 0
 
     @Environment(\.safeAreaInsets) var safeAreaInsets
     @Dependency(\.pushNotiManager) var pushManager
@@ -26,6 +27,9 @@ struct MyPageView: View {
     var body: some View {
         WithPerceptionTracking {
             content
+                .onPreferenceChange(ScrollOffsetKey.self) { offsetY in
+                    currentOffset = offsetY
+                }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background {
                     ImageHelper.myBg.asImage
@@ -67,10 +71,16 @@ extension MyPageView {
     private var content: some View {
         ZStack(alignment: .top) {
             ScrollView {
+                
                 navigationBar
                     .padding(.horizontal, SpacingHelper.lg.pixel)
                     .padding(.vertical, SpacingHelper.sm.pixel)
                     .opacity(0)
+                    .padding(.top, safeAreaInsets.top)
+                
+                ScrollViewOffsetPreference { offset in
+                    currentOffset = offset
+                }
                 
                 profileView
                     .padding(.top, 6)
@@ -95,8 +105,23 @@ extension MyPageView {
             navigationBar
                 .padding(.horizontal, SpacingHelper.lg.pixel)
                 .padding(.vertical, SpacingHelper.sm.pixel)
-                .background(GBColor.background1.asColor)
+                .padding(.top, safeAreaInsets.top)
+                .padding(.bottom, 8) // need To Shadow Effect Inset
+                .background {
+                    LinearGradient(
+                        colors: [
+                            Color.black.opacity(1),
+                            Color.black.opacity(0.8),
+                            Color.black.opacity(0.6),
+                            Color.black.opacity(0)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                }
         }
+        .ignoreAreaBackgroundColor(GBColor.background1.asColor)
+        .ignoresSafeArea()
     }
     
     private var navigationBar: some View {
