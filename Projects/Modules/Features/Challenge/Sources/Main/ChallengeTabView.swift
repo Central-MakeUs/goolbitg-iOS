@@ -154,7 +154,7 @@ extension ChallengeTabView {
                     .resizable()
                     .aspectRatio(1, contentMode: .fit)
                     .frame(width: 32, height: 32)
-                    .asButton {
+                    .asLiquidGlassButton {
                         store.send(.viewEvent(.showChallengeAdd))
                     }
             case .groups:
@@ -162,7 +162,7 @@ extension ChallengeTabView {
                     .resizable()
                     .aspectRatio(1, contentMode: .fit)
                     .frame(width: 32, height: 32)
-                    .asButton {
+                    .asLiquidGlassButton {
                         store.send(.viewEvent(.groupChallengeViewEvent(.showGroupChallengeAddView)))
                     }
                     .padding(.trailing, 8)
@@ -171,8 +171,9 @@ extension ChallengeTabView {
                     .resizable()
                     .aspectRatio(1, contentMode: .fit)
                     .frame(width: 24)
+                    .padding(.all, 4)
                     .foregroundStyle(GBColor.grey300.asColor)
-                    .asButton {
+                    .asLiquidGlassButton {
                         store.send(.viewEvent(.groupChallengeViewEvent(.groupChallengeRoomSearchViewMoveTapped)))
                     }
             }

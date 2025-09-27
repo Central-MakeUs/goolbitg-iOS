@@ -243,8 +243,8 @@ extension BuyOrNotTabView {
             
             ImageHelper.buyOrNotAdd.asImage
                 .resizable()
-                .frame(width: 40, height: 40)
-                .asButton {
+                .frame(width: 38, height: 38)
+                .asLiquidGlassButton {
                     store.send(.viewEvent(.addButtonTapped))
                 }
             

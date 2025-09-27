@@ -129,16 +129,20 @@ extension MyPageView {
     private var navigationBar: some View {
         HStack(spacing: 0) {
             Text(TextHelper.myPage)
+                .padding(8)
                 .font(FontHelper.h1.font)
                 .foregroundStyle(GBColor.white.asColor)
+            
             Spacer()
+            
             alertView
         }
     }
     
     private var alertView: some View {
         NotiAlertView(notiCount: $pushCount)
-            .asButton {
+            .padding(.vertical, 2)
+            .asLiquidGlassButton(type: .glass) {
                 store.send(.viewEvent(.alertButtonTapped))
             }
             .onReceive(pushManager.publishNewMessageCount) { count in
