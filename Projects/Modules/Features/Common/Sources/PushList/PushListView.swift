@@ -131,21 +131,22 @@ extension PushListView {
     
     private var listView: some View {
         ScrollViewReader { proxy in
-            ScrollView(.vertical) {
-                LazyVStack {
-                    ForEach(Array(store.items.enumerated()), id: \.element.id) { index, item in
-                        challengeItemView(from: item)
-                            .onTapGesture {
-                                store.send(.viewEvent(.selectedItem(item)))
-                            }
-                            .onAppear {
-                                checkToIndex(index: index)
-                            }
-                            .id(index)
+            List(Array(store.items.enumerated()), id: \.element.id) { index, item in
+                challengeItemView(from: item)
+                    .asButton {
+                        store.send(.viewEvent(.selectedItem(item)))
                     }
-                }
-                bottomView
+                    .resetRowStyle()
+                    .listRowBackground(Color.clear)
+                    .onAppear {
+                        if let lastId = store.items.last?.id,
+                           lastId == item.id {
+                            store.send(.viewEvent(.postListIndex(index)))
+                        }
+                    }
+                    .id(index)
             }
+            .listStyle(.plain)
             .onChange(of: store.currentFilterCase) { _ in
                 withAnimation {
                     proxy.scrollTo(0)

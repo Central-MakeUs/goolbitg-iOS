@@ -96,7 +96,7 @@ extension PushListViewFeature {
                 state.ifOnAppear = true
                 state.pagingObj = PagingObj()
                 state.dataEmptyCase = .loading
-                return .run { [state] send in
+                return .run { /*[state]*/ send in
                     await send(.cancel(.requestCancel))
                     await pushManager.resetBadgeCount()
                     await send(.featureEvent(.requestPushListItems))
