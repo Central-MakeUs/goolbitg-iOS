@@ -116,6 +116,8 @@ extension PushListViewFeature {
                 state.currentFilterCase = caseOf
                 state.pagingObj = PagingObj(pageNum: 0)
                 state.loadingTrigger = true
+                state.items = []
+                state.dataEmptyCase = .loading
                 return .send(.featureEvent(.requestPushListItems))
                 
             case .viewEvent(.dismissTap):

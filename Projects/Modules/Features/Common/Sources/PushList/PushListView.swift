@@ -37,6 +37,9 @@ extension PushListView {
             switch store.dataEmptyCase {
             case .loading:
                 
+                filterView
+                    .padding(.vertical, SpacingHelper.sm.pixel)
+                    
                 emptyListSkeletonView
                 
             case .loaded:
@@ -130,51 +133,37 @@ extension PushListView {
 extension PushListView {
     
     private var listView: some View {
-        ScrollViewReader { proxy in
-            List(Array(store.items.enumerated()), id: \.element.id) { index, item in
-                challengeItemView(from: item)
-                    .asButton {
-                        store.send(.viewEvent(.selectedItem(item)))
-                    }
-                    .resetRowStyle()
-                    .listRowBackground(Color.clear)
-                    .onAppear {
-                        if let lastId = store.items.last?.id,
-                           lastId == item.id {
-                            store.send(.viewEvent(.postListIndex(index)))
-                        }
-                    }
-                    .id(index)
-            }
-            .listStyle(.plain)
-            .onChange(of: store.currentFilterCase) { _ in
-                withAnimation {
-                    proxy.scrollTo(0)
+        List(Array(store.items.enumerated()), id: \.element.id) { index, item in
+            challengeItemView(from: item)
+                .asButton {
+                    store.send(.viewEvent(.selectedItem(item)))
                 }
-            }
+                .resetRowStyle()
+                .listRowBackground(Color.clear)
+                .onAppear {
+                    if let lastId = store.items.last?.id,
+                       lastId == item.id,
+                       !store.loadingTrigger {
+                        store.send(.viewEvent(.postListIndex(index)))
+                    }
+                }
+                .id(index)
         }
-        
+        .listStyle(.plain)
     }
     
     private var emptyListSkeletonView: some View {
-        VStack(spacing: 0) {
-
-            filterView
+        ScrollView {
+            ForEach(0...3, id: \.self) { idx in
+                challengeItemView(from: PushListItemEntity(
+                    id: idx.toString,
+                    receiverId: "ASDASD!",
+                    challengeTopCase: .challenge,
+                    description: "오늘 아직 [커피 값 모아 태산]을 달성하지 못했어요.\n늦기전에 인증해주세요",
+                    pushDateTiem: "3분전",
+                    read: true)
+                )
                 .skeletonEffect()
-            ScrollView {
-                VStack(spacing: 0) {
-                    ForEach(0...2, id: \.self) { idx in
-                        challengeItemView(from: PushListItemEntity(
-                            id: idx.toString,
-                            receiverId: "ASDASD!",
-                            challengeTopCase: .challenge,
-                            description: "오늘 아직 [커피 값 모아 태산]을 달성하지 못했어요.\n늦기전에 인증해주세요",
-                            pushDateTiem: "3분전",
-                            read: true)
-                        )
-                        .skeletonEffect()
-                    }
-                }
             }
         }
     }
