@@ -248,3 +248,17 @@ extension View {
             }
     }
 }
+
+// MARK: ViewSize
+extension View {
+    
+    public func onReadSize(_ perform: @escaping (CGSize) -> Void) -> some View {
+        self.background(alignment: .center) {
+            GeometryReader { proxy in
+                Color.clear
+                    .preference(key: SizePreferenceKey.self, value: proxy.size)
+            }
+        }
+        .onPreferenceChange(SizePreferenceKey.self, perform: perform)
+    }
+}
