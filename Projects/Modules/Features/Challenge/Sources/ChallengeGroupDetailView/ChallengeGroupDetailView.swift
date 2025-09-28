@@ -18,6 +18,7 @@ struct ChallengeGroupDetailView: View {
     @State private var currentOffset: CGFloat = 0
     @State private var bottomSheetExpended: Bool = false
     @State private var bottomSheetIsDragging: Bool = false
+    @State private var navHeight: CGFloat = 0
     
     // MARK: Feature
     @Perception.Bindable var store: StoreOf<ChallengeGroupDetailViewFeature>
@@ -51,42 +52,58 @@ extension ChallengeGroupDetailView {
     
     private var contentView: some View {
         let isOnTop = store.topPodiumModels.count == 3
+        var viewSize: CGSize = CGSize(width: 0, height: 0)
+        
         return ZStack(alignment: .top) {
             
-            GBColor.main.asColor
-                .frame(height: calculateHeight())
-                .zIndex(1)
-                .offset(y: -5)
+            navigationView
+                .zIndex(2)
+            
+            if isOnTop {
+                GBColor.main.asColor
+                    .frame(maxWidth: .infinity)
+                    .frame(height: calculateHeight(topViewSize: viewSize))
+                    .zIndex(1)
+            }
             
             ScrollView {
                 VStack (spacing: 0) {
-                    if isOnTop {
-                        VStack (spacing: 0) {
-                            ScrollViewOffsetPreference { offsetY in
-                                currentOffset = offsetY
-                            }
-                            ChallengeProfilePodiumView(challengers: store.topPodiumModels)
-                                .padding(.horizontal, calcTopPodiumHorizontalPadding())
-                        }
-                        .padding(.top, 64)
-                        .padding(.top, safeArea.top)
-                        .background(GBColor.main.asColor)
-                        .cornerRadiusCorners(40, corners: [.bottomLeft, .bottomRight])
-                        .background(GBColor.background1.asColor)
+                    ScrollViewOffsetPreference { offsetY in
+                        currentOffset = offsetY
                     }
                     
-                    bottomListView(onTop: isOnTop)
-                        .padding(.vertical, SpacingHelper.md.pixel)
-                        .padding(.top, isOnTop ? 0 : 64)
-                        .padding(.top, isOnTop ? 0 : safeArea.top)
+                    if isOnTop {
+                        VStack(spacing: 0) {
+                            Color.clear
+                                .frame(height: navHeight)
+                            
+                            VStack (spacing: 0) {
+                                ChallengeProfilePodiumView(challengers: store.topPodiumModels)
+                                    .padding(.horizontal, calcTopPodiumHorizontalPadding())
+                            }
+                            .background(GBColor.main.asColor)
+                            .cornerRadiusCorners(40, corners: [.bottomLeft, .bottomRight])
+                            .background(GBColor.background1.asColor)
+                        }
+                        .onReadSize { size in
+                            viewSize = size
+                        }
+                        
+                        bottomListView(onTop: isOnTop)
+                            .padding(.vertical, SpacingHelper.md.pixel)
+                    } else {
+                        
+                        Color.clear
+                            .frame(height: navHeight)
+                        
+                        bottomListView(onTop: isOnTop)
+                            .padding(.vertical, SpacingHelper.md.pixel)
+                    }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(GBColor.background1.asColor)
             .zIndex(0)
-            
-            navigationView
-                .zIndex(2)
         }
         .ignoresSafeArea(edges: .top)
     }
@@ -113,15 +130,17 @@ extension ChallengeGroupDetailView {
                     Image(uiImage: ImageHelper.settingBtn.image)
                         .resizable()
                         .frame(width: 32, height: 32)
-                        .asButton {
+                        .asLiquidGlassButton {
                             store.send(.viewEvent(.settingButtonTapped))
                         }
-//                        .opacity(store.ifOwner ? 1 : 0) // 설정은 그대로 유지 (나가기, 삭제하기)
                 }
             }
             .frame(height: 64)
             .padding(.horizontal, SpacingHelper.md.pixel)
             .padding(.top, safeArea.top)
+            .onReadSize { size in
+                navHeight = size.height
+            }
             .background {
                 BlurView(style: .dark)
                     .opacity(calcNavOpacity())
@@ -268,10 +287,8 @@ extension ChallengeGroupDetailView {
 
 // MARK: UI Calc Logic
 extension ChallengeGroupDetailView {
-    private func calculateHeight() -> CGFloat {
-        let topNavigationHeight: CGFloat = 64
-        
-        let calc = currentOffset - topNavigationHeight
+    private func calculateHeight(topViewSize: CGSize) -> CGFloat {
+        let calc = navHeight + topViewSize.height + currentOffset
         
         let result = max(0, min(calc, UIScreen.main.bounds.height))
         
