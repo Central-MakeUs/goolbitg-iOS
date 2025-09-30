@@ -16,7 +16,9 @@ public struct GroupChallengeCreateViewFeature {
     
     @ObservableState
     public struct State: Equatable, Hashable {
+        @ObservationStateIgnored
         var onAppearTrigger = false
+        
         var challengeName = ""
         var challengePrice = ""
         var challengePriceError: String? = nil
@@ -31,6 +33,8 @@ public struct GroupChallengeCreateViewFeature {
         
         var currentState = false
         var mode: FeatureMode
+        
+        @ObservationStateIgnored
         var ifModifyRoomID: String
         
         public init(mode: FeatureMode = .create, ifModifyRoomID: String = "") {
@@ -122,17 +126,18 @@ public struct GroupChallengeCreateViewFeature {
     @Dependency(\.gbNumberForMatter) var numberForMatter
     
     public var body: some ReducerOf<Self> {
+        viewCore
         addCore
         alertCore
         featureCore
     }
 }
 
+// MARK: Cores
 extension GroupChallengeCreateViewFeature {
-    private var addCore: some ReducerOf<Self> {
-        Reduce {
-            state,
-            action in
+    
+    private var viewCore: some ReducerOf<Self> {
+        Reduce { state, action in
             switch action {
                 
             case .viewCycle(.onAppear):
@@ -149,44 +154,7 @@ extension GroupChallengeCreateViewFeature {
                         await send(.featureAction(.requestRoomInfo(roomId: roomID)))
                     }
                 }
-            case let .inputChallengeNameText(text):
-                state.challengeName = text
                 
-                return checkedValid(state: &state)
-                
-            case let .inputChallengePriceText(text):
-                let result = processingForPrice(text)
-                
-                state.challengePriceError = result.error
-                state.challengePrice = result.price
-                
-                return checkedValid(state: &state)
-                
-            case let .inputHashTagText(text):
-                state.hashTagText = text
-                
-            case let .inputSecretRoomState(bool):
-                return .run { send in
-                    await send(.inputSecretRoomStateAnimation(bool))
-                }.animation()
-                
-            case let .inputSecretRoomStateAnimation(bool):
-                state.secretRoomState = bool
-                if !bool {
-                    state.passwordText = ""
-                }
-                return checkedValid(state: &state)
-                
-            case let .inputPasswordText(text):
-                guard let _ = Int(text),
-                      text.count < 5 else  {
-                    if text.isEmpty {
-                        state.passwordText = ""
-                    }
-                    return .none
-                }
-                state.passwordText = text
-                return checkedValid(state: &state)
                 // MARK: View Action
             case .viewAction(.hashTagAddTapped): // Hash Tag Button 클릭
                 if state.hashTagText.replacingOccurrences(of: " ", with: "")
@@ -247,148 +215,59 @@ extension GroupChallengeCreateViewFeature {
             return .none
         }
     }
-
-    private func checkLeadingTrailingButtonEnable(state: inout State) -> Effect<Action> {
-        state.maxLeadingButtonState = state.currentMaxCount > Self.currentLowCount
-        state.maxTrailingButtonState = state.currentMaxCount < Self.currentMaxCount
-        return .none
-    }
     
-    private func checkedValid(state: inout State) -> Effect<Action> {
-        var currentState = false
-        
-        if !state.challengeName.isEmpty,
-           !state.challengePrice.isEmpty,
-           state.challengePriceError == nil,
-           !state.hashTagList.isEmpty {
-            currentState = true
-        }
-        
-        if state.secretRoomState {
-            currentState = state.passwordText.count == 4
-        }
-        
-        state.currentState = currentState
-        return .none
-    }
-    
-    private func makeRequestBody(state: State) -> ChallengeGroupCreateRequestDTO? {
-        let intPrice = state.challengePrice.compactMap { Int(String($0)) }
-            .map { String($0) }.joined()
-        
-        guard let reward = Int(intPrice) else {
-            return nil
-        }
-        
-        let removeSp = state.hashTagList.map { $0.replacingOccurrences(of: "#", with: "") }
-        
-        return ChallengeGroupCreateRequestDTO(
-            title: state.challengeName,
-            hashtags: removeSp,
-            reward: reward,
-            maxSize: state.currentMaxCount,
-            isHidden: state.secretRoomState,
-            password: state.passwordText.isEmpty ? nil : state.passwordText
-        )
-    }
-}
-
-// MARK: Alert
-extension GroupChallengeCreateViewFeature {
-    
-    private var alertCore: some ReducerOf<Self> {
+    private var addCore: some ReducerOf<Self> {
         Reduce {
             state,
             action in
             switch action {
-            case let .featureAction(.alertShow(alertID)):
-                return  showAlertHandler(state: &state, alertID: alertID)
+            
+            case let .inputChallengeNameText(text):
+                state.challengeName = text
                 
-            case let .roomCreateStopAlertComponent(component):
-                state.alertViewComponent = component
+                return checkedValid(state: &state)
                 
-            case let .viewAction(.popUpViewAction(actions)):
-                guard let stateComponent = state.alertViewComponent,
-                      let caseOf = AlertID.allCases.first(
-                        where: {
-                            $0.rawValue == stateComponent.ifNeedID
-                        }) else {
+            case let .inputChallengePriceText(text):
+                let result = processingForPrice(text)
+                
+                state.challengePriceError = result.error
+                state.challengePrice = result.price
+                
+                return checkedValid(state: &state)
+                
+            case let .inputHashTagText(text):
+                state.hashTagText = text
+                
+            case let .inputSecretRoomState(bool):
+                return .run { send in
+                    await send(.inputSecretRoomStateAnimation(bool))
+                }.animation()
+                
+            case let .inputSecretRoomStateAnimation(bool):
+                state.secretRoomState = bool
+                if !bool {
+                    state.passwordText = ""
+                }
+                return checkedValid(state: &state)
+                
+            case let .inputPasswordText(text):
+                guard let _ = Int(text),
+                      text.count < 5 else  {
+                    if text.isEmpty {
+                        state.passwordText = ""
+                    }
                     return .none
                 }
-                switch caseOf {
-                case .roomCreateStopAlert:
-                    return groupCrateStopAlertAction(state: &state, action: actions)
-                case .createErrorToDuplicateRoomName:
-                    return .send(.roomCreateStopAlertComponent(nil))
-                case .noChallengeGroupData:
-                    return .send(.roomCreateStopAlertComponent(nil))
-                }
+                state.passwordText = text
+                
+                return checkedValid(state: &state)
+            
             default:
                 break
             }
             return .none
         }
     }
-    
-    private func showAlertHandler(state: inout State, alertID: AlertID) -> Effect<Action> {
-        let component: GBAlertViewComponents
-        
-        switch alertID {
-        case .roomCreateStopAlert:
-            let text = state.mode == .create ? "생성" : "수정"
-            component = GBAlertViewComponents(
-                title: "작심삼일 \(text) 중단",
-                message: "작심삼일 \(text)하기를\n정말 중단하시겠어요?",
-                cancelTitle: "취소",
-                okTitle: "중단",
-                alertStyle: .warning,
-                ifNeedID: alertID.rawValue
-            )
-        case .createErrorToDuplicateRoomName:
-            component = GBAlertViewComponents(
-                title: "생성 실패",
-                message: "같은 이름의 챌린지가 이미 존재합니다.",
-                okTitle: "확인",
-                alertStyle: .warning,
-                ifNeedID: alertID.rawValue
-            )
-        case .noChallengeGroupData:
-            component = GBAlertViewComponents(
-                title: "삭제 실패",
-                message: "챌린지가 존재하지 않아요!",
-                okTitle: "확인",
-                alertStyle: .warning,
-                ifNeedID: alertID.rawValue
-            )
-        }
-        
-        state.alertViewComponent = component
-        return .none
-    }
-    
-    
-    /// 그룹 생성을 정말 포기할건지에 대한 팝업의 뷰 액션에 따른 결과
-    /// - Parameters:
-    ///   - state: State
-    ///   - action: PopupAction
-    /// - Returns: Effect
-    private func groupCrateStopAlertAction(
-        state: inout State,
-        action: PopupViewAction
-    ) -> Effect<Action> {
-        switch action {
-        case .ok:
-            return .run { send in
-                await send(.delegate(.dismiss))
-            }
-        case .cancel:
-            state.alertViewComponent = nil
-            return .none
-        }
-    }
-}
-
-extension GroupChallengeCreateViewFeature {
     
     private var featureCore: some ReducerOf<Self> {
         Reduce { state, action in
@@ -449,6 +328,101 @@ extension GroupChallengeCreateViewFeature {
             return .none
         }
     }
+    
+    private var alertCore: some ReducerOf<Self> {
+        Reduce {
+            state,
+            action in
+            switch action {
+            case let .featureAction(.alertShow(alertID)):
+                return  showAlertHandler(state: &state, alertID: alertID)
+                
+            case let .roomCreateStopAlertComponent(component):
+                state.alertViewComponent = component
+                
+            case let .viewAction(.popUpViewAction(actions)):
+                guard let stateComponent = state.alertViewComponent,
+                      let caseOf = AlertID.allCases.first(
+                        where: {
+                            $0.rawValue == stateComponent.ifNeedID
+                        }) else {
+                    return .none
+                }
+                switch caseOf {
+                case .roomCreateStopAlert:
+                    return groupCrateStopAlertAction(state: &state, action: actions)
+                case .createErrorToDuplicateRoomName:
+                    return .send(.roomCreateStopAlertComponent(nil))
+                case .noChallengeGroupData:
+                    return .send(.roomCreateStopAlertComponent(nil))
+                }
+            default:
+                break
+            }
+            return .none
+        }
+    }
+}
+
+// MARK: Alert
+extension GroupChallengeCreateViewFeature {
+    
+    private func showAlertHandler(state: inout State, alertID: AlertID) -> Effect<Action> {
+        let component: GBAlertViewComponents
+        
+        switch alertID {
+        case .roomCreateStopAlert:
+            let text = state.mode == .create ? "생성" : "수정"
+            component = GBAlertViewComponents(
+                title: "작심삼일 \(text) 중단",
+                message: "작심삼일 \(text)하기를\n정말 중단하시겠어요?",
+                cancelTitle: "취소",
+                okTitle: "중단",
+                alertStyle: .warning,
+                ifNeedID: alertID.rawValue
+            )
+        case .createErrorToDuplicateRoomName:
+            component = GBAlertViewComponents(
+                title: "생성 실패",
+                message: "같은 이름의 챌린지가 이미 존재합니다.",
+                okTitle: "확인",
+                alertStyle: .warning,
+                ifNeedID: alertID.rawValue
+            )
+        case .noChallengeGroupData:
+            component = GBAlertViewComponents(
+                title: "삭제 실패",
+                message: "챌린지가 존재하지 않아요!",
+                okTitle: "확인",
+                alertStyle: .warning,
+                ifNeedID: alertID.rawValue
+            )
+        }
+        
+        state.alertViewComponent = component
+        return .none
+    }
+    
+    
+    /// 그룹 생성을 정말 포기할건지에 대한 팝업의 뷰 액션에 따른 결과
+    /// - Parameters:
+    ///   - state: State
+    ///   - action: PopupAction
+    /// - Returns: Effect
+    private func groupCrateStopAlertAction(
+        state: inout State,
+        action: PopupViewAction
+    ) -> Effect<Action> {
+        switch action {
+        case .ok:
+            return .run { send in
+                await send(.delegate(.dismiss))
+            }
+        case .cancel:
+            state.alertViewComponent = nil
+            return .none
+        }
+    }
 }
 
 // MARK: Text Preprocessing
@@ -465,7 +439,7 @@ extension GroupChallengeCreateViewFeature {
             return (price, nil)
         }
         
-        var priceNumber = price.replacingOccurrences(of: ",", with: "")
+        let priceNumber = price.replacingOccurrences(of: ",", with: "")
         let numFormat = numberForMatter.changeForCommaNumber(priceNumber)
         
         if let priceNumberInt = Int(priceNumber) {
@@ -477,5 +451,53 @@ extension GroupChallengeCreateViewFeature {
         } else {
             return (price, "숫자만 입력해주세요.")
         }
+    }
+}
+
+// MARK: Logics
+extension GroupChallengeCreateViewFeature {
+    
+    private func checkLeadingTrailingButtonEnable(state: inout State) -> Effect<Action> {
+        state.maxLeadingButtonState = state.currentMaxCount > Self.currentLowCount
+        state.maxTrailingButtonState = state.currentMaxCount < Self.currentMaxCount
+        return .none
+    }
+    
+    private func checkedValid(state: inout State) -> Effect<Action> {
+        var currentState = false
+        
+        if !state.challengeName.isEmpty,
+           !state.challengePrice.isEmpty,
+           state.challengePriceError == nil,
+           !state.hashTagList.isEmpty {
+            currentState = true
+        }
+        
+        if state.secretRoomState {
+            currentState = state.passwordText.count == 4
+        }
+        
+        state.currentState = currentState
+        return .none
+    }
+    
+    private func makeRequestBody(state: State) -> ChallengeGroupCreateRequestDTO? {
+        let intPrice = state.challengePrice.compactMap { Int(String($0)) }
+            .map { String($0) }.joined()
+        
+        guard let reward = Int(intPrice) else {
+            return nil
+        }
+        
+        let removeSp = state.hashTagList.map { $0.replacingOccurrences(of: "#", with: "") }
+        
+        return ChallengeGroupCreateRequestDTO(
+            title: state.challengeName,
+            hashtags: removeSp,
+            reward: reward,
+            maxSize: state.currentMaxCount,
+            isHidden: state.secretRoomState,
+            password: state.passwordText.isEmpty ? nil : state.passwordText
+        )
     }
 }
