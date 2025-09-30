@@ -70,12 +70,58 @@ public struct ChallengeDetailFeature: GBReducer {
     @Dependency(\.challengeMapper) var challengeMapper
     
     public var body: some ReducerOf<Self> {
+        
         core
     }
 }
 
 extension ChallengeDetailFeature {
     private var core: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+                
+            case .featureEvent(.requestChallengeTripple):
+                let id = state.challengeID
+                return .run { send in
+                    let result = try await networkManager.requestNetworkWithRefresh(
+                        dto: ChallengeTrippleDTO.self,
+                        router: ChallengeRouter.challengeTripple(challengeID: id)
+                    )
+                    let mapping = challengeMapper.toEntityTripple(dto: result)
+                    
+                    await send(.featureEvent(.resultChallengeTripple(mapping)))
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        Logger.warning(error)
+                        return
+                    }
+                    guard case .serverMessage(_) = error else {
+                        Logger.warning(error)
+                        return
+                    }
+                    // MARK: 에러 대응 해야함.
+                    
+                }
+                    .animation(.easeInOut)
+                
+            case let .featureEvent(.resultChallengeTripple(model)):
+                state.entity = model
+                state.onLoad = true
+                
+            case let .alertBinding(alert):
+                state.deleteAlertState = alert
+                
+            default:
+                break
+            }
+            return .none
+        }
+    }
+}
+
+// MARK: ViewCore
+extension ChallengeDetailFeature {
+    private var viewCore: some Reducer<ChallengeDetailFeature.State, ChallengeDetailFeature.Action> {
         Reduce { state, action in
             switch action {
                 
@@ -127,44 +173,11 @@ extension ChallengeDetailFeature {
                     )
                     await send(.delegate(.dismissTap))
                 } catch: { error, send in
-                    guard let error = error as? RouterError else {
+                    guard error is RouterError else {
                         return
                     }
-                    //MARK: 에러 대응 해야함.
+                    // TODO: 에러 대응 해야함.
                 }
-                
-                
-            case .featureEvent(.requestChallengeTripple):
-                let id = state.challengeID
-                return .run { send in
-                    let result = try await networkManager.requestNetworkWithRefresh(
-                        dto: ChallengeTrippleDTO.self,
-                        router: ChallengeRouter.challengeTripple(challengeID: id)
-                    )
-                    let mapping = challengeMapper.toEntityTripple(dto: result)
-                    
-                    await send(.featureEvent(.resultChallengeTripple(mapping)))
-                } catch: { error, send in
-                    guard let error = error as? RouterError else {
-                        Logger.warning(error)
-                        return
-                    }
-                    guard case let .serverMessage(error) = error else {
-                        Logger.warning(error)
-                        return
-                    }
-                    // MARK: 에러 대응 해야함.
-                    
-                }
-                    .animation(.easeInOut)
-                
-            case let .featureEvent(.resultChallengeTripple(model)):
-                state.entity = model
-                state.onLoad = true
-                
-            case let .alertBinding(alert):
-                state.deleteAlertState = alert
-                
             default:
                 break
             }
