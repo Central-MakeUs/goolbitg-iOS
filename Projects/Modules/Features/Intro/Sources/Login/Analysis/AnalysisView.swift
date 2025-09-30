@@ -50,9 +50,13 @@ extension AnalysisView {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
-            GIFImageView(imageName: "Onboarding2.gif")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .ignoresSafeArea()
+            GBGifImageView(
+                imageName: "Onboarding2",
+                contentMode: .scaleAspectFill,
+                preferredBundle: Bundle(for: IntroBundleToken.self)
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .ignoresSafeArea()
         }
         .ignoresSafeArea()
     }
@@ -62,10 +66,11 @@ extension AnalysisView {
             HStack(spacing: 0) {
                 Text("\(UserDefaultsManager.userNickname)님의\n소비유형검사가 있어요")
                     .font(FontHelper.h1.font)
-                
+                    .foregroundStyle(GBColor.white.asColor)
                 Spacer()
             }
-            .padding(.bottom, SpacingHelper.lg.pixel)
+            .padding(.bottom, SpacingHelper.sm.pixel)
+            
             HStack(spacing: 0) {
                 Text("습관형성을 위한\n소비 유형 검사부터 시작해볼까요?")
                     .font(FontHelper.body1.font)
@@ -97,6 +102,8 @@ extension AnalysisView {
         }
     }
 }
+
+private final class IntroBundleToken {}
 
 #if DEBUG
 #Preview {
