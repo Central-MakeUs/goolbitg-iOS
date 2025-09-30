@@ -55,39 +55,57 @@ extension ShoppingCheckListView {
     private var contentView: some View {
         ZStack(alignment: .bottom) {
             ZStack(alignment: .top) {
-                
-                VStack(spacing: 0) {
-                    headerView
-                        .foregroundStyle(.clear)
-                        .opacity(0)
-                    
-                    checkListView
-                    
-                    Spacer()
-                }
                 VStack(spacing: 0) {
                     headerView
                         .padding(.horizontal, 16)
+                        .foregroundStyle(.clear)
                     
-                    VStack {}
-                        .frame(maxWidth: .infinity)
-                        .frame(height: SpacingHelper.xl.pixel)
-                        .background {
-                            Rectangle()
-                                .fill(
-                                    .linearGradient(colors: [
-                                        GBColor.background1.asColor.opacity(1),
-                                        GBColor.background1.asColor.opacity(0.7),
-                                        GBColor.background1.asColor.opacity(0.4),
-                                        GBColor.background1.asColor.opacity(0)
-                                    ], startPoint: .top, endPoint: .bottom)
-                                )
-                        }
+                    ZStack(alignment: .top) {
+                        checkListView
+                        
+                        Rectangle()
+                            .fill(
+                                .linearGradient(colors: [
+                                    GBColor.background1.asColor.opacity(1),
+                                    GBColor.background1.asColor.opacity(0.7),
+                                    GBColor.background1.asColor.opacity(0.4),
+                                    GBColor.background1.asColor.opacity(0)
+                                ], startPoint: .top, endPoint: .bottom)
+                            )
+                            .frame(maxWidth: .infinity)
+                            .frame(height: SpacingHelper.xl.pixel)
+                            .allowsHitTesting(false)
+                    }
+                    
+                    Spacer()
                 }
+                
             }
             if viewButtonState {
                 nextButton
             }
+        }
+    }
+    
+    private var headerShadowView: some View {
+        VStack(spacing: 0) {
+            headerView
+                .padding(.horizontal, 16)
+            
+            VStack {}
+                .frame(maxWidth: .infinity)
+                .frame(height: SpacingHelper.xl.pixel)
+                .background {
+                    Rectangle()
+                        .fill(
+                            .linearGradient(colors: [
+                                GBColor.background1.asColor.opacity(1),
+                                GBColor.background1.asColor.opacity(0.7),
+                                GBColor.background1.asColor.opacity(0.4),
+                                GBColor.background1.asColor.opacity(0)
+                            ], startPoint: .top, endPoint: .bottom)
+                        )
+                }
         }
     }
     
