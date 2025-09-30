@@ -22,7 +22,7 @@ final class GBRequestInterceptor: RequestInterceptor {
     }
 
     func retry(_ request: Request, for session: Session, dueTo error: Error,
-               completion: @escaping (RetryResult) -> Void) {
+               completion: @escaping @Sendable (RetryResult) -> Void) {
 
         // refresh 엔드포인트는 재시도 금지
         if let path = request.request?.url?.path,
@@ -71,6 +71,8 @@ final class GBRequestInterceptor: RequestInterceptor {
         // 그 외 상태코드: 재시도 안 함
         completion(.doNotRetry); return
     }
+    
+    
 
     // MARK: - Refresh
     private func refreshIfNeeded() async -> Bool {
