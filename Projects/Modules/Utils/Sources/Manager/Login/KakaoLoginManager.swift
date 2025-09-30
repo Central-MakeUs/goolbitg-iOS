@@ -30,7 +30,7 @@ public protocol KakaoLoginManagerType {
     static func requestKakao() async -> Result<String, KakaoLoginErrorCase>
 }
 
-public struct KakaoLoginManager: KakaoLoginManagerType {
+public struct KakaoLoginManager: KakaoLoginManagerType, Sendable {
     
     public static func requestKakao() async -> Result<String, KakaoLoginErrorCase> {
         if UserApi.isKakaoTalkLoginAvailable() {
@@ -41,11 +41,11 @@ public struct KakaoLoginManager: KakaoLoginManagerType {
                         contin.resume(returning: .failure(results))
                     } else if let oauthToken,
                               let idToken = oauthToken.idToken {
-                        print("카카오톡 성공 \(oauthToken)")
-                        Logger.info(" ㅗㅗㅗㅗㅗㅗㅗㅗ \(idToken)")
+                        Logger.debug("카카오톡 성공 \(oauthToken)")
+                        Logger.debug(" \(idToken)")
                         contin.resume(returning: .success(idToken))
                     } else {
-                        Logger.error(error)
+                        Logger.error(error ?? "Null from Kakao Login Error")
                         contin.resume(returning:.failure(.error(.init(apiFailedMessage: "FAIL KAKAO"))))
                     }
                 }
@@ -58,8 +58,8 @@ public struct KakaoLoginManager: KakaoLoginManagerType {
                         contin.resume(returning: .failure(result))
                     } else if let oauthToken,
                               let idToken = oauthToken.idToken {
-                        print("카카오톡 성공 \(oauthToken)")
-                        Logger.info(" ㅗㅗㅗㅗㅗㅗㅗㅗ \(idToken)")
+                        Logger.debug("카카오톡 성공 \(oauthToken)")
+                        Logger.debug(" \(idToken)")
                         contin.resume(returning: .success(idToken))
                     } else {
                         contin.resume(returning: .failure(.error(.init(apiFailedMessage: "FAIL KAKAO"))))
@@ -75,7 +75,7 @@ public struct KakaoLoginManager: KakaoLoginManagerType {
             return .error(.init(apiFailedMessage: "알수 없는 에러"))
         }
         if !error.isClientFailed {
-            print("카카오 에러 \(error)")
+            Logger.error("카카오 에러 \(error)")
             return .error(error)
         }
         return .cancel
