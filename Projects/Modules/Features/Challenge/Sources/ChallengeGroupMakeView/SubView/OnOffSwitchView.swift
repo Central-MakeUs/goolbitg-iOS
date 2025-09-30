@@ -68,8 +68,10 @@ extension OnOffSwitchView {
     }
 }
 
+#if DEBUG
 @available(iOS 17.0, *)
 #Preview {
     @Previewable @State var test = false
     OnOffSwitchView(buttonState: $test)
 }
+#endif
