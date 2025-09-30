@@ -1,4 +1,5 @@
 {
+  "originHash" : "a49d2383b98b95a28c8635db816835db75e7c82588259b36f4bda50f7dd5b060",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -52,6 +53,15 @@
       "state" : {
         "revision" : "a2b974b81612e1e8ee3ecd757d936a2919527356",
         "version" : "0.4.1"
+      }
+    },
+    {
+      "identity" : "gifu",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kaishin/Gifu.git",
+      "state" : {
+        "revision" : "f19726eaf0dfa4dbce4d3f80293c9d38c2acba53",
+        "version" : "4.0.1"
       }
     },
     {
@@ -140,8 +150,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/airbnb/lottie-ios.git",
       "state" : {
-        "revision" : "047aa81b77adcbf583a966dfef620d17650cc656",
-        "version" : "4.5.1"
+        "revision" : "a004050748dc197c56256a14dca49a035d74726c",
+        "version" : "4.5.2"
       }
     },
     {
@@ -334,15 +344,6 @@
       }
     },
     {
-      "identity" : "swiftygif",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/alexiscreuzot/SwiftyGif.git",
-      "state" : {
-        "revision" : "4430cbc148baa3907651d40562d96325426f409a",
-        "version" : "5.4.5"
-      }
-    },
-    {
       "identity" : "tcacoordinators",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/johnpatrickmorgan/TCACoordinators",
@@ -361,5 +362,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

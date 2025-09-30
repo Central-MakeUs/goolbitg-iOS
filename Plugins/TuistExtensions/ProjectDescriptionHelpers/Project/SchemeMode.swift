@@ -58,8 +58,6 @@ extension Settings {
         return .settings(
             base: [
                 "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
-//                "SWIFT_VERSION": "6.0" Swift GIF 라이브러리에서 문제 발생
-                // TODO: Swift GIF 대체제를 찾거나 만들어서 해결할것
             ],
             configurations: [
                 .debug,
@@ -70,12 +68,31 @@ extension Settings {
         )
     }
     
+    public static func swift6Settings(disPlayName: String? = nil) -> Self {
+        var base: ProjectDescription.SettingsDictionary = [
+            "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+            "SWIFT_VERSION": "6.0"
+        ]
+        if let disPlayName {
+            base["DISPLAY_NAME"] = .string(disPlayName)
+        }
+        return .settings(
+            base: base,
+            configurations: [
+                .debug,
+                .release,
+                .dev,
+                .stage
+            ]
+        )
+    }
+    
+    @available(*, deprecated, renamed: "swift6Settings(disPlayName:)", message: "use swift6Settings(disPlayName:)")
     public static func demoAppSetting(name: String) -> Self {
         return .settings(
             base: [
                 "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
                 "DISPLAY_NAME" : "\(name)",
-//                "SWIFT_VERSION": "6.0"
             ],
             configurations: [
                 .debug,
@@ -140,3 +157,4 @@ extension Configuration {
     public static let stage: Self = .debug(name: .stage, xcconfig: .xcconfigPath(SchemeMode.stage.schemeName))
     public static let live: Self = .release(name: .live, xcconfig: .xcconfigPath(SchemeMode.live.schemeName))
 }
+

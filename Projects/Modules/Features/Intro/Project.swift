@@ -21,6 +21,9 @@ let introFramework = Project.create(
             .kingfisher,
             .popupView
         ],
+        resources: [
+            "Resources/**"
+        ],
         sources: [
             "Sources/**"
         ]
