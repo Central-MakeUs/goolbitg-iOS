@@ -55,6 +55,7 @@ public struct ChallengeAddViewFeature: GBReducer {
     }
     
     public var body: some ReducerOf<Self> {
+        viewCore
         core
     }
     
@@ -83,18 +84,14 @@ extension ChallengeAddViewFeature {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .viewCycle(.onAppear):
-                return .run { send in
-                    await send(.featureEvent(.requestAPIForChallengeList))
-                }
-                
             case .featureEvent(.requestAPIForChallengeList):
                 // MARK: 유형별 다시 꽃아놓기
                 let userHabitType = UserDefaultsManager.userHabitType
                 
                 return .run { send in
                     let result = try await networkManager.requestNetworkWithRefresh(dto: ChallengeListDTO<ChallengeListElementDTO>.self, router: ChallengeRouter.challengeList(spendingTypeID: userHabitType))
-                    Logger.info(result)
+                    Logger.debug(result)
+                    
                     let mapping = await challengeMapper.toEntity(dtos: result.items)
                     
                     await send(.featureEvent(.setFamousList(mapping)))
@@ -114,35 +111,9 @@ extension ChallengeAddViewFeature {
 
                 state.currentAnotherList = result
                 
-            case .viewEvent(.dismissButtonTapped):
-                return .send(.delegate(.dismissTapped))
-                
-            case let .viewEvent(.selectedChallenge(data)):
-                // 팝업 띄우기
-                state.selectedEntity = data
-                
             case let .selectedEntityBinding(value):
-                state.selectedEntity = value
                 
-            case let .viewEvent(.tryButtonTapped(item)):
-                // 팝업 내리기
-                state.selectedEntity = nil
-                return .run { send in
-                    try await networkManager.requestNotDtoNetwork(
-                        router: ChallengeRouter.challengeEnroll(challengeID: item.id),
-                        ifRefreshNeed: true
-                    )
-                    await send(.delegate(.moveToHome))
-                    await send(.delegate(.successAdd))
-                    
-                } catch: { error, send in
-                    guard let error = error as? RouterError,
-                          case let .serverMessage(errorEntity) = error else {
-                        Logger.error(error)
-                        return
-                    }
-                    await send(.featureEvent(.errorController(errorEntity: errorEntity)))
-                }
+                state.selectedEntity = value
                 
             case let .featureEvent(.errorController(errorEntity)):
                 switch errorEntity {
@@ -165,6 +136,54 @@ extension ChallengeAddViewFeature {
                 }
             case let .alertComponents(model):
                 state.alertComponents = model
+                
+            default:
+                break
+            }
+            return .none
+        }
+    }
+}
+
+// MARK: View Core
+extension ChallengeAddViewFeature {
+    private var viewCore: some Reducer<ChallengeAddViewFeature.State, ChallengeAddViewFeature.Action> {
+        
+        Reduce { state, action in
+            switch action {
+                
+            case .viewCycle(.onAppear):
+                return .run { send in
+                    await send(.featureEvent(.requestAPIForChallengeList))
+                }
+                
+            case .viewEvent(.dismissButtonTapped):
+                return .send(.delegate(.dismissTapped))
+                
+            case let .viewEvent(.selectedChallenge(data)):
+                // 팝업 띄우기
+                state.selectedEntity = data
+                
+            case let .viewEvent(.tryButtonTapped(item)):
+                // 팝업 내리기
+                state.selectedEntity = nil
+                return .run { send in
+                    try await networkManager.requestNotDtoNetwork(
+                        router: ChallengeRouter.challengeEnroll(challengeID: item.id),
+                        ifRefreshNeed: true
+                    )
+                    await send(.delegate(.moveToHome))
+                    await send(.delegate(.successAdd))
+                    
+                } catch: { error, send in
+                    guard let error = error as? RouterError,
+                          case let .serverMessage(errorEntity) = error else {
+                        Logger.error(error)
+                        return
+                    }
+                    await send(.featureEvent(.errorController(errorEntity: errorEntity)))
+                }
+                
             default:
                 break
             }
