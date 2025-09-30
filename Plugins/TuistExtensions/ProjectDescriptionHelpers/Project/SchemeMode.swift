@@ -57,7 +57,9 @@ extension Settings {
     public static var appSettings: Self {
         return .settings(
             base: [
-                "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym"
+                "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+//                "SWIFT_VERSION": "6.0" Swift GIF 라이브러리에서 문제 발생
+                // TODO: Swift GIF 대체제를 찾거나 만들어서 해결할것
             ],
             configurations: [
                 .debug,
@@ -72,7 +74,8 @@ extension Settings {
         return .settings(
             base: [
                 "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
-                "DISPLAY_NAME" : "\(name)"
+                "DISPLAY_NAME" : "\(name)",
+//                "SWIFT_VERSION": "6.0"
             ],
             configurations: [
                 .debug,

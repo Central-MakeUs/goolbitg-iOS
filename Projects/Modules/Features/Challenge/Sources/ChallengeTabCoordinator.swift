@@ -24,13 +24,13 @@ public struct ChallengeTabCoordinator {
     public init () {}
     
     @ObservableState
-    public struct State: Equatable, Sendable, Hashable {
+    public struct State: Equatable, Hashable {
         
         public static let initialState = State(routes: [.root(.home(ChallengeTabFeature.State()), embedInNavigationView: true)])
         
         var routes: IdentifiedArrayOf<Route<ChallengeTabScreen.State>>
     }
-    
+
     public enum Action {
         case router(IdentifiedRouterActionOf<ChallengeTabScreen>)
         case delegate(Delegate)

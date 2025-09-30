@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SwiftyGif
+@preconcurrency import SwiftyGif
 
 public struct GIFImageView: UIViewRepresentable {
     

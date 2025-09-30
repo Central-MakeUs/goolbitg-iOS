@@ -17,7 +17,9 @@ public struct ChallengeGroupSettingViewFeature: GBReducer {
     @ObservableState
     public struct State: Equatable, Hashable {
         var onAppearTrigger = false
+        @ObservationStateIgnored
         let ifOwner: Bool
+        @ObservationStateIgnored
         let roomID: String
         var deleteButtonState = false
         var currentServerLoad = false
@@ -141,7 +143,7 @@ extension ChallengeGroupSettingViewFeature {
                 }
                 
             case let .viewEvent(.alertCancelTapped(id)):
-                guard let id = AlertID(rawValue: id) else {
+                guard AlertID(rawValue: id) != nil else {
                     return .send(.alertBinding(nil))
                 }
                 return .send(.alertBinding(nil))
