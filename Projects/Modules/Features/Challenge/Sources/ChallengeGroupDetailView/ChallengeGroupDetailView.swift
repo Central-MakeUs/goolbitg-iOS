@@ -135,7 +135,6 @@ extension ChallengeGroupDetailView {
                         }
                 }
             }
-            .frame(height: 64)
             .padding(.horizontal, SpacingHelper.md.pixel)
             .padding(.top, safeArea.top)
             .onReadSize { size in
