@@ -262,3 +262,36 @@ extension View {
         .onPreferenceChange(SizePreferenceKey.self, perform: perform)
     }
 }
+
+// MARK: ScrollView Scroll
+extension View {
+    
+    /// ScrollViewReader의 `ScrollViewProxy`를 사용해 지정한 `id` 위치로 스크롤합니다.
+    /// main queue 다음 런루프 사이클에서 실행되도록 지연 호출 합니다.
+    ///
+    /// - Parameters:
+    ///   - proxy: `ScrollViewReader`로부터 전달받은 `ScrollViewProxy`.
+    ///   - id: 스크롤할 대상 뷰의 식별자. 대상 뷰는 `.id(_:)`로 동일한 값을 가져야 합니다.
+    ///   - point: 스크롤 완료 시 정렬할 앵커 지점. 예: `.top`, `.center`, `.bottom`. 기본값은 `nil`(시스템 기본).
+    ///   - animation: 애니메이션을 사용해 스크롤할지 여부. 기본값은 `false`.
+    ///
+    /// - Note: 제네릭 매개변수 `ID`는 `Hashable`을 준수해야 합니다.
+    /// - SeeAlso: `ScrollViewReader`, `ScrollViewProxy.scrollTo(_:anchor:)`
+    public func scrollTo<ID>(
+        proxy: ScrollViewProxy,
+        id: ID,
+        point: UnitPoint? = nil,
+        animation: Bool = false
+    ) where ID : Hashable {
+        DispatchQueue.main.asyncAfter(deadline: .now()) {
+            if animation {
+                withAnimation {
+                    proxy.scrollTo(id, anchor: point)
+                }
+            } else {
+                proxy.scrollTo(id, anchor: point)
+            }
+        }
+    }
+}
+

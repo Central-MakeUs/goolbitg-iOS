@@ -17,6 +17,8 @@ struct RevokeReasonView: View {
     @Perception.Bindable var store: StoreOf<RevokeFeature>
     
     @State var keyboardHeight: CGFloat = 0
+
+    @Environment(\.safeAreaInsets) var safeArearInsets
     @Namespace private var scrollToBottom
    
     var body: some View {
@@ -26,17 +28,9 @@ struct RevokeReasonView: View {
                     .onTapGesture {
                         endTextEditing()
                     }
-                    .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification),
-                               perform: { notification in
-                        guard let userInfo = notification.userInfo,
-                              let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-                        
-                        keyboardHeight = keyboardRect.height
-                        
-                    }).onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification),
-                                 perform: { _ in
-                        keyboardHeight = 0
-                    })
+                    .subscribeKeyboardHeight { height in
+                        keyboardHeight = height
+                    }
             }
         }
     }
@@ -60,22 +54,11 @@ extension RevokeReasonView {
                             .padding(.top, SpacingHelper.md.pixel)
                             .padding(.horizontal, SpacingHelper.md.pixel + SpacingHelper.sm.pixel)
                         
-                        
-                        ZStack {
-                            Color.clear
-                                .frame(height: 100)
-                        }
                     }
                     .scrollIndicators(.hidden)
-                    .padding(.bottom, keyboardHeight / 1.5)
+                    .padding(.bottom, keyboardHeight - safeArearInsets.bottom)
                     .onChange(of: keyboardHeight) { newValue in
-                        if newValue != 0 {
-                            DispatchQueue.main.async {
-                                withAnimation(.easeInOut(duration: 1)) {
-                                    proxy.scrollTo(scrollToBottom, anchor: .top)
-                                }
-                            }
-                        }
+                        scrollTo(proxy: proxy, id: 1, animation: true)
                     }
                 }
             }
@@ -144,7 +127,7 @@ extension RevokeReasonView {
                 
                 if item == .other, store.item == .other {
                     otherTextView
-                        
+                        .id(1)
                 }
             }
             
@@ -193,9 +176,10 @@ extension RevokeReasonView {
     }
 }
 
-
+#if DEBUG
 #Preview {
     RevokeReasonView(store: Store(initialState: RevokeFeature.State(), reducer: {
         RevokeFeature()
     }))
 }
+#endif
