@@ -7,7 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
-@preconcurrency import TCACoordinators
+import TCACoordinators
 import FeatureCommon
 
 @Reducer(state: .hashable)
