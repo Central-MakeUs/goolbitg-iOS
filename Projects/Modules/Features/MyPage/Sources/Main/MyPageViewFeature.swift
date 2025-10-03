@@ -61,6 +61,7 @@ public struct MyPageViewFeature: GBReducer {
     @Dependency(\.appleLoginManager) var appleLoginManager
     
     public var body: some ReducerOf<Self> {
+        viewCore
         core
     }
 }
@@ -69,43 +70,6 @@ extension MyPageViewFeature {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .viewCycle(.onAppear):
-                return .run { send in
-                    await send(.featureEvent(.requestUserInfo))
-                    
-                }
-            // MARK: ViewEvent
-            case .viewEvent(.logOutButtonTapped):
-                state.logoutAlert = GBAlertViewComponents(
-                    title: "로그아웃",
-                    message: "정말 로그아웃을 하시겠어요?",
-                    cancelTitle: "취소",
-                    okTitle: "로그아웃",
-                    alertStyle: .warning
-                )
-                
-            case .viewEvent(.acceptLogoutButtonTapped):
-                return .send(.featureEvent(.requestLogOut))
-                
-            case let .viewEvent(.serviceSectionItemTapped(item)):
-                return .run { _ in
-                    switch item {
-                    case .appVersion:
-                        break
-                    case .request:
-                        await moveURLManager.moveURL(caseOf: .inquiry)
-                    case .serviceInfo:
-                        await moveURLManager.moveURL(caseOf: .service)
-                    case .privacyPolicy:
-                        await moveURLManager.moveURL(caseOf: .privacy)
-                    }
-                }
-                
-            case .viewEvent(.revokeButtonTapped):
-                return .send(.delegate(.revokedEvent))
-                
-            case .viewEvent(.alertButtonTapped):
-                return .send(.delegate(.pushButtonTapped))
                 
             case .featureEvent(.requestUserInfo):
                 return .run { send in
@@ -155,5 +119,57 @@ extension MyPageViewFeature {
         let version = dictionary["CFBundleShortVersionString"] as? String else {return nil}
         
         return version
+    }
+}
+
+// MARK: View Core
+extension MyPageViewFeature {
+    
+    private var viewCore: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .viewCycle(.onAppear):
+                return .run { send in
+                    await send(.featureEvent(.requestUserInfo))
+                    
+                }
+            // MARK: ViewEvent
+            case .viewEvent(.logOutButtonTapped):
+                state.logoutAlert = GBAlertViewComponents(
+                    title: "로그아웃",
+                    message: "정말 로그아웃을 하시겠어요?",
+                    cancelTitle: "취소",
+                    okTitle: "로그아웃",
+                    alertStyle: .warning
+                )
+                
+            case .viewEvent(.acceptLogoutButtonTapped):
+                return .send(.featureEvent(.requestLogOut))
+                
+            case let .viewEvent(.serviceSectionItemTapped(item)):
+                return .run { _ in
+                    switch item {
+                    case .appVersion:
+                        break
+                    case .request:
+                        await moveURLManager.moveURL(caseOf: .inquiry)
+                    case .serviceInfo:
+                        await moveURLManager.moveURL(caseOf: .service)
+                    case .privacyPolicy:
+                        await moveURLManager.moveURL(caseOf: .privacy)
+                    }
+                }
+                
+            case .viewEvent(.revokeButtonTapped):
+                return .send(.delegate(.revokedEvent))
+                
+            case .viewEvent(.alertButtonTapped):
+                return .send(.delegate(.pushButtonTapped))
+                
+            default:
+                break
+            }
+            return .none
+        }
     }
 }
