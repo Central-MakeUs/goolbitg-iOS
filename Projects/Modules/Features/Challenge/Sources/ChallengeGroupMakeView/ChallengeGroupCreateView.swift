@@ -15,6 +15,9 @@ struct ChallengeGroupCreateView: View {
     
     @Perception.Bindable var store: StoreOf<GroupChallengeCreateViewFeature>
     
+    /// Note: 카테고리 서버 반영시 사용할 예정 Store 에서 관리하도록 바꿔야 함
+    @State private var categoryText: String = ""
+    
     @State private var focusedField: Int? = nil
     @State private var hashTextFieldHeight: CGFloat = 0
     
@@ -104,7 +107,11 @@ extension ChallengeGroupCreateView {
                     challengePriceSectionView
                         .padding(.top, 50)
                         .padding(.horizontal, SpacingHelper.md.pixel + SpacingHelper.sm.pixel)
-                    
+                    /*
+                    categorySelectedSectionView
+                        .padding(.top, 50)
+                        .padding(.horizontal, SpacingHelper.md.pixel + SpacingHelper.sm.pixel)
+                    */
                     hashTagsSectionView
                         .padding(.top, 50)
                         .padding(.horizontal, SpacingHelper.md.pixel + SpacingHelper.sm.pixel)
@@ -120,6 +127,7 @@ extension ChallengeGroupCreateView {
                     secretRoomPasswordSectionView
                         .padding(.top, SpacingHelper.lg.pixel)
                         .padding(.horizontal, SpacingHelper.md.pixel + SpacingHelper.sm.pixel)
+                    
                     if store.currentState {
                         VStack {
                             Text(store.mode.title)
@@ -249,6 +257,19 @@ extension ChallengeGroupCreateView {
         .onTapGesture {
             focusedField = 2
         }
+    }
+    
+    private var categorySelectedSectionView: some View {
+        ChallengeCategorySelectedView(
+            text: $categoryText,
+            categories: [
+                "식비",
+                "교통비",
+                "쇼핑",
+                "기타",
+                "생활비"
+            ]
+        )
     }
     
     /// HashTag 섹션
