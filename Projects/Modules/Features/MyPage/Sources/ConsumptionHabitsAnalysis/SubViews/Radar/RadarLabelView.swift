@@ -28,7 +28,7 @@ struct RadarLabel: View {
             HStack(spacing: 0) {
                 Text(current)
                     .font(FontHelper.body5.font)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(!highlight ? .white : GBColor.main.asColor)
                 
                 Text("/")
                     .font(FontHelper.body5.font)
