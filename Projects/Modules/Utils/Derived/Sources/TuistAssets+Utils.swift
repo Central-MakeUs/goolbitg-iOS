@@ -26,6 +26,8 @@ public enum UtilsAsset: Sendable {
   public static let checkPopup = UtilsImages(name: "CheckPopup")
   public static let good = UtilsImages(name: "Good")
   public static let group = UtilsImages(name: "Group")
+  public static let groupPeople = UtilsImages(name: "GroupPeople")
+  public static let individualPeople = UtilsImages(name: "IndividualPeople")
   public static let infoTip = UtilsImages(name: "InfoTip")
   public static let kakaoLogo = UtilsImages(name: "Kakao_Logo")
   public static let loginAppLogo = UtilsImages(name: "Login_AppLogo")

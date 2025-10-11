@@ -90,6 +90,9 @@ public enum ImageHelper {
     case group
     case settingBtn
     
+    case individualPeople
+    case groupPeople
+    
     public var image: UIImage {
         switch self {
         case .splashBack:
@@ -277,6 +280,12 @@ public enum ImageHelper {
             
         case .settingBtn:
             return UtilsAsset.settingBtn.image
+            
+        case .groupPeople:
+            return UtilsAsset.groupPeople.image
+            
+        case .individualPeople:
+            return UtilsAsset.individualPeople.image
         }
     }
     
