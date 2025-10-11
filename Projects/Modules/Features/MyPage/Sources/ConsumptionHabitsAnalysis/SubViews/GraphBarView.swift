@@ -16,6 +16,14 @@ struct GraphBarView: View {
     let count: Int
     let percentage: CGFloat
     let style: GraphBarStyle
+    let topTextIgnored: Bool
+    
+    init(count: Int = 0, percentage: CGFloat, style: GraphBarStyle, topTextIgnored: Bool = false) {
+        self.count = count
+        self.percentage = percentage
+        self.style = style
+        self.topTextIgnored = topTextIgnored
+    }
     
     var body: some View {
         content
@@ -35,7 +43,7 @@ extension GraphBarView {
             VStack(spacing: 0) {
                 
                 Spacer(minLength: 0)
-                
+                if !topTextIgnored {
                     VStack(spacing: 0) {
                         Text("추천")
                             .font(FontHelper.caption3.font)
@@ -48,7 +56,7 @@ extension GraphBarView {
                         textHeight = h + 8
                     }
                     .foregroundStyle(getTextColor)
-                
+                }
                 Color.clear.frame(height: 8) // MARK: Spacing
                 
                 getStick(proxy: proxy)
