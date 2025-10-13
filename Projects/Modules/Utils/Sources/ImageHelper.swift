@@ -92,6 +92,7 @@ public enum ImageHelper {
     
     case individualPeople
     case groupPeople
+    case badGreen
     
     public var image: UIImage {
         switch self {
@@ -286,6 +287,9 @@ public enum ImageHelper {
             
         case .individualPeople:
             return UtilsAsset.individualPeople.image
+            
+        case .badGreen:
+            return UtilsAsset.badGreen.image
         }
     }
     

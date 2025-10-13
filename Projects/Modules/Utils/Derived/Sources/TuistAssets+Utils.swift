@@ -21,6 +21,7 @@ public enum UtilsAsset: Sendable {
   public static let accentColor = UtilsColors(name: "AccentColor")
   public static let appleLogo = UtilsImages(name: "Apple_Logo")
   public static let bad = UtilsImages(name: "Bad")
+  public static let badGreen = UtilsImages(name: "BadGreen")
   public static let cameraLogoV2 = UtilsImages(name: "CameraLogoV2")
   public static let checkBox2 = UtilsImages(name: "CheckBox2")
   public static let checkPopup = UtilsImages(name: "CheckPopup")
