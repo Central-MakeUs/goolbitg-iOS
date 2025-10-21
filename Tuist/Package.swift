@@ -25,7 +25,7 @@ let package = Package(
         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "11.8.1")),
         .package(url: "https://github.com/kakao/kakao-ios-sdk", .upToNextMajor(from: "2.23.0")),
         .package(url: "https://github.com/airbnb/lottie-ios.git", .upToNextMajor(from: "4.5.2")),
-        .package(url: "https://github.com/exyte/PopupView", .upToNextMajor(from: "4.0.1")),
+        .package(url: "https://github.com/exyte/PopupView", .upToNextMajor(from: "4.1.14")),
         .package(url: "https://github.com/realm/realm-swift.git", exact: "10.54.0"),
 //        .package(url: "https://github.com/Kitura/Swift-JWT.git", .upToNextMajor(from: "4.0.2")),
         .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", .upToNextMajor(from: "2.1.1")),
