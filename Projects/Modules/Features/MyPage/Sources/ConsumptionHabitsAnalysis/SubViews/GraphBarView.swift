@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Utils
+import Domain
 
 struct GraphBarView: View {
     
@@ -28,12 +29,6 @@ struct GraphBarView: View {
     var body: some View {
         content
     }
-}
-
-enum GraphBarStyle: Equatable, Hashable {
-    case grey
-    case mainColor
-    case dotStyleForRecommend
 }
 
 extension GraphBarView {
@@ -144,11 +139,14 @@ extension GraphBarView {
 }
 
 #if DEBUG
+import Data
+
 #Preview {
     VStack {
-        RecentChallengeMonthlyComparisonGraphView(
+        RecentChallengeWeeklyComparisonGraphView(
             difference: 3,
-            monthDataCount: [5, 8, 10]
+            maxCount: 10,
+            monthDataList: RecentChallengeWeeklyEntity.mocks
         )
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
