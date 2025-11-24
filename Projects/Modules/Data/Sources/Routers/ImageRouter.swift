@@ -31,7 +31,7 @@ extension ImageRouter: Router {
     }
     
     public var optionalHeaders: HTTPHeaders? {
-        return [ "application/json" : "Content-Type" ]
+        return ["Content-Type" : "application/json"]
     }
     
     public var parameters: Parameters? {

@@ -79,7 +79,7 @@ extension UserRouter: Router {
     public var optionalHeaders: HTTPHeaders? {
         switch self {
         case .currentUserInfos, .userRegisterStatus, .agreePushNotification, .weeklyStatus:
-            return [ "application/json" : "Content-Type" ]
+            return ["Content-Type" : "application/json"]
         case .nickNameCheck, .userInfoRegist, .userCheckList, .userHabit, .userPatternRegist, .agreement, .registrationFCMToken:
             return nil
         }

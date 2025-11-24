@@ -10,9 +10,11 @@ import Alamofire
 
 final class GBRequestInterceptor: RequestInterceptor {
 
-    private let maxRetryCountPerRequest = 2
+    private let maxRetryCountPerRequest = 5
 
     private let isRefreshing = LockIsRefreshing()
+    
+    private let retryDelay: TimeInterval = 1.0
 
     func adapt(_ urlRequest: URLRequest, for session: Session,
                completion: @escaping (Result<URLRequest, Error>) -> Void) {
@@ -34,6 +36,16 @@ final class GBRequestInterceptor: RequestInterceptor {
         if request.retryCount >= maxRetryCountPerRequest {
             completion(.doNotRetry); return
         }
+        
+        if let urlError = (error as? AFError)?.underlyingError as? URLError {
+            switch urlError.code {
+            case .networkConnectionLost:
+                // -1005:
+                completion(.retryWithDelay(retryDelay))
+            default:
+                break
+            }
+        }
 
         // HTTP 상태 확인
         guard let statusCode = request.response?.statusCode else {
@@ -47,29 +59,35 @@ final class GBRequestInterceptor: RequestInterceptor {
                 completion(.doNotRetry); return
             }
 
-            // DEBUG 특수 케이스
-            if UserDefaultsManager.refreshToken == "root_user_refresh_token" {
-                Task {
-                    await RootLoginManager.login()
-                    completion(.retry) // 새 토큰으로 재시도
-                }
-                return
-            }
-
-            Task {
-                let refreshed = await refreshIfNeeded()
-
-                if refreshed {
-                    completion(.retry); return
-                } else {
-                    completion(.doNotRetry); return
-                }
-            }
+            tryForRetry(completion: completion)
+            
             return
         }
 
         // 그 외 상태코드: 재시도 안 함
         completion(.doNotRetry); return
+    }
+    
+    private func tryForRetry(completion: @escaping @Sendable (RetryResult) -> Void) {
+        // DEBUG 특수 케이스
+        if UserDefaultsManager.refreshToken == "root_user_refresh_token" {
+            Task {
+                await RootLoginManager.login()
+                completion(.retry) // 새 토큰으로 재시도
+            }
+            return
+        }
+
+        Task {
+            let refreshed = await refreshIfNeeded()
+
+            if refreshed {
+                completion(.retryWithDelay(retryDelay)); return
+            } else {
+                completion(.doNotRetry); return
+            }
+        }
+
     }
     
     

@@ -47,7 +47,9 @@ extension Router {
             do {
                 if let body {
                     urlRequest.httpBody = body
-                    urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
+                    if urlRequest.allHTTPHeaderFields?["Content-Type"] == nil {
+                        urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
+                    }
                 } else {
                     let request = try JSONEncoding.default.encode(urlRequest, withJSONObject: parameters)
                     Logger.debug(parameters ?? "")

@@ -170,17 +170,17 @@ extension NetworkManager {
             await retryActor.resetValue()
             
             return data
-        case let .failure(GBError):
+        case let .failure(AFError):
             Logger.error(response.data?.base64EncodedString() ?? "")
-            Logger.error(GBError)
-            if GBError.isExplicitlyCancelledError {
+            Logger.error(AFError)
+            if AFError.isExplicitlyCancelledError {
                 throw .cancel
             }
             
             if response.error?.responseCode == 500 {
-                await DiscordMessageManager.shared.sendMessage500(message: "500 -\(GBError)")
+                await DiscordMessageManager.shared.sendMessage500(message: "500 -\(AFError)")
                 CrashlyticsManager.sendMessage(message: "SERVER_ERROR")
-                CrashlyticsManager.record(error: GBError)
+                CrashlyticsManager.record(error: AFError)
             }
             
             do {
@@ -192,7 +192,7 @@ extension NetworkManager {
                 return retryResult
             } catch {
                 
-                let check = checkResponseData(response.data, GBError)
+                let check = checkResponseData(response.data, AFError)
                 networkError.send(check)
                 throw check
             }

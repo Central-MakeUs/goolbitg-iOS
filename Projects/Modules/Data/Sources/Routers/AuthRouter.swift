@@ -64,7 +64,7 @@ extension AuthRouter: Router {
         if case .rootLogin = self {
             return ["accept" : "application/json"]
         }
-        return [ "application/json" : "Content-Type" ]
+        return ["Content-Type" : "application/json"]
     }
     
     public var parameters: Parameters? {
