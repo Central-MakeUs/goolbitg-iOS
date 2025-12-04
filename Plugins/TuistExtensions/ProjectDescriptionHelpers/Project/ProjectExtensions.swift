@@ -34,7 +34,7 @@ extension Project {
                     resources: config.resources,
                     entitlements: appEntitlementsPath,
                     scripts: config.scripts,
-                    dependencies: config.dependencies
+                    dependencies: config.dependencies,
                 )
             ]
             
@@ -60,7 +60,7 @@ extension Project {
                     sources: config.sources,
                     resources: config.resources,
                     scripts: config.scripts,
-                    dependencies: config.dependencies
+                    dependencies: config.dependencies,
                 )
             ]
             

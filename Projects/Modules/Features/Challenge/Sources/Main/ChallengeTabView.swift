@@ -52,9 +52,12 @@ struct ChallengeTabView: View {
                 } customize: {
                     $0
                         .type(.toast)
+                        .displayMode(.window)
+                        .allowTapThroughBG(false)
                         .animation(.spring)
+                        .dragToDismiss(false)
                         .closeOnTap(false)
-                        .closeOnTapOutside(false)
+                        .closeOnTapOutside(true)
                         .backgroundColor(Color.black.opacity(0.5))
                         .dismissCallback {
                             store.send(.delegate(.showTabBar))

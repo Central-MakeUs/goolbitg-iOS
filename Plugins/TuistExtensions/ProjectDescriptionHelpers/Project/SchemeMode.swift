@@ -71,7 +71,7 @@ extension Settings {
     public static func swift6Settings(disPlayName: String? = nil) -> Self {
         var base: ProjectDescription.SettingsDictionary = [
             "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
-            "SWIFT_VERSION": "6.0"
+            "SWIFT_VERSION": "6.0" // DemoApp 실행시에는 Swift5 로 변경후 실행 -> TCA 버그 발생
         ]
         if let disPlayName {
             base["DISPLAY_NAME"] = .string(disPlayName)

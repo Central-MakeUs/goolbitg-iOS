@@ -12,7 +12,9 @@ import Utils
 import FeatureCommon
 import Data
 
-struct ResultHabitView: View {
+public struct ResultHabitView: View {
+    
+    public init (store: StoreOf<ResultHabitFeature>) { self.store = store }
     
     @Perception.Bindable var store: StoreOf<ResultHabitFeature>
     
@@ -20,7 +22,7 @@ struct ResultHabitView: View {
     @State private var isShareImageTrigger = false
     @State private var isShareImage: UIImage? = nil
     
-    var body: some View {
+    public var body: some View {
         WithPerceptionTracking {
             ZStack(alignment: .bottom) {
                 content
@@ -34,10 +36,11 @@ struct ResultHabitView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(GBColor.background1.asColor)
             .onAppear {
-                withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
-                    cardRotate.toggle()
-                }
                 store.send(.viewCycle(.onAppear))
+            }
+            .task {
+                try? await Task.sleep(for: .seconds(1))
+                cardRotate.toggle()
             }
             .onChange(of: isShareImage) {  newValue in
                 isShareImageTrigger = newValue != nil
@@ -88,10 +91,12 @@ extension ResultHabitView {
     }
     
     private var cardView: some View {
-        ZStack {
+        ZStack(alignment: .center) {
             cardAnimationView
+                .zIndex(0)
 //            replaceView
             userInfoCardView
+                .zIndex(1)
                 .padding(.horizontal, SpacingHelper.xl.pixel)
         }
     }
@@ -192,6 +197,7 @@ extension ResultHabitView {
             .offset(y: cardRotate ? 40 : 0)
             .offset(x: cardRotate ? -15: -4)
             .rotationEffect(.degrees(cardRotate ? 4 : 0))
+            .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: cardRotate)
     }
 }
 

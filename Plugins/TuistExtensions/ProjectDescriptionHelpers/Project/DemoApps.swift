@@ -12,6 +12,7 @@ public enum DemoApps: String, CaseIterable {
     case challenge = "Challenge"
     case myPage = "MyPage"
     case buyOrNot = "BuyOrNot"
+    case intro = "Intro"
     
     public static let leadingPath = "Projects/Modules/DemoApps"
     public static let moduleLeadingPath = FeatureType.leadingPathString

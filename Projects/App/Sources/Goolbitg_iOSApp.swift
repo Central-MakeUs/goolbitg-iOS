@@ -12,6 +12,8 @@ import KakaoSDKAuth
 import Utils
 import SwiftyBeaver
 import Data
+import FeatureMyPage
+import FeatureIntro
 
 @main
 struct Goolbitg_iOSApp: App {
@@ -48,3 +50,45 @@ struct Goolbitg_iOSApp: App {
         }
     }
 }
+
+
+/*
+ ResultHabitView(
+     store: Store(
+         initialState: ResultHabitFeature.State(
+             userModel: UserInfoDTO(
+                 id: "lvepndrzdj",
+                 nickname: "ㅎㅎㅎ",
+                 birthday: nil,
+                 gender: "MALE",
+                 check1: false,
+                 check2: true,
+                 check3: false,
+                 check4: false,
+                 check5: false,
+                 check6: false,
+                 avgIncomePerMonth: 5000000,
+                 avgSpendingPerMonth: 55555,
+                 primeUseDay: "THURSDAY",
+                 primeUseTime: "20:10:05",
+                 spendingHabitScore: 1,
+                 spendingType: SpendingTypeDTO(
+                     id: 3,
+                     title: "룰루굴비",
+                     imageURL: "https://goolbitg-bucket.s3.ap-northeast-2.amazonaws.com/spending_type/03.png",
+                     profileUrl: "https://goolbitg-bucket.s3.ap-northeast-2.amazonaws.com/profile/03.png",
+                     onboardingResultUrl: "https://goolbitg.s3.ap-northeast-2.amazonaws.com/onboardingResult_type/03.png",
+                     goal: 100000,
+                     peopleCount: 2
+                 ),
+                 challengeCount: 0,
+                 postCount: 0,
+                 achievementGuage: 0
+             )
+         ),
+         reducer: {
+     ResultHabitFeature()
+ }
+                             )
+ )
+ */

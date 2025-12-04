@@ -58,25 +58,14 @@ extension MyPageTabCoordinator {
             case .router(.routeAction(id: .pushList, action: .pushList(.delegate(.dismiss)))):
                 state.routes.dismiss()
                 
-            default:
-                break
-            }
-            return .none
-        }
-        .forEachRoute(\.routes, action: \.router)
-    }
-    
-    private var myPageCore: some ReducerOf<Self> {
-        Reduce { state, action in
-            switch action {
             case .router(.routeAction(id: .home, action: .home(.delegate(.revokedEvent)))):
-//                state.routes.push(.revokePage(RevokeFeature.State()))
+                //                state.routes.push(.revokePage(RevokeFeature.State()))
                 state.routes.presentCover(.revokePage(RevokeFeature.State()))
                 
             case .router(.routeAction(id: .home, action: .home(.delegate(.pushButtonTapped)))):
                 state.routes.presentCover(.pushList(PushListViewFeature.State()))
                 
-//            case .router(.routeAction(id: .home, action: .home(.delegate(.habitChartMoveTapped)))):
+                //            case .router(.routeAction(id: .home, action: .home(.delegate(.habitChartMoveTapped)))):
             default:
                 break
             }

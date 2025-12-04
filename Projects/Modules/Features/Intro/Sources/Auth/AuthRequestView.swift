@@ -37,10 +37,11 @@ struct AuthRequestView: View {
                 } customize: {
                     $0
                         .type(.toast)
-                        .displayMode(.sheet)
+                        .displayMode(.window)
                         .animation(.spring)
                         .closeOnTapOutside(true)
                         .closeOnTap(false)
+                        .dragToDismiss(false)
                         .backgroundColor(Color.black.opacity(0.5))
                 }
                 .popup(isPresented: $store.showAgreeBottomSheet.sending(\.agreeBottomSheet)) {
@@ -59,6 +60,7 @@ struct AuthRequestView: View {
                     $0
                         .type(.toast)
                         .displayMode(.sheet)
+                        .allowTapThroughBG(false)
                         .animation(.spring)
                         .closeOnTap(false)
                         .closeOnTapOutside(true)
