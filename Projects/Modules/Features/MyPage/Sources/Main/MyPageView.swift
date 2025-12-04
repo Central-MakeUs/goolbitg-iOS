@@ -85,6 +85,10 @@ extension MyPageView {
                     .padding(.top, 6)
                     .padding(.horizontal, SpacingHelper.md.pixel)
                 
+                myConsumptionPatternSection
+                    .padding(.top, 6)
+                    .padding(.horizontal, SpacingHelper.md.pixel)
+                
                 accountSection
                     .padding(.horizontal, SpacingHelper.md.pixel)
                     .padding(.top, SpacingHelper.md.pixel)
@@ -97,7 +101,7 @@ extension MyPageView {
                     .padding(.bottom, SpacingHelper.md.pixel)
                 
                 Color.clear
-                    .frame(height: safeAreaInsets.bottom + 20)
+                    .frame(height: safeAreaInsets.bottom + 30)
                 
             }
             
@@ -266,7 +270,7 @@ extension MyPageView {
                     .foregroundStyle(GBColor.black.asColor.opacity(0.1))
                 Capsule()
                     .frame(
-                        width: proxy.size.width * CGFloat(percentage),
+                        width: proxy.size.width * CGFloat(max(0, min(1, percentage))),
                         height: 17
                     )
                     .foregroundStyle(GBColor.white.asColor)
@@ -276,12 +280,55 @@ extension MyPageView {
 }
 
 extension MyPageView {
+    
+    private var myConsumptionPatternSection: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                Text(TextHelper.myPageConsumptionHabitsPattern)
+                    .font(FontHelper.body3.font)
+                    .foregroundStyle(GBColor.grey300.asColor)
+                Spacer()
+            }
+            ForEach(MyHabitSectionType.allCases, id: \.self) { item in
+                HStack(spacing: 0) {
+                    Image(uiImage: item.img)
+                        .renderingMode(.template)
+                        .resizable()
+                        .foregroundStyle(GBColor.grey50.asColor)
+                        .frame(width: 18, height: 16)
+                        .padding(.trailing, .sm)
+                        
+                    
+                    Text(item.title)
+                        .font(FontHelper.caption1.font)
+                        .foregroundStyle(GBColor.white.asColor)
+                        .padding(.vertical, .md)
+                    Spacer()
+                }
+                .asButton {
+                    store.send(.viewEvent(.consumptionHabitSectionItemTapped(item: item)))
+                }
+            }
+            .padding(.horizontal, SpacingHelper.sm.pixel)
+        }
+        .padding(.all, SpacingHelper.md.pixel)
+        .background {
+            BlurView(style: .systemUltraThinMaterialDark)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay {
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(lineWidth: 1)
+                .foregroundStyle(GBColor.white.asColor.opacity(0.2))
+        }
+    }
+    
     private var accountSection: some View {
         VStack(spacing:0) {
             HStack {
                 Text(TextHelper.accountSetting)
                     .font(FontHelper.body3.font)
-                    .foregroundStyle(GBColor.grey300.asColor)
+                    .foregroundStyle(GBColor.white.asColor)
                 Spacer()
             }
             ForEach(AccountSectionType.allCases, id: \.self) { item in
@@ -314,6 +361,11 @@ extension MyPageView {
             BlurView(style: .systemUltraThinMaterialDark)
         }
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay {
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(lineWidth: 1)
+                .foregroundStyle(GBColor.white.asColor.opacity(0.2))
+        }
     }
     
     private var serviceSectionView: some View {
@@ -370,6 +422,11 @@ extension MyPageView {
             BlurView(style: .systemUltraThinMaterialDark)
         }
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay {
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(lineWidth: 1)
+                .foregroundStyle(GBColor.white.asColor.opacity(0.2))
+        }
     }
     
     private var logOutAndServiceRevoke: some View {
@@ -405,6 +462,24 @@ extension MyPageView {
         if absOffset == 0 { return 0 }
         let clamped = max(min(1, abs(offset) / 100), 0)
         return clamped
+    }
+}
+
+public enum MyHabitSectionType: CaseIterable {
+    case analysisPatternHabitFormation
+    
+    var title: String {
+        switch self {
+        case .analysisPatternHabitFormation:
+            return TextHelper.myPageConsumptionHabitsPattern
+        }
+    }
+    
+    var img: UIImage {
+        switch self {
+        case .analysisPatternHabitFormation:
+            return ImageHelper.chartArrow.image
+        }
     }
 }
 
@@ -487,3 +562,4 @@ public enum ServiceInfoSectionType: CaseIterable {
     }))
 }
 #endif
+

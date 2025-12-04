@@ -94,6 +94,8 @@ public enum ImageHelper {
     case groupPeople
     case badGreen
     
+    case chartArrow
+    
     public var image: UIImage {
         switch self {
         case .splashBack:
@@ -290,6 +292,9 @@ public enum ImageHelper {
             
         case .badGreen:
             return UtilsAsset.badGreen.image
+            
+        case .chartArrow:
+            return UtilsAsset.chartArrow.image
         }
     }
     

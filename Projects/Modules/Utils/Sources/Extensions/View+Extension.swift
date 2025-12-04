@@ -295,3 +295,9 @@ extension View {
     }
 }
 
+// MARK: Padding
+public extension View {
+    func padding(_ edges: Edge.Set = .all, _ spHelper: SpacingHelper) -> some View {
+        self.padding(edges, spHelper.pixel)
+    }
+}

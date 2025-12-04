@@ -121,6 +121,8 @@ public enum TextHelper {
     public static let mySpendingScoreTitle = "내 소비 점수"
     public static let totalChallengeCount = "총 챌린지 수"
     public static let writeCount = "작성한 글"
+    public static let myPageConsumptionHabitsPattern = "나의 소비 습관"
+    public static let myPageConsumptionHabitsPatternAnalysis = "소비습관형성 패턴 분석"
     
     // MARK: 회원 탈퇴
     public static let revokeNavigationTitle = "서비스 탈퇴"

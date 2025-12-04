@@ -31,6 +31,7 @@ public struct MyPageViewFeature: GBReducer {
             case logOutEvent
             case revokedEvent
             case pushButtonTapped
+            case habitChartMoveTapped
         }
         
         case alertState(GBAlertViewComponents?)
@@ -44,6 +45,7 @@ public struct MyPageViewFeature: GBReducer {
         case alertButtonTapped
         case accountSectionItemTapped(item: AccountSectionType)
         case serviceSectionItemTapped(item: ServiceInfoSectionType)
+        case consumptionHabitSectionItemTapped(item: MyHabitSectionType)
         case logOutButtonTapped
         case acceptLogoutButtonTapped
         case revokeButtonTapped
@@ -157,6 +159,13 @@ extension MyPageViewFeature {
                         await moveURLManager.moveURL(caseOf: .service)
                     case .privacyPolicy:
                         await moveURLManager.moveURL(caseOf: .privacy)
+                    }
+                }
+            case let .viewEvent(.consumptionHabitSectionItemTapped(item)):
+                return .run { send in
+                    switch item {
+                    case .analysisPatternHabitFormation:
+                        await send(.delegate(.habitChartMoveTapped))
                     }
                 }
                 

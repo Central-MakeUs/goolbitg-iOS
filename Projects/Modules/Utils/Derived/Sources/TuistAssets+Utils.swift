@@ -52,6 +52,7 @@ public enum UtilsAsset: Sendable {
   public static let bridge = UtilsImages(name: "bridge")
   public static let buyOrNotAdd = UtilsImages(name: "buyOrNotAdd")
   public static let challenge = UtilsImages(name: "challenge")
+  public static let chartArrow = UtilsImages(name: "chartArrow")
   public static let checkChecked = UtilsImages(name: "checkChecked")
   public static let checkDisabled = UtilsImages(name: "checkDisabled")
   public static let checkEnabled = UtilsImages(name: "checkEnabled")
