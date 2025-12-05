@@ -52,6 +52,7 @@ public extension View {
             .clipShape(
                 RoundedCornerShape(corners: corners, radius: radius)
             )
+            .clipped()
     }
     
     @ViewBuilder
