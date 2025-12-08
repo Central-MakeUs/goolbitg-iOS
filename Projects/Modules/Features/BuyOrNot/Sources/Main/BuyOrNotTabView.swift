@@ -201,10 +201,14 @@ extension BuyOrNotTabView {
             
             VStack(spacing: 0) {
                 if tabMode == .buyOrNot {
-                    buyOrNotView
-                        .onAppear {
-                            store.send(.viewCycle(.onAppear))
-                        }
+                    if store.currentMode == .empty {
+                        userListEmptyView
+                    } else {
+                        buyOrNotView
+                            .onAppear {
+                                store.send(.viewCycle(.onAppear))
+                            }
+                    }
                 }
                 else if tabMode == .records {
                     buyOrNotRecordView
@@ -261,7 +265,8 @@ extension BuyOrNotTabView {
         return VStack(spacing: 0) {
             GeometryReader { proxy in
                 WithPerceptionTracking {
-                    if store.currentList.isEmpty {
+                    switch store.currentMode {
+                    case .load:
                         BuyOrNotCardView(entity: emptyList.first!, reportTab: {
                             
                         })
@@ -269,7 +274,9 @@ extension BuyOrNotTabView {
                         .padding(.top, SpacingHelper.lg.pixel)
                         .skeletonEffect()
                         
-                    } else {
+                    case .empty:
+                        EmptyView()
+                    case .on:
                         BuyOrNotCardListView(
                             currentListEntity: $store.currentList.sending(\.bindingCurrentList),
                             currentIndex: $store.currentIndex.sending(\.bindingCurrentIndex),
@@ -375,6 +382,7 @@ extension BuyOrNotTabView {
             recordHeaderView
                 .padding(.horizontal, SpacingHelper.lg.pixel)
                 .padding(.vertical, SpacingHelper.sm.pixel)
+            
             if !store.currentUserList.isEmpty {
                 ScrollView {
                     LazyVStack(spacing: 0) {

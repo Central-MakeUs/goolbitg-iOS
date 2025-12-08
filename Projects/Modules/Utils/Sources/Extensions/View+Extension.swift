@@ -47,12 +47,22 @@ public extension View {
         overlay(EdgeBorder(width: width, edge: edges).foregroundColor(color))
     }
     
+    @ViewBuilder
     func cornerRadiusCorners(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-        self
-            .clipShape(
-                RoundedCornerShape(corners: corners, radius: radius)
-            )
-            .clipped()
+        if #available(iOS 26, *) {
+            self
+                .clipShape(
+                    RoundedCornerShape(corners: corners, radius: radius)
+                )
+                .background {
+                    Color.black.opacity(0.00001)
+                }
+        } else {
+            self
+                .clipShape(
+                    RoundedCornerShape(corners: corners, radius: radius)
+                )
+        }
     }
     
     @ViewBuilder
@@ -302,3 +312,4 @@ public extension View {
         self.padding(edges, spHelper.pixel)
     }
 }
+

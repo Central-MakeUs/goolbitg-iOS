@@ -38,6 +38,7 @@ public enum BuyOrNotAddOrModify: Equatable, Hashable {
 @Reducer
 public struct BuyOrNotAddViewFeature: GBReducer {
     public init () {}
+    
     @ObservableState
     public struct State: Equatable, Hashable {
         let stateMode: BuyOrNotAddOrModify
@@ -71,6 +72,7 @@ public struct BuyOrNotAddViewFeature: GBReducer {
         case bindingPriceText(String)
         case bindingBuyText(String)
         case bindingBuyNotText(String)
+        case debouncedCheckAll
         
         public enum Delegate {
             case dismiss
@@ -99,6 +101,8 @@ public struct BuyOrNotAddViewFeature: GBReducer {
     @Dependency(\.gbNumberForMatter) var numberFormatter
     @Dependency(\.networkManager) var networkManager
     @Dependency(\.buyOrNotMapper) var buyOrNotMapper
+    
+    private enum CancelID { static let checkAll = "BuyOrNotAddViewFeature.checkAll" }
     
     public var body: some ReducerOf<Self> {
         core
@@ -141,9 +145,9 @@ extension BuyOrNotAddViewFeature {
             case .viewEvent(.okButtonTapped):
                 
                 let price = Int(
-                 state.priceText
-                     .replacingOccurrences(of: ",", with: "")
-                     .replacingOccurrences(of: " ", with: "")
+                    state.priceText
+                        .replacingOccurrences(of: ",", with: "")
+                        .replacingOccurrences(of: " ", with: "")
                 )
                 
                 if let imgData = state.currentImageData,
@@ -233,7 +237,7 @@ extension BuyOrNotAddViewFeature {
                     state.alertComponents = nil
                 }
                 
-            // MARK: FeatureEVENT
+                // MARK: FeatureEVENT
             case let .featureEvent(.errorHandling(error)):
                 state.loading = false
                 guard case let .serverMessage(message) = error else {
@@ -278,7 +282,7 @@ extension BuyOrNotAddViewFeature {
                 
                 state.alertComponents = alertComponents
                 
-            // MARK: Binding
+                // MARK: Binding
             case let .bindingAlertComponents(components):
                 state.alertComponents = components
                 
@@ -287,25 +291,32 @@ extension BuyOrNotAddViewFeature {
                     state.itemText = text
                 }
                 
-                return checkAll(state: &state)
+                return .send(.debouncedCheckAll)
+                
             case let .bindingPriceText(text):
                 if !(text.count > 9) {
                     let text = text.replacingOccurrences(of: ",", with: "")
                     let price = numberFormatter.changeForCommaNumber(text)
                     state.priceText = price
                 }
-                return checkAll(state: &state)
+                return .send(.debouncedCheckAll)
+                
             case let .bindingBuyText(text):
                 if !(text.count > 20) {
                     state.buyText = text
                 }
-                return checkAll(state: &state)
+                return .send(.debouncedCheckAll)
             case let .bindingBuyNotText(text):
                 
                 if !(text.count > 20) {
                     state.notBuyText = text
                 }
-                return checkAll(state: &state)
+                return .send(.debouncedCheckAll)
+                
+            case .debouncedCheckAll:
+                let bool = checkAll(state: state)
+                state.currentOkButtonState = bool
+                return .none
             default:
                 break
             }
@@ -317,18 +328,41 @@ extension BuyOrNotAddViewFeature {
 extension BuyOrNotAddViewFeature {
     
     private func checkAll(state: inout State) -> EffectOf<Self> {
-        guard
-              let _ = (state.itemText.isEmpty ? nil : state.itemText),
-              let _ = (state.priceText.isEmpty ? nil : state.priceText),
-              let _ = (state.buyText.isEmpty ? nil : state.buyText),
-              let _ = (state.notBuyText.isEmpty ? nil : state.notBuyText),
-              (state.currentImageData != nil || state.ifImageURL != nil)
-        else {
-            state.currentOkButtonState = false
-            return .none
+        let newValue: Bool = {
+            guard
+                let _ = (state.itemText.isEmpty ? nil : state.itemText),
+                let _ = (state.priceText.isEmpty ? nil : state.priceText),
+                let _ = (state.buyText.isEmpty ? nil : state.buyText),
+                let _ = (state.notBuyText.isEmpty ? nil : state.notBuyText),
+                (state.currentImageData != nil || state.ifImageURL != nil)
+            else {
+                return false
+            }
+            return true
+        }()
+        
+        if state.currentOkButtonState != newValue {
+            state.currentOkButtonState = newValue
         }
-        state.currentOkButtonState = true
         return .none
     }
     
+    private func checkAll(state: State) -> Bool {
+        let newValue: Bool = {
+            guard
+                let _ = (state.itemText.isEmpty ? nil : state.itemText),
+                let _ = (state.priceText.isEmpty ? nil : state.priceText),
+                let _ = (state.buyText.isEmpty ? nil : state.buyText),
+                let _ = (state.notBuyText.isEmpty ? nil : state.notBuyText),
+                (state.currentImageData != nil || state.ifImageURL != nil)
+            else {
+                return false
+            }
+            return true
+        }()
+        
+        return newValue
+    }
+    
 }
+

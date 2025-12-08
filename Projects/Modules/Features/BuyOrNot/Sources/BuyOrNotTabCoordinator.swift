@@ -9,11 +9,13 @@ import Foundation
 import ComposableArchitecture
 @preconcurrency import TCACoordinators
 
-@Reducer(state: .hashable)
+@Reducer
 public enum BuyOrNotTabCoordinatorScreen {
     case home(BuyOrNotTabViewFeature)
     case buyOrNotAdd(BuyOrNotAddViewFeature)
 }
+
+extension BuyOrNotTabCoordinatorScreen.State: Hashable {}
 
 @Reducer
 public struct BuyOrNotTabCoordinator {

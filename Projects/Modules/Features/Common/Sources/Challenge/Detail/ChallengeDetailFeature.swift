@@ -70,8 +70,8 @@ public struct ChallengeDetailFeature: GBReducer {
     @Dependency(\.challengeMapper) var challengeMapper
     
     public var body: some ReducerOf<Self> {
-        
         core
+        viewCore
     }
 }
 

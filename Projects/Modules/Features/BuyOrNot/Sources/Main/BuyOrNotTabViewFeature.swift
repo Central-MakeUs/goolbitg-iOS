@@ -11,6 +11,12 @@ import Utils
 import Domain
 import Data
 
+public enum CardMode {
+    case load
+    case empty
+    case on
+}
+
 @Reducer
 public struct BuyOrNotTabViewFeature: GBReducer {
     public init () {}
@@ -19,6 +25,7 @@ public struct BuyOrNotTabViewFeature: GBReducer {
         public init () {}
         var tabMode: BuyOrNotTabInMode = .buyOrNot
         var currentList: [BuyOrNotCardViewEntity] = []
+        var currentMode: CardMode = .load
         var currentIndex: Int = 0
         var buyOrNotPagingObj = BuyOrNotPagingObj(page: 0, created: false)
         var userCreated = false
@@ -118,6 +125,7 @@ extension BuyOrNotTabViewFeature {
                 state.buyOrNotPagingObj = paging
                 state.pagingTrigger = false
                 state.currentList = []
+                state.currentMode = .load
                 state.currentIndex = 0
                 return .run { send in
                     await send(.featureEvent(.requestBuyOrNotList(paging)))
@@ -128,7 +136,7 @@ extension BuyOrNotTabViewFeature {
                 state.buyOrNotRecordPagingObj = paging
                 state.userListPagingTrigger = false
                 state.currentUserList = []
-                
+                state.currentMode = .load
                 return .run { send in
                     await send(.featureEvent(.requestUserRecordList(paging)))
                 }
@@ -419,6 +427,7 @@ extension BuyOrNotTabViewFeature {
             case let .featureEvent(.resultBuyOrNotList(paging, models)):
                 state.buyOrNotPagingObj = paging
                 state.currentList = models
+                state.currentMode = models.isEmpty ? .empty : .on
                 state.pagingTrigger = models.isEmpty
                 
             case let .featureEvent(.resultAppendBuyOrNotList(paging, models)):
@@ -481,6 +490,7 @@ extension BuyOrNotTabViewFeature {
                 case .buyOrNot:
                     state.buyOrNotPagingObj = obj
                     state.currentList.removeAll()
+                    state.currentMode = .load
                     return .send(.featureEvent(.requestBuyOrNotList(obj)))
                 case .records:
                     obj.created = true

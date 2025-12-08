@@ -73,7 +73,7 @@ public final class ImageCompressionManager {
     }
     
     init() {
-        print("FUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCK")
+        print("ImageManager")
     }
 }
 
