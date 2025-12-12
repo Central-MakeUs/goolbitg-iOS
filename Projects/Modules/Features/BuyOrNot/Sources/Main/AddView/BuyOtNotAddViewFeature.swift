@@ -41,7 +41,9 @@ public struct BuyOrNotAddViewFeature: GBReducer {
     
     @ObservableState
     public struct State: Equatable, Hashable {
+        @ObservationStateIgnored
         let stateMode: BuyOrNotAddOrModify
+        
         var currentImageData: Data? = nil // 무조건 JPEG 로 변환
         var alertComponents: GBAlertViewComponents? = nil
         
@@ -53,10 +55,13 @@ public struct BuyOrNotAddViewFeature: GBReducer {
         
         var currentOkButtonState = false
         var loading = false
+        
+        @ObservationStateIgnored
         var modiferModel: BuyOrNotCardViewEntity? = nil
         
         public init(stateMode: BuyOrNotAddOrModify) {
             self.stateMode = stateMode
+            
         }
     }
     
@@ -72,7 +77,6 @@ public struct BuyOrNotAddViewFeature: GBReducer {
         case bindingPriceText(String)
         case bindingBuyText(String)
         case bindingBuyNotText(String)
-        case debouncedCheckAll
         
         public enum Delegate {
             case dismiss
@@ -96,6 +100,7 @@ public struct BuyOrNotAddViewFeature: GBReducer {
         case successRegister
         case errorHandling(RouterError)
         case successModifier(BuyOrNotCardViewEntity)
+        case setCurrentOkButtonState(Bool)
     }
     
     @Dependency(\.gbNumberForMatter) var numberFormatter
@@ -140,7 +145,7 @@ extension BuyOrNotAddViewFeature {
                 state.ifImageURL = nil
                 state.currentImageData = data
                 
-                return checkAll(state: &state)
+                return checkAll(state: state)
                 
             case .viewEvent(.okButtonTapped):
                 
@@ -282,6 +287,9 @@ extension BuyOrNotAddViewFeature {
                 
                 state.alertComponents = alertComponents
                 
+            case .featureEvent(.setCurrentOkButtonState(let bool)):
+                state.currentOkButtonState = bool
+                
                 // MARK: Binding
             case let .bindingAlertComponents(components):
                 state.alertComponents = components
@@ -291,7 +299,7 @@ extension BuyOrNotAddViewFeature {
                     state.itemText = text
                 }
                 
-                return .send(.debouncedCheckAll)
+                return checkAll(state: state)
                 
             case let .bindingPriceText(text):
                 if !(text.count > 9) {
@@ -299,24 +307,20 @@ extension BuyOrNotAddViewFeature {
                     let price = numberFormatter.changeForCommaNumber(text)
                     state.priceText = price
                 }
-                return .send(.debouncedCheckAll)
+                return checkAll(state: state)
                 
             case let .bindingBuyText(text):
                 if !(text.count > 20) {
                     state.buyText = text
                 }
-                return .send(.debouncedCheckAll)
+                return checkAll(state: state)
             case let .bindingBuyNotText(text):
                 
                 if !(text.count > 20) {
                     state.notBuyText = text
                 }
-                return .send(.debouncedCheckAll)
+                return checkAll(state: state)
                 
-            case .debouncedCheckAll:
-                let bool = checkAll(state: state)
-                state.currentOkButtonState = bool
-                return .none
             default:
                 break
             }
@@ -327,41 +331,41 @@ extension BuyOrNotAddViewFeature {
 
 extension BuyOrNotAddViewFeature {
     
-    private func checkAll(state: inout State) -> EffectOf<Self> {
-        let newValue: Bool = {
-            guard
-                let _ = (state.itemText.isEmpty ? nil : state.itemText),
-                let _ = (state.priceText.isEmpty ? nil : state.priceText),
-                let _ = (state.buyText.isEmpty ? nil : state.buyText),
-                let _ = (state.notBuyText.isEmpty ? nil : state.notBuyText),
-                (state.currentImageData != nil || state.ifImageURL != nil)
-            else {
-                return false
+    private func checkAll(state: State) -> EffectOf<Self> {
+        return .concatenate([
+            .cancel(id: CancelID.checkAll),
+            .run { [state] send in
+                try? await Task.sleep(for: .seconds(0.4))
+                let newValue: Bool = _checkAll(state: state)
+                
+                if state.currentOkButtonState != newValue {
+                    await send(.featureEvent(.setCurrentOkButtonState(newValue)))
+                }
             }
-            return true
-        }()
-        
-        if state.currentOkButtonState != newValue {
-            state.currentOkButtonState = newValue
-        }
-        return .none
+        ])
+        .cancellable(id: CancelID.checkAll)
     }
     
-    private func checkAll(state: State) -> Bool {
-        let newValue: Bool = {
+    private func _checkAll(state: State) -> Bool {
+        let itemText = state.itemText
+        let priceText = state.priceText
+        let buyText = state.buyText
+        let notBuyText = state.notBuyText
+        let currentImageData = state.currentImageData
+        let ifImageURL = state.ifImageURL
+        
+        return {
             guard
-                let _ = (state.itemText.isEmpty ? nil : state.itemText),
-                let _ = (state.priceText.isEmpty ? nil : state.priceText),
-                let _ = (state.buyText.isEmpty ? nil : state.buyText),
-                let _ = (state.notBuyText.isEmpty ? nil : state.notBuyText),
-                (state.currentImageData != nil || state.ifImageURL != nil)
+                let _ = (itemText.isEmpty ? nil : itemText),
+                let _ = (priceText.isEmpty ? nil : priceText),
+                let _ = (buyText.isEmpty ? nil : buyText),
+                let _ = (notBuyText.isEmpty ? nil : notBuyText),
+                (currentImageData != nil || ifImageURL != nil)
             else {
                 return false
             }
             return true
         }()
-        
-        return newValue
     }
     
 }
