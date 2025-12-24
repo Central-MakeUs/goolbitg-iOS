@@ -25,10 +25,10 @@ final class GBRequestInterceptor: RequestInterceptor {
 
     func retry(_ request: Request, for session: Session, dueTo error: Error,
                completion: @escaping @Sendable (RetryResult) -> Void) {
-
-        // refresh 엔드포인트는 재시도 금지
-        if let path = request.request?.url?.path,
+        if UserDefaultsManager.rootLoginUser,
+           let path = request.request?.url?.path,
            path.contains("/auth/refresh") {
+            // refresh 엔드포인트는 재시도 금지
             completion(.doNotRetry); return
         }
 

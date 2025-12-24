@@ -140,6 +140,7 @@ extension ChallengeTabView {
                 }
                 .padding(.trailing, 4)
             
+            #if DEV
             Text("그룹")
                 .font(headerTitleFont(mode: .groups , by: tabMode))
                 .foregroundStyle(headerTitleColor(mode: .groups, by: tabMode))
@@ -149,6 +150,7 @@ extension ChallengeTabView {
                         animationDirection = 1
                     }
                 }
+            #endif
             
             Spacer()
             switch tabMode {

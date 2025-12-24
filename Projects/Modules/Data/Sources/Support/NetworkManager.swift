@@ -271,6 +271,8 @@ extension NetworkManager {
             throw .urlFail(url: "NOT FOUND multipartFormData \(router)")
         }
         
+        Logger.debug(multipartFormData)
+        
         let request = await AF.upload(
             multipartFormData: multipartFormData,
             to: url,
