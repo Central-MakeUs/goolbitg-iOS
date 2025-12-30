@@ -1,0 +1,11 @@
+#include "Base.xcconfig"
+
+OTHER_SWIFT_FLAGS[config=STAGE][sdk=*]  = $(inherited) -DSTAGE
+//OTHER_SWIFT_FLAGS = $(inherited) -DSTAGE
+//SWIFT_ACTIVE_COMPILATION_CONDITIONS     = STAGE
+
+PRODUCT_BUNDLE_IDENTIFIER               = com.Goolbitg-iOS.stage
+
+GCC_PREPROCESSOR_DEFINITIONS            = STAGE=1 $(inherited)
+
+DISPLAY_NAME                            = 굴비잇기_STAGE

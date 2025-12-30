@@ -1,0 +1,299 @@
+//
+//  ChallengeGroupSearchViewFeature.swift
+//  FeatureChallenge
+//
+//  Created by Jae hyung Kim on 7/10/25.
+//
+
+import Foundation
+import ComposableArchitecture
+import Domain
+import Data
+import Utils
+
+@Reducer
+public struct ChallengeGroupSearchViewFeature: GBReducer {
+    
+    @ObservableState
+    public struct State: Equatable, Hashable {
+        public init() {}
+        
+        @ObservationStateIgnored
+        var onAppearTrigger = false
+        
+        var searchText: String = ""
+        var searchItemCount: Int = 0
+        var apiLoadTrigger = false
+        
+        var listItems: [ParticipatingGroupChallengeListEntity] = []
+        
+        @ObservationStateIgnored
+        var groupChallengePagingObj = GroupChallengePagingObj()
+        
+        var popUpGroupID: String? = nil
+        var popUpGroupIsSecret: Bool = false
+        var selectedRoomPopupComponent: ParticipationAlertViewComponents? = nil
+        var errorPopupComponent: GBAlertViewComponents? = nil
+        var popupPasswordText: String = ""
+    }
+    
+    public enum Action {
+        case viewCycle(ViewCycle)
+        case viewEvent(ViewEvent)
+        case featureEvent(FeatureEvent)
+        case delegate(Delegate)
+        
+        case searchTextBinding(String)
+        case selectedRoomPopupComponentBinding(ParticipationAlertViewComponents?)
+        case errorPopupComponentBinding(GBAlertViewComponents?)
+        case popupPasswordTextBinding(String)
+        
+        public enum Delegate {
+            case backButtonTapped
+            case backAndReload
+        }
+    }
+    
+    public enum ViewCycle {
+        case onAppear
+    }
+    
+    public enum ViewEvent {
+        case moreItem
+        case tappedItem(ParticipatingGroupChallengeListEntity)
+        
+        case popUpCancel
+        case popUpJoin
+        
+        case backButtonTapped
+    }
+    
+    public enum FeatureEvent {
+        case resetSearchItem
+        case requestSearchItem(text: String, append: Bool)
+        case updateSearchItem([ParticipatingGroupChallengeListEntity], append: Bool)
+        case updateGroupChallengePagingObj(totalSize: Int, totalPages: Int, page: Int, size: Int)
+    }
+    
+    public enum CancelID: String, Hashable {
+        case searchItem
+        case paging
+        case onAppear
+    }
+    
+    @Dependency(\.networkManager) var networkManager
+    @Dependency(\.challengeMapper) var challengeMapper
+    
+    public var body: some ReducerOf<Self> {
+        viewEventCore
+        bindingCore
+        core
+    }
+}
+
+extension ChallengeGroupSearchViewFeature {
+    
+    private var viewEventCore: some Reducer<State, Action> {
+        Reduce { state, action in
+            switch action {
+            case .viewCycle(.onAppear):
+                if state.onAppearTrigger {
+                    return .none
+                }
+                state.onAppearTrigger = true
+                
+                return .run { send in
+                    await send(.featureEvent(.requestSearchItem(text: "", append: false)))
+                }.debounce(id: CancelID.onAppear, for: 0.5, scheduler: GBUISchedulerInstance)
+                
+            case .viewEvent(.moreItem):
+                if state.apiLoadTrigger { return .none }
+                state.apiLoadTrigger = true
+                let current = state.groupChallengePagingObj.pageNum
+                let totalPage = state.groupChallengePagingObj.totalPages ?? 100
+                let text = state.searchText
+                if totalPage >= current {
+                    state.groupChallengePagingObj.pageNum += 1
+                    return .run { send in
+                        
+                        await send(.featureEvent(.requestSearchItem(text: text, append: true)))
+                    }
+                    .debounce(id: CancelID.paging, for: 0.5, scheduler: GBUISchedulerInstance)
+                }
+                
+            case let .viewEvent(.tappedItem(model)):
+                let id = model.id
+                let component = ParticipationAlertViewComponents(
+                    title: model.title,
+                    hashTags: model.hashTags,
+                    isHidden: model.isSecret,
+                    minMaxText: model.totalWithParticipatingPeopleCount
+                )
+                state.popUpGroupID = String(id)
+                state.popUpGroupIsSecret = model.isSecret
+                
+                return .send(.selectedRoomPopupComponentBinding(component))
+                
+            case .viewEvent(.popUpCancel):
+                state.popUpGroupID = nil
+                state.popupPasswordText = ""
+                return .send(.selectedRoomPopupComponentBinding(nil))
+                
+            case .viewEvent(.popUpJoin):
+                guard let id = state.popUpGroupID else {
+                    state.popupPasswordText = ""
+                    state.popUpGroupID = nil
+                    return .send(.selectedRoomPopupComponentBinding(nil))
+                }
+                let passwd = state.popupPasswordText.isEmpty ? nil : state.popupPasswordText
+                
+                return .run { send in
+                    let result = try await networkManager.requestNotDtoNetwork(
+                        router: ChallengeRouter.groupChallengeJoin(groupID: id, passwd: passwd),
+                        ifRefreshNeed: true
+                    )
+                    if result {
+                        await send(.delegate(.backAndReload))
+                    } else {
+                        await send(.selectedRoomPopupComponentBinding(nil))
+                        await send(.errorPopupComponentBinding(GBAlertViewComponents(title: "ERROR", message: "알 수 없는 에러", okTitle: "확인", alertStyle: .warning)))
+                    }
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        Logger.error("알수없음 - \(#file)")
+                        return
+                    }
+                    guard case .serverMessage(let errorCase) = error else {
+                        Logger.error("알수없음 - \(#file)")
+                        return
+                    }
+                    var errorText: String = ""
+                    switch errorCase {
+                    case .challengeNotFound:
+                        errorText = "해당 챌린지를 찾을 수 없습니다."
+                    case .alreadyParticipatingChallenge:
+                        errorText = "이미 해당 챌린지에 참여중입니다."
+                    case .passwordError:
+                        errorText = "비밀번호가 일치하지 않습니다."
+                    default:
+                        errorText = "알수없는 에러"
+                    }
+                    
+                    await send(.selectedRoomPopupComponentBinding(nil))
+                    await send(.errorPopupComponentBinding(GBAlertViewComponents(title: "ERROR", message: errorText, okTitle: "확인", alertStyle: .warning)))
+                }
+                
+                
+            case .viewEvent(.backButtonTapped):
+                return .send(.delegate(.backButtonTapped))
+                
+            default:
+                break
+            }
+            return .none
+        }
+    }
+    
+    private var bindingCore: some Reducer<State, Action> {
+        Reduce { state, action in
+            switch action {
+            case let .searchTextBinding(text):
+                
+                state.searchText = text
+                
+                return .run { send in
+                    await send(.featureEvent(.requestSearchItem(text: text, append: false)))
+                }
+                .debounce(id: CancelID.searchItem, for: 0.6, scheduler: GBUISchedulerInstance)
+                
+            case let .selectedRoomPopupComponentBinding(model):
+                state.selectedRoomPopupComponent = model
+                
+            case let .popupPasswordTextBinding(text):
+                state.popupPasswordText = text
+                
+            case let .errorPopupComponentBinding(model):
+                state.errorPopupComponent = model
+                
+            default:
+                break
+            }
+            return .none
+        }
+    }
+    
+    private var core: some Reducer<State, Action> {
+        Reduce {
+            state,
+            action in
+            switch action {
+          
+            case .featureEvent(.resetSearchItem):
+                state.groupChallengePagingObj = GroupChallengePagingObj()
+                
+            case let .featureEvent(.requestSearchItem(text, append)):
+                let text = text.isEmpty ? nil : text
+                if !append {
+                    state.groupChallengePagingObj = GroupChallengePagingObj()
+                }
+                state.groupChallengePagingObj.searchText = text
+                state.apiLoadTrigger = true
+                
+                let pagingObj = state.groupChallengePagingObj
+                
+                return .run { send in
+                    let result = try await networkManager
+                        .requestNetworkWithRefresh(
+                            dto: ChallengeListDTO<GroupChallengeDTO>.self,
+                            router: ChallengeRouter
+                                .groupChallengeList(
+                                    page: pagingObj.pageNum,
+                                    size: pagingObj.size,
+                                    searchText: pagingObj.searchText,
+                                    created: pagingObj.created,
+                                    participating: pagingObj.participating
+                                )
+                        )
+                    
+                    let mapping = await challengeMapper.toMappingGroupChallengeList(dtos: result.items)
+                    
+                    await send(
+                        .featureEvent(
+                            .updateGroupChallengePagingObj(
+                                totalSize: result.totalSize,
+                                totalPages: result.totalPages,
+                                page: result.page,
+                                size: result.size
+                            )
+                        )
+                    )
+                    
+                    await send(
+                        .featureEvent(.updateSearchItem(mapping, append: append))
+                    )
+                }
+                
+            case let.featureEvent(.updateSearchItem(datas, append)):
+                if append {
+                    state.listItems.append(contentsOf: datas)
+                } else {
+                    state.listItems = []
+                    state.listItems = datas
+                }
+                state.apiLoadTrigger = false
+                
+            case let .featureEvent(.updateGroupChallengePagingObj(totalSize, totalPages, page, _)):
+                var copy = state.groupChallengePagingObj
+                copy.totalCount = totalSize
+                copy.totalPages = totalPages
+                copy.pageNum = page
+                state.groupChallengePagingObj = copy
+                
+                state.searchItemCount = totalSize
+            default:
+                break
+            }
+            return .none
+        }
+    }
+}

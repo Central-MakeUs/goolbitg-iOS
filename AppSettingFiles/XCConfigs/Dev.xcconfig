@@ -1,0 +1,16 @@
+#include "Base.xcconfig"
+
+OTHER_SWIFT_FLAGS[config=STAGE][sdk=*]   = $(inherited) -DDEV
+//OTHER_SWIFT_FLAGS                       = $(inherited) -DDEV
+
+//SWIFT_ACTIVE_COMPILATION_CONDITIONS     = DEV
+
+PRODUCT_BUNDLE_IDENTIFIER               = com.Goolbitg-iOS.dev
+
+// 전처리기 정의를 설정합니다. 여기서는 DEV 매크로를 1로 정의하고,
+// 이전 설정을 상속합니다. 이는 DEV 빌드에서 사용됩니다.
+GCC_PREPROCESSOR_DEFINITIONS            = DEV=1 $(inherited)
+KAKAO_URL_SCHEME                        = $(KAKAO_URL_DEV)
+
+DISPLAY_NAME                            = 굴비잇기_DEV
+

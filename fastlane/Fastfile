@@ -1,0 +1,68 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+require 'dotenv'
+Dotenv.overload('.env') if File.exist?('.env')
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+app_store_connect_api_key(
+  key_id: ENV.fetch("ASC_KEY_ID"),              		     # Apple Developer에서 발급받은 키 ID
+  issuer_id: ENV.fetch("ASC_ISSUER_ID"), # https://appstoreconnect.apple.com/access/integrations/api
+  key_filepath: ENV.fetch("ASC_KEY_FILEPATH")
+)
+
+platform :ios do
+  desc "Push a new beta build to TestFlight (Dev)"
+  lane :beta do
+    build_app(
+      scheme: "App_DEV",
+      xcargs: "-allowProvisioningUpdates",
+      export_xcargs: "-allowProvisioningUpdates"
+    )
+    upload_to_testflight(app_identifier: ENV.fetch("APP_IDENTIFIER_DEV"))
+  end
+
+  desc "Push a new beta build to TestFlight (Stage)"
+  lane :stage_beta do
+    begin
+      produce(
+        app_identifier: ENV.fetch("APP_IDENTIFIER_STAGE"),
+        app_name: ENV.fetch("APP_NAME_STAGE"),
+        language: "ko",
+        team_id: ENV.fetch("FASTLANE_TEAM_ID")
+      )
+    rescue => e
+      UI.message("produce skipped: #{e}")
+    end
+
+    build_app(
+      scheme: "App_Stage",
+      xcargs: "-allowProvisioningUpdates",
+      export_xcargs: "-allowProvisioningUpdates"
+    )
+    upload_to_testflight(app_identifier: ENV.fetch("APP_IDENTIFIER_STAGE"))
+  end
+
+  desc "Push a new beta build to TestFlight (App)"
+  lane :app_beta do
+    build_app(
+      scheme: "App",
+      xcargs: "-allowProvisioningUpdates",
+      export_xcargs: "-allowProvisioningUpdates"
+    )
+    upload_to_testflight(app_identifier: ENV.fetch("APP_IDENTIFIER_PROD"))
+  end
+end
