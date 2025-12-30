@@ -85,9 +85,11 @@ extension MyPageView {
                     .padding(.top, 6)
                     .padding(.horizontal, SpacingHelper.md.pixel)
                 
+                #if DEV
                 myConsumptionPatternSection
                     .padding(.top, 6)
                     .padding(.horizontal, SpacingHelper.md.pixel)
+                #endif
                 
                 accountSection
                     .padding(.horizontal, SpacingHelper.md.pixel)
