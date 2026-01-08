@@ -330,6 +330,19 @@ extension NetworkManager {
     
 }
 
+// MARK: Refresh
+extension NetworkManager {
+    @discardableResult
+    public func tryRefresh() async throws -> Bool {
+        guard let refreshToken = AuthTokenStorage.refreshToken else { return false }
+        let result = try await requestNetwork(dto: AccessTokenDTO.self, router: AuthRouter.refresh(refreshToken: refreshToken))
+        
+        AuthTokenStorage.accessToken = result.accessToken
+        AuthTokenStorage.refreshToken = result.refreshToken
+        return true
+    }
+}
+
 
 extension NetworkManager {
     public static let shared = NetworkManager()

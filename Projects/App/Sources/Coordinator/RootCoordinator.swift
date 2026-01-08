@@ -152,30 +152,23 @@ extension RootCoordinator {
                 }
                 
             case .onAppearFromBackground:
-                if !UserDefaultsManager.accessToken.isEmpty && !UserDefaultsManager.refreshToken.isEmpty {
-
+                if UserDefaultsManager.rootLoginUser {
                     return .run { send in
 #if DEV
-                        if UserDefaultsManager.rootLoginUser {
-                            await RootLoginManager.login()
-                        }
-#else
-                        let result = try await networkManager.requestNetworkWithRefresh(
-                            dto: AccessTokenDTO.self,
-                            router: AuthRouter.refresh(
-                                refreshToken: UserDefaultsManager.refreshToken
-                            )
-                        )
-                        UserDefaultsManager.accessToken = result.accessToken
-                        UserDefaultsManager.refreshToken = result.refreshToken
+                        await RootLoginManager.login()
 #endif
-                    } catch: { error, send in
-                        guard let error = error as? RouterError else {
-                            await send(.getRouterError(.unknown(errorCode: "9999")))
-                            return
-                        }
-                        await send(.getRouterError(error))
                     }
+                }
+                
+                return .run { send in
+                    try await networkManager.tryRefresh()
+                    
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        await send(.getRouterError(.unknown(errorCode: "9999")))
+                        return
+                    }
+                    await send(.getRouterError(error))
                 }
                 
             case .showMoveToAppStore:
