@@ -63,7 +63,8 @@ extension Settings {
                 .debug,
                 .release,
                 .dev,
-                .stage
+                .stage,
+                .live
             ]
         )
     }
@@ -82,7 +83,8 @@ extension Settings {
                 .debug,
                 .release,
                 .dev,
-                .stage
+                .stage,
+                .live
             ]
         )
     }
@@ -98,7 +100,8 @@ extension Settings {
                 .debug,
                 .release,
                 .dev,
-                .stage
+                .stage,
+                .live
             ]
 
         )
@@ -123,7 +126,7 @@ extension Scheme {
                     profileAction: .profileAction(configuration: .dev),
                     analyzeAction: .analyzeAction(configuration: .dev)
                 ),
-                .scheme(
+                .scheme( // Stage
                     name: name + "_Stage",
                     shared: true,
                     hidden: false,
@@ -132,6 +135,16 @@ extension Scheme {
                     archiveAction: .archiveAction(configuration: .stage),
                     profileAction: .profileAction(configuration: .stage),
                     analyzeAction: .analyzeAction(configuration: .stage)
+                ),
+                .scheme( // Live
+                    name: name + "_Live",
+                    shared: true,
+                    hidden: false,
+                    buildAction: .buildAction(targets: targets),
+                    runAction: .runAction(configuration: .live),
+                    archiveAction: .archiveAction(configuration: .live),
+                    profileAction: .profileAction(configuration: .live),
+                    analyzeAction: .analyzeAction(configuration: .live)
                 )
             ]
         }
@@ -157,4 +170,3 @@ extension Configuration {
     public static let stage: Self = .debug(name: .stage, xcconfig: .xcconfigPath(SchemeMode.stage.schemeName))
     public static let live: Self = .release(name: .live, xcconfig: .xcconfigPath(SchemeMode.live.schemeName))
 }
-

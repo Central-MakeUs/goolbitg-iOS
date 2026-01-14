@@ -59,7 +59,7 @@ platform :ios do
   desc "Push a new beta build to TestFlight (App)"
   lane :app_beta do
     build_app(
-      scheme: "App",
+      scheme: "App_Live",
       xcargs: "-allowProvisioningUpdates",
       export_xcargs: "-allowProvisioningUpdates"
     )
