@@ -96,8 +96,9 @@ extension MyPageViewFeature {
             case .featureEvent(.requestLogOut):
                 return .run { send in
                     try await networkManager.requestNotDtoNetwork(router: AuthRouter.logOut, ifRefreshNeed: true)
-                    UserDefaultsManager.accessToken = ""
-                    UserDefaultsManager.refreshToken = ""
+                    
+                    UserDefaultsManager.resetUser()
+                    
                     await send(.delegate(.logOutEvent))
                 } catch: { error, send in
                     guard let error = error as? RouterError else {

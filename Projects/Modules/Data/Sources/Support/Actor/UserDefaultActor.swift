@@ -41,9 +41,11 @@ public final actor UserDefaultsManager {
     @UserDefaultsWrapper(key: Key.deviceToken.value, placeValue: "")
     public static var deviceToken: String
     
+    @available(*, deprecated, renamed: "KeyChainManager", message: "use KeyChainManager")
     @UserDefaultsWrapper(key: Key.accessToken.value, placeValue: "")
     public static var accessToken: String
     
+    @available(*, deprecated, renamed: "KeyChainManager", message: "use KeyChainManager")
     @UserDefaultsWrapper(key: Key.refreshToken.value, placeValue: "")
     public static var refreshToken: String
     
@@ -82,8 +84,9 @@ extension UserDefaultsManager {
     
     public static func resetUser() {
         UserDefaultsManager.userNickname = ""
-        UserDefaultsManager.accessToken = ""
-        UserDefaultsManager.refreshToken = ""
+//        UserDefaultsManager.accessToken = ""
+//        UserDefaultsManager.refreshToken = ""
+        AuthTokenStorage.clearAll()
         UserDefaultsManager.ifAppleLoginUser = false
     }
 }

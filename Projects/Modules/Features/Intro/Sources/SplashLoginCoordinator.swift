@@ -86,10 +86,7 @@ extension SplashLoginCoordinator {
             case .checkToRefresh:
                 return .run { send in
                     
-                    let result = try await networkManager.requestNetwork(dto: AccessTokenDTO.self, router: AuthRouter.refresh(refreshToken: UserDefaultsManager.refreshToken))
-                    
-                    UserDefaultsManager.accessToken = result.accessToken
-                    UserDefaultsManager.refreshToken = result.refreshToken
+                    try await networkManager.tryRefresh()
                     
                     // MARK: 로그인 되면 이동시켜 줘야함
                     await send(.checkUserState)
@@ -201,7 +198,7 @@ extension SplashLoginCoordinator {
     /// 로그인 체크
     private func checkLoginState(_ state: inout State) -> EffectOf<Self> {
         // MARK: 로그인 여부 확인 하고 어딜갈지 정해야함
-        if UserDefaultsManager.accessToken != "" {
+        if AuthTokenStorage.accessToken != nil {
             // accessToken 이 존재한다면 재 갱신 시도
             return .send(.checkToRefresh)
         } else {
@@ -214,7 +211,7 @@ extension SplashLoginCoordinator {
     /// - Returns: true 일때 권한 요청 페이지 false 면 딥링크 따라 바로
     private func checkAuthState() async -> Bool {
         if UserDefaultsManager.firstDevice {
-            let album = albumAuthManager.currentAlbumPermission() == .noOnce
+            let _ = albumAuthManager.currentAlbumPermission() == .noOnce
             let noti = await pushNotiManager.getNotificationCurrentSetting() == .noOnce
             
             if /*album ||*/ noti {

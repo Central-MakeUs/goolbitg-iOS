@@ -258,7 +258,9 @@ extension LoginViewFeature {
     }
     
     private func saveToken(access: String, refresh: String) {
-        UserDefaultsManager.accessToken = access
-        UserDefaultsManager.refreshToken = refresh
+        AuthTokenStorage.accessToken = access
+        AuthTokenStorage.refreshToken = refresh
+//        UserDefaultsManager.accessToken = access
+//        UserDefaultsManager.refreshToken = refresh
     }
 }

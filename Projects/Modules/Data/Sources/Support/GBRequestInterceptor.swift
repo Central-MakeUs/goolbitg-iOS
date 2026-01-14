@@ -12,14 +12,19 @@ final class GBRequestInterceptor: RequestInterceptor {
 
     private let maxRetryCountPerRequest = 5
 
-    private let isRefreshing = LockIsRefreshing()
-    
+    private static let refreshCoordinator = RefreshCoordinator()
+
     private let retryDelay: TimeInterval = 1.0
 
     func adapt(_ urlRequest: URLRequest, for session: Session,
                completion: @escaping (Result<URLRequest, Error>) -> Void) {
         var req = urlRequest
-        req.headers.add(.authorization(bearerToken: UserDefaultsManager.accessToken))
+        
+        guard let accessToken = AuthTokenStorage.accessToken else {
+            completion(.failure(RouterError.refreshFailGoRoot))
+            return
+        }
+        req.headers.add(.authorization(bearerToken: accessToken))
         completion(.success(req))
     }
 
@@ -55,11 +60,11 @@ final class GBRequestInterceptor: RequestInterceptor {
         // 401 --> 만료 처리
         if statusCode == 401 || APIErrorEntity(rawValue: statusCode) == .tokenExpiration {
             // 리프레시 토큰 없으면 재시도 X
-            guard !UserDefaultsManager.refreshToken.isEmpty else {
+            guard let refreshToken = AuthTokenStorage.refreshToken else {
                 completion(.doNotRetry); return
             }
 
-            tryForRetry(completion: completion)
+            tryForRetry(refreshToken: refreshToken, completion: completion)
             
             return
         }
@@ -68,9 +73,9 @@ final class GBRequestInterceptor: RequestInterceptor {
         completion(.doNotRetry); return
     }
     
-    private func tryForRetry(completion: @escaping @Sendable (RetryResult) -> Void) {
+    private func tryForRetry(refreshToken: String ,completion: @escaping @Sendable (RetryResult) -> Void) {
         // DEBUG 특수 케이스
-        if UserDefaultsManager.refreshToken == "root_user_refresh_token" {
+        if UserDefaultsManager.rootLoginUser {
             Task {
                 await RootLoginManager.login()
                 completion(.retry) // 새 토큰으로 재시도
@@ -79,7 +84,7 @@ final class GBRequestInterceptor: RequestInterceptor {
         }
 
         Task {
-            let refreshed = await refreshIfNeeded()
+            let refreshed = await refreshIfNeeded(refreshToken: refreshToken)
 
             if refreshed {
                 completion(.retryWithDelay(retryDelay)); return
@@ -90,44 +95,33 @@ final class GBRequestInterceptor: RequestInterceptor {
 
     }
     
-    
-
     // MARK: - Refresh
-    private func refreshIfNeeded() async -> Bool {
-        if await isRefreshing.startIfNotRunning() == false {
-            try? await Task.sleep(nanoseconds: 300_000_000) // 0.3s
-            return !UserDefaultsManager.accessToken.isEmpty
+    private func refreshIfNeeded(refreshToken: String) async -> Bool {
+        await Self.refreshCoordinator.refresh {
+            if UserDefaultsManager.rootLoginUser {
+                return true
+            }
+            if let result = try? await  NetworkManager.shared.tryRefresh() {
+                return result
+            } else {
+                return false
+            }
         }
-        
-        defer { Task { await isRefreshing.finish() } }
-
-        // 실제 리프레시
-        if UserDefaultsManager.refreshToken == "root_user_refresh_token" {
-            return true
-        }
-
-        let result = try? await NetworkManager.shared.requestNetwork(
-            dto: AccessTokenDTO.self,
-            router: AuthRouter.refresh(refreshToken: UserDefaultsManager.refreshToken)
-        )
-
-        guard let dto = result else { return false }
-        UserDefaultsManager.accessToken = dto.accessToken
-        UserDefaultsManager.refreshToken = dto.refreshToken
-        return true
     }
 }
 
-/// 단순 동기화 유틸
-actor LockIsRefreshing {
-    
-    private var running = false
-    
-    func startIfNotRunning() -> Bool {
-        if running { return false }
-        running = true
-        return true
+private actor RefreshCoordinator {
+    private var task: Task<Bool, Never>?
+
+    func refresh(_ work: @escaping @Sendable () async -> Bool) async -> Bool {
+        if let task { // 선요청 있을시 대기
+            return await task.value
+        }
+
+        let task = Task { await work() }
+        self.task = task
+        let result = await task.value
+        self.task = nil
+        return result
     }
-    
-    func finish() { running = false }
 }
