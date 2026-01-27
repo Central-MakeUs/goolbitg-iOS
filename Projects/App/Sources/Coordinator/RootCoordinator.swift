@@ -89,12 +89,14 @@ extension RootCoordinator {
                     state.onAppear = false
                     
                     return .run { send in
+                        #if RELEASE
                         if let appResult = await appVersionManager.checkBuildVersionUpdate() {
                             if appResult {
                                 await send(.showMoveToAppStore)
                                 return
                             }
                         }
+                        #endif
                         for await error in networkManager.getNetworkError() {
                             await send(.getRouterError(error))
                         }
