@@ -105,3 +105,9 @@ iOSInjectionProject/
 # End of https://www.toptal.com/developers/gitignore/api/swift
 
 .env
+
+# Agent skills artifacts
+/.agents/
+/.claude/
+/skills/
+/skills-lock.json
