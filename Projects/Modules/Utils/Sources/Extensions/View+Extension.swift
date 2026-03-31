@@ -122,12 +122,18 @@ public extension View {
         }
     }
     
+    @ViewBuilder
     func skeletonEffect(
+        isActive: Bool = true,
         animation: Animation = ShimmerAnimation.defaultAnimation,
         gradient: Gradient = ShimmerAnimation.defaultGradient,
         bandSize: CGFloat = 0.3
     ) -> some View {
-        self.modifier(SkeletonModifier(animation: animation, bandSize: bandSize, gradient: gradient))
+        if isActive {
+            self.modifier(SkeletonModifier(animation: animation, bandSize: bandSize, gradient: gradient))
+        } else {
+            self
+        }
     }
 }
 
