@@ -16,8 +16,22 @@ struct ResetRowStyle: ViewModifier {
     }
 }
 
+struct ResetListStyle: ViewModifier {
+
+    func body(content: Content) -> some View {
+        content
+            .listStyle(.plain)
+            .environment(\.defaultMinListRowHeight, 0)
+            .scrollContentBackground(.hidden)
+    }
+}
+
 extension View {
     public func resetRowStyle() -> some View {
         self.modifier(ResetRowStyle())
+    }
+    
+    public func resetListStyle() -> some View {
+        self.modifier(ResetListStyle())
     }
 }

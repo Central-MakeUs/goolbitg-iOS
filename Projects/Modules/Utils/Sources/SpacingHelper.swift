@@ -8,11 +8,17 @@
 import Foundation
 
 public enum SpacingHelper {
+    /// 4
     case xs
+    /// 8
     case sm
+    /// 16
     case md
+    /// 24
     case lg
+    /// 40
     case xl
+    /// 80
     case xxl
     
     public var pixel: CGFloat {

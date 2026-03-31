@@ -14,6 +14,7 @@ public struct DisablePasteTextFieldConfiguration {
     public let edge: UIEdgeInsets
     public let keyboardType: UIKeyboardType
     public var isSecureTextEntry: Bool = false
+    public var isPasteDisabled: Bool = true
     public var ifLeadingEdge: CGFloat?
     public var items: [KeyboardItem]
     
@@ -24,6 +25,7 @@ public struct DisablePasteTextFieldConfiguration {
         edge: UIEdgeInsets,
         keyboardType: UIKeyboardType,
         isSecureTextEntry: Bool,
+        isPasteDisabled: Bool = true,
         ifLeadingEdge: CGFloat? = nil,
         items: [KeyboardItem] = []
     ) {
@@ -33,6 +35,7 @@ public struct DisablePasteTextFieldConfiguration {
         self.edge = edge
         self.keyboardType = keyboardType
         self.isSecureTextEntry = isSecureTextEntry
+        self.isPasteDisabled = isPasteDisabled
         self.ifLeadingEdge = ifLeadingEdge
         self.items = items
     }
@@ -51,6 +54,7 @@ public struct DisablePasteTextField: View {
     public let edge: UIEdgeInsets
     public let keyboardType: UIKeyboardType
     public var isSecureTextEntry: Bool = false
+    public var isPasteDisabled: Bool = true
     public var ifLeadingEdge: CGFloat?
     public let onCommit: (() -> Void)?
     public var textColor: Color = .white
@@ -62,6 +66,7 @@ public struct DisablePasteTextField: View {
         placeholder: String,
         placeholderColor: Color,
         isSecureTextEntry: Bool = false,
+        isPasteDisabled: Bool = true,
         edge: UIEdgeInsets,
         keyboardType: UIKeyboardType,
         ifLeadingEdge: CGFloat? = nil,
@@ -76,6 +81,7 @@ public struct DisablePasteTextField: View {
         self.keyboardType = keyboardType
         self.ifLeadingEdge = ifLeadingEdge
         self.isSecureTextEntry = isSecureTextEntry
+        self.isPasteDisabled = isPasteDisabled
         self.onCommit = onCommit
         self.items = items
     }
@@ -94,6 +100,7 @@ public struct DisablePasteTextField: View {
         self.keyboardType = configuration.keyboardType
         self.ifLeadingEdge = configuration.ifLeadingEdge
         self.isSecureTextEntry = configuration.isSecureTextEntry
+        self.isPasteDisabled = configuration.isPasteDisabled
         self.textColor = configuration.textColor
         self.items = configuration.items
         self.onCommit = onCommit
@@ -107,6 +114,7 @@ public struct DisablePasteTextField: View {
                 isFocused: isFocused,
                 keyboardType: keyboardType,
                 isSecureTextEntry: isSecureTextEntry,
+                isPasteDisabled: isPasteDisabled,
                 items: items,
                 onCommit: onCommit
             )
@@ -134,6 +142,7 @@ public struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
     public var isFocused: Binding<Bool>?
     public let keyboardType: UIKeyboardType
     public let isSecureTextEntry: Bool
+    public let isPasteDisabled: Bool
     public var items: [KeyboardItem]
     public let onCommit: (() -> Void)?
     
@@ -144,6 +153,7 @@ public struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
         textField.delegate = context.coordinator
         textField.keyboardType = keyboardType
         textField.isSecureTextEntry = isSecureTextEntry
+        textField.isPasteDisabled = isPasteDisabled
         textField.autocorrectionType = .no // 자동 수정 활성화 여부
         textField.autocapitalizationType = .none // 자동 대문자 활성화 여부
         textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldTapped), for: .editingDidBegin)
@@ -238,8 +248,10 @@ public struct DisablePasteTextFieldPrepresentable: UIViewRepresentable {
 
 // Custom TextField with disabling paste action
 public class ProtectedTextField: UITextField {
+    public var isPasteDisabled: Bool = true
+    
     public override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
-        if action == #selector(paste(_:)) {
+        if isPasteDisabled, action == #selector(paste(_:)) {
             return false
         }
         return super.canPerformAction(action, withSender: sender)

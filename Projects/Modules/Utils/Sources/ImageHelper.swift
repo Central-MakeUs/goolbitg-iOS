@@ -95,6 +95,7 @@ public enum ImageHelper {
     case badGreen
     
     case chartArrow
+    case paperPlane
     
     public var image: UIImage {
         switch self {
@@ -295,6 +296,9 @@ public enum ImageHelper {
             
         case .chartArrow:
             return UtilsAsset.chartArrow.image
+            
+        case .paperPlane:
+            return UtilsAsset.paperPlane.image
         }
     }
     

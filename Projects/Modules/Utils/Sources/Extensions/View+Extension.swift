@@ -313,3 +313,13 @@ public extension View {
     }
 }
 
+// MARK: Width, HeightBox
+public extension Int {
+    var widthBox: some View {
+        return Color.clear.frame(width: CGFloat(self), height: 0)
+    }
+    
+    var heightBox: some View {
+        return Color.clear.frame(width: 0, height: CGFloat(self))
+    }
+}

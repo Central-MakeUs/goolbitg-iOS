@@ -76,6 +76,7 @@ public enum UtilsAsset: Sendable {
   public static let miniUnLikeHand = UtilsImages(name: "miniUnLikeHand")
   public static let myBg = UtilsImages(name: "myBg")
   public static let myPage = UtilsImages(name: "myPage")
+  public static let paperPlane = UtilsImages(name: "paperPlane")
   public static let pencilImg = UtilsImages(name: "pencilImg")
   public static let plusLogo = UtilsImages(name: "plusLogo")
   public static let rightCh = UtilsImages(name: "rightCh")
