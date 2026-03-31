@@ -25,7 +25,6 @@ struct ChattingView: View {
                     .padding(.vertical, .md)
                 
                 productSection(isLoading: false)
-                    .padding(.bottom, 20)
                 
                 listSection
                     .resetListStyle()
@@ -42,17 +41,13 @@ struct ChattingView: View {
     
     private var listSection: some View {
         List {
-            if store.isPaging {
-                ProgressView()
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, .sm)
-                    .resetRowStyle()
-                    .listRowBackground(Color.clear)
-            }
-            
             let renderingItems = store.isInitialLoading
                 ? ChattingViewFeature.buildListItems(from: ChattingViewFeature.loadingPlaceholderMessages)
                 : store.listItems
+            
+            20.heightBox
+                .resetRowStyle()
+                .listRowBackground(Color.clear)
             
             ForEach(Array(renderingItems.enumerated()), id: \.element.id) { index, item in
                 switch item {
