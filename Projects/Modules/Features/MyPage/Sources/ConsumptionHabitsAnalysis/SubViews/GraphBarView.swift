@@ -21,7 +21,7 @@ struct GraphBarView: View {
     
     init(count: Int = 0, percentage: CGFloat, style: GraphBarStyle, topTextIgnored: Bool = false) {
         self.count = count
-        self.percentage = percentage
+        self.percentage = percentage.isFinite ? min(max(percentage, 0), 1) : 0
         self.style = style
         self.topTextIgnored = topTextIgnored
     }
@@ -62,10 +62,14 @@ extension GraphBarView {
         .onAppear {
             animatePercentage = percentage
         }
+        .onChange(of: percentage) { newValue in
+            animatePercentage = newValue
+        }
     }
     
     private func calcHeight(proxy: GeometryProxy) -> CGFloat {
-        max(proxy.size.height * CGFloat(animatePercentage) - textHeight, 0)
+        let safePercentage = animatePercentage.isFinite ? min(max(animatePercentage, 0), 1) : 0
+        return max(proxy.size.height * safePercentage - textHeight, 0)
     }
     
     private var getTextColor: Color {
@@ -92,10 +96,8 @@ extension GraphBarView {
                         endPoint: .bottom
                     )
                 )
-                .frame(
-                    width: .infinity,
-                    height: calcHeight(proxy: proxy)
-                )
+                .frame(maxWidth: .infinity)
+                .frame(height: calcHeight(proxy: proxy))
                 .cornerRadiusCorners(proxy.size.width / 2, corners: [.topLeft, .topRight])
                
         case .mainColor:
@@ -110,10 +112,8 @@ extension GraphBarView {
                         endPoint: .bottom
                     )
                 )
-                .frame(
-                    width: .infinity,
-                    height: calcHeight(proxy: proxy)
-                )
+                .frame(maxWidth: .infinity)
+                .frame(height: calcHeight(proxy: proxy))
                 .cornerRadiusCorners(proxy.size.width / 2, corners: [.topLeft, .topRight])
                     
         case .dotStyleForRecommend:
@@ -129,10 +129,8 @@ extension GraphBarView {
                         endPoint: .bottom
                     )
                 )
-                .frame(
-                    width: .infinity,
-                    height: calcHeight(proxy: proxy)
-                )
+                .frame(maxWidth: .infinity)
+                .frame(height: calcHeight(proxy: proxy))
         }
         
     }
@@ -144,7 +142,7 @@ import Data
 #Preview {
     VStack {
         RecentChallengeWeeklyComparisonGraphView(
-            difference: 3,
+            message: "지난주보다 3개의 챌린지를 더 완료했어요!",
             maxCount: 10,
             monthDataList: RecentChallengeWeeklyEntity.mocks
         )

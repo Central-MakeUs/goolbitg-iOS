@@ -75,6 +75,7 @@ public enum ImageHelper {
     case buyOrNotAdd
     case miniLikeHand
     case miniUnlikeHand
+    case arrowUpSm
     
     // MARK: Push Alert Part
     case pushNull
@@ -299,6 +300,9 @@ public enum ImageHelper {
             
         case .paperPlane:
             return UtilsAsset.paperPlane.image
+            
+        case .arrowUpSm:
+            return UtilsAsset.arrowUpSm.image
         }
     }
     

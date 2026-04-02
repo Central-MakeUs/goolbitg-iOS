@@ -39,7 +39,7 @@ extension CategoryComparisonSectionView {
             }
             
             HStack {
-                Text("\(categoryInfo.topCategory) 카테고리를 가장 많이 성공했어요!")
+                Text(categoryInfo.message)
                     .font(FontHelper.body2.font)
                     .foregroundStyle(GBColor.white.asColor)
                 Spacer()
@@ -57,6 +57,7 @@ extension CategoryComparisonSectionView {
 #Preview {
     CategoryComparisonSectionView(
         categoryInfo: CategoryCompareEntity(
+            message: "기타 카테고리를 가장 많이 성공했어요!",
             topCategory: "기타",
             allCategories: [
                 .init(name: "식비", currentValue: 3, maxValue: 6),

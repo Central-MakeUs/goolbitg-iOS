@@ -16,7 +16,7 @@ public enum MyPageScreen {
     case home(MyPageViewFeature)
     case revokePage(RevokeFeature)
     case pushList(PushListViewFeature)
-    
+    case pushHabitChart(HabitChartsFeature)
 }
 
 extension MyPageScreen.State: Hashable {}
@@ -64,8 +64,10 @@ extension MyPageTabCoordinator {
                 
             case .router(.routeAction(id: .home, action: .home(.delegate(.pushButtonTapped)))):
                 state.routes.presentCover(.pushList(PushListViewFeature.State()))
-                
-                //            case .router(.routeAction(id: .home, action: .home(.delegate(.habitChartMoveTapped)))):
+            
+            // MARK: 나의 소비 습관
+            case .router(.routeAction(id: .home, action: .home(.delegate(.habitChartMoveTapped)))):
+                state.routes.push(.pushHabitChart(HabitChartsFeature.State()))
             default:
                 break
             }

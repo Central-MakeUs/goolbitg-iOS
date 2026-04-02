@@ -111,3 +111,6 @@ iOSInjectionProject/
 /.claude/
 /skills/
 /skills-lock.json
+
+# Local generated dependency graph image
+/graph.png

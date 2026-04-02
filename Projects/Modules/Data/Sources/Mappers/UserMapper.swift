@@ -92,6 +92,69 @@ public final class UserMapper: Sendable {
             userTypeImageUrl: model.spendingType.profileUrl
         )
     }
+
+    public func habitChartsAnalysisMapping(model: AnalysisAllDTO) -> HabitChartsAnalysisEntity {
+        let summary = model.summary
+        let completion = model.completionAnalysis
+        let category = model.categoryAnalysis
+        let indvGroup = model.indvGroupAnalysis
+        let buyOrNot = model.buyOrNotAnalysis
+
+        let userHabitInfo = UserHabitInfoEntity(
+            userName: summary.username,
+            userType: summary.spendingType,
+            upperPercent: summary.percantage,
+            imageURL: summary.imageUrl
+        )
+
+        let previousCount = max(completion.prev, 0)
+        let currentCount = max(completion.current, 0)
+        let recommendationCount = max(completion.recommandation, 0)
+
+        let recentMaxCount = max(previousCount, currentCount, recommendationCount, 1)
+        let recentMonthlyData: [RecentChallengeWeeklyEntity] = [
+            .init(title: "지난주", count: previousCount, isRecommend: false, barStyle: .grey),
+            .init(title: "이번주", count: currentCount, isRecommend: false, barStyle: .mainColor),
+            .init(title: "다음주", count: recommendationCount, isRecommend: true, barStyle: .dotStyleForRecommend)
+        ]
+
+        let categoryInfos = category.scores.map {
+            CategoryInfo(
+                name: $0.catName,
+                currentValue: Double(max($0.success, 0)),
+                maxValue: Double(max($0.total, 1))
+            )
+        }
+        let topCategory = category.scores.max(by: { $0.success < $1.success })?.catName ?? "기타"
+        let categoryInfo = CategoryCompareEntity(message: category.message, topCategory: topCategory, allCategories: categoryInfos)
+
+        let individualSuccessRate = indvGroup.indvScore
+        let groupSuccessRate = indvGroup.groupScore
+        
+
+        let buyScore = max(buyOrNot.buyScore, 0)
+        let notScore = max(buyOrNot.notScore, 0)
+        let totalScore = max(buyScore + notScore, 1)
+        let buyRate = (buyScore / totalScore) * 100
+        let notRate = (notScore / totalScore) * 100
+        let buyOrNotDatas: [BuyOrNotChartDataEntity] = [
+            .init(goodOrBad: true, rate: buyRate),
+            .init(goodOrBad: false, rate: notRate)
+        ]
+
+        return HabitChartsAnalysisEntity(
+            userHabitInfo: userHabitInfo,
+            recentMessage: completion.message,
+            recentMaxCount: recentMaxCount,
+            recentMonthlyData: recentMonthlyData,
+            categoryInfo: categoryInfo,
+            individualSuccessRate: individualSuccessRate,
+            groupSuccessRate: groupSuccessRate,
+            individualGroupMessage: indvGroup.message,
+            buyOrNotMessage: buyOrNot.message,
+            buyOrNotDatas: buyOrNotDatas
+        )
+    }
 }
 
 extension UserMapper {
@@ -148,4 +211,3 @@ extension DependencyValues {
         set { self[UserMapper.self] = newValue }
     }
 }
-

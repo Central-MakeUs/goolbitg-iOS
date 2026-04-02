@@ -11,7 +11,7 @@ import Data
 
 struct RecentChallengeWeeklyComparisonGraphView: View {
     
-    let difference: Int
+    let message: String
     let maxCount: Int
     let monthDataList: [RecentChallengeWeeklyEntity]
     
@@ -40,7 +40,7 @@ extension RecentChallengeWeeklyComparisonGraphView {
             }
             
             HStack {
-                Text(getTopTextMessage(difference: difference))
+                Text(message)
                     .font(FontHelper.body2.font)
                     .foregroundStyle(GBColor.grey100.asColor)
                 Spacer()
@@ -65,10 +65,17 @@ extension RecentChallengeWeeklyComparisonGraphView {
     }
     
     private func makeGraphBody(data: RecentChallengeWeeklyEntity) -> some View {
-        VStack(spacing: 0) {
+        let normalizedPercentage: CGFloat
+        if maxCount > 0 {
+            normalizedPercentage = min(max(CGFloat(data.count) / CGFloat(maxCount), 0), 1)
+        } else {
+            normalizedPercentage = 0
+        }
+
+        return VStack(spacing: 0) {
             GraphBarView(
                 count: data.count,
-                percentage: CGFloat(data.count) / CGFloat(maxCount),
+                percentage: normalizedPercentage,
                 style: data.barStyle
             )
             
@@ -78,17 +85,6 @@ extension RecentChallengeWeeklyComparisonGraphView {
         }
     }
     
-    private func getTopTextMessage(difference: Int) -> String {
-        var text: String = ""
-        
-        if difference == 0 {
-            text = "지금 이대로 유지해도 좋아요!"
-        } else {
-            text = "지난부보다 \(abs(difference))개의 챌린지를 \(difference > 0 ? "더" : "덜") 완료했어요!"
-        }
-        return text
-    }
-
 }
 
 #if DEBUG
@@ -101,7 +97,7 @@ extension RecentChallengeWeeklyComparisonGraphView {
     })
     VStack {
         RecentChallengeWeeklyComparisonGraphView(
-            difference: (min?.count ?? 0) - (max?.count ?? 0),
+            message: "지금 이대로 유지해도 좋아요!",
             maxCount: max?.count ?? 0,
             monthDataList: RecentChallengeWeeklyEntity.mocks
         )

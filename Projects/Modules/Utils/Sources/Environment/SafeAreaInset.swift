@@ -10,7 +10,12 @@ import SwiftUI
 @MainActor
 private struct SafeAreaInsetsKey: @preconcurrency EnvironmentKey {
     static var defaultValue: EdgeInsets {
-        UIApplication.shared.keyWindow?.safeAreaInsets.swiftUiInsets ?? EdgeInsets()
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.windows
+            .first(where: { $0.isKeyWindow })?
+            .safeAreaInsets
+            .swiftUiInsets ?? EdgeInsets()
     }
 }
 

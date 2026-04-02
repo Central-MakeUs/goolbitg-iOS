@@ -9,10 +9,12 @@ import Foundation
 import Domain
 
 public struct CategoryCompareEntity: Entity {
+    public let message: String
     public let topCategory: String
     public let allCategories: [CategoryInfo]
     
-    public init(topCategory: String, allCategories: [CategoryInfo]) {
+    public init(message: String, topCategory: String, allCategories: [CategoryInfo]) {
+        self.message = message
         self.topCategory = topCategory
         self.allCategories = allCategories
     }

@@ -35,6 +35,12 @@ extension MyPageViewCoordinatorView {
                 RevokeReasonView(store: store)
                     .navigationBarBackButtonHidden()
                     .disableBackGesture(false)
+            
+            // MARK: 소비 습관 분석
+            case let .pushHabitChart(store):
+                HabitChartsView(store: store)
+                    .navigationBarBackButtonHidden()
+                    .disableBackGesture(false)
                 
             case let .pushList(store):
                 PushListView(store: store)
@@ -54,6 +60,8 @@ extension MyPageScreen.State: Identifiable {
             return .revokePage
         case .pushList:
             return .pushList
+        case .pushHabitChart:
+            return .pushHabitChart
         }
     }
     
@@ -61,6 +69,7 @@ extension MyPageScreen.State: Identifiable {
         case home
         case revokePage
         case pushList
+        case pushHabitChart
         
         public var id: ID {
             return self

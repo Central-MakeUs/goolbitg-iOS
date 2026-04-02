@@ -20,6 +20,7 @@
 public enum UtilsAsset: Sendable {
   public static let accentColor = UtilsColors(name: "AccentColor")
   public static let appleLogo = UtilsImages(name: "Apple_Logo")
+  public static let arrowUpSm = UtilsImages(name: "ArrowUpSm")
   public static let bad = UtilsImages(name: "Bad")
   public static let badGreen = UtilsImages(name: "BadGreen")
   public static let cameraLogoV2 = UtilsImages(name: "CameraLogoV2")

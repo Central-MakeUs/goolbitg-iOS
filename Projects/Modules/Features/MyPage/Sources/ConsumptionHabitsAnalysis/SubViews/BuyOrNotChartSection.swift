@@ -18,23 +18,18 @@ struct BuyOrNotChartSection: View {
     private let badData: BuyOrNotChartDataEntity
     private let pieType: PieType
     
-    init(datas: [BuyOrNotChartDataEntity]) {
+    init(datas: [BuyOrNotChartDataEntity], message: String) {
         self.goodData = datas.filter { $0.goodOrBad == true }.first ?? .init(goodOrBad: true, rate: 50)
         self.badData = datas.filter { $0.goodOrBad == false }.first ?? .init(goodOrBad: false, rate: 50)
         
-        let topText: String
         if goodData.rate == badData.rate {
-            topText = "의견이 반반이에요!"
             self.pieType = .draw
         } else {
             let bool = goodData.rate > badData.rate
-            let bestText = bool ? "살까" : "말까"
-            let betterRate = abs(goodData.rate - badData.rate)
-            topText = "\(bestText)가 \(Int(betterRate))% 더 많아요"
             self.pieType = bool ? .buy : .not
         }
         
-        self.topText = topText
+        self.topText = message
         self.datas = datas
     }
     
@@ -159,7 +154,7 @@ extension BuyOrNotChartSection {
     BuyOrNotChartSection(datas: [
         .init(goodOrBad: true, rate: 50),
         .init(goodOrBad: false, rate: 050)
-    ])
+    ], message: "살까가 0% 더 많아요")
     .background(GBColor.background1.asColor)
 }
 #endif

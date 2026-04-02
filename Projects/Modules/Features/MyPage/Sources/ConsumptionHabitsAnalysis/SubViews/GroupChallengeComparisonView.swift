@@ -10,9 +10,9 @@ import Utils
 
 struct GroupChallengeComparisonView: View {
     
-    let individual: Double
-    let group: Double
-    let successRate: Double
+    let indvScore: Double
+    let groupScore: Double
+    let message: String
     
     var body: some View {
         content
@@ -38,7 +38,7 @@ extension GroupChallengeComparisonView {
             }
             
             HStack {
-                Text("함께할때 성공률이 \(Int(successRate))% \(individual > group ? "낮" : "높")아요!")
+                Text(message)
                     .font(FontHelper.body2.font)
                     .foregroundStyle(GBColor.grey100.asColor)
                 
@@ -52,7 +52,7 @@ extension GroupChallengeComparisonView {
             VStack(spacing: 0) {
                 GraphBarView(
                     count: 0,
-                    percentage: individual,
+                    percentage: indvScore,
                     style: .grey,
                     topTextIgnored: true
                 )
@@ -73,7 +73,7 @@ extension GroupChallengeComparisonView {
             VStack(spacing: 0) {
                 GraphBarView(
                     count: 0,
-                    percentage: group,
+                    percentage: groupScore,
                     style: .mainColor,
                     topTextIgnored: true
                 )
@@ -98,7 +98,7 @@ extension GroupChallengeComparisonView {
 
 #if DEBUG
 #Preview {
-    GroupChallengeComparisonView(individual: 0.3, group: 0.6, successRate: 40)
+    GroupChallengeComparisonView(indvScore: 0.33333334, groupScore: 0, message: "Asdad")
         .background(GBColor.background1.asColor)
 }
 #endif
