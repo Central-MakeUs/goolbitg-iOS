@@ -43,11 +43,11 @@ public struct DownImageView: View {
         var size: CGSize {
             return switch self {
             case .max:
-                CGSize(width: 500, height: 500)
+                CGSize(width: 900, height: 900)
             case .mid:
-                CGSize(width: 300, height: 300)
+                CGSize(width: 500, height: 500)
             case .min:
-                CGSize(width: 100, height: 100)
+                CGSize(width: 200, height: 200)
             case let .custom(size):
                 size
             }
@@ -106,7 +106,7 @@ public struct DownImageView: View {
                         KFImage(fallbackURL)
                             .resizable()
                     } else {
-                        Image(systemName: "photo")
+                        ImageHelper.pushNull.asImage
                             .resizable()
                             .foregroundStyle(.secondary)
                             .saturation(fallBackGrey ? 0 : 1)

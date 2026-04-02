@@ -8,6 +8,8 @@ struct HabitChartsView: View {
     @Perception.Bindable var store: StoreOf<HabitChartsFeature>
     @Environment(\.dismiss) var dismiss
     @Environment(\.safeAreaInsets) var safeAreaInsets
+    @State private var didAppearRecentChart: Bool = false
+    @State private var didAppearGroupChart: Bool = false
 
     var body: some View {
         WithPerceptionTracking {
@@ -31,21 +33,27 @@ extension HabitChartsView {
             ScrollViewReader { proxy in
                 WithPerceptionTracking {
                     ScrollView {
-                        VStack(alignment: .leading, spacing: 0) {
+                        LazyVStack(alignment: .leading, spacing: 0) {
                             
                             SpacingHelper.md.pixel.heightBox
                                 .id("habitChartsTop")
                             
                             topSectionView
                                 .padding(.horizontal, .md)
+                                .frame(minHeight: 220, alignment: .top)
                             
                             moreHabitSection
                                 .padding(.horizontal, SpacingHelper.md.pixel)
                                 .padding(.top, SpacingHelper.md.pixel)
+                                .frame(minHeight: 320, alignment: .top)
+                                .onAppear {
+                                    didAppearRecentChart = true
+                                }
 
                             CategoryComparisonSectionView(categoryInfo: store.categoryInfo)
                                 .padding(.horizontal, SpacingHelper.md.pixel)
                                 .padding(.top, SpacingHelper.md.pixel)
+                                .frame(minHeight: 300, alignment: .top)
                                 .overlay {
                                     RoundedRectangle(cornerRadius: SpacingHelper.sm.pixel)
                                         .stroke(GBColor.grey600.asColor, lineWidth: 1)
@@ -56,8 +64,10 @@ extension HabitChartsView {
                             GroupChallengeComparisonView(
                                 indvScore: store.individualSuccessRate,
                                 groupScore: store.groupSuccessRate,
-                                message: store.individualGroupMessage
+                                message: store.individualGroupMessage,
+                                shouldAnimateBars: didAppearGroupChart
                             )
+                            .frame(minHeight: 260, alignment: .top)
                             .padding(.horizontal, SpacingHelper.md.pixel)
                             .padding(.vertical, SpacingHelper.md.pixel)
                             .overlay {
@@ -66,8 +76,12 @@ extension HabitChartsView {
                             }
                             .padding(.horizontal, SpacingHelper.md.pixel)
                             .padding(.top, SpacingHelper.md.pixel)
+                            .onAppear {
+                                didAppearGroupChart = true
+                            }
 
                             BuyOrNotChartSection(datas: store.buyOrNotDatas, message: store.buyOrNotMessage)
+                                .frame(minHeight: 260, alignment: .top)
                                 .overlay {
                                     RoundedRectangle(cornerRadius: SpacingHelper.sm.pixel)
                                         .stroke(GBColor.grey600.asColor, lineWidth: 1)
@@ -153,7 +167,8 @@ extension HabitChartsView {
             RecentChallengeWeeklyComparisonGraphView(
                 message: store.recentMessage,
                 maxCount: max(store.recentMaxCount, 1),
-                monthDataList: store.recentMonthlyData
+                monthDataList: store.recentMonthlyData,
+                shouldAnimateBars: didAppearRecentChart
             )
             .overlay {
                 RoundedRectangle(cornerRadius: SpacingHelper.sm.pixel)

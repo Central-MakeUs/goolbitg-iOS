@@ -27,10 +27,26 @@ app_store_connect_api_key(
 platform :ios do
   desc "Push a new beta build to TestFlight (Dev)"
   lane :beta do
+    appstore_profile_dev = ENV["APPSTORE_PROFILE_DEV"]
+    export_options = if appstore_profile_dev.to_s.empty?
+      {
+        signingStyle: "automatic"
+      }
+    else
+      {
+        signingStyle: "manual",
+        provisioningProfiles: {
+          ENV.fetch("APP_IDENTIFIER_DEV") => appstore_profile_dev
+        }
+      }
+    end
+
     build_app(
       scheme: "App_DEV",
       xcargs: "-allowProvisioningUpdates",
-      export_xcargs: "-allowProvisioningUpdates"
+      export_xcargs: "-allowProvisioningUpdates",
+      export_method: "app-store",
+      export_options: export_options
     )
     upload_to_testflight(app_identifier: ENV.fetch("APP_IDENTIFIER_DEV"))
   end

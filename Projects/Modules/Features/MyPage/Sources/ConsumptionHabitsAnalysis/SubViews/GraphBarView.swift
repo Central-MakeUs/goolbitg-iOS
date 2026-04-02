@@ -13,17 +13,26 @@ struct GraphBarView: View {
     
     @State private var textHeight: CGFloat = 0
     @State private var animatePercentage: CGFloat = 0
+    @State private var hasAnimatedAfterVisible: Bool = false
     
     let count: Int
     let percentage: CGFloat
     let style: GraphBarStyle
     let topTextIgnored: Bool
+    let shouldAnimate: Bool
     
-    init(count: Int = 0, percentage: CGFloat, style: GraphBarStyle, topTextIgnored: Bool = false) {
+    init(
+        count: Int = 0,
+        percentage: CGFloat,
+        style: GraphBarStyle,
+        topTextIgnored: Bool = false,
+        shouldAnimate: Bool = true
+    ) {
         self.count = count
         self.percentage = percentage.isFinite ? min(max(percentage, 0), 1) : 0
         self.style = style
         self.topTextIgnored = topTextIgnored
+        self.shouldAnimate = shouldAnimate
     }
     
     var body: some View {
@@ -60,18 +69,46 @@ extension GraphBarView {
             .frame(alignment: .bottom)
         }
         .onAppear {
-            animatePercentage = percentage
+            guard shouldAnimate else {
+                animatePercentage = 0
+                return
+            }
+            guard !hasAnimatedAfterVisible else { return }
+            hasAnimatedAfterVisible = true
+
+            if percentage > 0 {
+                animatePercentage = 0
+                DispatchQueue.main.async {
+                    animatePercentage = percentage
+                }
+            } else {
+                animatePercentage = 0
+            }
         }
         .onChange(of: percentage) { newValue in
-            animatePercentage = newValue
+            if hasAnimatedAfterVisible, shouldAnimate {
+                animatePercentage = newValue
+            }
+        }
+        .onChange(of: shouldAnimate) { newValue in
+            guard newValue else { return }
+            guard !hasAnimatedAfterVisible else { return }
+            hasAnimatedAfterVisible = true
+
+            if percentage > 0 {
+                animatePercentage = 0
+                DispatchQueue.main.async {
+                    animatePercentage = percentage
+                }
+            }
         }
     }
-    
+
     private func calcHeight(proxy: GeometryProxy) -> CGFloat {
         let safePercentage = animatePercentage.isFinite ? min(max(animatePercentage, 0), 1) : 0
         return max(proxy.size.height * safePercentage - textHeight, 0)
     }
-    
+
     private var getTextColor: Color {
         return switch style {
         case .dotStyleForRecommend, .mainColor:
@@ -80,7 +117,7 @@ extension GraphBarView {
             GBColor.grey300.asColor
         }
     }
-    
+
     @ViewBuilder
     private func getStick(proxy: GeometryProxy) -> some View {
         switch style {
@@ -132,7 +169,7 @@ extension GraphBarView {
                 .frame(maxWidth: .infinity)
                 .frame(height: calcHeight(proxy: proxy))
         }
-        
+
     }
 }
 

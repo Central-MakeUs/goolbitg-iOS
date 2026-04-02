@@ -13,6 +13,19 @@ struct GroupChallengeComparisonView: View {
     let indvScore: Double
     let groupScore: Double
     let message: String
+    let shouldAnimateBars: Bool
+
+    init(
+        indvScore: Double,
+        groupScore: Double,
+        message: String,
+        shouldAnimateBars: Bool = true
+    ) {
+        self.indvScore = indvScore
+        self.groupScore = groupScore
+        self.message = message
+        self.shouldAnimateBars = shouldAnimateBars
+    }
     
     var body: some View {
         content
@@ -54,7 +67,8 @@ extension GroupChallengeComparisonView {
                     count: 0,
                     percentage: indvScore,
                     style: .grey,
-                    topTextIgnored: true
+                    topTextIgnored: true,
+                    shouldAnimate: shouldAnimateBars
                 )
                 .padding(.bottom, 8)
                 
@@ -75,7 +89,8 @@ extension GroupChallengeComparisonView {
                     count: 0,
                     percentage: groupScore,
                     style: .mainColor,
-                    topTextIgnored: true
+                    topTextIgnored: true,
+                    shouldAnimate: shouldAnimateBars
                 )
                 
                 Text("그룹")

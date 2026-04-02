@@ -14,6 +14,19 @@ struct RecentChallengeWeeklyComparisonGraphView: View {
     let message: String
     let maxCount: Int
     let monthDataList: [RecentChallengeWeeklyEntity]
+    let shouldAnimateBars: Bool
+
+    init(
+        message: String,
+        maxCount: Int,
+        monthDataList: [RecentChallengeWeeklyEntity],
+        shouldAnimateBars: Bool = true
+    ) {
+        self.message = message
+        self.maxCount = maxCount
+        self.monthDataList = monthDataList
+        self.shouldAnimateBars = shouldAnimateBars
+    }
     
     var body: some View {
         content
@@ -76,7 +89,8 @@ extension RecentChallengeWeeklyComparisonGraphView {
             GraphBarView(
                 count: data.count,
                 percentage: normalizedPercentage,
-                style: data.barStyle
+                style: data.barStyle,
+                shouldAnimate: shouldAnimateBars
             )
             
             Text(data.title)
