@@ -89,12 +89,6 @@ public struct HabitChartsFeature: GBReducer {
                 state.buyOrNotMessage = entity.buyOrNotMessage
                 state.buyOrNotDatas = entity.buyOrNotDatas
                 
-                print(entity.individualSuccessRate)
-                print(entity.individualSuccessRate)
-                print(entity.individualSuccessRate)
-                print(entity.individualSuccessRate)
-                print(entity.individualSuccessRate)
-                print(entity.individualSuccessRate)
                 return .none
 
             case .networkAction(.failedAnalytics):
