@@ -54,6 +54,7 @@ public extension TargetDependency {
     static let kingfisher: Self = .external(name: "Kingfisher", condition: nil)
     static let alamofire: Self = .external(name: "Alamofire", condition: nil)
 //    static let jwtToken: Self = .external(name: "SwiftJWT", condition: nil)
+    static let socketIO: Self = .external(name: "SocketIO", condition: nil)
 }
 
 // MARK: UI

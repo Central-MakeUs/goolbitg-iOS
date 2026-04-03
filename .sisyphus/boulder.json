@@ -1,0 +1,26 @@
+{
+  "active_plan": "/Users/jaehyungkim/Desktop/Swift/TuistGoolbitg/Real2/goolbitg-iOS/.sisyphus/plans/chat-socket-protocol.md",
+  "started_at": "2026-04-03T01:32:48.937Z",
+  "session_ids": [
+    "ses_2b375478fffeEXg6LgG4EV1TWD",
+    "ses_2af045aefffe3tc9ZyPv6qGHZ7",
+    "ses_2aedd4185ffeXxJEW89ovncliy",
+    "ses_2aedc9647ffeqsHYL8mMUmNLCU",
+    "ses_2aedbd373ffes1h3OT1V95SvHQ",
+    "ses_2aed43235ffexGydGaTtJutr79",
+    "ses_2aecc6d10ffeEpQwLU4yNIbgPB"
+  ],
+  "plan_name": "chat-socket-protocol",
+  "agent": "atlas",
+  "task_sessions": {
+    "todo:1": {
+      "task_key": "todo:1",
+      "task_label": "1",
+      "task_title": "Add Data test target and scaffolding",
+      "session_id": "ses_2aed43235ffexGydGaTtJutr79",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-04-03T02:32:44.440Z"
+    }
+  }
+}
