@@ -15,6 +15,7 @@ public enum TabNavigationScreen {
     case tabView(GBTabBarCoordinator)
     case challengeDetail(ChallengeDetailFeature)
     case challengeAdd(ChallengeAddViewFeature)
+    case chatView(ChattingViewFeature)
 }
 
 
@@ -69,9 +70,18 @@ extension TabNavigationCoordinator {
                     await send(.router(.routeAction(id: .tabView, action: .tabView(.challengeTabAction(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadData)))))))))
                 }
             case let .router(.routeAction(id: .tabView, action: .tabView(.challengeTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.moveToDetail(itemID))))))))):
-                
+
                 state.routes.push(.challengeDetail(ChallengeDetailFeature.State(challengeID: itemID)))
-                
+
+                /// BuyOrNot Tab - 채팅 이동
+            case let .router(.routeAction(id: .tabView, action: .tabView(.buyOrNotTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.moveToChatView(userID, userName, model))))))))):
+
+                state.routes.push(.chatView(ChattingViewFeature.State(
+                    userName: userName,
+                    userID: userID,
+                    model: model
+                )))
+
             default:
                 break
             }

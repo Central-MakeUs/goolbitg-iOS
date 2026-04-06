@@ -35,6 +35,10 @@ public struct TabNavigationCoordinatorView: View {
                     ChallengeAddView(store: store)
                         .navigationBarBackButtonHidden()
                         .disableBackGesture(false)
+
+                case let .chatView(store):
+                    ChattingView(store: store)
+                        .navigationBarBackButtonHidden()
                 }
             }
         }
@@ -51,14 +55,17 @@ extension TabNavigationScreen.State: Identifiable {
             return .challengeDetail
         case .challengeAdd:
             return .challengeAdd
+        case .chatView:
+            return .chatView
         }
     }
-    
+
     public enum ID: Identifiable {
         case tabView
         case challengeDetail
         case challengeAdd
-        
+        case chatView
+
         public var id: ID {
             return self
         }

@@ -1,6 +1,6 @@
 //
 //  ChatBubbleView.swift
-//  FeatureBuyOrNot
+//  FeatureCommon
 //
 //  Created by Jae hyung Kim on 3/31/26.
 //

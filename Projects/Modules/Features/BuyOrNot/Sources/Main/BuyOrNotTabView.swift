@@ -267,7 +267,11 @@ extension BuyOrNotTabView {
                 WithPerceptionTracking {
                     switch store.currentMode {
                     case .load:
-                        BuyOrNotCardView(entity: emptyList.first!, reportTab: {
+                        BuyOrNotCardView(
+                            entity: emptyList.first!,
+                            reportTab: {
+                            
+                        }, messageTab: {
                             
                         })
                         .padding(.horizontal, SpacingHelper.lg.pixel)
@@ -281,10 +285,13 @@ extension BuyOrNotTabView {
                             currentListEntity: $store.currentList.sending(\.bindingCurrentList),
                             currentIndex: $store.currentIndex.sending(\.bindingCurrentIndex),
                             size: proxy.size) { selected in
-                                print(selected)
+                                Logger.debug(selected)
                             } reportEntity: { report in
-                                print(report)
+                                Logger.debug(report)
                                 ifReportModelID = report.id
+                            } messageTap: { message in
+                                Logger.debug(message.id)
+                                store.send(.viewEvent(.moveMessageTap(item: message)))
                             }
                             .onAppear {
                                 emptyListIndex = 0

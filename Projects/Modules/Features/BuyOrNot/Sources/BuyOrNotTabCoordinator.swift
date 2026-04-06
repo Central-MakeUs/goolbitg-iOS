@@ -47,7 +47,7 @@ extension BuyOrNotTabCoordinator {
             case let .router(.routeAction(id: .home, action: .home(.delegate(.moveToModifierView(model, idx))))):
                 
                 state.routes.presentCover(.buyOrNotAdd(BuyOrNotAddViewFeature.State(stateMode: .modifier(model, idx: idx))))
-                  
+                
             default:
                 break
             }

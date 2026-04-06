@@ -98,6 +98,8 @@ public enum ImageHelper {
     case chartArrow
     case paperPlane
     
+    case chatting2
+    
     public var image: UIImage {
         switch self {
         case .splashBack:
@@ -303,6 +305,9 @@ public enum ImageHelper {
             
         case .arrowUpSm:
             return UtilsAsset.arrowUpSm.image
+            
+        case .chatting2:
+            return UtilsAsset.chatting2.image
         }
     }
     

@@ -24,6 +24,7 @@ public enum UtilsAsset: Sendable {
   public static let bad = UtilsImages(name: "Bad")
   public static let badGreen = UtilsImages(name: "BadGreen")
   public static let cameraLogoV2 = UtilsImages(name: "CameraLogoV2")
+  public static let chatting2 = UtilsImages(name: "Chatting2")
   public static let checkBox2 = UtilsImages(name: "CheckBox2")
   public static let checkPopup = UtilsImages(name: "CheckPopup")
   public static let good = UtilsImages(name: "Good")

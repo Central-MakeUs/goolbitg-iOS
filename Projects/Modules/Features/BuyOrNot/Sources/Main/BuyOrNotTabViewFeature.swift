@@ -58,6 +58,7 @@ public struct BuyOrNotTabViewFeature: GBReducer {
         public enum Delegate {
             case moveToAddView
             case moveToModifierView(BuyOrNotCardViewEntity, idx: Int)
+            case moveToChatView(userID: String, userName: String, model: BuyOrNotCardViewEntity)
         }
     }
     
@@ -76,6 +77,7 @@ public struct BuyOrNotTabViewFeature: GBReducer {
         
         case alertOkTapped(item: GBAlertViewComponents)
         case reportButtonTapped(id: String, reason: ReportCase)
+        case moveMessageTap(item: BuyOrNotCardViewEntity)
     }
     
     public enum FeatureEvent {
@@ -99,6 +101,9 @@ public struct BuyOrNotTabViewFeature: GBReducer {
         case resultUserRecordList(paging: BuyOrNotPagingObj, models: [BuyOrNotCardViewEntity])
         case resultAppendRecordList(paging: BuyOrNotPagingObj, models: [BuyOrNotCardViewEntity])
         case resultDeleteRecord(idx: Int)
+        
+        // MARK: Chatting
+        case requestUserInfoAfterMoveToChatting(item: BuyOrNotCardViewEntity)
     }
     
     public enum ParentEvent {
@@ -119,7 +124,9 @@ extension BuyOrNotTabViewFeature {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            // MARK: ViewCycle
+
+            // MARK: - ViewCycle
+
             case .viewCycle(.onAppear):
                 let paging = BuyOrNotPagingObj(page: 0, created: false)
                 state.buyOrNotPagingObj = paging
@@ -130,7 +137,7 @@ extension BuyOrNotTabViewFeature {
                 return .run { send in
                     await send(.featureEvent(.requestBuyOrNotList(paging)))
                 }
-                
+
             case .viewCycle(.recordOnAppear):
                 let paging = BuyOrNotPagingObj(page: 0, created: true)
                 state.buyOrNotRecordPagingObj = paging
@@ -140,76 +147,44 @@ extension BuyOrNotTabViewFeature {
                 return .run { send in
                     await send(.featureEvent(.requestUserRecordList(paging)))
                 }
-                
-            // MARK: ViewEvent
+
+            // MARK: - ViewEvent (투표)
+
             case let .viewEvent(.likeButtonTapped(entity, index)):
                 guard let entity else { return .none }
-                return .run { send in
-                    let result = try await networkManager.requestNetworkWithRefresh(dto: BuyOrNotVoteDTO.self, router: BuyOrNotRouter.buyOrNotVote(
-                        postID: entity.id,
-                        requestDTO: BuyOrNotVoteRequestDTO(vote: .good) )
-                    )
-                    
-                    await send(.featureEvent(.resultVote(result, index: index)))
-                    
-                } catch: { error, send in
-                    guard let error = error as? RouterError else {
-                        Logger.error(error)
-                        return
-                    }
-                    if case .serverMessage(.postLimitExceeded) = error {
-                        let alertComponents = GBAlertViewComponents(
-                            title: "투표 불가",
-                            message: "본인이 작성한 포스트는 투표할 수 없습니다.",
-                            cancelTitle: nil,
-                            okTitle: "확인",
-                            alertStyle: .warningWithWarning
-                        )
-                        await send(.bindingAlert(alertComponents))
-                    }
-                }
-                
+                return requestVote(entity: entity, vote: .good, index: index)
+
             case let .viewEvent(.disLikeButtonTapped(entity, index)):
                 guard let entity else { return .none }
-                return .run { send in
-                    let result = try await networkManager.requestNetworkWithRefresh(dto: BuyOrNotVoteDTO.self, router: BuyOrNotRouter.buyOrNotVote(
-                        postID: entity.id,
-                        requestDTO: BuyOrNotVoteRequestDTO(vote: .bad) )
-                    )
-                    
-                    await send(.featureEvent(.resultVote(result, index: index)))
-                    
-                } catch: { error, send in
-                    guard let error = error as? RouterError else {
-                        Logger.error(error)
-                        return
-                    }
-                    if case .serverMessage(.postLimitExceeded) = error {
-                        let alertComponents = GBAlertViewComponents(
-                            title: "투표 불가",
-                            message: "본인이 작성한 포스트는 투표할 수 없습니다.",
-                            cancelTitle: nil,
-                            okTitle: "확인",
-                            alertStyle: .warningWithWarning
-                        )
-                        await send(.bindingAlert(alertComponents))
-                    }
-                }
-                
+                return requestVote(entity: entity, vote: .bad, index: index)
+
+            // MARK: - ViewEvent (네비게이션)
+
             case .viewEvent(.addButtonTapped):
                 return .send(.delegate(.moveToAddView))
-                
+
+            case let .viewEvent(.modifierModel(model, index)):
+                return .send(.delegate(.moveToModifierView(model, idx: index)))
+
+            case let .viewEvent(.moveMessageTap(item)):
+                return .send(.featureEvent(.requestUserInfoAfterMoveToChatting(item: item)))
+
+            case let .viewEvent(.reportButtonTapped(id, item)):
+                return .send(.featureEvent(.requestReport(id: id, reason: item)))
+
+            // MARK: - ViewEvent (유저 리스트 & 삭제)
+
             case let .viewEvent(.moreUserList(index)):
-                if (index > state.currentList.count - 2), !state.userListPagingTrigger {
-                    state.buyOrNotRecordPagingObj.page += 1
-                    state.userListPagingTrigger = true
-                    return .send(.featureEvent(.requestMoreRecordList(state.buyOrNotRecordPagingObj)))
+                guard index > state.currentList.count - 2,
+                      !state.userListPagingTrigger else {
+                    return .none
                 }
-                
+                state.buyOrNotRecordPagingObj.page += 1
+                state.userListPagingTrigger = true
+                return .send(.featureEvent(.requestMoreRecordList(state.buyOrNotRecordPagingObj)))
+
             case let .viewEvent(.deleteModel(userModel, index)):
-                
                 state.currentAlertModel = .deleteModel(model: userModel, idx: index)
-                
                 state.errorAlert = GBAlertViewComponents(
                     title: "삭제하기",
                     message: "정말 살까말까 글을\n삭제하시겠어요?",
@@ -217,203 +192,81 @@ extension BuyOrNotTabViewFeature {
                     okTitle: "삭제",
                     alertStyle: .warning
                 )
-                
-            case .viewEvent(.alertOkTapped(_)):
+
+            case .viewEvent(.alertOkTapped):
                 state.errorAlert = nil
-                if case let.deleteModel(model, idx) = state.currentAlertModel {
+                if case let .deleteModel(model, idx) = state.currentAlertModel {
                     return .send(.featureEvent(.requestDeleteRecord(model, idx: idx)))
                 }
-                
-            case let .viewEvent(.modifierModel(model, index)):
-                
-                return .send(.delegate(.moveToModifierView(model, idx: index)))
-                
-            case let .viewEvent(.reportButtonTapped(id, item)):
-                
-                return .send(.featureEvent(.requestReport(id: id, reason: item)))
-                
-            // MARK: REQUEST
+
+            // MARK: - FeatureEvent (리스트 요청)
+
             case let .featureEvent(.requestBuyOrNotList(obj)):
-                
-                return .run { send in
-                    let result = try await networkManager.requestNetworkWithRefresh(
-                        dto: BuyOrNotPagedDTO<BuyOrNotDTO>.self,
-                        router: BuyOrNotRouter.buyOtNots(
-                            page: obj.page,
-                            size: obj.size,
-                            created: obj.created
-                        )
-                    )
-                    
-                    var obj = obj
-                    obj.totalSize = result.page
-                    
-                    let mapping = await buyOrNotMapper.toEntity(dtos: result.items)
-                    
-                    await send(.featureEvent(.resultBuyOrNotList(
-                        paging: obj,
-                        models: mapping)
-                    ))
-                    
-                } catch: { error, send in
-                    guard let error = error as? RouterError else {
-                        Logger.error("ERRRRRRRRRRROOOOOOOOR")
-                        return
-                    }
-                    Logger.error(error)
+                return fetchBuyOrNotList(obj: obj) { paging, models in
+                    .resultBuyOrNotList(paging: paging, models: models)
                 }
-                
+
             case let .featureEvent(.requestAppendBuyOrNotList(obj)):
-                
-                return .run { send in
-                    let result = try await networkManager.requestNetworkWithRefresh(
-                        dto: BuyOrNotPagedDTO<BuyOrNotDTO>.self,
-                        router: BuyOrNotRouter.buyOtNots(
-                            page: obj.page,
-                            size: obj.size,
-                            created: obj.created
-                        )
-                    )
-                    
-                    var obj = obj
-                    obj.totalSize = result.page
-                    
-                    let mapping = await buyOrNotMapper.toEntity(dtos: result.items)
-                    
-                    await send(.featureEvent(.resultAppendBuyOrNotList(
-                        paging: obj,
-                        models: mapping)
-                    ))
-                    
-                } catch: { error, send in
-                    guard let error = error as? RouterError else {
-                        Logger.error("ERRRRRRRRRRROOOOOOOOR")
-                        return
-                    }
-                    Logger.error(error)
+                return fetchBuyOrNotList(obj: obj) { paging, models in
+                    .resultAppendBuyOrNotList(paging: paging, models: models)
                 }
-                
-            case let .featureEvent(.requestUserRecordList(PagingObj)):
-                
-                return .run { send in
-                    let result = try await networkManager.requestNetworkWithRefresh(
-                        dto: BuyOrNotPagedDTO<BuyOrNotDTO>.self,
-                        router: BuyOrNotRouter.buyOtNots(
-                            page: PagingObj.page,
-                            size: PagingObj.size,
-                            created: PagingObj.created
-                        )
-                    )
-                    
-                    var obj = PagingObj
-                    obj.totalSize = result.page
-                    
-                    let mapping = await buyOrNotMapper.toEntity(dtos: result.items)
-                    
-                    await send(.featureEvent(.resultUserRecordList(
-                        paging: obj,
-                        models: mapping )
-                    ))
-                    
-                } catch: { error, send in
-                    guard let error = error as? RouterError else {
-                        Logger.error("ERRRRRRRRRRROOOOOOOOR")
-                        return
-                    }
-                    Logger.error(error)
+
+            case let .featureEvent(.requestUserRecordList(pagingObj)):
+                return fetchBuyOrNotList(obj: pagingObj) { paging, models in
+                    .resultUserRecordList(paging: paging, models: models)
                 }
-                
+
             case let .featureEvent(.requestMoreRecordList(obj)):
-                return .run(priority: .background) { send in
-                    let result = try await networkManager.requestNetworkWithRefresh(
-                        dto: BuyOrNotPagedDTO<BuyOrNotDTO>.self,
-                        router: BuyOrNotRouter.buyOtNots(
-                            page: obj.page,
-                            size: obj.size,
-                            created: obj.created
-                        )
-                    )
-                    
-                    var obj = obj
-                    obj.totalSize = result.page
-                    
-                    let mapping = await buyOrNotMapper.toEntity(dtos: result.items)
-                    
-                    await send(.featureEvent(.resultAppendRecordList(
-                        paging: obj,
-                        models: mapping)
-                    ))
-                    
-                } catch: { error, send in
-                    guard let error = error as? RouterError else {
-                        Logger.error("ERRRRRRRRRRROOOOOOOOR")
-                        return
-                    }
-                    Logger.error(error)
+                return fetchBuyOrNotList(obj: obj, priority: .background) { paging, models in
+                    .resultAppendRecordList(paging: paging, models: models)
                 }
-                
+
+            // MARK: - FeatureEvent (삭제)
+
             case let .featureEvent(.requestDeleteRecord(model, idx)):
                 guard let item = state.currentUserList[safe: idx],
-                     item == model else {
+                      item == model else {
                     return .none
                 }
-                Logger.debug("삭제할 에쩡!!!!!!!!!!!!!!!")
+                Logger.debug("삭제 요청: \(model.id)")
                 state.loading = true
                 return .run { send in
                     try await networkManager.requestNotDtoNetwork(
                         router: BuyOrNotRouter.buyOrNotDelete(postID: model.id),
                         ifRefreshNeed: true
                     )
-                    
                     await send(.featureEvent(.resultDeleteRecord(idx: idx)))
                 } catch: { error, send in
-                    guard let error = error as? RouterError else {
-                        return
-                    }
+                    guard let error = error as? RouterError else { return }
                     if case .serverMessage(.postNotFound) = error {
-                        await send(.bindingAlert(GBAlertViewComponents(
-                            title: "ERROR",
-                            message: "포스트가 존재하지 않습니다.",
-                            okTitle: "확인",
-                            alertStyle: .warningWithWarning
-                        )))
+                        await send(.bindingAlert(
+                            Self.postNotFoundAlert
+                        ))
                     }
                 }
-                
+
+            // MARK: - FeatureEvent (신고)
+
             case let .featureEvent(.requestReport(id, reason)):
                 state.loading = true
                 return .run { send in
-                    
-                    try await networkManager.requestNotDtoNetwork(router: BuyOrNotRouter.buyOrNotReport(
-                        postID: id,
-                        reason: reason.reason
-                    ), ifRefreshNeed: true
+                    try await networkManager.requestNotDtoNetwork(
+                        router: BuyOrNotRouter.buyOrNotReport(postID: id, reason: reason.reason),
+                        ifRefreshNeed: true
                     )
-                    
                     await send(.loading(false))
-                    
                     await send(.bindingAlert(GBAlertViewComponents(
                         title: "신고하기 완료",
                         message: "신고하기 완료되었습니다",
                         okTitle: "확인",
                         alertStyle: .checkWithNormal
                     )))
-                    
                 } catch: { error, send in
                     await send(.loading(false))
-                    
-                    guard let error = error as? RouterError else {
-                        return
-                    }
-                    if case  .serverMessage(.postNotFound) = error {
-                        await send(.bindingAlert(GBAlertViewComponents(
-                            title: "ERROR",
-                            message: "포스트가 존재하지 않습니다.",
-                            okTitle: "확인",
-                            alertStyle: .warningWithWarning
-                        )))
-                    }
-                    else if case .serverMessage(.alreadyReportedPost) = error {
+                    guard let error = error as? RouterError else { return }
+                    if case .serverMessage(.postNotFound) = error {
+                        await send(.bindingAlert(Self.postNotFoundAlert))
+                    } else if case .serverMessage(.alreadyReportedPost) = error {
                         await send(.bindingAlert(GBAlertViewComponents(
                             title: "ERROR",
                             message: "이미 신고한 게시물입니다.",
@@ -422,70 +275,93 @@ extension BuyOrNotTabViewFeature {
                         )))
                     }
                 }
-                
-            // MARK: RESULT
+
+            // MARK: - FeatureEvent (채팅 이동)
+
+            case let .featureEvent(.requestUserInfoAfterMoveToChatting(item)):
+                return .run { send in
+                    let result = try await networkManager.requestNetworkWithRefresh(
+                        dto: UserInfoDTO.self,
+                        router: UserRouter.currentUserInfos
+                    )
+                    await send(.delegate(.moveToChatView(
+                        userID: result.id,
+                        userName: result.nickname,
+                        model: item,
+                        
+                    )))
+                } catch: { error, send in
+                    guard let error = error as? RouterError else {
+                        Logger.error(error)
+                        return
+                    }
+                    await send(.bindingAlert(GBAlertViewComponents(
+                        title: "ERROR",
+                        message: "정보를 확인 할 수 없습니다.\n\(error.localizedDescription)",
+                        okTitle: "확인",
+                        alertStyle: .warningWithWarning
+                    )))
+                }
+
+            // MARK: - FeatureEvent (결과 처리)
+
             case let .featureEvent(.resultBuyOrNotList(paging, models)):
                 state.buyOrNotPagingObj = paging
                 state.currentList = models
                 state.currentMode = models.isEmpty ? .empty : .on
                 state.pagingTrigger = models.isEmpty
-                
+
             case let .featureEvent(.resultAppendBuyOrNotList(paging, models)):
                 state.buyOrNotPagingObj = paging
                 state.currentList.append(contentsOf: models)
-                
                 state.pagingTrigger = models.isEmpty
-                
+
             case let .featureEvent(.resultVote(model, index)):
-                let copy = state.currentList
-                var copyChange = copy[index]
-                copyChange.goodVoteCount = String(model.goodVoteCount)
-                copyChange.badVoteCount = String(model.badVoteCount)
-                
-                state.currentList[index] = copyChange
-                
+                state.currentList[index].goodVoteCount = String(model.goodVoteCount)
+                state.currentList[index].badVoteCount = String(model.badVoteCount)
+
             case let .featureEvent(.resultUserRecordList(paging, models)):
                 state.buyOrNotRecordPagingObj = paging
                 state.currentUserList = models
                 state.userListPagingTrigger = models.isEmpty
-                
+
             case let .featureEvent(.resultAppendRecordList(paging, models)):
                 state.buyOrNotRecordPagingObj = paging
                 state.currentUserList.append(contentsOf: models)
                 state.pagingTrigger = models.isEmpty
-                
+
             case let .featureEvent(.resultDeleteRecord(index)):
                 state.currentUserList.remove(at: index)
-                
                 state.loading = false
-                
-            // MARK: BINDING
-            case .bindingCurrentList(let currentList):
+
+            // MARK: - Binding
+
+            case let .bindingCurrentList(currentList):
                 state.currentList = currentList
-                
-            case .bindingCurrentIndex(let currentIndex):
+
+            case let .bindingCurrentIndex(currentIndex):
                 state.currentIndex = currentIndex
-                if state.currentList.isEmpty || currentIndex <= 0 { return .none }
-                
-                if (currentIndex > state.currentList.count - 2), !state.pagingTrigger {
+                guard !state.currentList.isEmpty, currentIndex > 0 else { return .none }
+
+                if currentIndex > state.currentList.count - 2, !state.pagingTrigger {
                     state.buyOrNotPagingObj.page += 1
                     state.pagingTrigger = true
                     return .send(.featureEvent(.requestAppendBuyOrNotList(state.buyOrNotPagingObj)))
                 }
-                
-            case .bindingTabMode(let tabMode):
+
+            case let .bindingTabMode(tabMode):
                 state.tabMode = tabMode
-                
+
             case let .bindingAlert(model):
                 state.errorAlert = model
                 if model == nil {
                     state.currentAlertModel = nil
                 }
-                
-                // MARK: ParentAction
+
+            // MARK: - ParentEvent
+
             case .parentEvent(.newBuyOrNotItem):
                 var obj = BuyOrNotPagingObj(page: 0, created: false)
-                
                 switch state.tabMode {
                 case .buyOrNot:
                     state.buyOrNotPagingObj = obj
@@ -497,20 +373,93 @@ extension BuyOrNotTabViewFeature {
                     state.buyOrNotRecordPagingObj = obj
                     return .send(.featureEvent(.requestUserRecordList(obj)))
                 }
-                
+
             case let .parentEvent(.modifierSuccess(model, idx)):
                 state.currentUserList[idx] = model
-                
+
             case let .loading(bool):
                 state.loading = bool
-                
+
             default:
                 break
             }
             return .none
         }
     }
-    
+
+    // MARK: - Private Helpers
+
+    /// 투표 요청을 생성한다 (좋아요/싫어요 공통)
+    private func requestVote(
+        entity: BuyOrNotCardViewEntity,
+        vote: BuyOrNotVote,
+        index: Int
+    ) -> Effect<Action> {
+        .run { send in
+            let result = try await networkManager.requestNetworkWithRefresh(
+                dto: BuyOrNotVoteDTO.self,
+                router: BuyOrNotRouter.buyOrNotVote(
+                    postID: entity.id,
+                    requestDTO: BuyOrNotVoteRequestDTO(vote: vote)
+                )
+            )
+            await send(.featureEvent(.resultVote(result, index: index)))
+        } catch: { error, send in
+            guard let error = error as? RouterError else {
+                Logger.error(error)
+                return
+            }
+            if case .serverMessage(.postLimitExceeded) = error {
+                await send(.bindingAlert(GBAlertViewComponents(
+                    title: "투표 불가",
+                    message: "본인이 작성한 포스트는 투표할 수 없습니다.",
+                    cancelTitle: nil,
+                    okTitle: "확인",
+                    alertStyle: .warningWithWarning
+                )))
+            }
+        }
+    }
+
+    /// 살까말까 리스트 fetch 공통 로직
+    private func fetchBuyOrNotList(
+        obj: BuyOrNotPagingObj,
+        priority: TaskPriority? = nil,
+        toEvent: @escaping (BuyOrNotPagingObj, [BuyOrNotCardViewEntity]) -> FeatureEvent
+    ) -> Effect<Action> {
+        .run(priority: priority) { send in
+            let result = try await networkManager.requestNetworkWithRefresh(
+                dto: BuyOrNotPagedDTO<BuyOrNotDTO>.self,
+                router: BuyOrNotRouter.buyOtNots(
+                    page: obj.page,
+                    size: obj.size,
+                    created: obj.created
+                )
+            )
+            var updatedObj = obj
+            updatedObj.totalSize = result.page
+
+            let models = await buyOrNotMapper.toEntity(dtos: result.items)
+            await send(.featureEvent(toEvent(updatedObj, models)))
+        } catch: { error, send in
+            guard let error = error as? RouterError else {
+                Logger.error(error)
+                return
+            }
+            Logger.error(error)
+        }
+    }
+
+    /// 포스트 미존재 공통 Alert
+    private static var postNotFoundAlert: GBAlertViewComponents {
+        GBAlertViewComponents(
+            title: "ERROR",
+            message: "포스트가 존재하지 않습니다.",
+            okTitle: "확인",
+            alertStyle: .warningWithWarning
+        )
+    }
+
     enum CurrentAlertType: Equatable, Hashable {
         case deleteModel(model: BuyOrNotCardViewEntity, idx: Int)
     }

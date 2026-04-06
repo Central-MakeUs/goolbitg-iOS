@@ -17,6 +17,7 @@ struct BuyOrNotCardView: View {
     @State private var hidden = true
     
     var reportTab: () -> Void
+    var messageTab: () -> Void
     
     var body: some View {
         content
@@ -109,6 +110,18 @@ extension BuyOrNotCardView {
                     .padding(.bottom, SpacingHelper.md.pixel)
             }
             Spacer()
+            ImageHelper.chatting2.asImage
+                .resizable()
+                .frame(width: 32, height: 32)
+                .background(Color.white.opacity(0.1))
+                .clipShape(Circle())
+                .overlay {
+                    Circle()
+                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                }
+                .asButton {
+                    messageTab()
+                }
         }
     }
     
@@ -156,7 +169,8 @@ extension BuyOrNotCardView {
     ),
         reportTab: {
             
-        }
-    )
+    }) {
+        
+    }
 }
 #endif

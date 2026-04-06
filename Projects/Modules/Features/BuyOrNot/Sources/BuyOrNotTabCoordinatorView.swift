@@ -26,7 +26,6 @@ public struct BuyOrNotTabCoordinatorView: View {
                      
                 case let .buyOrNotAdd(store):
                     BuyOrNotAddView(store: store)
-                    
                 }
             }
         }
@@ -43,11 +42,11 @@ extension BuyOrNotTabCoordinatorScreen.State: Identifiable {
             return .add
         }
     }
-    
+
     public enum ID: Identifiable {
         case home
         case add
-        
+
         public var id: ID {
             return self
         }

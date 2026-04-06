@@ -1,6 +1,6 @@
 //
 //  ChattingViewFeature.swift
-//  FeatureBuyOrNot
+//  FeatureCommon
 //
 //  Created by Jae hyung Kim on 3/31/26.
 //
@@ -9,6 +9,7 @@ import Foundation
 import ComposableArchitecture
 import Utils
 import Domain
+import Data
 
 @Reducer
 public struct ChattingViewFeature: GBReducer {
@@ -16,33 +17,37 @@ public struct ChattingViewFeature: GBReducer {
     
     @ObservableState
     public struct State: Equatable, Hashable {
+        let userName: String
+        let userID: String
+        let model: BuyOrNotCardViewEntity
+        
         var loadedPageCount: Int = 0
         var isPaging: Bool = false
         var isInitialLoading: Bool = true
         var sendText: String = ""
-        
-        var roomTitle: String = "바쁜굴비님의 토론방"
-        var product: Product = .init(
-            imageURLString: "https://image.msscdn.net/thumbnails/images/goods_img/20250903/5397926/5397926_17582584972271_big.jpg?w=1200",
-            name: "테켓 후드티",
-            priceText: "89,000원",
-            editButtonTitle: "수정"
-        )
+        var product: Product? = nil
         
         var hasNextPage: Bool {
-            loadedPageCount < ChattingViewFeature.dummyPages.count
+            return false
         }
         
         var loadedMessages: [ChatMessage] {
-            let pages = ChattingViewFeature.dummyPages.suffix(loadedPageCount)
-            return pages.flatMap { $0 }
+            return []
         }
         
         var listItems: [ChatListItem] {
             ChattingViewFeature.buildListItems(from: loadedMessages)
         }
         
-        public init() {}
+        public init(
+            userName: String,
+            userID: String,
+            model: BuyOrNotCardViewEntity,
+        ) {
+            self.userID = userID
+            self.userName = userName
+            self.model = model
+        }
     }
     
     public enum Action {
@@ -59,7 +64,6 @@ public struct ChattingViewFeature: GBReducer {
         case bindingSendText(String)
         case loadMoreIfNeeded(Int)
         case sendTapped
-        case backTapped
         case productEditTapped
     }
     
@@ -80,6 +84,15 @@ public struct ChattingViewFeature: GBReducer {
                 guard state.isInitialLoading else {
                     return .none
                 }
+                
+                let item = state.model
+                
+                state.product = .init(
+                    imageURLString: item.imageUrl,
+                    name: item.itemName,
+                    priceText: item.priceString,
+                    editButtonTitle: "수정",
+                )
                 
                 return .run { send in
                     try await Task.sleep(for: .milliseconds(650))
@@ -113,8 +126,7 @@ public struct ChattingViewFeature: GBReducer {
                 state.sendText = ""
                 return .none
                 
-            case .viewEvent(.backTapped):
-                return .none
+            
                 
             case .viewEvent(.productEditTapped):
                 return .none
@@ -130,7 +142,7 @@ public struct ChattingViewFeature: GBReducer {
 
 extension ChattingViewFeature {
     struct Product: Equatable, Hashable, Sendable {
-        let imageURLString: String
+        let imageURLString: URL?
         let name: String
         let priceText: String
         let editButtonTitle: String
@@ -200,85 +212,5 @@ extension ChattingViewFeature {
             userName: "로딩중"
         )
     ]
-    
-    static let dummyPages: [[ChatMessage]] = [
-        [
-            .init(
-                id: "p1-1",
-                dateString: "2024년 12월 13일",
-                type: .left,
-                text: "지금 네이버 쇼핑에서 파는게 더 저렴함 https://smartstore.naver.com/",
-                timeString: "오전 11:38",
-                userName: "거지굴비"
-            ),
-            .init(
-                id: "p1-2",
-                dateString: "2024년 12월 13일",
-                type: .right,
-                text: "오 좋은 정보 감사합니다 :D",
-                timeString: "오전 11:40",
-                userName: nil
-            ),
-            .init(
-                id: "p1-3",
-                dateString: "2024년 12월 13일",
-                type: .left,
-                text: "장바구니 담아두고 밤 12시 쿠폰도 확인해보세요.",
-                timeString: "오전 11:42",
-                userName: "거지굴비"
-            )
-        ],
-        [
-            .init(
-                id: "p2-1",
-                dateString: "2024년 12월 14일",
-                type: .left,
-                text: "어제보다 배송비가 줄었네요.",
-                timeString: "오후 9:20",
-                userName: "절약굴비"
-            ),
-            .init(
-                id: "p2-2",
-                dateString: "2024년 12월 14일",
-                type: .right,
-                text: "그럼 총액이 8만 후반대로 내려가요?",
-                timeString: "오후 9:22",
-                userName: nil
-            ),
-            .init(
-                id: "p2-3",
-                dateString: "2024년 12월 14일",
-                type: .left,
-                text: "네 맞아요. 내일 카드할인도 붙을 수 있어요.",
-                timeString: "오후 9:23",
-                userName: "절약굴비"
-            )
-        ],
-        [
-            .init(
-                id: "p3-1",
-                dateString: "2024년 12월 15일",
-                type: .left,
-                text: "오늘 가격 다시 확인해보니 2천원 내려갔어요.",
-                timeString: "오전 11:04",
-                userName: "바쁜굴비"
-            ),
-            .init(
-                id: "p3-2",
-                dateString: "2024년 12월 15일",
-                type: .right,
-                text: "오 감사합니다! 그럼 지금 사는게 낫겠네요.",
-                timeString: "오전 11:08",
-                userName: nil
-            ),
-            .init(
-                id: "p3-3",
-                dateString: "2024년 12월 15일",
-                type: .left,
-                text: "네, 쿠폰 적용하면 체감가 더 좋아요.",
-                timeString: "오전 11:09",
-                userName: "바쁜굴비"
-            )
-        ]
-    ]
+
 }

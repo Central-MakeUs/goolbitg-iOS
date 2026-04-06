@@ -1,6 +1,6 @@
 //
 //  ChattingView.swift
-//  FeatureBuyOrNot
+//  FeatureCommon
 //
 //  Created by Jae hyung Kim on 3/31/26.
 //
@@ -8,16 +8,17 @@
 import SwiftUI
 import ComposableArchitecture
 import Utils
-import FeatureCommon
 
-struct ChattingView: View {
+public struct ChattingView: View {
     let store: StoreOf<ChattingViewFeature>
-    
-    init(store: StoreOf<ChattingViewFeature>) {
+
+    public init(store: StoreOf<ChattingViewFeature>) {
         self.store = store
     }
     
-    var body: some View {
+    @Environment(\.dismiss) var dismiss
+    
+    public var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
                 navigationBar
@@ -110,7 +111,7 @@ extension ChattingView {
     /// Nav
     private var navigationBar: some View {
         ZStack(alignment: .center) {
-            Text(store.roomTitle)
+            Text(store.userName) // TODO API 변경 해줘야 반영함
                 .font(FontHelper.h3.font)
                 .foregroundStyle(GBColor.white.asColor)
             
@@ -119,7 +120,7 @@ extension ChattingView {
                     .resizable()
                     .frame(width: 32, height: 32)
                     .asButton {
-                        store.send(.viewEvent(.backTapped))
+                        dismiss()
                     }
                 Spacer()
             }
@@ -139,7 +140,7 @@ extension ChattingView {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .skeletonEffect(isActive: isLoading)
             } else {
-                DownImageView(url: URL(string: store.product.imageURLString), option: .min)
+                DownImageView(url: store.product?.imageURLString, option: .mid)
                     .frame(width: 36, height: 36)
             }
                 
@@ -147,10 +148,10 @@ extension ChattingView {
             6.widthBox
             
             VStack(alignment: .leading, spacing: 0) {
-                Text(isLoading ? dummyTitle : store.product.name)
+                Text((isLoading ? dummyTitle : store.product?.name) ?? "")
                     .font(FontHelper.body3.font)
                     .foregroundStyle(GBColor.white.asColor)
-                Text(isLoading ? dummyPrice : store.product.priceText)
+                Text((isLoading ? dummyPrice : store.product?.priceText) ?? "")
                     .font(FontHelper.body5.font)
                     .foregroundStyle(GBColor.white.asColor)
             }
@@ -160,7 +161,7 @@ extension ChattingView {
             
             6.widthBox
             
-            Text(store.product.editButtonTitle)
+            Text(store.product?.editButtonTitle ?? "")
                 .font(FontHelper.btn4.font)
                 .foregroundStyle(GBColor.black.asColor)
                 .padding(.horizontal, .md)
@@ -222,11 +223,12 @@ extension ChattingView {
 }
 
 #if DEBUG
-#Preview {
-    ChattingView(
-        store: Store(initialState: ChattingViewFeature.State()) {
-            ChattingViewFeature()
-        }
-    )
-}
+//#Preview {
+//    ChattingView(
+//        store: Store(
+//            initialState: ChattingViewFeature.State(userName: <#String#>, userID: <#String#>, model: <#BuyOrNotCardViewEntity#>)) {
+//            ChattingViewFeature()
+//        }
+//    )
+//}
 #endif
