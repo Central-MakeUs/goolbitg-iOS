@@ -8,3 +8,5 @@
 import Foundation
 
 public protocol DTO: Decodable, Sendable {}
+
+extension Array: DTO where Element: DTO {}

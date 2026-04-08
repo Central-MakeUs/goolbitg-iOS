@@ -112,9 +112,11 @@ public enum GBColor {
             
             /// 백그라운드
         case .background1:
-            return UIColor(hexCode: "#1E1E1E")
+//            return UIColor(hexCode: "#1E1E1E")
+            return UIColor(hexCode: "#1C1C1C")
         case .background2:
             return UIColor(hexCode: "#FAFAFA")
+        
         case .disabledBG:
             return UIColor(hexCode: "#212121")
             

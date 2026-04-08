@@ -24,12 +24,16 @@ public enum BuyOrNotRouter {
     case buyOrNotVote(postID: String, requestDTO: BuyOrNotVoteRequestDTO)
     /// 살까말까 신고
     case buyOrNotReport(postID: String, reason: String)
+    /// 살까말까 채팅 룸 리스트
+    case buyOrNotChatList(userId: String?, page: Int, size: Int)
+    /// 살까말까 채팅 히스토리 (chatLastId 가 nil 이면 최신 메시지 기준)
+    case buyOrNotChatHistory(postId: Int, chatLastId: Int?)
 }
 
 extension BuyOrNotRouter: Router {
     public var method: HTTPMethod {
         switch self {
-        case .buyOtNots, .buyOrNotDetail:
+        case .buyOtNots, .buyOrNotDetail, .buyOrNotChatList, .buyOrNotChatHistory:
             return .get
         case .butOrNotsReg, .buyOrNotVote, .buyOrNotReport:
             return .post
@@ -39,37 +43,43 @@ extension BuyOrNotRouter: Router {
             return .delete
         }
     }
-    
+
     public var version: String {
         return "/v1"
     }
-    
+
     public var path: String {
         switch self {
         case .buyOtNots, .butOrNotsReg:
             return "/buyOrNots"
-            
+
         case let .buyOtNotsModify(postID, _):
             return "/buyOrNots/\(postID)"
-            
+
         case .buyOrNotDetail(let postID):
             return "/buyOrNots/\(postID)"
-            
+
         case .buyOrNotDelete(let postID):
             return "/buyOrNots/\(postID)"
-            
+
         case .buyOrNotVote(let postID, _):
             return "/buyOrNots/\(postID)/vote"
-            
+
         case .buyOrNotReport(let postID, _):
             return "buyOrNots/\(postID)/report"
+
+        case .buyOrNotChatList:
+            return "/buyOrNots/chat/list"
+
+        case .buyOrNotChatHistory(let postId, _):
+            return "/buyOrNots/\(postId)/chat/history"
         }
     }
-    
+
     public var optionalHeaders: HTTPHeaders? {
         return ["Content-Type" : "application/json"]
     }
-    
+
     public var parameters: Parameters? {
         switch self {
         case .buyOtNots(let page, let size, let created):
@@ -79,39 +89,53 @@ extension BuyOrNotRouter: Router {
                 "created" : created
             ]
             return defaultValue
+        case let .buyOrNotChatList(userId, page, size):
+            var params: [String: any Any & Sendable] = [
+                "page" : page,
+                "size" : size
+            ]
+            if let userId, !userId.isEmpty {
+                params["userId"] = userId
+            }
+            return params
+        case let .buyOrNotChatHistory(_, chatLastId):
+            if let chatLastId {
+                return ["chatLastId" : chatLastId]
+            }
+            return nil
         case .butOrNotsReg, .buyOtNotsModify, .buyOrNotDetail, .buyOrNotDelete, .buyOrNotVote, .buyOrNotReport:
             return nil
         }
     }
-    
+
     public var body: Data? {
         switch self {
-        case .buyOtNots, .buyOrNotDetail, .buyOrNotDelete:
+        case .buyOtNots, .buyOrNotDetail, .buyOrNotDelete, .buyOrNotChatList, .buyOrNotChatHistory:
             return nil
-            
+
         case .butOrNotsReg(let requestDTO):
             return try? CodableManager.shared.jsonEncodingStrategy(requestDTO)
-            
+
         case .buyOtNotsModify(_ , let requestDTO):
             return try? CodableManager.shared.jsonEncodingStrategy(requestDTO)
-        
+
         case .buyOrNotVote(_, let requestDTO):
             return try? CodableManager.shared.jsonEncodingStrategy(requestDTO)
-            
+
         case .buyOrNotReport(_, let reason):
             return try? CodableManager.shared.jsonEncodingStrategy(ReasonRequestDTO(reason: reason))
         }
     }
-    
+
     public var encodingType: EncodingType {
         switch self {
-        case .buyOtNots, .buyOrNotDetail, .buyOrNotDelete:
+        case .buyOtNots, .buyOrNotDetail, .buyOrNotDelete, .buyOrNotChatList, .buyOrNotChatHistory:
             return .url
         case .butOrNotsReg, .buyOtNotsModify, .buyOrNotVote, .buyOrNotReport:
             return .json
         }
     }
-    
+
     public var multipartFormData: MultipartFormData? {
         return nil
     }
@@ -120,4 +144,3 @@ extension BuyOrNotRouter: Router {
 struct ReasonRequestDTO: Encodable {
     let reason: String
 }
-

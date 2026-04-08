@@ -31,9 +31,30 @@ public struct BuyOrNotTabViewFeature: GBReducer {
         var userCreated = false
         var pagingTrigger = false
         
+        var currentRecordIndex: Int = 0
+        var currentRecordType: RecordType = .writePost
+        
         var buyOrNotRecordPagingObj = BuyOrNotPagingObj(page: 0, created: true)
         var currentUserList: [BuyOrNotCardViewEntity] = []
         var userListPagingTrigger = false
+        var hasLoadedRecordList = false
+        
+        var buyOrNotChatPagingObj = BuyOrNotPagingObj(page: 0, created: false)
+        var currentChatRoomList: [ChatRoomCardEntity] = []
+        var chatRoomListPagingTrigger = false
+        var isInitialChatLoading = false
+        var hasLoadedChatRoomList = false
+        var groupOnlyMakeMeTrigger = false
+        var currentUserID: String?
+        var currentUserName: String?
+        
+        var filteredChatRoomList: [ChatRoomCardEntity] {
+            guard groupOnlyMakeMeTrigger,
+                  let currentUserID else {
+                return currentChatRoomList
+            }
+            return currentChatRoomList.filter { $0.card.userID == currentUserID }
+        }
         
         
         var errorAlert: GBAlertViewComponents?
@@ -50,6 +71,8 @@ public struct BuyOrNotTabViewFeature: GBReducer {
         case bindingCurrentList([BuyOrNotCardViewEntity])
         case bindingCurrentIndex(Int)
         case bindingTabMode(BuyOrNotTabInMode)
+        case bindingCurrentRecordIndex(Int)
+        case bindingCurrentRecordType(RecordType)
         case bindingAlert(GBAlertViewComponents?)
         case parentEvent(ParentEvent)
         
@@ -74,6 +97,9 @@ public struct BuyOrNotTabViewFeature: GBReducer {
         case moreUserList(index: Int)
         case modifierModel(BuyOrNotCardViewEntity, index: Int)
         case deleteModel(BuyOrNotCardViewEntity, index: Int)
+        case moreChatRoomList(ChatRoomCardEntity)
+        case moveChatRoomTap(ChatRoomCardEntity)
+        case onlyMakeMeButtonTapped
         
         case alertOkTapped(item: GBAlertViewComponents)
         case reportButtonTapped(id: String, reason: ReportCase)
@@ -93,6 +119,8 @@ public struct BuyOrNotTabViewFeature: GBReducer {
         // MARK: 기록
         case requestUserRecordList(BuyOrNotPagingObj)
         case requestMoreRecordList(BuyOrNotPagingObj)
+        case requestUserChatRoomList(BuyOrNotPagingObj)
+        case requestMoreChatRoomList(BuyOrNotPagingObj)
         case requestDeleteRecord(BuyOrNotCardViewEntity, idx: Int)
         
         // MARK: 신고하기
@@ -100,6 +128,10 @@ public struct BuyOrNotTabViewFeature: GBReducer {
         
         case resultUserRecordList(paging: BuyOrNotPagingObj, models: [BuyOrNotCardViewEntity])
         case resultAppendRecordList(paging: BuyOrNotPagingObj, models: [BuyOrNotCardViewEntity])
+        case resultUserChatRoomList(userID: String, userName: String, paging: BuyOrNotPagingObj, models: [ChatRoomCardEntity])
+        case resultAppendChatRoomList(paging: BuyOrNotPagingObj, models: [ChatRoomCardEntity])
+        case cacheCurrentUserInfo(userID: String, userName: String)
+        case failedChatRoomList
         case resultDeleteRecord(idx: Int)
         
         // MARK: Chatting
@@ -113,6 +145,7 @@ public struct BuyOrNotTabViewFeature: GBReducer {
     
     @Dependency(\.networkManager) var networkManager
     @Dependency(\.buyOrNotMapper) var buyOrNotMapper
+    @Dependency(\.chatRepository) var chatRepository
     
     
     public var body: some ReducerOf<Self> {
@@ -139,14 +172,7 @@ extension BuyOrNotTabViewFeature {
                 }
 
             case .viewCycle(.recordOnAppear):
-                let paging = BuyOrNotPagingObj(page: 0, created: true)
-                state.buyOrNotRecordPagingObj = paging
-                state.userListPagingTrigger = false
-                state.currentUserList = []
-                state.currentMode = .load
-                return .run { send in
-                    await send(.featureEvent(.requestUserRecordList(paging)))
-                }
+                return requestCurrentRecordContentIfNeeded(state: &state)
 
             // MARK: - ViewEvent (투표)
 
@@ -175,7 +201,7 @@ extension BuyOrNotTabViewFeature {
             // MARK: - ViewEvent (유저 리스트 & 삭제)
 
             case let .viewEvent(.moreUserList(index)):
-                guard index > state.currentList.count - 2,
+                guard index > state.currentUserList.count - 2,
                       !state.userListPagingTrigger else {
                     return .none
                 }
@@ -192,6 +218,32 @@ extension BuyOrNotTabViewFeature {
                     okTitle: "삭제",
                     alertStyle: .warning
                 )
+                return .none
+
+            case let .viewEvent(.moreChatRoomList(item)):
+                guard let index = state.currentChatRoomList.firstIndex(of: item),
+                      index > state.currentChatRoomList.count - 2,
+                      !state.chatRoomListPagingTrigger else {
+                    return .none
+                }
+                state.buyOrNotChatPagingObj.page += 1
+                state.chatRoomListPagingTrigger = true
+                return .send(.featureEvent(.requestMoreChatRoomList(state.buyOrNotChatPagingObj)))
+
+            case let .viewEvent(.moveChatRoomTap(item)):
+                if let userID = state.currentUserID,
+                   let userName = state.currentUserName {
+                    return .send(.delegate(.moveToChatView(
+                        userID: userID,
+                        userName: userName,
+                        model: item.card
+                    )))
+                }
+                return .send(.featureEvent(.requestUserInfoAfterMoveToChatting(item: item.card)))
+
+            case .viewEvent(.onlyMakeMeButtonTapped):
+                state.groupOnlyMakeMeTrigger.toggle()
+                return .none
 
             case .viewEvent(.alertOkTapped):
                 state.errorAlert = nil
@@ -219,6 +271,26 @@ extension BuyOrNotTabViewFeature {
             case let .featureEvent(.requestMoreRecordList(obj)):
                 return fetchBuyOrNotList(obj: obj, priority: .background) { paging, models in
                     .resultAppendRecordList(paging: paging, models: models)
+                }
+
+            case let .featureEvent(.requestUserChatRoomList(obj)):
+                state.isInitialChatLoading = true
+                return fetchChatRoomList(
+                    obj: obj,
+                    userID: state.currentUserID,
+                    userName: state.currentUserName
+                ) { userID, userName, paging, models in
+                    .resultUserChatRoomList(userID: userID, userName: userName, paging: paging, models: models)
+                }
+
+            case let .featureEvent(.requestMoreChatRoomList(obj)):
+                return fetchChatRoomList(
+                    obj: obj,
+                    priority: .background,
+                    userID: state.currentUserID,
+                    userName: state.currentUserName
+                ) { _, _, paging, models in
+                    .resultAppendChatRoomList(paging: paging, models: models)
                 }
 
             // MARK: - FeatureEvent (삭제)
@@ -284,11 +356,14 @@ extension BuyOrNotTabViewFeature {
                         dto: UserInfoDTO.self,
                         router: UserRouter.currentUserInfos
                     )
+                    await send(.featureEvent(.cacheCurrentUserInfo(
+                        userID: result.id,
+                        userName: result.nickname,
+                    )))
                     await send(.delegate(.moveToChatView(
                         userID: result.id,
                         userName: result.nickname,
                         model: item,
-                        
                     )))
                 } catch: { error, send in
                     guard let error = error as? RouterError else {
@@ -324,11 +399,39 @@ extension BuyOrNotTabViewFeature {
                 state.buyOrNotRecordPagingObj = paging
                 state.currentUserList = models
                 state.userListPagingTrigger = models.isEmpty
+                state.hasLoadedRecordList = true
 
             case let .featureEvent(.resultAppendRecordList(paging, models)):
                 state.buyOrNotRecordPagingObj = paging
                 state.currentUserList.append(contentsOf: models)
-                state.pagingTrigger = models.isEmpty
+                state.userListPagingTrigger = models.isEmpty
+                state.hasLoadedRecordList = true
+
+            case let .featureEvent(.resultUserChatRoomList(userID, userName, paging, models)):
+                state.currentUserID = userID
+                state.currentUserName = userName
+                state.buyOrNotChatPagingObj = paging
+                state.currentChatRoomList = models
+                state.chatRoomListPagingTrigger = models.isEmpty
+                state.isInitialChatLoading = false
+                state.hasLoadedChatRoomList = true
+
+            case let .featureEvent(.resultAppendChatRoomList(paging, models)):
+                state.buyOrNotChatPagingObj = paging
+                state.currentChatRoomList.append(contentsOf: models)
+                state.chatRoomListPagingTrigger = models.isEmpty
+                state.isInitialChatLoading = false
+                state.hasLoadedChatRoomList = true
+
+            case let .featureEvent(.cacheCurrentUserInfo(userID, userName)):
+                state.currentUserID = userID
+                state.currentUserName = userName
+
+            case .featureEvent(.failedChatRoomList):
+                state.chatRoomListPagingTrigger = false
+                state.isInitialChatLoading = false
+                state.hasLoadedChatRoomList = false
+                return .none
 
             case let .featureEvent(.resultDeleteRecord(index)):
                 state.currentUserList.remove(at: index)
@@ -352,6 +455,13 @@ extension BuyOrNotTabViewFeature {
             case let .bindingTabMode(tabMode):
                 state.tabMode = tabMode
 
+            case let .bindingCurrentRecordIndex(currentRecordIndex):
+                state.currentRecordIndex = currentRecordIndex
+
+            case let .bindingCurrentRecordType(currentRecordType):
+                state.currentRecordType = currentRecordType
+                return requestCurrentRecordContentIfNeeded(state: &state)
+
             case let .bindingAlert(model):
                 state.errorAlert = model
                 if model == nil {
@@ -371,7 +481,12 @@ extension BuyOrNotTabViewFeature {
                 case .records:
                     obj.created = true
                     state.buyOrNotRecordPagingObj = obj
-                    return .send(.featureEvent(.requestUserRecordList(obj)))
+                    state.currentUserList.removeAll()
+                    state.hasLoadedRecordList = false
+                    if state.currentRecordType == .writePost {
+                        return .send(.featureEvent(.requestUserRecordList(obj)))
+                    }
+                    return .none
                 }
 
             case let .parentEvent(.modifierSuccess(model, idx)):
@@ -447,6 +562,71 @@ extension BuyOrNotTabViewFeature {
                 return
             }
             Logger.error(error)
+        }
+    }
+
+    private func fetchChatRoomList(
+        obj: BuyOrNotPagingObj,
+        priority: TaskPriority? = nil,
+        userID: String?,
+        userName: String?,
+        toEvent: @escaping (String, String, BuyOrNotPagingObj, [ChatRoomCardEntity]) -> FeatureEvent
+    ) -> Effect<Action> {
+        .run(priority: priority) { send in
+            let resolvedUserID: String
+            let resolvedUserName: String
+
+            if let userID,
+               let userName {
+                resolvedUserID = userID
+                resolvedUserName = userName
+            } else {
+                let result = try await networkManager.requestNetworkWithRefresh(
+                    dto: UserInfoDTO.self,
+                    router: UserRouter.currentUserInfos
+                )
+                resolvedUserID = result.id
+                resolvedUserName = result.nickname
+            }
+
+            let models = try await chatRepository.fetchRoomList(
+                userId: resolvedUserID,
+                page: obj.page,
+                size: obj.size
+            )
+            await send(.featureEvent(toEvent(resolvedUserID, resolvedUserName, obj, models)))
+        } catch: { error, send in
+            Logger.error(error)
+            await send(.featureEvent(.failedChatRoomList))
+            if let error = error as? RouterError {
+                await send(.bindingAlert(GBAlertViewComponents(
+                    title: "ERROR",
+                    message: "참여한 토론방을 확인 할 수 없습니다.\n\(error.localizedDescription)",
+                    okTitle: "확인",
+                    alertStyle: .warningWithWarning
+                )))
+            }
+        }
+    }
+
+    private func requestCurrentRecordContentIfNeeded(state: inout State) -> Effect<Action> {
+        switch state.currentRecordType {
+        case .writePost:
+            guard !state.hasLoadedRecordList else { return .none }
+            let paging = BuyOrNotPagingObj(page: 0, created: true)
+            state.buyOrNotRecordPagingObj = paging
+            state.userListPagingTrigger = false
+            state.currentUserList = []
+            return .send(.featureEvent(.requestUserRecordList(paging)))
+
+        case .joinChat:
+            guard !state.hasLoadedChatRoomList else { return .none }
+            let paging = BuyOrNotPagingObj(page: 0, created: false)
+            state.buyOrNotChatPagingObj = paging
+            state.chatRoomListPagingTrigger = false
+            state.currentChatRoomList = []
+            state.isInitialChatLoading = true
+            return .send(.featureEvent(.requestUserChatRoomList(paging)))
         }
     }
 

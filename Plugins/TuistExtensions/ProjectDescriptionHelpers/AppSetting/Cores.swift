@@ -57,6 +57,12 @@ public extension TargetDependency {
     static let socketIO: Self = .external(name: "SocketIO", condition: nil)
 }
 
+// MARK: Persistence
+public extension TargetDependency {
+    static let realmSwift: Self = .external(name: "RealmSwift", condition: nil)
+    static let realm: Self = .external(name: "Realm", condition: nil)
+}
+
 // MARK: UI
 public extension TargetDependency {
     static let popupView: Self = .external(name: "PopupView", condition: nil)

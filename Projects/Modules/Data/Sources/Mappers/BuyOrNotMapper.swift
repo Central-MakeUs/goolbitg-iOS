@@ -10,7 +10,9 @@ import ComposableArchitecture
 import Utils
 
 public final class BuyOrNotMapper: Sendable {
-  
+
+    public init() {}
+
     public func toEntity(dtos: [BuyOrNotDTO]) async -> [BuyOrNotCardViewEntity] {
         await dtos.asyncMap { toEntity(dto: $0) }
     }

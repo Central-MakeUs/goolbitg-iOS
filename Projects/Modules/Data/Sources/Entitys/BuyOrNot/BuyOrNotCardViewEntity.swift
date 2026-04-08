@@ -8,7 +8,7 @@
 import Foundation
 import Domain
 
-public struct BuyOrNotCardViewEntity: Entity, Identifiable {
+public struct BuyOrNotCardViewEntity: Entity, Identifiable, Sendable {
     public let id: String
     public let userID: String
     public let imageUrl: URL?
@@ -50,7 +50,7 @@ public struct BuyOrNotCardViewEntity: Entity, Identifiable {
     }
 }
 
-public enum GoodOrBadOrNot: Equatable {
+public enum GoodOrBadOrNot: Equatable, Sendable {
     case good
     case bad
     case none

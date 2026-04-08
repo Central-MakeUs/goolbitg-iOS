@@ -22,7 +22,9 @@ private let projectProductTypes: [String: Product] = [
     "KakaoSDK": .framework,
     "Lottie": .framework,
     "Kingfisher" : .framework,
-    "PopupView" : .framework
+    "PopupView" : .framework,
+    "Realm" : .staticFramework,
+    "RealmSwift" : .staticFramework
 ]
 
 private let tcaDynamics: [String : Product] = [

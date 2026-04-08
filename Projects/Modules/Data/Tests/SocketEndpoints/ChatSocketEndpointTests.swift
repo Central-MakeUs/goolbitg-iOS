@@ -10,6 +10,13 @@ final class ChatSocketEndpointTests: XCTestCase {
         XCTAssertEqual(endpoint.connectURL, baseURL.appendingPathComponent("chat"))
     }
 
+    func testConnectURLDropsAPIRestPathAndUsesRootChatEndpoint() {
+        let baseURL = URL(string: "https://example.com/api/v1")!
+        let endpoint = ChatSocketEndpoint(baseURL: baseURL, buyOrNotId: "123")
+
+        XCTAssertEqual(endpoint.connectURL, URL(string: "https://example.com/chat"))
+    }
+
     func testSubscribeDestination() {
         let endpoint = ChatSocketEndpoint(baseURL: URL(string: "https://example.com")!, buyOrNotId: "abc")
         XCTAssertEqual(endpoint.subscribeDestination, "/topic/chat/abc")

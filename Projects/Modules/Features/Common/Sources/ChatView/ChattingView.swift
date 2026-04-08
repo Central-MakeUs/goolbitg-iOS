@@ -10,7 +10,7 @@ import ComposableArchitecture
 import Utils
 
 public struct ChattingView: View {
-    let store: StoreOf<ChattingViewFeature>
+    @Perception.Bindable var store: StoreOf<ChattingViewFeature>
 
     public init(store: StoreOf<ChattingViewFeature>) {
         self.store = store
@@ -36,6 +36,12 @@ public struct ChattingView: View {
             .ignoreAreaBackgroundColor(GBColor.background1.asColor)
             .onAppear {
                 store.send(.viewCycle(.onAppear))
+            }
+            .popup(item: $store.showErrorMessage.sending(\.showErrorMessage)) { message in
+                GBAlertView(model: .init(title: "ERROR", message: message, okTitle: "확인", alertStyle: .warning)) {}
+                okTouch: {
+                    store.send(.showErrorMessage(message: nil))
+                }
             }
         }
     }

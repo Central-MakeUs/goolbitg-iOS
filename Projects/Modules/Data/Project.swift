@@ -16,8 +16,14 @@ let dataTestTarget: Target = .target(
     deploymentTargets: AppConfig.deployTarget,
     sources: ["Tests/**"],
     dependencies: [
-        .target(name: Module.Data.frameWorkName)
-    ]
+        .target(name: Module.Data.frameWorkName),
+        .realmSwift
+    ],
+    settings: .settings(
+        base: [
+            "OTHER_LDFLAGS": "$(inherited) -ObjC"
+        ]
+    )
 )
 
 let dataFramework = Project.create(
@@ -31,7 +37,7 @@ let dataFramework = Project.create(
             .tca,
             .alamofire,
             .swiftyBeaver,
-            .socketIO,
+            .realmSwift,
 //            .jwtToken
         ],
         sources: ["Sources/**"]

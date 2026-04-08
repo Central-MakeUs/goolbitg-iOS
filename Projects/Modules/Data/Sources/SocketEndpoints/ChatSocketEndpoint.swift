@@ -10,7 +10,15 @@ public struct ChatSocketEndpoint {
     }
 
     public var connectURL: URL {
-        baseURL.appendingPathComponent("chat")
+        guard var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
+            return baseURL.appendingPathComponent("chat")
+        }
+
+        components.path = "/chat"
+        components.query = nil
+        components.fragment = nil
+
+        return components.url ?? baseURL.appendingPathComponent("chat")
     }
 
     public var subscribeDestination: String {
