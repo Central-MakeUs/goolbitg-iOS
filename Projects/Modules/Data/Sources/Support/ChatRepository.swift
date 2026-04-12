@@ -93,6 +93,10 @@ public final class ChatRepository: Sendable {
         await socketClient.observeErrors()
     }
 
+    public func observeSocketLifecycle() async -> AsyncStream<SocketManager.LifecycleEvent> {
+        await socketClient.observeLifecycle()
+    }
+
     /// 수신 메시지 스트림 (Realm upsert 후 최신 캐시 배열을 emit)
     public func incomingMessages(roomId: Int) async -> AsyncStream<[ChatMessageEntity]> {
         let stream = await socketClient.subscribeToMessages()
@@ -110,7 +114,7 @@ public final class ChatRepository: Sendable {
         }
     }
 
-    public func sendMessage(_ request: ChatSendRequestDTO) async {
+    public func sendMessage(_ request: ChatSendRequestDTO) async -> Bool {
         await socketClient.sendMessage(request)
     }
 }

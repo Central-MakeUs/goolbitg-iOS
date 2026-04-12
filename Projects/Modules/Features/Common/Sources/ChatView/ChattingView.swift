@@ -24,7 +24,11 @@ public struct ChattingView: View {
                 navigationBar
                     .padding(.horizontal, .md)
                     .padding(.vertical, .md)
-                
+
+                if store.isReconnecting {
+                    reconnectingBanner
+                }
+                 
                 productSection(isLoading: false)
                 
                 listSection
@@ -148,6 +152,15 @@ public struct ChattingView: View {
 
 // MARK: UI
 extension ChattingView {
+    private var reconnectingBanner: some View {
+        Text("채팅 연결을 다시 시도하고 있어요…")
+            .font(FontHelper.body5.font)
+            .foregroundStyle(GBColor.white.asColor)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.vertical, .sm)
+            .background(GBColor.main.asColor.opacity(0.8))
+    }
+
     /// Nav
     private var navigationBar: some View {
         ZStack(alignment: .center) {
@@ -259,6 +272,7 @@ extension ChattingView {
         .padding(.horizontal, .md)
         .padding(.vertical, .sm)
         .border(GBColor.grey500.asColor, width: 1)
+        .opacity(store.isSocketConnected && !store.isReconnecting ? 1 : 0.6)
     }
 }
 

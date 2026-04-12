@@ -26,6 +26,7 @@ public struct ChattingViewFeature: GBReducer {
         var isPaging: Bool = false
         var isInitialLoading: Bool = true
         var isSocketConnected: Bool = false
+        var isReconnecting: Bool = false
         var hasNextPage: Bool = true
         var sendText: String = ""
         var product: Product? = nil
@@ -76,6 +77,8 @@ public struct ChattingViewFeature: GBReducer {
         case initialHistoryLoaded([ChatMessageEntity])
         case olderHistoryLoaded([ChatMessageEntity], appendedCount: Int)
         case socketConnectedChanged(Bool)
+        case socketLifecycleReceived(SocketManager.LifecycleEvent)
+        case socketErrorReceived(SocketManager.ManagerError)
         case incomingMessagesUpdated([ChatMessageEntity])
         case sendAccepted
         case errorReceived(String)
@@ -83,7 +86,8 @@ public struct ChattingViewFeature: GBReducer {
 
     private enum CancelID: Hashable {
         case incoming
-        case lifecycle
+        case errorStream
+        case lifecycleStream
     }
 
     @Dependency(\.chatRepository) var chatRepository
@@ -119,12 +123,8 @@ public struct ChattingViewFeature: GBReducer {
                             let connected = await repo.connectSocket(baseURL: baseURL, roomId: roomId)
                             await send(.featureEvent(.socketConnectedChanged(connected)))
 
-                            if connected {
-                                for await updated in await repo.incomingMessages(roomId: roomId) {
-                                    await send(.featureEvent(.incomingMessagesUpdated(updated)))
-                                }
-                            } else {
-                                await send(.featureEvent(.errorReceived("채팅 서버 연결에 실패했습니다.")))
+                            for await updated in await repo.incomingMessages(roomId: roomId) {
+                                await send(.featureEvent(.incomingMessagesUpdated(updated)))
                             }
                         }
                     }
@@ -132,10 +132,17 @@ public struct ChattingViewFeature: GBReducer {
                     .run { send in
                         let errors = await repo.observeSocketErrors()
                         for await error in errors {
-                            await send(.featureEvent(.errorReceived(ChattingViewFeature.socketErrorMessage(from: error))))
+                            await send(.featureEvent(.socketErrorReceived(error)))
                         }
                     }
-                    .cancellable(id: CancelID.lifecycle, cancelInFlight: true)
+                    .cancellable(id: CancelID.errorStream, cancelInFlight: true),
+                    .run { send in
+                        let lifecycle = await repo.observeSocketLifecycle()
+                        for await event in lifecycle {
+                            await send(.featureEvent(.socketLifecycleReceived(event)))
+                        }
+                    }
+                    .cancellable(id: CancelID.lifecycleStream, cancelInFlight: true)
                 )
 
             case .viewCycle(.onDisappear):
@@ -143,7 +150,8 @@ public struct ChattingViewFeature: GBReducer {
                 return .merge(
                     .run { _ in await repo.disconnectSocket() },
                     .cancel(id: CancelID.incoming),
-                    .cancel(id: CancelID.lifecycle)
+                    .cancel(id: CancelID.errorStream),
+                    .cancel(id: CancelID.lifecycleStream)
                 )
 
             case .viewCycle(.willEnterForeground):
@@ -152,7 +160,8 @@ public struct ChattingViewFeature: GBReducer {
                 let repo = chatRepository
                 return .merge(
                     .cancel(id: CancelID.incoming),
-                    .cancel(id: CancelID.lifecycle),
+                    .cancel(id: CancelID.errorStream),
+                    .cancel(id: CancelID.lifecycleStream),
                     .run { send in
                         await repo.disconnectSocket()
 
@@ -166,12 +175,9 @@ public struct ChattingViewFeature: GBReducer {
                         if let baseURL = ChattingViewFeature.socketBaseURL() {
                             let connected = await repo.connectSocket(baseURL: baseURL, roomId: roomId)
                             await send(.featureEvent(.socketConnectedChanged(connected)))
-                            if connected {
-                                for await updated in await repo.incomingMessages(roomId: roomId) {
-                                    await send(.featureEvent(.incomingMessagesUpdated(updated)))
-                                }
-                            } else {
-                                await send(.featureEvent(.errorReceived("채팅 서버 연결에 실패했습니다.")))
+
+                            for await updated in await repo.incomingMessages(roomId: roomId) {
+                                await send(.featureEvent(.incomingMessagesUpdated(updated)))
                             }
                         }
                     }
@@ -179,10 +185,17 @@ public struct ChattingViewFeature: GBReducer {
                     .run { send in
                         let errors = await repo.observeSocketErrors()
                         for await error in errors {
-                            await send(.featureEvent(.errorReceived(ChattingViewFeature.socketErrorMessage(from: error))))
+                            await send(.featureEvent(.socketErrorReceived(error)))
                         }
                     }
-                    .cancellable(id: CancelID.lifecycle, cancelInFlight: true)
+                    .cancellable(id: CancelID.errorStream, cancelInFlight: true),
+                    .run { send in
+                        let lifecycle = await repo.observeSocketLifecycle()
+                        for await event in lifecycle {
+                            await send(.featureEvent(.socketLifecycleReceived(event)))
+                        }
+                    }
+                    .cancellable(id: CancelID.lifecycleStream, cancelInFlight: true)
                 )
 
             case let .featureEvent(.cachedLoaded(cached)):
@@ -205,7 +218,58 @@ public struct ChattingViewFeature: GBReducer {
 
             case let .featureEvent(.socketConnectedChanged(connected)):
                 state.isSocketConnected = connected
+                if connected {
+                    state.isReconnecting = false
+                }
                 return .none
+
+            case let .featureEvent(.socketLifecycleReceived(event)):
+                switch event {
+                case .connected:
+                    state.isSocketConnected = true
+                    state.isReconnecting = false
+                    return .none
+
+                case .reconnectAttempt:
+                    state.isSocketConnected = false
+                    state.isReconnecting = true
+                    return .none
+
+                case .reconnect:
+                    state.isSocketConnected = true
+                    state.isReconnecting = false
+                    let roomId = state.roomId
+                    let repo = chatRepository
+                    return .run { send in
+                        do {
+                            let merged = try await repo.fetchLatestHistory(roomId: roomId)
+                            await send(.featureEvent(.initialHistoryLoaded(merged)))
+                        } catch {
+                            await send(.featureEvent(.errorReceived("연결 복구 후 메시지를 다시 불러오지 못했습니다.")))
+                        }
+                    }
+
+                case .disconnected:
+                    state.isSocketConnected = false
+                    state.isReconnecting = false
+                    return .none
+
+                case let .statusChanged(status, _):
+                    state.isSocketConnected = status == "connected"
+                    if status == "reconnecting" {
+                        state.isReconnecting = true
+                    } else if status == "connected" || status == "notConnected" {
+                        state.isReconnecting = false
+                    }
+                    return .none
+                }
+
+            case let .featureEvent(.socketErrorReceived(error)):
+                state.isInitialLoading = false
+                guard let message = ChattingViewFeature.socketErrorMessage(from: error, isReconnecting: state.isReconnecting) else {
+                    return .none
+                }
+                return .send(.showErrorMessage(message: message))
 
             case let .featureEvent(.incomingMessagesUpdated(messages)):
                 state.loadedMessages = messages
@@ -251,6 +315,9 @@ public struct ChattingViewFeature: GBReducer {
             case .viewEvent(.sendTapped):
                 let trimmed = state.sendText.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !trimmed.isEmpty else { return .none }
+                guard state.isSocketConnected, !state.isReconnecting else {
+                    return .send(.showErrorMessage(message: "채팅 연결을 복구하는 중입니다. 잠시 후 다시 시도해 주세요."))
+                }
                 let request = ChatSendRequestDTO(
                     userId: state.userID,
                     username: state.userName,
@@ -258,8 +325,12 @@ public struct ChattingViewFeature: GBReducer {
                 )
                 let repo = chatRepository
                 return .run { send in
-                    await repo.sendMessage(request)
-                    await send(.featureEvent(.sendAccepted))
+                    let didSend = await repo.sendMessage(request)
+                    if didSend {
+                        await send(.featureEvent(.sendAccepted))
+                    } else {
+                        await send(.featureEvent(.errorReceived("메시지를 보내지 못했습니다. 연결 상태를 확인해 주세요.")))
+                    }
                 }
 
             case .viewEvent(.productEditTapped):
@@ -279,16 +350,30 @@ public struct ChattingViewFeature: GBReducer {
         return URL(string: urlString)
     }
 
-    private static func socketErrorMessage(from error: SocketManager.ManagerError) -> String {
+    private static func socketErrorMessage(
+        from error: SocketManager.ManagerError,
+        isReconnecting: Bool
+    ) -> String? {
         switch error {
         case .notConfigured:
             return "채팅 소켓 설정이 완료되지 않았습니다."
         case .socketUnavailable:
-            return "채팅 소켓을 사용할 수 없습니다."
+            return isReconnecting ? nil : "채팅 연결이 일시적으로 끊어졌습니다. 잠시 후 다시 시도해 주세요."
         case let .invalidEmitPayload(event):
             return "채팅 메시지 형식이 올바르지 않습니다. (\(event))"
         case let .socketError(message):
-            return message.isEmpty ? "채팅 소켓 오류가 발생했습니다." : message
+            let normalized = message.lowercased()
+            let isTransientDisconnect = normalized.contains("socket is not connected")
+                || normalized.contains("socket is not conneted")
+                || normalized.contains("network connection was lost")
+                || normalized.contains("software caused connection abort")
+                || normalized.contains("broken pipe")
+
+            if isTransientDisconnect {
+                return isReconnecting ? nil : "채팅 연결이 일시적으로 끊어졌습니다. 다시 연결해 주세요."
+            }
+
+            return message.isEmpty ? "채팅 소켓 오류가 발생했습니다." : "채팅 연결에 문제가 발생했습니다. 잠시 후 다시 시도해 주세요."
         }
     }
 }

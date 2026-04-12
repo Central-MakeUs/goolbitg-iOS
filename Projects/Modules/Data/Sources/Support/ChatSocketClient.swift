@@ -112,11 +112,11 @@ public actor ChatSocketClient {
     }
 
     /// Sends a chat message
-    public func sendMessage(_ request: ChatSendRequestDTO) async {
-        guard let endpoint else { return }
+    public func sendMessage(_ request: ChatSendRequestDTO) async -> Bool {
+        guard let endpoint else { return false }
         let sendDest = endpoint.sendDestination
         let payload = mapper.mapToOutboundPayload(dto: request)
-        await socketManager.emit(event: sendDest, items: [payload])
+        return await socketManager.emit(event: sendDest, items: [payload])
     }
 
     // MARK: - Lifecycle & Errors

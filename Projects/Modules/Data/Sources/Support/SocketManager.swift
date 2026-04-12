@@ -80,6 +80,12 @@ enum STOMPFrameCodec {
 
 public actor SocketManager {
 
+    private enum Defaults {
+        static let heartbeatHeaderValue = "10000,10000"
+        static let pingInterval: Duration = .seconds(15)
+        static let reconnectDelays: [Duration] = [.seconds(1), .seconds(2), .seconds(4), .seconds(8), .seconds(16)]
+    }
+
     public struct Configuration {
         public let url: URL
 
@@ -124,8 +130,14 @@ public actor SocketManager {
     private var socketTask: URLSessionWebSocketTask?
     private var session: URLSession?
     private var receiveTask: Task<Void, Never>?
+    private var pingTask: Task<Void, Never>?
+    private var reconnectTask: Task<Void, Never>?
     private var desiredSubscriptions: Set<String> = []
     private var activeSubscriptions: Set<String> = []
+    private var reconnectAttempt: Int = 0
+    private var isReconnecting: Bool = false
+    private var hasEstablishedConnection: Bool = false
+    private var explicitDisconnectRequested: Bool = false
 
     private var eventContinuations: [UUID: AsyncStream<Event>.Continuation] = [:]
     private var errorContinuations: [UUID: AsyncStream<ManagerError>.Continuation] = [:]
@@ -136,6 +148,8 @@ public actor SocketManager {
 
     deinit {
         receiveTask?.cancel()
+        pingTask?.cancel()
+        reconnectTask?.cancel()
         socketTask?.cancel(with: .goingAway, reason: nil)
         session?.invalidateAndCancel()
     }
@@ -149,7 +163,14 @@ extension SocketManager {
     public func configure(_ configuration: Configuration) {
         self.configuration = configuration
         connectionGeneration += 1
+        explicitDisconnectRequested = false
+        isReconnecting = false
+        reconnectAttempt = 0
         activeSubscriptions.removeAll()
+        pingTask?.cancel()
+        pingTask = nil
+        reconnectTask?.cancel()
+        reconnectTask = nil
         publishLifecycle(.statusChanged(status: "configured", items: []))
     }
 
@@ -164,7 +185,9 @@ extension SocketManager {
             return
         }
 
-        await tearDownConnection(reason: nil, incrementGeneration: false)
+        explicitDisconnectRequested = false
+
+        await tearDownConnection(reason: nil, incrementGeneration: false, publishDisconnect: false, cancelReconnectTask: true)
         let generation = connectionGeneration
 
         let session = URLSession(configuration: .default)
@@ -178,7 +201,7 @@ extension SocketManager {
 
         var headers = [
             "accept-version": "1.2",
-            "heart-beat": "0,0"
+            "heart-beat": Defaults.heartbeatHeaderValue
         ]
         if let host = configuration.url.host, !host.isEmpty {
             headers["host"] = host
@@ -190,22 +213,26 @@ extension SocketManager {
                 await self?.receiveLoop(generation: generation)
             }
         } catch {
-            publishError(.socketError(message: error.localizedDescription))
+            await handleConnectionFailure(reason: error.localizedDescription, generation: generation, shouldPublishError: true)
         }
     }
 
     public func disconnect() async {
-        await tearDownConnection(reason: "client disconnect", incrementGeneration: true)
+        explicitDisconnectRequested = true
+        isReconnecting = false
+        reconnectAttempt = 0
+        hasEstablishedConnection = false
+        await tearDownConnection(reason: "client disconnect", incrementGeneration: true, publishDisconnect: true, cancelReconnectTask: true)
     }
 
-    public func emit(event: String, items: [Any] = []) async {
+    public func emit(event: String, items: [Any] = []) async -> Bool {
         guard let payload = items.first else {
             publishError(.invalidEmitPayload(event: event))
-            return
+            return false
         }
         guard let body = STOMPFrameCodec.jsonString(from: payload) else {
             publishError(.invalidEmitPayload(event: event))
-            return
+            return false
         }
 
         do {
@@ -217,8 +244,10 @@ extension SocketManager {
                 ],
                 body: body
             ))
+            return true
         } catch {
-            publishError(.socketError(message: error.localizedDescription))
+            await handleConnectionFailure(reason: error.localizedDescription, generation: connectionGeneration, shouldPublishError: true)
+            return false
         }
     }
 
@@ -228,7 +257,7 @@ extension SocketManager {
         timeout: Double = 0,
         callback: @escaping ([Any]) -> Void
     ) async {
-        await emit(event: event, items: items)
+        _ = await emit(event: event, items: items)
         let result: [Any] = timeout >= 0 ? [] : []
         callback(result)
     }
@@ -291,7 +320,11 @@ extension SocketManager {
     }
 
     public func reset() async {
-        await tearDownConnection(reason: "reset", incrementGeneration: true)
+        explicitDisconnectRequested = true
+        isReconnecting = false
+        reconnectAttempt = 0
+        hasEstablishedConnection = false
+        await tearDownConnection(reason: "reset", incrementGeneration: true, publishDisconnect: true, cancelReconnectTask: true)
 
         let events = Array(eventContinuations.values)
         let errors = Array(errorContinuations.values)
@@ -347,9 +380,22 @@ private extension SocketManager {
                 }
             }
         } catch {
-            guard generation == connectionGeneration else { return }
-            await tearDownConnection(reason: error.localizedDescription, incrementGeneration: false)
-            publishError(.socketError(message: error.localizedDescription))
+            await handleConnectionFailure(reason: error.localizedDescription, generation: generation, shouldPublishError: true)
+        }
+    }
+
+    func pingLoop(generation: Int) async {
+        while !Task.isCancelled {
+            try? await Task.sleep(for: Defaults.pingInterval)
+            guard !Task.isCancelled else { return }
+            guard generation == connectionGeneration, isSocketConnected else { return }
+
+            do {
+                try await sendPing()
+            } catch {
+                await handleConnectionFailure(reason: error.localizedDescription, generation: generation, shouldPublishError: true)
+                return
+            }
         }
     }
 
@@ -360,6 +406,19 @@ private extension SocketManager {
             switch frame.command {
             case "CONNECTED":
                 statusValue = "connected"
+                let completedReconnectAttempt = reconnectAttempt
+                let wasReconnecting = isReconnecting || completedReconnectAttempt > 0
+                isReconnecting = false
+                reconnectAttempt = 0
+                hasEstablishedConnection = true
+                pingTask?.cancel()
+                let generation = connectionGeneration
+                pingTask = Task { [weak self] in
+                    await self?.pingLoop(generation: generation)
+                }
+                if wasReconnecting {
+                    publishLifecycle(.reconnect(items: [completedReconnectAttempt]))
+                }
                 publishLifecycle(.connected(items: [frame.headers]))
                 publishLifecycle(.statusChanged(status: "connected", items: []))
                 for destination in desiredSubscriptions.sorted() {
@@ -399,7 +458,7 @@ private extension SocketManager {
             ))
             activeSubscriptions.insert(event)
         } catch {
-            publishError(.socketError(message: error.localizedDescription))
+            await handleConnectionFailure(reason: error.localizedDescription, generation: connectionGeneration, shouldPublishError: true)
         }
     }
 
@@ -411,18 +470,83 @@ private extension SocketManager {
                 headers: ["id": subscriptionID(for: event)]
             ))
         } catch {
-            publishError(.socketError(message: error.localizedDescription))
+            if isSocketConnected {
+                publishError(.socketError(message: error.localizedDescription))
+            }
         }
         activeSubscriptions.remove(event)
     }
 
-    func tearDownConnection(reason: String?, incrementGeneration: Bool) async {
+    func handleConnectionFailure(reason: String, generation: Int, shouldPublishError: Bool) async {
+        guard generation == connectionGeneration else { return }
+
+        if shouldAttemptReconnect {
+            await scheduleReconnect(after: reason, incrementGeneration: true)
+            return
+        }
+
+        isReconnecting = false
+        reconnectAttempt = 0
+        hasEstablishedConnection = false
+        await tearDownConnection(reason: reason, incrementGeneration: true, publishDisconnect: true, cancelReconnectTask: true)
+        if shouldPublishError {
+            publishError(.socketError(message: reason))
+        }
+    }
+
+    var shouldAttemptReconnect: Bool {
+        guard !explicitDisconnectRequested else { return false }
+        guard configuration != nil, hasEstablishedConnection else { return false }
+        guard reconnectTask == nil else { return false }
+        return reconnectAttempt < Defaults.reconnectDelays.count
+    }
+
+    func scheduleReconnect(after reason: String, incrementGeneration: Bool) async {
+        guard shouldAttemptReconnect else { return }
+
+        reconnectAttempt += 1
+        let attempt = reconnectAttempt
+        let delay = Defaults.reconnectDelays[attempt - 1]
+        isReconnecting = true
+
+        await tearDownConnection(reason: nil, incrementGeneration: incrementGeneration, publishDisconnect: false, cancelReconnectTask: false)
+        publishLifecycle(.reconnectAttempt(items: [attempt, reason]))
+        publishLifecycle(.statusChanged(status: "reconnecting", items: [attempt]))
+
+        reconnectTask = Task { [weak self] in
+            try? await Task.sleep(for: delay)
+            guard !Task.isCancelled else { return }
+            await self?.resumeReconnect()
+        }
+    }
+
+    func resumeReconnect() async {
+        reconnectTask = nil
+        guard !explicitDisconnectRequested else { return }
+        guard configuration != nil else { return }
+        await connect()
+    }
+
+    func tearDownConnection(
+        reason: String?,
+        incrementGeneration: Bool,
+        publishDisconnect: Bool,
+        cancelReconnectTask: Bool
+    ) async {
         if incrementGeneration {
             connectionGeneration += 1
         }
 
         receiveTask?.cancel()
         receiveTask = nil
+
+        pingTask?.cancel()
+        pingTask = nil
+
+        if cancelReconnectTask {
+            reconnectTask?.cancel()
+            reconnectTask = nil
+        }
 
         socketTask?.cancel(with: .goingAway, reason: nil)
         socketTask = nil
@@ -435,10 +559,26 @@ private extension SocketManager {
         let wasConnected = statusValue == "connected" || statusValue == "connecting"
         statusValue = "notConnected"
 
-        if let reason, wasConnected {
+        if publishDisconnect, let reason, wasConnected {
             publishLifecycle(.disconnected(reason: reason, items: []))
         }
         publishLifecycle(.statusChanged(status: "notConnected", items: []))
+    }
+
+    func sendPing() async throws {
+        guard let socketTask else {
+            throw ManagerError.socketUnavailable
+        }
+
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            socketTask.sendPing { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: ())
+                }
+            }
+        }
     }
 
     func removeListener(id: UUID) async {

@@ -2,6 +2,22 @@ import XCTest
 @testable import Data
 
 final class SocketManagerSTOMPTests: XCTestCase {
+    func testSerializeConnectFrameIncludesHeartbeatNegotiation() {
+        let raw = STOMPFrameCodec.serialize(
+            STOMPFrame(
+                command: "CONNECT",
+                headers: [
+                    "accept-version": "1.2",
+                    "heart-beat": "10000,10000"
+                ]
+            )
+        )
+
+        XCTAssertTrue(raw.hasPrefix("CONNECT\n"))
+        XCTAssertTrue(raw.contains("accept-version:1.2"))
+        XCTAssertTrue(raw.contains("heart-beat:10000,10000"))
+    }
+
     func testSerializeSendFrameIncludesDestinationAndBody() {
         let raw = STOMPFrameCodec.serialize(
             STOMPFrame(
@@ -38,5 +54,20 @@ final class SocketManagerSTOMPTests: XCTestCase {
 
         XCTAssertEqual(object?["buyOrNotId"] as? Int, 2)
         XCTAssertEqual(object?["content"] as? String, "hello")
+    }
+
+    func testSocketManagerSourceNoLongerUsesZeroHeartbeat() throws {
+        let testFileURL = URL(fileURLWithPath: #filePath)
+        let dataModuleURL = testFileURL
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let socketManagerURL = dataModuleURL
+            .appendingPathComponent("Sources/Support/SocketManager.swift")
+
+        let content = try String(contentsOf: socketManagerURL, encoding: .utf8)
+        XCTAssertFalse(content.contains("\"heart-beat\": \"0,0\""))
+        XCTAssertTrue(content.contains("10000,10000"))
+        XCTAssertTrue(content.contains("sendPing"))
+        XCTAssertTrue(content.contains("reconnectAttempt"))
     }
 }

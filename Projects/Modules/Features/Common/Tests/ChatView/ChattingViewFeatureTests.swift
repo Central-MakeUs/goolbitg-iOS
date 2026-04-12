@@ -134,4 +134,33 @@ final class ChattingViewFeatureTests: XCTestCase {
         XCTAssertEqual(message.type, .right)
         XCTAssertNil(message.userName)
     }
+
+    func testReducerSourceNoLongerUsesRawSocketTransportString() throws {
+        let testFileURL = URL(fileURLWithPath: #filePath)
+        let featureURL = testFileURL
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("Sources/ChatView/ChattingViewFeature.swift")
+        let content = try String(contentsOf: featureURL, encoding: .utf8)
+
+        XCTAssertFalse(content.contains("return message.isEmpty ? \"채팅 소켓 오류가 발생했습니다.\" : message"))
+        XCTAssertTrue(content.contains("isReconnecting"))
+        XCTAssertTrue(content.contains("socketLifecycleReceived"))
+        XCTAssertTrue(content.contains("fetchLatestHistory(roomId: roomId)"))
+        XCTAssertFalse(content.contains("if connected {\n                                for await updated in await repo.incomingMessages"))
+    }
+
+    func testViewSourceShowsReconnectBanner() throws {
+        let testFileURL = URL(fileURLWithPath: #filePath)
+        let viewURL = testFileURL
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("Sources/ChatView/ChattingView.swift")
+        let content = try String(contentsOf: viewURL, encoding: .utf8)
+
+        XCTAssertTrue(content.contains("store.isReconnecting"))
+        XCTAssertTrue(content.contains("채팅 연결을 다시 시도하고 있어요"))
+    }
 }
