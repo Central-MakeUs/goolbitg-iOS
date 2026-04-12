@@ -37,6 +37,9 @@ public struct ChattingView: View {
             .onAppear {
                 store.send(.viewCycle(.onAppear))
             }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+                store.send(.viewCycle(.willEnterForeground))
+            }
             .popup(item: $store.showErrorMessage.sending(\.showErrorMessage)) { message in
                 GBAlertView(model: .init(title: "ERROR", message: message, okTitle: "확인", alertStyle: .warning)) {}
                 okTouch: {
@@ -47,47 +50,79 @@ public struct ChattingView: View {
     }
     
     private var listSection: some View {
-        List {
-            let renderingItems = store.isInitialLoading
-                ? ChattingViewFeature.buildListItems(from: ChattingViewFeature.loadingPlaceholderMessages)
-                : store.listItems
-            
-            20.heightBox
-                .resetRowStyle()
-                .listRowBackground(Color.clear)
-            
-            ForEach(Array(renderingItems.enumerated()), id: \.element.id) { index, item in
-                switch item {
-                case let .date(dateString):
-                    dateSection(dateString: dateString)
-                        .padding(.bottom, .lg)
-                        .skeletonEffect(isActive: store.isInitialLoading)
+        ScrollViewReader { proxy in
+            WithPerceptionTracking {
+                List {
+                    let renderingItems = store.isInitialLoading
+                        ? ChattingViewFeature.buildListItems(from: ChattingViewFeature.loadingPlaceholderMessages)
+                        : store.listItems
+
+                    20.heightBox
                         .resetRowStyle()
                         .listRowBackground(Color.clear)
-                        .onAppear {
-                            if !store.isInitialLoading {
-                                store.send(.viewEvent(.loadMoreIfNeeded(index)))
+
+                    ForEach(Array(renderingItems.enumerated()), id: \.element.id) { index, item in
+                        switch item {
+                        case let .date(dateString):
+                            dateSection(dateString: dateString)
+                                .padding(.bottom, .lg)
+                                .skeletonEffect(isActive: store.isInitialLoading)
+                                .resetRowStyle()
+                                .listRowBackground(Color.clear)
+                                .onAppear {
+                                    if !store.isInitialLoading {
+                                        store.send(.viewEvent(.loadMoreIfNeeded(index)))
+                                    }
+                                }
+
+                        case let .chat(message):
+                            ChatBubbleView(
+                                type: message.type,
+                                text: message.text,
+                                timeStr: message.timeString,
+                                userName: message.userName
+                            )
+                            .padding(.horizontal, .sm)
+                            .padding(.bottom, .lg)
+                            .skeletonEffect(isActive: store.isInitialLoading)
+                            .resetRowStyle()
+                            .listRowBackground(Color.clear)
+                            .onAppear {
+                                if !store.isInitialLoading {
+                                    store.send(.viewEvent(.loadMoreIfNeeded(index)))
+                                }
                             }
                         }
-                        
-                        
-                case let .chat(message):
-                    ChatBubbleView(
-                        type: message.type,
-                        text: message.text,
-                        timeStr: message.timeString,
-                        userName: message.userName
-                    )
-                    .padding(.horizontal, .sm)
-                    .padding(.bottom, .lg)
-                    .skeletonEffect(isActive: store.isInitialLoading)
+                    }
+
+                    Color.clear
+                        .frame(height: 1)
+                        .id("chatListBottom")
                         .resetRowStyle()
                         .listRowBackground(Color.clear)
-                        .onAppear {
-                            if !store.isInitialLoading {
-                                store.send(.viewEvent(.loadMoreIfNeeded(index)))
-                            }
+                }
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
+                )
+                .onChange(of: store.listItems.count) { _ in
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        proxy.scrollTo("chatListBottom", anchor: .bottom)
+                    }
+                }
+                .onChange(of: store.isInitialLoading) { isLoading in
+                    guard !isLoading else { return }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        proxy.scrollTo("chatListBottom", anchor: .bottom)
+                    }
+                }
+                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        withAnimation(.easeOut(duration: 0.25)) {
+                            proxy.scrollTo("chatListBottom", anchor: .bottom)
                         }
+                    }
                 }
             }
         }
@@ -109,7 +144,6 @@ public struct ChattingView: View {
         }
         .padding(.horizontal, .md)
     }
-    
 }
 
 // MARK: UI

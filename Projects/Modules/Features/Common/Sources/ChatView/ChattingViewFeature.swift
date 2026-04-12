@@ -61,6 +61,7 @@ public struct ChattingViewFeature: GBReducer {
     public enum ViewCycle {
         case onAppear
         case onDisappear
+        case willEnterForeground
     }
 
     public enum ViewEvent {
@@ -143,6 +144,45 @@ public struct ChattingViewFeature: GBReducer {
                     .run { _ in await repo.disconnectSocket() },
                     .cancel(id: CancelID.incoming),
                     .cancel(id: CancelID.lifecycle)
+                )
+
+            case .viewCycle(.willEnterForeground):
+                guard !state.isInitialLoading else { return .none }
+                let roomId = state.roomId
+                let repo = chatRepository
+                return .merge(
+                    .cancel(id: CancelID.incoming),
+                    .cancel(id: CancelID.lifecycle),
+                    .run { send in
+                        await repo.disconnectSocket()
+
+                        do {
+                            let merged = try await repo.fetchLatestHistory(roomId: roomId)
+                            await send(.featureEvent(.initialHistoryLoaded(merged)))
+                        } catch {
+                            await send(.featureEvent(.errorReceived("히스토리 재조회 실패")))
+                        }
+
+                        if let baseURL = ChattingViewFeature.socketBaseURL() {
+                            let connected = await repo.connectSocket(baseURL: baseURL, roomId: roomId)
+                            await send(.featureEvent(.socketConnectedChanged(connected)))
+                            if connected {
+                                for await updated in await repo.incomingMessages(roomId: roomId) {
+                                    await send(.featureEvent(.incomingMessagesUpdated(updated)))
+                                }
+                            } else {
+                                await send(.featureEvent(.errorReceived("채팅 서버 연결에 실패했습니다.")))
+                            }
+                        }
+                    }
+                    .cancellable(id: CancelID.incoming, cancelInFlight: true),
+                    .run { send in
+                        let errors = await repo.observeSocketErrors()
+                        for await error in errors {
+                            await send(.featureEvent(.errorReceived(ChattingViewFeature.socketErrorMessage(from: error))))
+                        }
+                    }
+                    .cancellable(id: CancelID.lifecycle, cancelInFlight: true)
                 )
 
             case let .featureEvent(.cachedLoaded(cached)):
