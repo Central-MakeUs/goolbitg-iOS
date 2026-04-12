@@ -85,10 +85,18 @@ public final class ChatLocalStore: @unchecked Sendable {
         do {
             try await realm.asyncWrite {
                 for entity in items {
+                    let preservedUserId: String
+                    if entity.userId.isEmpty,
+                       let existing = realm.object(ofType: RealmChatMessageObject.self, forPrimaryKey: entity.id) {
+                        preservedUserId = existing.userId
+                    } else {
+                        preservedUserId = entity.userId
+                    }
+
                     let object = RealmChatMessageObject(
                         messageId: entity.id,
                         roomId: entity.buyOrNotId,
-                        userId: entity.userId,
+                        userId: preservedUserId,
                         username: entity.username,
                         content: entity.content,
                         sentDateTimeRaw: entity.sentDateTime,

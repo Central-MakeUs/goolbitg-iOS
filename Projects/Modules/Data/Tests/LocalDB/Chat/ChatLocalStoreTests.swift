@@ -88,4 +88,32 @@ final class ChatLocalStoreTests: XCTestCase {
 
         XCTAssertEqual(cached.map(\.id), [1, 2])
     }
+
+    func testHistoryUpsertPreservesExistingUserIdWhenHistoryPayloadOmitsIt() async {
+        let store = makeStore()
+        let socketEntity = ChatMessageEntity(
+            id: 42,
+            buyOrNotId: 10,
+            userId: "socket-user",
+            username: "n",
+            content: "hello",
+            sentDateTime: "2026-04-02T10:00:00",
+            sentAt: Date(timeIntervalSince1970: 200)
+        )
+        _ = await store.upsertIncoming(socketEntity)
+
+        let historyEntity = ChatMessageEntity(
+            id: 42,
+            buyOrNotId: 10,
+            userId: "",
+            username: "n",
+            content: "hello",
+            sentDateTime: "2026-04-02T10:00:00",
+            sentAt: Date(timeIntervalSince1970: 200)
+        )
+        _ = await store.upsertHistoryPage(roomId: 10, items: [historyEntity])
+
+        let cached = await store.loadCachedMessages(roomId: 10)
+        XCTAssertEqual(cached.first?.userId, "socket-user")
+    }
 }

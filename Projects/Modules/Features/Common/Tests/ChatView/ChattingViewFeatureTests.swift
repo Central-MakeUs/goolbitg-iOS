@@ -151,6 +151,19 @@ final class ChattingViewFeatureTests: XCTestCase {
         XCTAssertFalse(content.contains("if connected {\n                                for await updated in await repo.incomingMessages"))
     }
 
+    func testReducerSourcePreservesPagingStateDuringLatestRefresh() throws {
+        let testFileURL = URL(fileURLWithPath: #filePath)
+        let featureURL = testFileURL
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("Sources/ChatView/ChattingViewFeature.swift")
+        let content = try String(contentsOf: featureURL, encoding: .utf8)
+
+        XCTAssertTrue(content.contains("if state.isInitialLoading {\n                    state.hasNextPage = !messages.isEmpty\n                }"))
+        XCTAssertFalse(content.contains("state.hasNextPage = !messages.isEmpty\n                return .none"))
+    }
+
     func testViewSourceShowsReconnectBanner() throws {
         let testFileURL = URL(fileURLWithPath: #filePath)
         let viewURL = testFileURL

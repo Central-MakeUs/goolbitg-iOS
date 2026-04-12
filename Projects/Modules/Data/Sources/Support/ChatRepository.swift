@@ -49,26 +49,25 @@ public final class ChatRepository: Sendable {
 
     // MARK: - History
 
-    /// 최신 페이지 fetch + 캐시 머지
+    /// 마지막 동기화 messageId 이후의 최신 메시지 fetch + 캐시 머지
     @discardableResult
     public func fetchLatestHistory(roomId: Int) async throws -> [ChatMessageEntity] {
-        let dto = try await networkManager.requestNetworkWithRefresh(
-            dto: [ChatHistoryMessageDTO].self,
-            router: BuyOrNotRouter.buyOrNotChatHistory(postId: roomId, chatLastId: nil)
-        )
-        let entities = mapper.map(historyDTOs: dto, roomId: roomId)
-        return await localStore.upsertHistoryPage(roomId: roomId, items: entities)
+        let cursor = await localStore.roomMetadata(roomId: roomId)?.lastSyncedMessageId
+        return try await fetchHistory(roomId: roomId, chatLastId: cursor)
     }
 
     /// 과거 페이지 fetch + 캐시 머지
     @discardableResult
     public func fetchOlderHistory(roomId: Int) async throws -> [ChatMessageEntity] {
-        guard let cursor = await localStore.oldestMessageId(roomId: roomId) else {
-            return try await fetchLatestHistory(roomId: roomId)
-        }
+        let cursor = await localStore.oldestMessageId(roomId: roomId)
+        return try await fetchHistory(roomId: roomId, chatLastId: cursor)
+    }
+
+    @discardableResult
+    private func fetchHistory(roomId: Int, chatLastId: Int?) async throws -> [ChatMessageEntity] {
         let dto = try await networkManager.requestNetworkWithRefresh(
             dto: [ChatHistoryMessageDTO].self,
-            router: BuyOrNotRouter.buyOrNotChatHistory(postId: roomId, chatLastId: cursor)
+            router: BuyOrNotRouter.buyOrNotChatHistory(postId: roomId, chatLastId: chatLastId)
         )
         let entities = mapper.map(historyDTOs: dto, roomId: roomId)
         return await localStore.upsertHistoryPage(roomId: roomId, items: entities)

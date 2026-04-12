@@ -206,8 +206,10 @@ public struct ChattingViewFeature: GBReducer {
 
             case let .featureEvent(.initialHistoryLoaded(messages)):
                 state.loadedMessages = messages
+                if state.isInitialLoading {
+                    state.hasNextPage = !messages.isEmpty
+                }
                 state.isInitialLoading = false
-                state.hasNextPage = !messages.isEmpty
                 return .none
 
             case let .featureEvent(.olderHistoryLoaded(messages, appendedCount)):
