@@ -11,6 +11,7 @@ import Domain
 public struct BuyOrNotCardViewEntity: Entity, Identifiable, Sendable {
     public let id: String
     public let userID: String
+    public let userName: String?
     public let imageUrl: URL?
     public let itemName: String
     public let priceString: String
@@ -26,6 +27,7 @@ public struct BuyOrNotCardViewEntity: Entity, Identifiable, Sendable {
     public init(
         id: String,
         userID: String,
+        userName: String? = nil,
         imageUrl: URL?,
         itemName: String,
         priceString: String,
@@ -38,6 +40,7 @@ public struct BuyOrNotCardViewEntity: Entity, Identifiable, Sendable {
     ) {
         self.id = id
         self.userID = userID
+        self.userName = userName
         self.imageUrl = imageUrl
         self.itemName = itemName
         self.priceString = priceString
@@ -61,7 +64,7 @@ extension BuyOrNotCardViewEntity {
     public static func dummy() -> [BuyOrNotCardViewEntity] {
         [
             BuyOrNotCardViewEntity(
-                id: UUID().uuidString, userID: "asd",
+                id: UUID().uuidString, userID: "asd", userName: nil,
                 imageUrl: URL(string: "https://health.chosun.com/site/data/img_dir/2024/04/23/2024042302394_0.jpg"),
                 itemName: "나이키 ACG 써마핏 ADV 루나 레이크 패딩 BC1220",
                 priceString: "70,000원",

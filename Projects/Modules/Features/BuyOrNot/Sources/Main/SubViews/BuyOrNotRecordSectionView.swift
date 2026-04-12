@@ -85,7 +85,7 @@ struct BuyOrNotRecordSectionView: View {
                         } else {
                             ForEach(Array(currentChatRoomList.enumerated()), id: \.element.id) { index, item in
                                 chatRoomRow(
-                                    model: item.chatCardViewEntity,
+                                    model: BuyOrNotChatCardViewEntity(chatRoomCard: item),
                                     isLast: index == currentChatRoomList.count - 1,
                                     isLoading: false
                                 )
@@ -167,18 +167,6 @@ struct BuyOrNotRecordSectionView: View {
 
     private var loadingChatItems: [BuyOrNotChatCardViewEntity] {
         Array(repeating: BuyOrNotChatCardViewEntity.loadingPlaceholder, count: 3)
-    }
-}
-
-private extension ChatRoomCardEntity {
-    var chatCardViewEntity: BuyOrNotChatCardViewEntity {
-        BuyOrNotChatCardViewEntity(
-            imageUrl: card.imageUrl,
-            productName: card.itemName,
-            price: card.priceString.hasSuffix("원") ? card.priceString : "\(card.priceString)원",
-            writerName: card.userID,
-            category: nil
-        )
     }
 }
 

@@ -13,6 +13,8 @@ public struct BuyOrNotDTO: DTO {
     let id: Int?
     /// 작성자 ID
     let writerId: String?
+    /// 작성자 이름
+    let writerName: String?
     /// 상품 이름
     let productName: String
     /// 상품 금액

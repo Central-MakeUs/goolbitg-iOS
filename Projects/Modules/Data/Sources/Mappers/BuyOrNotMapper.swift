@@ -31,6 +31,7 @@ public final class BuyOrNotMapper: Sendable {
         return BuyOrNotCardViewEntity(
             id: String(dto.id ?? 0),
             userID: dto.writerId ?? "",
+            userName: dto.writerName,
             imageUrl: URL(string: dto.productImageUrl ?? ""),
             itemName: dto.productName,
             priceString: GBNumberForMatter.shared.changeForCommaNumber(String(dto.productPrice)),
