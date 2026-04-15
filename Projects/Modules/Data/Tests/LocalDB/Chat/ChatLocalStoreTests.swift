@@ -1,5 +1,4 @@
 import XCTest
-import RealmSwift
 @testable import Data
 
 final class ChatLocalStoreTests: XCTestCase {

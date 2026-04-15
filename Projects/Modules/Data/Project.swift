@@ -16,8 +16,7 @@ let dataTestTarget: Target = .target(
     deploymentTargets: AppConfig.deployTarget,
     sources: ["Tests/**"],
     dependencies: [
-        .target(name: Module.Data.frameWorkName),
-        .realmSwift
+        .target(name: Module.Data.frameWorkName)
     ],
     settings: .settings(
         base: [
