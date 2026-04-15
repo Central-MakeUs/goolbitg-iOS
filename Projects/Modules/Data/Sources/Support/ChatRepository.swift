@@ -79,13 +79,13 @@ public final class ChatRepository: Sendable {
 
     // MARK: - Socket
 
-    public func connectSocket(baseURL: URL, roomId: Int) async -> Bool {
+    public func connectSocket(baseURL: URL, roomId: Int, lease: UUID) async -> Bool {
         let endpoint = ChatSocketEndpoint(baseURL: baseURL, buyOrNotId: String(roomId))
-        return await socketClient.connect(endpoint: endpoint)
+        return await socketClient.connect(endpoint: endpoint, lease: lease)
     }
 
-    public func disconnectSocket() async {
-        await socketClient.disconnect()
+    public func disconnectSocket(lease: UUID) async {
+        await socketClient.disconnect(lease: lease)
     }
 
     public func observeSocketErrors() async -> AsyncStream<SocketManager.ManagerError> {
@@ -109,7 +109,10 @@ public final class ChatRepository: Sendable {
                 }
                 continuation.finish()
             }
-            continuation.onTermination = { _ in task.cancel() }
+            continuation.onTermination = { _ in
+                Logger.debug("incomingMessages consumer cancelled - transport still owned elsewhere")
+                task.cancel()
+            }
         }
     }
 

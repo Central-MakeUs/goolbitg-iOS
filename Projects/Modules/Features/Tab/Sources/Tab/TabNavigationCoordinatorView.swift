@@ -39,6 +39,7 @@ public struct TabNavigationCoordinatorView: View {
                 case let .chatView(store):
                     ChattingView(store: store)
                         .navigationBarBackButtonHidden()
+                        .disableBackGesture(false)
                 }
             }
         }

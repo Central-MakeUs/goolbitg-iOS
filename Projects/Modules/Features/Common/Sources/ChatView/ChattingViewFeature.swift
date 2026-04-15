@@ -21,6 +21,7 @@ public struct ChattingViewFeature: GBReducer {
         let userID: String
         let model: BuyOrNotCardViewEntity
         let roomId: Int
+        public let sessionLease: UUID
 
         var loadedMessages: [ChatMessageEntity] = []
         var isPaging: Bool = false
@@ -43,12 +44,14 @@ public struct ChattingViewFeature: GBReducer {
         public init(
             userName: String,
             userID: String,
-            model: BuyOrNotCardViewEntity
+            model: BuyOrNotCardViewEntity,
+            sessionLease: UUID = UUID()
         ) {
             self.userID = userID
             self.userName = userName
             self.model = model
             self.roomId = Int(model.id) ?? 0
+            self.sessionLease = sessionLease
         }
     }
 
@@ -56,6 +59,7 @@ public struct ChattingViewFeature: GBReducer {
         case viewCycle(ViewCycle)
         case viewEvent(ViewEvent)
         case featureEvent(FeatureEvent)
+        case delegate(Delegate)
         case showErrorMessage(message: String?)
     }
 
@@ -66,10 +70,15 @@ public struct ChattingViewFeature: GBReducer {
     }
 
     public enum ViewEvent {
+        case backTapped
         case bindingSendText(String)
         case loadMoreIfNeeded(Int)
         case sendTapped
         case productEditTapped
+    }
+
+    public enum Delegate {
+        case backTapped
     }
 
     public enum FeatureEvent {
@@ -106,6 +115,7 @@ public struct ChattingViewFeature: GBReducer {
                 )
 
                 let roomId = state.roomId
+                let sessionLease = state.sessionLease
                 let repo = chatRepository
                 return .merge(
                     .run { send in
@@ -120,7 +130,7 @@ public struct ChattingViewFeature: GBReducer {
                         }
 
                         if let baseURL = ChattingViewFeature.socketBaseURL() {
-                            let connected = await repo.connectSocket(baseURL: baseURL, roomId: roomId)
+                            let connected = await repo.connectSocket(baseURL: baseURL, roomId: roomId, lease: sessionLease)
                             await send(.featureEvent(.socketConnectedChanged(connected)))
 
                             for await updated in await repo.incomingMessages(roomId: roomId) {
@@ -147,8 +157,12 @@ public struct ChattingViewFeature: GBReducer {
 
             case .viewCycle(.onDisappear):
                 let repo = chatRepository
+                let sessionLease = state.sessionLease
+                Logger.debug("disconnectSocket Request (child safety net)")
                 return .merge(
-                    .run { _ in await repo.disconnectSocket() },
+                    .run { _ in
+                        await repo.disconnectSocket(lease: sessionLease)
+                    },
                     .cancel(id: CancelID.incoming),
                     .cancel(id: CancelID.errorStream),
                     .cancel(id: CancelID.lifecycleStream)
@@ -157,13 +171,14 @@ public struct ChattingViewFeature: GBReducer {
             case .viewCycle(.willEnterForeground):
                 guard !state.isInitialLoading else { return .none }
                 let roomId = state.roomId
+                let sessionLease = state.sessionLease
                 let repo = chatRepository
                 return .merge(
                     .cancel(id: CancelID.incoming),
                     .cancel(id: CancelID.errorStream),
                     .cancel(id: CancelID.lifecycleStream),
                     .run { send in
-                        await repo.disconnectSocket()
+                        await repo.disconnectSocket(lease: sessionLease)
 
                         do {
                             let merged = try await repo.fetchLatestHistory(roomId: roomId)
@@ -173,7 +188,7 @@ public struct ChattingViewFeature: GBReducer {
                         }
 
                         if let baseURL = ChattingViewFeature.socketBaseURL() {
-                            let connected = await repo.connectSocket(baseURL: baseURL, roomId: roomId)
+                            let connected = await repo.connectSocket(baseURL: baseURL, roomId: roomId, lease: sessionLease)
                             await send(.featureEvent(.socketConnectedChanged(connected)))
 
                             for await updated in await repo.incomingMessages(roomId: roomId) {
@@ -288,6 +303,12 @@ public struct ChattingViewFeature: GBReducer {
             case let .showErrorMessage(message):
                 state.showErrorMessage = message
                 return .none
+
+            case .delegate:
+                return .none
+
+            case .viewEvent(.backTapped):
+                return .send(.delegate(.backTapped))
 
             case let .viewEvent(.bindingSendText(text)):
                 state.sendText = text

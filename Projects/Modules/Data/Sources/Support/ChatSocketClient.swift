@@ -19,6 +19,7 @@ public actor ChatSocketClient {
 
     // MARK: - State
     private var endpoint: ChatSocketEndpoint?
+    private var activeLease: UUID?
 
     // MARK: - Initialization
 
@@ -32,10 +33,12 @@ public actor ChatSocketClient {
 
     // MARK: - Connection
 
-    public func connect(endpoint: ChatSocketEndpoint) async -> Bool {
+    public func connect(endpoint: ChatSocketEndpoint, lease: UUID) async -> Bool {
         self.endpoint = endpoint
+        self.activeLease = lease
         let config = SocketManager.Configuration(url: endpoint.connectURL)
         let lifecycleStream = await socketManager.observeLifecycle()
+        await socketManager.setActiveLease(lease)
         await socketManager.configure(config)
         await socketManager.connect()
 
@@ -65,8 +68,13 @@ public actor ChatSocketClient {
         }
     }
 
-    public func disconnect() async {
-        await socketManager.disconnect()
+    public func disconnect(lease: UUID) async {
+        guard activeLease == lease else { return }
+        await socketManager.disconnect(ifLease: lease)
+        if activeLease == lease {
+            activeLease = nil
+            endpoint = nil
+        }
     }
 
     // MARK: - Messaging
@@ -84,6 +92,8 @@ public actor ChatSocketClient {
 
         return AsyncStream { continuation in
             let task = Task {
+                if Task.isCancelled { return }
+                
                 for await event in eventStream {
                     if let firstItem = event.items.first,
                        let dict = firstItem as? [String: Any],
@@ -107,7 +117,9 @@ public actor ChatSocketClient {
                 }
                 continuation.finish()
             }
-            continuation.onTermination = { _ in task.cancel() }
+            continuation.onTermination = { _ in
+                task.cancel()
+            }
         }
     }
 

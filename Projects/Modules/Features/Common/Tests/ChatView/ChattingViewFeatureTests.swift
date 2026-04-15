@@ -6,10 +6,27 @@
 //
 
 import XCTest
+import ComposableArchitecture
 @testable import FeatureCommon
 @testable import Data
 
 final class ChattingViewFeatureTests: XCTestCase {
+
+    @MainActor
+    func testBackTappedEmitsDelegate() async {
+        let store = TestStore(
+            initialState: ChattingViewFeature.State(
+                userName: "tester",
+                userID: "user-1",
+                model: makeModel(id: "101")
+            )
+        ) {
+            ChattingViewFeature()
+        }
+
+        await store.send(.viewEvent(.backTapped))
+        await store.receive(.delegate(.backTapped))
+    }
 
     func testBuildListItemsInsertsDateDividers() {
         let entities = [
@@ -175,5 +192,49 @@ final class ChattingViewFeatureTests: XCTestCase {
 
         XCTAssertTrue(content.contains("store.isReconnecting"))
         XCTAssertTrue(content.contains("채팅 연결을 다시 시도하고 있어요"))
+    }
+
+    func testViewSourceBackButtonNoLongerUsesDismiss() throws {
+        let testFileURL = URL(fileURLWithPath: #filePath)
+        let viewURL = testFileURL
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("Sources/ChatView/ChattingView.swift")
+        let content = try String(contentsOf: viewURL, encoding: .utf8)
+
+        XCTAssertFalse(content.contains("@Environment(\\.dismiss)"))
+        XCTAssertTrue(content.contains("store.send(.viewEvent(.backTapped))"))
+    }
+
+    func testReducerSourceContainsBackDelegateFlow() throws {
+        let testFileURL = URL(fileURLWithPath: #filePath)
+        let featureURL = testFileURL
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("Sources/ChatView/ChattingViewFeature.swift")
+        let content = try String(contentsOf: featureURL, encoding: .utf8)
+
+        XCTAssertTrue(content.contains("case delegate(Delegate)"))
+        XCTAssertTrue(content.contains("public enum Delegate"))
+        XCTAssertTrue(content.contains("case backTapped"))
+        XCTAssertTrue(content.contains("return .send(.delegate(.backTapped))"))
+    }
+
+    private func makeModel(id: String) -> BuyOrNotCardViewEntity {
+        BuyOrNotCardViewEntity(
+            id: id,
+            userID: "owner",
+            userName: "owner",
+            imageUrl: nil,
+            itemName: "item",
+            priceString: "10,000원",
+            goodReason: "good",
+            badReason: "bad",
+            goodVoteCount: "1",
+            badVoteCount: "0",
+            goodMoreOrBadMore: .good
+        )
     }
 }

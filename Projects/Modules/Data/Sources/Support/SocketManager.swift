@@ -1,4 +1,5 @@
 import Foundation
+import Utils
 
 #if canImport(ComposableArchitecture)
 import ComposableArchitecture
@@ -138,6 +139,7 @@ public actor SocketManager {
     private var isReconnecting: Bool = false
     private var hasEstablishedConnection: Bool = false
     private var explicitDisconnectRequested: Bool = false
+    private var activeLease: UUID?
 
     private var eventContinuations: [UUID: AsyncStream<Event>.Continuation] = [:]
     private var errorContinuations: [UUID: AsyncStream<ManagerError>.Continuation] = [:]
@@ -174,6 +176,10 @@ extension SocketManager {
         publishLifecycle(.statusChanged(status: "configured", items: []))
     }
 
+    public func setActiveLease(_ lease: UUID) {
+        activeLease = lease
+    }
+
     public func connect(url: URL) async {
         configure(.init(url: url))
         await connect()
@@ -186,8 +192,15 @@ extension SocketManager {
         }
 
         explicitDisconnectRequested = false
+        Logger.debug("🔌 SocketManager connect start: \(configuration.url.absoluteString)")
 
-        await tearDownConnection(reason: nil, incrementGeneration: false, publishDisconnect: false, cancelReconnectTask: true)
+        await tearDownConnection(
+            reason: nil,
+            incrementGeneration: false,
+            publishDisconnect: false,
+            cancelReconnectTask: true,
+            clearActiveLease: false
+        )
         let generation = connectionGeneration
 
         let session = URLSession(configuration: .default)
@@ -222,7 +235,23 @@ extension SocketManager {
         isReconnecting = false
         reconnectAttempt = 0
         hasEstablishedConnection = false
-        await tearDownConnection(reason: "client disconnect", incrementGeneration: true, publishDisconnect: true, cancelReconnectTask: true)
+        Logger.debug("🔌 SocketManager disconnect requested")
+        await tearDownConnection(
+            reason: "client disconnect",
+            incrementGeneration: true,
+            publishDisconnect: true,
+            cancelReconnectTask: true,
+            clearActiveLease: true
+        )
+    }
+
+    public func disconnect(ifLease lease: UUID) async {
+        guard activeLease == lease else {
+            Logger.debug("⏭️ SocketManager disconnect skipped for stale lease")
+            return
+        }
+        
+        await disconnect()
     }
 
     public func emit(event: String, items: [Any] = []) async -> Bool {
@@ -324,7 +353,13 @@ extension SocketManager {
         isReconnecting = false
         reconnectAttempt = 0
         hasEstablishedConnection = false
-        await tearDownConnection(reason: "reset", incrementGeneration: true, publishDisconnect: true, cancelReconnectTask: true)
+        await tearDownConnection(
+            reason: "reset",
+            incrementGeneration: true,
+            publishDisconnect: true,
+            cancelReconnectTask: true,
+            clearActiveLease: true
+        )
 
         let events = Array(eventContinuations.values)
         let errors = Array(errorContinuations.values)
@@ -411,6 +446,7 @@ private extension SocketManager {
                 isReconnecting = false
                 reconnectAttempt = 0
                 hasEstablishedConnection = true
+                Logger.debug("✅ SocketManager connected")
                 pingTask?.cancel()
                 let generation = connectionGeneration
                 pingTask = Task { [weak self] in
@@ -488,7 +524,13 @@ private extension SocketManager {
         isReconnecting = false
         reconnectAttempt = 0
         hasEstablishedConnection = false
-        await tearDownConnection(reason: reason, incrementGeneration: true, publishDisconnect: true, cancelReconnectTask: true)
+        await tearDownConnection(
+            reason: reason,
+            incrementGeneration: true,
+            publishDisconnect: true,
+            cancelReconnectTask: true,
+            clearActiveLease: true
+        )
         if shouldPublishError {
             publishError(.socketError(message: reason))
         }
@@ -509,7 +551,13 @@ private extension SocketManager {
         let delay = Defaults.reconnectDelays[attempt - 1]
         isReconnecting = true
 
-        await tearDownConnection(reason: nil, incrementGeneration: incrementGeneration, publishDisconnect: false, cancelReconnectTask: false)
+        await tearDownConnection(
+            reason: nil,
+            incrementGeneration: incrementGeneration,
+            publishDisconnect: false,
+            cancelReconnectTask: false,
+            clearActiveLease: false
+        )
         publishLifecycle(.reconnectAttempt(items: [attempt, reason]))
         publishLifecycle(.statusChanged(status: "reconnecting", items: [attempt]))
 
@@ -531,7 +579,8 @@ private extension SocketManager {
         reason: String?,
         incrementGeneration: Bool,
         publishDisconnect: Bool,
-        cancelReconnectTask: Bool
+        cancelReconnectTask: Bool,
+        clearActiveLease: Bool
     ) async {
         if incrementGeneration {
             connectionGeneration += 1
@@ -555,11 +604,15 @@ private extension SocketManager {
         session = nil
 
         activeSubscriptions.removeAll()
+        if clearActiveLease {
+            activeLease = nil
+        }
 
         let wasConnected = statusValue == "connected" || statusValue == "connecting"
         statusValue = "notConnected"
 
         if publishDisconnect, let reason, wasConnected {
+            Logger.debug("❌ SocketManager disconnected: \(reason)")
             publishLifecycle(.disconnected(reason: reason, items: []))
         }
         publishLifecycle(.statusChanged(status: "notConnected", items: []))

@@ -118,6 +118,5 @@ iOSInjectionProject/
 # OMC (oh-my-claudecode) local runtime state
 .omc/
 
-# Sisyphus runtime state (notepads/ and plans/ are kept tracked)
-.sisyphus/boulder.json
-.sisyphus/drafts/
+# Sisyphus runtime state
+/.sisyphus/
