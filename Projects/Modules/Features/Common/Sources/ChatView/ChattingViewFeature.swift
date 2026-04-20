@@ -19,7 +19,7 @@ public struct ChattingViewFeature: GBReducer {
     public struct State: Equatable, Hashable {
         let userName: String
         let userID: String
-        let model: BuyOrNotCardViewEntity
+        var model: BuyOrNotCardViewEntity
         let roomId: Int
         public let sessionLease: UUID
 
@@ -79,6 +79,7 @@ public struct ChattingViewFeature: GBReducer {
 
     public enum Delegate {
         case backTapped
+        case moveToModifierView(BuyOrNotCardViewEntity)
     }
 
     public enum FeatureEvent {
@@ -90,6 +91,7 @@ public struct ChattingViewFeature: GBReducer {
         case socketErrorReceived(SocketManager.ManagerError)
         case incomingMessagesUpdated([ChatMessageEntity])
         case sendAccepted
+        case productUpdated(BuyOrNotCardViewEntity)
         case errorReceived(String)
     }
 
@@ -292,6 +294,16 @@ public struct ChattingViewFeature: GBReducer {
                 state.loadedMessages = messages
                 return .none
 
+            case let .featureEvent(.productUpdated(model)):
+                state.model = model
+                state.product = .init(
+                    imageURLString: model.imageUrl,
+                    name: model.itemName,
+                    priceText: model.priceString,
+                    editButtonTitle: "수정"
+                )
+                return .none
+
             case .featureEvent(.sendAccepted):
                 state.sendText = ""
                 return .none
@@ -357,7 +369,7 @@ public struct ChattingViewFeature: GBReducer {
                 }
 
             case .viewEvent(.productEditTapped):
-                return .none
+                return .send(.delegate(.moveToModifierView(state.model)))
             }
         }
     }

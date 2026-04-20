@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import TCACoordinators
 import FeatureCommon
+import FeatureBuyOrNot
 
 public struct TabNavigationCoordinatorView: View {
     
@@ -40,6 +41,11 @@ public struct TabNavigationCoordinatorView: View {
                     ChattingView(store: store)
                         .navigationBarBackButtonHidden()
                         .disableBackGesture(false)
+
+                case let .buyOrNotAdd(store):
+                    BuyOrNotAddView(store: store)
+                        .navigationBarBackButtonHidden()
+                        .disableBackGesture(false)
                 }
             }
         }
@@ -58,6 +64,8 @@ extension TabNavigationScreen.State: Identifiable {
             return .challengeAdd
         case .chatView:
             return .chatView
+        case .buyOrNotAdd:
+            return .buyOrNotAdd
         }
     }
 
@@ -66,6 +74,7 @@ extension TabNavigationScreen.State: Identifiable {
         case challengeDetail
         case challengeAdd
         case chatView
+        case buyOrNotAdd
 
         public var id: ID {
             return self

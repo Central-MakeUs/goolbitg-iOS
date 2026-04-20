@@ -18,7 +18,7 @@ struct ImageIdentifier: Identifiable {
     let image: UIImage
 }
 
-struct BuyOrNotAddView: View {
+public struct BuyOrNotAddView: View {
     
     @Perception.Bindable var store: StoreOf<BuyOrNotAddViewFeature>
     @Dependency(\.cameraManager) var cameraManager
@@ -34,8 +34,12 @@ struct BuyOrNotAddView: View {
     
     @Environment(\.imageCompressionManager) var imageCompressionManager
     @Environment(\.safeAreaInsets) var safeAreaInsets
-    
-    var body: some View {
+
+    public init(store: StoreOf<BuyOrNotAddViewFeature>) {
+        self.store = store
+    }
+     
+    public var body: some View {
         WithPerceptionTracking {
             content
                 .onAppear {

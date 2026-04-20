@@ -9,6 +9,7 @@ import Foundation
 import ComposableArchitecture
 @preconcurrency import TCACoordinators
 import FeatureCommon
+import FeatureBuyOrNot
 import Data
 import Utils
 
@@ -18,6 +19,7 @@ public enum TabNavigationScreen {
     case challengeDetail(ChallengeDetailFeature)
     case challengeAdd(ChallengeAddViewFeature)
     case chatView(ChattingViewFeature)
+    case buyOrNotAdd(BuyOrNotAddViewFeature)
 }
 
 
@@ -89,6 +91,9 @@ extension TabNavigationCoordinator {
                     sessionLease: UUID()
                 )))
 
+            case let .router(.routeAction(id: .chatView, action: .chatView(.delegate(.moveToModifierView(model))))):
+                state.routes.push(.buyOrNotAdd(BuyOrNotAddViewFeature.State(stateMode: .modifierFromChat(model))))
+
             case .router(.routeAction(id: .chatView, action: .chatView(.delegate(.backTapped)))):
                 let sessionLease = chatSessionLease(in: state.routes)
                 state.suppressNextChatRouteRemovalDisconnect = true
@@ -99,6 +104,19 @@ extension TabNavigationCoordinator {
                     guard let sessionLease else { return }
                     await repo.disconnectSocket(lease: sessionLease)
                 }
+
+            case .router(.routeAction(id: .buyOrNotAdd, action: .buyOrNotAdd(.delegate(.dismiss)))):
+                state.routes.pop()
+
+            case .router(.routeAction(id: .buyOrNotAdd, action: .buyOrNotAdd(.delegate(.succressItem)))):
+                state.routes.pop()
+
+            case let .router(.routeAction(id: .buyOrNotAdd, action: .buyOrNotAdd(.delegate(.successModifierFromChat(model))))):
+                state.routes.pop()
+                return .send(.router(.routeAction(id: .chatView, action: .chatView(.featureEvent(.productUpdated(model))))))
+
+            case .router(.routeAction(id: .buyOrNotAdd, action: .buyOrNotAdd(.delegate(.successModifer(_, _))))):
+                state.routes.pop()
 
             default:
                 break

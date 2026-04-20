@@ -15,12 +15,13 @@ import Data
 public enum BuyOrNotAddOrModify: Equatable, Hashable {
     case add
     case modifier(BuyOrNotCardViewEntity, idx: Int)
+    case modifierFromChat(BuyOrNotCardViewEntity)
     
     public var navigationTitle: String {
         switch self {
         case .add:
             return TextHelper.buyOrNotAddTitle
-        case .modifier:
+        case .modifier, .modifierFromChat:
             return "살까말까 글 수정하기"
         }
     }
@@ -29,7 +30,7 @@ public enum BuyOrNotAddOrModify: Equatable, Hashable {
         switch self {
         case .add:
             return "작성하기"
-        case .modifier:
+        case .modifier, .modifierFromChat:
             return "수정하기"
         }
     }
@@ -82,6 +83,7 @@ public struct BuyOrNotAddViewFeature: GBReducer {
             case dismiss
             case succressItem
             case successModifer(BuyOrNotCardViewEntity, idx: Int)
+            case successModifierFromChat(BuyOrNotCardViewEntity)
         }
     }
     
@@ -119,12 +121,15 @@ extension BuyOrNotAddViewFeature {
         Reduce { state, action in
             switch action {
             case .viewCycle(.onAppear):
-                if case let .modifier(entity, _) = state.stateMode {
+                switch state.stateMode {
+                case let .modifier(entity, _), let .modifierFromChat(entity):
                     state.itemText = entity.itemName
                     state.priceText = entity.priceString
                     state.buyText = entity.goodReason
                     state.notBuyText = entity.badReason
                     state.ifImageURL = entity.imageUrl
+                case .add:
+                    break
                 }
             case .viewEvent(.dismiss):
                 
@@ -193,9 +198,16 @@ extension BuyOrNotAddViewFeature {
                     }
                 }
                 else if let imageURLString = state.ifImageURL?.absoluteString,
-                        let price,
-                        case let .modifier(model, _) = state.stateMode
-                {
+                        let price {
+                    let model: BuyOrNotCardViewEntity
+                    switch state.stateMode {
+                    case let .modifier(entity, _):
+                        model = entity
+                    case let .modifierFromChat(entity):
+                        model = entity
+                    case .add:
+                        return .none
+                    }
                     state.loading = true
                     return .run { [state] send in
                         let requestDTO = BuyOrNotRequestModel(
@@ -230,12 +242,20 @@ extension BuyOrNotAddViewFeature {
                     }
                 }
                 else if item.ifNeedID == "수정완료",
-                        let model = state.modiferModel,
-                        case let .modifier(_, idx)  = state.stateMode {
+                        let model = state.modiferModel {
                     
                     state.alertComponents = nil
-                    return .run { send in
-                        await send(.delegate(.successModifer(model, idx: idx)))
+                    switch state.stateMode {
+                    case let .modifier(_, idx):
+                        return .run { send in
+                            await send(.delegate(.successModifer(model, idx: idx)))
+                        }
+                    case .modifierFromChat:
+                        return .run { send in
+                            await send(.delegate(.successModifierFromChat(model)))
+                        }
+                    case .add:
+                        return .none
                     }
                 }
                 else {
@@ -369,4 +389,3 @@ extension BuyOrNotAddViewFeature {
     }
     
 }
-
