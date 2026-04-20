@@ -20,6 +20,7 @@ public struct ChallengeTabFeature: GBReducer {
     public struct State: Equatable, Hashable {
         public init () {}
         
+        var tabMode: ChallengeTabInMode = .individuals
         var toggleSwitchCase: [ChallengeStatusCase] = [.wait, .success]
         var selectedSwitchIndex: Int = 0
         
@@ -64,6 +65,7 @@ public struct ChallengeTabFeature: GBReducer {
         case featureEvent(FeatureEvent)
         case delegate(Delegate)
         case parentEvent(ParentEvent)
+        case tabModeChanged(ChallengeTabInMode)
         
         case selectedSwitchIndex(Int)
         case weekIndex(Int)
@@ -179,6 +181,9 @@ extension ChallengeTabFeature {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case let .tabModeChanged(mode):
+                state.tabMode = mode
+                return .none
                 
             case .viewCycle(.onAppear):
                 if !state.onAppearTrigger {

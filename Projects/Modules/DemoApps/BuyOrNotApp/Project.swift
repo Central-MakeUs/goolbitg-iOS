@@ -19,7 +19,6 @@ let buyOtNotDemoProject: Project = Project.create(
             Module.utils.projectTarget,
             Module.Data.projectTarget,
             .tca,
-            .tcaCoordinator,
             .popupView
         ],
         resources: [

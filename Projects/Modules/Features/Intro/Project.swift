@@ -17,7 +17,6 @@ let introFramework = Project.create(
             Module.utils.projectTarget,
             Module.feature(.Common).projectTarget,
             .tca,
-            .tcaCoordinator,
             .kingfisher,
             .popupView
         ],

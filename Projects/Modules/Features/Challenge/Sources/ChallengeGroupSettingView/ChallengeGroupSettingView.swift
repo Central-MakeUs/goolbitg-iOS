@@ -11,11 +11,15 @@ import PopupView
 import Utils
 import FeatureCommon
 
-struct ChallengeGroupSettingView: View {
+public struct ChallengeGroupSettingView: View {
     
     @Perception.Bindable var store: StoreOf<ChallengeGroupSettingViewFeature>
     
-    var body: some View {
+    public init(store: StoreOf<ChallengeGroupSettingViewFeature>) {
+        self.store = store
+    }
+
+    public var body: some View {
         WithPerceptionTracking {
             content
                 .onAppear {
@@ -209,4 +213,3 @@ extension ChallengeGroupSettingView {
     }))
 }
 #endif
-

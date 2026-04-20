@@ -7,7 +7,6 @@
 
 import SwiftUI
 import ComposableArchitecture
-import TCACoordinators
 import FeatureCommon
 
 public struct MyPageViewCoordinatorView: View {
@@ -27,52 +26,36 @@ public struct MyPageViewCoordinatorView: View {
 
 extension MyPageViewCoordinatorView {
     private var content: some View {
-        TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
-            switch screen.case {
-            case let .home(store):
-                MyPageView(store: store)
-            case let .revokePage(store):
-                RevokeReasonView(store: store)
+        MyPageView(store: store.scope(state: \.home, action: \.home))
+        .fullScreenCover(
+            isPresented: Binding(
+                get: { store.revokePage != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        store.send(.revokePage(.delegate(.dismiss)))
+                    }
+                }
+            )
+        ) {
+            if let revokeStore = store.scope(state: \.revokePage, action: \.revokePage) {
+                RevokeReasonView(store: revokeStore)
                     .navigationBarBackButtonHidden()
                     .disableBackGesture(false)
-            
-            // MARK: 소비 습관 분석
-            case let .pushHabitChart(store):
-                HabitChartsView(store: store)
-                    .navigationBarBackButtonHidden()
-                    .disableBackGesture(false)
-                
-            case let .pushList(store):
-                PushListView(store: store)
             }
         }
-    }
-}
-
-
-extension MyPageScreen.State: Identifiable {
-    
-    public var id: ID {
-        switch self {
-        case .home:
-            return .home
-        case .revokePage:
-            return .revokePage
-        case .pushList:
-            return .pushList
-        case .pushHabitChart:
-            return .pushHabitChart
-        }
-    }
-    
-    public enum ID: Identifiable {
-        case home
-        case revokePage
-        case pushList
-        case pushHabitChart
-        
-        public var id: ID {
-            return self
+        .fullScreenCover(
+            isPresented: Binding(
+                get: { store.pushList != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        store.send(.pushList(.delegate(.dismiss)))
+                    }
+                }
+            )
+        ) {
+            if let pushListStore = store.scope(state: \.pushList, action: \.pushList) {
+                PushListView(store: pushListStore)
+            }
         }
     }
 }

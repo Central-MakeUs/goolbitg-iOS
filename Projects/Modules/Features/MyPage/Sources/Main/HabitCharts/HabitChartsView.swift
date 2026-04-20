@@ -3,7 +3,7 @@ import FeatureCommon
 import ComposableArchitecture
 import Utils
 
-struct HabitChartsView: View {
+public struct HabitChartsView: View {
 
     @Perception.Bindable var store: StoreOf<HabitChartsFeature>
     @Environment(\.dismiss) var dismiss
@@ -11,7 +11,11 @@ struct HabitChartsView: View {
     @State private var didAppearRecentChart: Bool = false
     @State private var didAppearGroupChart: Bool = false
 
-    var body: some View {
+    public init(store: StoreOf<HabitChartsFeature>) {
+        self.store = store
+    }
+
+    public var body: some View {
         WithPerceptionTracking {
             content
                 .background(GBColor.background1.asColor)

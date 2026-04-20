@@ -7,32 +7,37 @@
 
 import Foundation
 import ComposableArchitecture
-@preconcurrency import TCACoordinators
-
-@Reducer
-public enum BuyOrNotTabCoordinatorScreen {
-    case home(BuyOrNotTabViewFeature)
-    case buyOrNotAdd(BuyOrNotAddViewFeature)
-}
-
-extension BuyOrNotTabCoordinatorScreen.State: Hashable {}
+import Data
 
 @Reducer
 public struct BuyOrNotTabCoordinator {
     public init () {}
+
     @ObservableState
-    public struct State: Equatable, Hashable {
-        public static let initialState = State(routes: [.root(.home(BuyOrNotTabViewFeature.State()), embedInNavigationView: true)])
-        var routes: IdentifiedArrayOf<Route<BuyOrNotTabCoordinatorScreen.State>>
+    public struct State: Equatable {
+        public static let initialState = State()
+
+        var home = BuyOrNotTabViewFeature.State()
     }
     
     public enum Action {
-        case router(IdentifiedRouterActionOf<BuyOrNotTabCoordinatorScreen>)
+        case home(BuyOrNotTabViewFeature.Action)
+        case delegate(Delegate)
+
+        public enum Delegate {
+            case moveToAddView
+            case moveToModifierView(BuyOrNotCardViewEntity, idx: Int)
+            case moveToChatView(String, userName: String, BuyOrNotCardViewEntity)
+            case newBuyOrNotItem
+            case modifierSuccess(BuyOrNotCardViewEntity, idx: Int)
+        }
     }
     
     public var body: some ReducerOf<Self> {
+        Scope(state: \.home, action: \.home) {
+            BuyOrNotTabViewFeature()
+        }
         core
-        addAndModifierCore
     }
 }
 
@@ -41,41 +46,24 @@ extension BuyOrNotTabCoordinator {
         Reduce { state, action in
             switch action {
                 
-            case .router(.routeAction(id: .home, action: .home(.delegate(.moveToAddView)))):
-                state.routes.presentCover(.buyOrNotAdd(BuyOrNotAddViewFeature.State(stateMode: .add)))
+            case .home(.delegate(.moveToAddView)):
+                return .send(.delegate(.moveToAddView))
                 
-            case let .router(.routeAction(id: .home, action: .home(.delegate(.moveToModifierView(model, idx))))):
-                
-                state.routes.presentCover(.buyOrNotAdd(BuyOrNotAddViewFeature.State(stateMode: .modifier(model, idx: idx))))
-                
-            default:
-                break
-            }
-            return .none
-        }
-        .forEachRoute(\.routes, action: \.router)
-    }
-    
-    private var addAndModifierCore: some ReducerOf<Self> {
-        Reduce { state, action in
-            switch action {
-            case let .router(.routeAction(id: .add, action: .buyOrNotAdd(.delegate(.successModifer(model, idx))))):
-                
-                state.routes.dismiss()
-                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.modifierSuccess(model, idx: idx))))))
-                
-            case .router(.routeAction(id: .add, action: .buyOrNotAdd(.delegate(.dismiss)))):
-                state.routes.dismiss()
-                
-            case .router(.routeAction(id: .add, action: .buyOrNotAdd(.delegate(.succressItem)))):
-                state.routes.dismiss()
-                
-                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.newBuyOrNotItem)))))
+            case let .home(.delegate(.moveToModifierView(model, idx))):
+                return .send(.delegate(.moveToModifierView(model, idx: idx)))
+
+            case let .home(.delegate(.moveToChatView(userID, userName, model))):
+                return .send(.delegate(.moveToChatView(userID, userName: userName, model)))
+
+            case .delegate(.newBuyOrNotItem):
+                return .send(.home(.parentEvent(.newBuyOrNotItem)))
+
+            case let .delegate(.modifierSuccess(model, idx)):
+                return .send(.home(.parentEvent(.modifierSuccess(model, idx: idx))))
                 
             default:
                 break
             }
-            
             return .none
         }
     }

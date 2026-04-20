@@ -11,7 +11,7 @@ import Utils
 import FeatureCommon
 import PopupView
 
-struct ChallengeGroupCreateView: View {
+public struct ChallengeGroupCreateView: View {
     
     @Perception.Bindable var store: StoreOf<GroupChallengeCreateViewFeature>
     
@@ -26,7 +26,11 @@ struct ChallengeGroupCreateView: View {
     @State private var scrollOffsetBefore: CGFloat = 0
     @State private var scrollOffset: CGFloat = 0
     
-    var body: some View {
+    public init(store: StoreOf<GroupChallengeCreateViewFeature>) {
+        self.store = store
+    }
+
+    public var body: some View {
         WithPerceptionTracking {
             contentView
                 .onAppear {

@@ -15,9 +15,7 @@ import FeatureCommon
 struct ChallengeTabView: View {
     
     @Perception.Bindable var store: StoreOf<ChallengeTabFeature>
-    
-    @State private var tabMode: ChallengeTabInMode = .individuals
-    
+     
     @State private var showDatePicker: Bool = false
     
     @Namespace private var daySelectedAnimation
@@ -100,7 +98,7 @@ extension ChallengeTabView {
                 .padding(.bottom, SpacingHelper.md.pixel)
             
             ZStack {
-                if tabMode == .individuals {
+                if store.tabMode == .individuals {
                     individualsSectionView
                         .transition(
                             animationDirection == 1 ?
@@ -119,7 +117,7 @@ extension ChallengeTabView {
                         }
                 }
             }
-            .animation(.easeInOut, value: tabMode) // 전환 애니메이션 적용
+            .animation(.easeInOut, value: store.tabMode) // 전환 애니메이션 적용
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(GBColor.background1.asColor)
@@ -130,30 +128,30 @@ extension ChallengeTabView {
         HStack (spacing: 0) {
             
             Text("개인")
-                .font(headerTitleFont(mode: .individuals , by: tabMode))
-                .foregroundStyle(headerTitleColor(mode: .individuals, by: tabMode))
+                .font(headerTitleFont(mode: .individuals , by: store.tabMode))
+                .foregroundStyle(headerTitleColor(mode: .individuals, by: store.tabMode))
                 .asButton {
                     withAnimation {
-                        tabMode = .individuals
                         animationDirection = -1
                     }
+                    store.send(.tabModeChanged(.individuals))
                 }
                 .padding(.trailing, 4)
             
-            #if DEV
+//            #if DEV
             Text("그룹")
-                .font(headerTitleFont(mode: .groups , by: tabMode))
-                .foregroundStyle(headerTitleColor(mode: .groups, by: tabMode))
+                .font(headerTitleFont(mode: .groups , by: store.tabMode))
+                .foregroundStyle(headerTitleColor(mode: .groups, by: store.tabMode))
                 .asButton {
                     withAnimation {
-                        tabMode = .groups
                         animationDirection = 1
                     }
+                    store.send(.tabModeChanged(.groups))
                 }
-            #endif
+//            #endif
             
             Spacer()
-            switch tabMode {
+            switch store.tabMode {
             case .individuals:
                 Image(uiImage: ImageHelper.plusLogo.image)
                     .resizable()

@@ -7,21 +7,12 @@
 
 import Foundation
 import ComposableArchitecture
-@preconcurrency import TCACoordinators
 import FeatureCommon
 import FeatureBuyOrNot
 import Data
 import Utils
-
-@Reducer(state: .hashable)
-public enum TabNavigationScreen {
-    case tabView(GBTabBarCoordinator)
-    case challengeDetail(ChallengeDetailFeature)
-    case challengeAdd(ChallengeAddViewFeature)
-    case chatView(ChattingViewFeature)
-    case buyOrNotAdd(BuyOrNotAddViewFeature)
-}
-
+import FeatureMyPage
+import FeatureChallenge
 
 @Reducer
 public struct TabNavigationCoordinator {
@@ -29,20 +20,42 @@ public struct TabNavigationCoordinator {
     public init() {}
 
     @Dependency(\.chatRepository) var chatRepository
-    
+
     @ObservableState
-    public struct State: Equatable, Sendable, Hashable {
-        public static let initialState = State(routes: [.root(.tabView(GBTabBarCoordinator.State()), embedInNavigationView: true)])
-        public var routes: IdentifiedArrayOf<Route<TabNavigationScreen.State>>
-        var suppressNextChatRouteRemovalDisconnect: Bool = false
+    public struct State: Equatable {
+        public static let initialState = State()
+
+        var tabView = GBTabBarCoordinator.State()
+        var path = StackState<Path.State>()
+        var suppressNextChatPathRemovalDisconnect = false
+    }
+
+    @Reducer(state: .equatable)
+    public enum Path {
+        case chatView(ChattingViewFeature)
+        case buyOrNotAdd(BuyOrNotAddViewFeature)
+        case challengeAdd(ChallengeAddViewFeature)
+        case challengeDetail(ChallengeDetailFeature)
+        case pushHabitChart(HabitChartsFeature)
+        case groupChallengeDetail(ChallengeGroupDetailViewFeature)
+        case groupChallengeSetting(ChallengeGroupSettingViewFeature)
+        case groupChallengeModify(GroupChallengeCreateViewFeature)
     }
     
     public enum Action {
-        case router(IdentifiedRouterActionOf<TabNavigationScreen>)
+        case tabView(GBTabBarCoordinator.Action)
+        case path(StackActionOf<Path>)
     }
     
     public var body: some ReducerOf<Self> {
+        Scope(state: \.tabView, action: \.tabView) {
+            GBTabBarCoordinator()
+        }
         core
+            .forEach(\.path, action: \.path)
+            .onChange(of: \.path) { oldValue, newValue in
+                navCore(oldValue: oldValue, newValue: newValue)
+            }
     }
 }
 
@@ -50,54 +63,47 @@ extension TabNavigationCoordinator {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-                
-                /// HOME Tab
-            case let .router(.routeAction(id: .tabView, action: .tabView(.homeTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.moveToDetail(itemID))))))))):
-                
-                state.routes.push(.challengeDetail(ChallengeDetailFeature.State(challengeID: itemID)))
-                
-            case .router(.routeAction(id: .challengeDetail, action: .challengeDetail(.delegate(.dismissTap)))):
-                state.routes.popToRoot()
-                
-                return .run { send in
-                    await send(.router(.routeAction(id: .tabView, action: .tabView(.challengeTabAction(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadData)))))))))
-                }
-                
-                /// Challenge Tab
-            case .router(.routeAction(id: .tabView, action: .tabView(.challengeTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.moveToChallengeAdd)))))))):
-                
-                state.routes.push(.challengeAdd(ChallengeAddViewFeature.State(dismissButtonHidden: false)))
-                
-            case .router(.routeAction(id: .challengeAdd, action: .challengeAdd(.delegate(.dismissTapped)))):
-                state.routes.pop()
-                
-            case .router(.routeAction(id: .challengeAdd, action: .challengeAdd(.delegate(.successAdd)))):
-                state.routes.pop()
-                return .run { send in
-                    await send(.router(.routeAction(id: .tabView, action: .tabView(.challengeTabAction(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadData)))))))))
-                }
-            case let .router(.routeAction(id: .tabView, action: .tabView(.challengeTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.moveToDetail(itemID))))))))):
+            case let .tabView(.homeTabAction(.delegate(.moveToChallengeDetail(itemID)))):
+                state.path.append(.challengeDetail(ChallengeDetailFeature.State(challengeID: itemID)))
 
-                state.routes.push(.challengeDetail(ChallengeDetailFeature.State(challengeID: itemID)))
+            case .tabView(.buyOrNotTabAction(.delegate(.moveToAddView))):
+                state.path.append(.buyOrNotAdd(BuyOrNotAddViewFeature.State(stateMode: .add)))
 
-                /// BuyOrNot Tab - 채팅 이동
-            case let .router(.routeAction(id: .tabView, action: .tabView(.buyOrNotTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.moveToChatView(userID, userName, model))))))))):
+            case let .tabView(.buyOrNotTabAction(.delegate(.moveToModifierView(model, idx)))):
+                state.path.append(.buyOrNotAdd(BuyOrNotAddViewFeature.State(stateMode: .modifier(model, idx: idx))))
 
-                state.suppressNextChatRouteRemovalDisconnect = false
-                state.routes.push(.chatView(ChattingViewFeature.State(
+            case let .tabView(.buyOrNotTabAction(.delegate(.moveToChatView(userID, userName: userName, model)))):
+                state.suppressNextChatPathRemovalDisconnect = false
+                state.path.append(.chatView(ChattingViewFeature.State(
                     userName: userName,
                     userID: userID,
                     model: model,
                     sessionLease: UUID()
                 )))
 
-            case let .router(.routeAction(id: .chatView, action: .chatView(.delegate(.moveToModifierView(model))))):
-                state.routes.push(.buyOrNotAdd(BuyOrNotAddViewFeature.State(stateMode: .modifierFromChat(model))))
+            case .tabView(.challengeTabAction(.delegate(.moveToChallengeAdd))):
+                state.path.append(.challengeAdd(ChallengeAddViewFeature.State(dismissButtonHidden: false)))
 
-            case .router(.routeAction(id: .chatView, action: .chatView(.delegate(.backTapped)))):
-                let sessionLease = chatSessionLease(in: state.routes)
-                state.suppressNextChatRouteRemovalDisconnect = true
-                state.routes.pop()
+            case let .tabView(.challengeTabAction(.delegate(.moveToChallengeDetail(itemID)))):
+                state.path.append(.challengeDetail(ChallengeDetailFeature.State(challengeID: itemID)))
+
+            case let .tabView(.challengeTabAction(.delegate(.moveToGroupChallengeDetail(groupID)))):
+                state.path.append(.groupChallengeDetail(ChallengeGroupDetailViewFeature.State(groupID: groupID)))
+
+            case .tabView(.myPageTabAction(.delegate(.moveToHabitChart))):
+                state.path.append(.pushHabitChart(HabitChartsFeature.State()))
+
+            case let .path(.element(id: _, action: .chatView(.delegate(.moveToModifierView(model))))):
+                state.path.append(.buyOrNotAdd(BuyOrNotAddViewFeature.State(stateMode: .modifierFromChat(model))))
+
+            case .path(.element(id: _, action: .challengeDetail(.delegate(.dismissTap)))):
+                state.path.removeLast()
+                return .send(.tabView(.challengeTabAction(.home(.parentEvent(.reloadData)))))
+
+            case .path(.element(id: _, action: .chatView(.delegate(.backTapped)))):
+                let sessionLease = chatSessionLease(in: state.path)
+                state.suppressNextChatPathRemovalDisconnect = true
+                state.path.removeLast()
                 let repo = chatRepository
                 Logger.debug("Coordinator chat teardown - explicit back")
                 return .run { _ in
@@ -105,44 +111,86 @@ extension TabNavigationCoordinator {
                     await repo.disconnectSocket(lease: sessionLease)
                 }
 
-            case .router(.routeAction(id: .buyOrNotAdd, action: .buyOrNotAdd(.delegate(.dismiss)))):
-                state.routes.pop()
+            case .path(.element(id: _, action: .buyOrNotAdd(.delegate(.dismiss)))):
+                state.path.removeLast()
 
-            case .router(.routeAction(id: .buyOrNotAdd, action: .buyOrNotAdd(.delegate(.succressItem)))):
-                state.routes.pop()
+            case .path(.element(id: _, action: .buyOrNotAdd(.delegate(.succressItem)))):
+                state.path.removeLast()
+                return .send(.tabView(.buyOrNotTabAction(.delegate(.newBuyOrNotItem))))
 
-            case let .router(.routeAction(id: .buyOrNotAdd, action: .buyOrNotAdd(.delegate(.successModifierFromChat(model))))):
-                state.routes.pop()
-                return .send(.router(.routeAction(id: .chatView, action: .chatView(.featureEvent(.productUpdated(model))))))
+            case let .path(.element(id: _, action: .buyOrNotAdd(.delegate(.successModifer(model, idx))))):
+                state.path.removeLast()
+                return .send(.tabView(.buyOrNotTabAction(.delegate(.modifierSuccess(model, idx: idx)))))
 
-            case .router(.routeAction(id: .buyOrNotAdd, action: .buyOrNotAdd(.delegate(.successModifer(_, _))))):
-                state.routes.pop()
+            case let .path(.element(id: _, action: .buyOrNotAdd(.delegate(.successModifierFromChat(model))))):
+                state.path.removeLast()
+                guard let lastID = state.path.ids.last else { return .none }
+                return .send(.path(.element(id: lastID, action: .chatView(.featureEvent(.productUpdated(model))))))
+
+            case .path(.element(id: _, action: .challengeAdd(.delegate(.dismissTapped)))):
+                state.path.removeLast()
+
+            case .path(.element(id: _, action: .challengeAdd(.delegate(.successAdd)))):
+                state.path.removeLast()
+                return .send(.tabView(.challengeTabAction(.home(.parentEvent(.reloadData)))))
+
+            case .path(.element(id: _, action: .groupChallengeDetail(.delegate(.back)))):
+                state.path.removeLast()
+
+            case let .path(.element(id: _, action: .groupChallengeDetail(.delegate(.goSettingView(ifOwner, roomID))))):
+                state.path.append(.groupChallengeSetting(ChallengeGroupSettingViewFeature.State(ifOwner: ifOwner, roomID: roomID)))
+
+            case .path(.element(id: _, action: .groupChallengeSetting(.delegate(.back)))):
+                state.path.removeLast()
+
+            case let .path(.element(id: _, action: .groupChallengeSetting(.delegate(.modifyTapped(groupID))))):
+                state.path.append(
+                    .groupChallengeModify(
+                        GroupChallengeCreateViewFeature.State(
+                            mode: .modify,
+                            ifModifyRoomID: groupID
+                        )
+                    )
+                )
+
+            case .path(.element(id: _, action: .groupChallengeSetting(.delegate(.removeSuccess)))):
+                popGroupChallengeFlow(&state.path)
+                return .send(.tabView(.challengeTabAction(.home(.parentEvent(.reloadGroupData)))))
+
+            case .path(.element(id: _, action: .groupChallengeSetting(.delegate(.exitSuccess)))):
+                popGroupChallengeFlow(&state.path)
+                return .send(.tabView(.challengeTabAction(.home(.parentEvent(.reloadGroupData)))))
+
+            case .path(.element(id: _, action: .groupChallengeModify(.delegate(.dismiss)))):
+                state.path.removeLast()
+
+            case .path(.element(id: _, action: .groupChallengeModify(.delegate(.modifySuccess)))):
+                popGroupChallengeFlow(&state.path)
+                return .send(.tabView(.challengeTabAction(.home(.parentEvent(.reloadGroupData)))))
 
             default:
                 break
             }
             return .none
         }
-        .forEachRoute(\.routes, action: \.router)
-        .onChange(of: \.routes) { oldValue, newValue in
-            navCore(oldValue: oldValue, newValue: newValue)
-        }
     }
-    
+
     private func navCore(
-        oldValue: IdentifiedArrayOf<Route<TabNavigationScreen.State>>,
-        newValue: IdentifiedArrayOf<Route<TabNavigationScreen.State>>
+        oldValue: StackState<Path.State>,
+        newValue: StackState<Path.State>
     ) -> some ReducerOf<Self> {
         Reduce { state, _ in
-            let hadChatRoute = hasChatRoute(in: oldValue)
-            let hasChatRoute = hasChatRoute(in: newValue)
+            state.tabView.tabbarHidden = !newValue.isEmpty
 
-            guard hadChatRoute, !hasChatRoute else {
+            let hadChatPath = hasChatPath(in: oldValue)
+            let hasChatPath = hasChatPath(in: newValue)
+
+            guard hadChatPath, !hasChatPath else {
                 return .none
             }
 
-            if state.suppressNextChatRouteRemovalDisconnect {
-                state.suppressNextChatRouteRemovalDisconnect = false
+            if state.suppressNextChatPathRemovalDisconnect {
+                state.suppressNextChatPathRemovalDisconnect = false
                 return .none
             }
 
@@ -151,18 +199,18 @@ extension TabNavigationCoordinator {
             }
 
             let repo = chatRepository
-            Logger.debug("Coordinator chat teardown - route removal fallback")
+            Logger.debug("Coordinator chat teardown - path removal fallback")
             return .run { _ in
                 await repo.disconnectSocket(lease: removedLease)
             }
         }
     }
 
-    private func hasChatRoute(
-        in routes: IdentifiedArrayOf<Route<TabNavigationScreen.State>>
+    private func hasChatPath(
+        in path: StackState<Path.State>
     ) -> Bool {
-        routes.contains { route in
-            if case .chatView = route.screen {
+        path.contains { element in
+            if case .chatView = element {
                 return true
             }
             return false
@@ -170,10 +218,10 @@ extension TabNavigationCoordinator {
     }
 
     private func chatSessionLease(
-        in routes: IdentifiedArrayOf<Route<TabNavigationScreen.State>>
+        in path: StackState<Path.State>
     ) -> UUID? {
-        for route in routes.reversed() {
-            if case let .chatView(chatState) = route.screen {
+        for element in path.reversed() {
+            if case let .chatView(chatState) = element {
                 return chatState.sessionLease
             }
         }
@@ -181,23 +229,34 @@ extension TabNavigationCoordinator {
     }
 
     private func removedChatSessionLease(
-        oldValue: IdentifiedArrayOf<Route<TabNavigationScreen.State>>,
-        newValue: IdentifiedArrayOf<Route<TabNavigationScreen.State>>
+        oldValue: StackState<Path.State>,
+        newValue: StackState<Path.State>
     ) -> UUID? {
-        let activeLeases = Set(newValue.compactMap { route -> UUID? in
-            if case let .chatView(chatState) = route.screen {
+        let activeLeases = Set(newValue.compactMap { element -> UUID? in
+            if case let .chatView(chatState) = element {
                 return chatState.sessionLease
             }
             return nil
         })
 
-        for route in oldValue.reversed() {
-            if case let .chatView(chatState) = route.screen,
+        for element in oldValue.reversed() {
+            if case let .chatView(chatState) = element,
                !activeLeases.contains(chatState.sessionLease) {
                 return chatState.sessionLease
             }
         }
 
         return nil
+    }
+
+    private func popGroupChallengeFlow(_ path: inout StackState<Path.State>) {
+        while let last = path.last {
+            switch last {
+            case .groupChallengeModify, .groupChallengeSetting, .groupChallengeDetail:
+                path.removeLast()
+            default:
+                return
+            }
+        }
     }
 }

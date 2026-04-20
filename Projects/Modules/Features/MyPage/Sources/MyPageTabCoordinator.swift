@@ -7,19 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
-import TCACoordinators
 import FeatureCommon
-
-// (state: .hashable) 최신 버전에서 없어짐.
-@Reducer
-public enum MyPageScreen {
-    case home(MyPageViewFeature)
-    case revokePage(RevokeFeature)
-    case pushList(PushListViewFeature)
-    case pushHabitChart(HabitChartsFeature)
-}
-
-extension MyPageScreen.State: Hashable {}
 
 @Reducer
 public struct MyPageTabCoordinator {
@@ -27,24 +15,38 @@ public struct MyPageTabCoordinator {
     public init() {}
     
     @ObservableState
-    public struct State: Equatable, Sendable, Hashable {
-        public static let initialState = State(routes: [.root(.home(MyPageViewFeature.State()), embedInNavigationView: true)])
-        
-        var routes: IdentifiedArrayOf<Route<MyPageScreen.State>>
+    public struct State: Equatable {
+        public static let initialState = State()
+
+        var home = MyPageViewFeature.State()
+        var revokePage: RevokeFeature.State?
+        var pushList: PushListViewFeature.State?
     }
     
     public enum Action {
-        case router(IdentifiedRouterActionOf<MyPageScreen>)
+        case home(MyPageViewFeature.Action)
+        case revokePage(RevokeFeature.Action)
+        case pushList(PushListViewFeature.Action)
         case delegate(Delegate)
         
         public enum Delegate {
             case tabViewHidden
             case tabViewShow
+            case moveToHabitChart
         }
     }
     
     public var body: some ReducerOf<Self> {
+        Scope(state: \.home, action: \.home) {
+            MyPageViewFeature()
+        }
         core
+            .ifLet(\.revokePage, action: \.revokePage) {
+                RevokeFeature()
+            }
+            .ifLet(\.pushList, action: \.pushList) {
+                PushListViewFeature()
+            }
     }
 }
 
@@ -52,27 +54,25 @@ extension MyPageTabCoordinator {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .router(.routeAction(id: .revokePage, action: .revokePage(.delegate(.dismiss)))):
-                state.routes.dismiss()
+            case .revokePage(.delegate(.dismiss)):
+                state.revokePage = nil
                 
-            case .router(.routeAction(id: .pushList, action: .pushList(.delegate(.dismiss)))):
-                state.routes.dismiss()
+            case .pushList(.delegate(.dismiss)):
+                state.pushList = nil
                 
-            case .router(.routeAction(id: .home, action: .home(.delegate(.revokedEvent)))):
-                //                state.routes.push(.revokePage(RevokeFeature.State()))
-                state.routes.presentCover(.revokePage(RevokeFeature.State()))
+            case .home(.delegate(.revokedEvent)):
+                state.revokePage = RevokeFeature.State()
                 
-            case .router(.routeAction(id: .home, action: .home(.delegate(.pushButtonTapped)))):
-                state.routes.presentCover(.pushList(PushListViewFeature.State()))
+            case .home(.delegate(.pushButtonTapped)):
+                state.pushList = PushListViewFeature.State()
             
             // MARK: 나의 소비 습관
-            case .router(.routeAction(id: .home, action: .home(.delegate(.habitChartMoveTapped)))):
-                state.routes.push(.pushHabitChart(HabitChartsFeature.State()))
+            case .home(.delegate(.habitChartMoveTapped)):
+                return .send(.delegate(.moveToHabitChart))
             default:
                 break
             }
             return .none
         }
-        .forEachRoute(\.routes, action: \.router)
     }
 }

@@ -20,7 +20,6 @@ let introProject = Project.create(
             Module.Data.projectTarget,
             Module.utils.projectTarget,
             .tca,
-            .tcaCoordinator,
             .popupView
         ],
         resources: [

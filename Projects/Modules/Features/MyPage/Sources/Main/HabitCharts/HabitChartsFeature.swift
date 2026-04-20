@@ -5,9 +5,12 @@ import Utils
 
 @Reducer
 public struct HabitChartsFeature: GBReducer {
+    public init() {}
 
     @ObservableState
     public struct State: Equatable, Hashable {
+        public init() {}
+        
         var recentMessage: String = ""
         var recentMaxCount: Int = 1
         var isLoading: Bool = false

@@ -7,9 +7,10 @@
 
 import SwiftUI
 import ComposableArchitecture
-import TCACoordinators
 import FeatureCommon
+import FeatureChallenge
 import FeatureBuyOrNot
+import FeatureMyPage
 
 public struct TabNavigationCoordinatorView: View {
     
@@ -21,63 +22,68 @@ public struct TabNavigationCoordinatorView: View {
     
     public var body: some View {
         WithPerceptionTracking {
-            TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
-                switch screen.case {
-                    
-                case let .tabView(store):
-                    GBTabBarView(store: store)
-                    
-                case let .challengeDetail(store):
-                    ChallengeDetailView(store: store)
-                        .navigationBarBackButtonHidden()
-                        .disableBackGesture(false)
-                    
-                case let .challengeAdd(store):
-                    ChallengeAddView(store: store)
-                        .navigationBarBackButtonHidden()
-                        .disableBackGesture(false)
+            NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+                GBTabBarView(store: store.scope(state: \.tabView, action: \.tabView))
+            } destination: { store in
+                switch store.state {
+                case .chatView:
+                    if let store = store.scope(state: \.chatView, action: \.chatView) {
+                        ChattingView(store: store)
+                            .navigationBarBackButtonHidden()
+                            .disableBackGesture(false)
+                    }
 
-                case let .chatView(store):
-                    ChattingView(store: store)
-                        .navigationBarBackButtonHidden()
-                        .disableBackGesture(false)
+                case .buyOrNotAdd:
+                    if let store = store.scope(state: \.buyOrNotAdd, action: \.buyOrNotAdd) {
+                        BuyOrNotAddView(store: store)
+                            .navigationBarBackButtonHidden()
+                            .disableBackGesture(false)
+                    }
 
-                case let .buyOrNotAdd(store):
-                    BuyOrNotAddView(store: store)
-                        .navigationBarBackButtonHidden()
-                        .disableBackGesture(false)
+                case .challengeAdd:
+                    if let store = store.scope(state: \.challengeAdd, action: \.challengeAdd) {
+                        ChallengeAddView(store: store)
+                            .navigationBarBackButtonHidden()
+                            .disableBackGesture(false)
+                    }
+
+                case .challengeDetail:
+                    if let store = store.scope(state: \.challengeDetail, action: \.challengeDetail) {
+                        ChallengeDetailView(store: store)
+                            .navigationBarBackButtonHidden()
+                            .disableBackGesture(false)
+                    }
+
+                case .pushHabitChart:
+                    if let store = store.scope(state: \.pushHabitChart, action: \.pushHabitChart) {
+                        HabitChartsView(store: store)
+                            .navigationBarBackButtonHidden()
+                            .disableBackGesture(false)
+                    }
+
+                case .groupChallengeDetail:
+                    if let store = store.scope(state: \.groupChallengeDetail, action: \.groupChallengeDetail) {
+                        ChallengeGroupDetailView(store: store)
+                            .navigationBarBackButtonHidden()
+                            .disableBackGesture(false)
+                    }
+
+                case .groupChallengeSetting:
+                    if let store = store.scope(state: \.groupChallengeSetting, action: \.groupChallengeSetting) {
+                        ChallengeGroupSettingView(store: store)
+                            .navigationBarBackButtonHidden()
+                            .disableBackGesture(false)
+                    }
+
+                case .groupChallengeModify:
+                    if let store = store.scope(state: \.groupChallengeModify, action: \.groupChallengeModify) {
+                        ChallengeGroupCreateView(store: store)
+                            .navigationBarBackButtonHidden()
+                            .disableBackGesture(false)
+                    }
                 }
             }
-        }
-    }
-}
-
-
-extension TabNavigationScreen.State: Identifiable {
-    public var id: ID {
-        switch self {
-        case .tabView:
-            return .tabView
-        case .challengeDetail:
-            return .challengeDetail
-        case .challengeAdd:
-            return .challengeAdd
-        case .chatView:
-            return .chatView
-        case .buyOrNotAdd:
-            return .buyOrNotAdd
-        }
-    }
-
-    public enum ID: Identifiable {
-        case tabView
-        case challengeDetail
-        case challengeAdd
-        case chatView
-        case buyOrNotAdd
-
-        public var id: ID {
-            return self
+            .id("tab-shell-navigation-stack")
         }
     }
 }

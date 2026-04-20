@@ -15,7 +15,6 @@ let homeFremeWork = Project.create(
         dependencies: [
             Module.feature(.Common).projectTarget,
             .tca,
-            .tcaCoordinator,
             .popupView
         ],
         sources: [

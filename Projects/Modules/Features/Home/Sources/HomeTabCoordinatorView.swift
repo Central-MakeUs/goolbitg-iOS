@@ -7,7 +7,6 @@
 
 import SwiftUI
 import ComposableArchitecture
-import TCACoordinators
 import FeatureCommon
 
 public struct HomeTabCoordinatorView: View {
@@ -27,36 +26,21 @@ public struct HomeTabCoordinatorView: View {
 
 extension HomeTabCoordinatorView {
     private var content: some View {
-        TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
-            switch screen.case {
-            case let .home(store):
-                GBHomeTabViewV1(store: store)
-                    .disableBackGesture(false)
-                        
-            case let .pushList(store):
-                PushListView(store:store)
+        GBHomeTabViewV1(store: store.scope(state: \.home, action: \.home))
+            .disableBackGesture(false)
+        .fullScreenCover(
+            isPresented: Binding(
+                get: { store.pushList != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        store.send(.pushList(.delegate(.dismiss)))
+                    }
+                }
+            )
+        ) {
+            if let pushListStore = store.scope(state: \.pushList, action: \.pushList) {
+                PushListView(store: pushListStore)
             }
-        }
-    }
-}
-
-extension homeTabScreen.State: Identifiable {
-    public var id: ID {
-        switch self {
-        case .home:
-            return .home
-            
-        case .pushList:
-            return .pushList
-        }
-    }
-    
-    public enum ID: Identifiable {
-        case home
-        case pushList
-        
-        public var id: ID {
-            return self
         }
     }
 }

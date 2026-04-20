@@ -17,7 +17,6 @@ public var getProjectPackageSetting: [String: Product] {
 
 private let projectProductTypes: [String: Product] = [
     "Alamofire": .framework, // 제거 예상
-    "TCACoordinators" : .framework,
     "SwiftyBeaver": .framework, // 제거 예상
     "KakaoSDK": .framework,
     "Lottie": .framework,
@@ -49,4 +48,3 @@ private let tcaDynamics: [String : Product] = [
     "DependenciesMacros": .framework,
     "FlowStacks": .framework
 ]
-

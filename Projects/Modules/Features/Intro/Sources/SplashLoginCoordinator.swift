@@ -7,25 +7,9 @@
 
 import Foundation
 import ComposableArchitecture
-@preconcurrency import TCACoordinators
 import Data
 import Utils
 import FeatureCommon
-
-@Reducer(state: .hashable)
-public enum SplashLoginScreen {
-    case splash(SplashFeature)
-    case login(LoginViewFeature)
-    case authRequestPage(AuthRequestPageFeature)
-    case userInfoRequestView(AuthRequestFeature)
-    case analysisView(AnalysisFeature)
-    case shoppingCheckListView(ShoppingCheckListViewFeature)
-    case habitCheckView(ComsumptionHabitsViewFeature)
-    case dayTimeCheckView(ExpressExpenditureDateViewFeature)
-    case analyzingConsumption(AnalyzingConsumptionFeature)
-    case resultHabit(ResultHabitFeature)
-    case challengeAdd(ChallengeAddViewFeature)
-}
 
 @Reducer
 public struct SplashLoginCoordinator {
@@ -33,14 +17,30 @@ public struct SplashLoginCoordinator {
     public init() {}
     
     @ObservableState
-    public struct State: Equatable, Sendable, Hashable {
-        public static let initialState = State(routes: [.root(.splash(SplashFeature.State()), embedInNavigationView: true)])
-        
-        public var routes: IdentifiedArrayOf<Route<SplashLoginScreen.State>>
+    public struct State: Equatable {
+        public static let initialState = State()
+
+        public var splash = SplashFeature.State()
+        public var path = StackState<Path.State>()
+    }
+
+    @Reducer(state: .equatable)
+    public enum Path {
+        case login(LoginViewFeature)
+        case authRequestPage(AuthRequestPageFeature)
+        case userInfoRequestView(AuthRequestFeature)
+        case analysisView(AnalysisFeature)
+        case shoppingCheckListView(ShoppingCheckListViewFeature)
+        case habitCheckView(ComsumptionHabitsViewFeature)
+        case dayTimeCheckView(ExpressExpenditureDateViewFeature)
+        case analyzingConsumption(AnalyzingConsumptionFeature)
+        case resultHabit(ResultHabitFeature)
+        case challengeAdd(ChallengeAddViewFeature)
     }
     
     public enum Action {
-        case router(IdentifiedRouterActionOf<SplashLoginScreen>)
+        case splash(SplashFeature.Action)
+        case path(StackActionOf<Path>)
         
         case checkUserState
         case checkToMoveScreen(caseOf: RegisterStatusCase)
@@ -49,6 +49,9 @@ public struct SplashLoginCoordinator {
         case checkToRefresh
         case failRefresh
         case delegate(Delegate)
+        case resetToStart
+        case showLogin
+        case openUserInfoRequest
         
         public enum Delegate {
             case moveToHome
@@ -71,7 +74,11 @@ public struct SplashLoginCoordinator {
     @Dependency(\.pushNotiManager) var pushNotiManager
     
     public var body: some ReducerOf<Self> {
+        Scope(state: \.splash, action: \.splash) {
+            SplashFeature()
+        }
         core
+            .forEach(\.path, action: \.path)
     }
 }
 
@@ -79,7 +86,7 @@ extension SplashLoginCoordinator {
     private var core: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .router(.routeAction(id: .splash, action: .splash(.delegate(.finish)))):
+            case .splash(.delegate(.finish)):
                 
                 return checkLoginState(&state)
                 
@@ -102,61 +109,71 @@ extension SplashLoginCoordinator {
             case .checkUserState:
                 return checkUserRegistration(state: &state)
                 
-            case .router(.routeAction(id: .authRequestPage, action: .authRequestPage(.delegate(.nextView)))):
+            case .path(.element(id: _, action: .authRequestPage(.delegate(.nextView)))):
                 
                 return checkUserRegistration(state: &state)
                 
             case .failRefresh:
-                state.routes.push(.login(LoginViewFeature.State()))
-                
-            case let .router(.routeAction(id: .login, action: .login(.delegate(.moveToOnBoarding(caseOf))))):
+                state.path.append(.login(LoginViewFeature.State()))
+                 
+            case let .path(.element(id: _, action: .login(.delegate(.moveToOnBoarding(caseOf))))):
                 Logger.info(caseOf)
                 // MARK: 앱 권한 확인
                 return .send(.checkToMoveScreen(caseOf: caseOf))
                 
                 /// 유저 정보 리퀘스트
-            case .router(.routeAction(id: .userInfoRequestView, action: .userInfoRequestView(.delegate(.successNextView)))):
+            case .path(.element(id: _, action: .userInfoRequestView(.delegate(.successNextView)))):
                 return .send(.moveToScreen(.analysis))
                 /// 가짜 분석 뷰
-            case .router(.routeAction(id: .analysisView, action: .analysisView(.delegate(.nextView)))):
+            case .path(.element(id: _, action: .analysisView(.delegate(.nextView)))):
                 return .send(.moveToScreen(.shoppingListView))
                 /// 체크리스트 뷰
-            case .router(.routeAction(id: .shoppingCheckListView, action: .shoppingCheckListView(.delegate(.nextView)))):
+            case .path(.element(id: _, action: .shoppingCheckListView(.delegate(.nextView)))):
                 return .send(.moveToScreen(.habitView))
                 /// 소비 습관 점수 뷰
-            case .router(.routeAction(id: .habitCheckListView, action: .habitCheckView(.delegate(.nextView)))):
+            case .path(.element(id: _, action: .habitCheckView(.delegate(.nextView)))):
                 return .send(.moveToScreen(.expressExpenditureDateView))
                 /// 지출 요일/ 시간 선택
-            case .router(.routeAction(id: .exDayTimeCheckView, action: .dayTimeCheckView(.delegate(.nextView)))):
+            case .path(.element(id: _, action: .dayTimeCheckView(.delegate(.nextView)))):
                 return .send(.moveToScreen(.analyzingConsumption))
                 
-            case let .router(.routeAction(id: .analyzingConsumption, action: .analyzingConsumption(.delegate(.tossToResult(userModel))))):
-                state.routes.push(.resultHabit(ResultHabitFeature.State(userModel: userModel)))
+            case let .path(.element(id: _, action: .analyzingConsumption(.delegate(.tossToResult(userModel))))):
+                state.path.append(.resultHabit(ResultHabitFeature.State(userModel: userModel)))
                 
-            case .router(.routeAction(id: .resultHabit, action: .resultHabit(.delegate(.nextView)))):
+            case .path(.element(id: _, action: .resultHabit(.delegate(.nextView)))):
                 return .send(.moveToScreen(.challengeAdd))
              
-            case .router(.routeAction(id: .challengeAdd, action: .challengeAdd(.delegate(.moveToHome)))):
+            case .path(.element(id: _, action: .challengeAdd(.delegate(.moveToHome)))):
                 return .send(.delegate(.moveToHome))
-                
+
+            case .resetToStart:
+                state.path.removeAll()
+
+            case .showLogin:
+                state.path.removeAll()
+                state.path.append(.login(LoginViewFeature.State()))
+
+            case .openUserInfoRequest:
+                state.path.append(.userInfoRequestView(AuthRequestFeature.State()))
+                 
             case let .moveToScreen(screen):
                 switch screen {
                 case .authRequest:
-                    state.routes.push(.authRequestPage(AuthRequestPageFeature.State()))
+                    state.path.append(.authRequestPage(AuthRequestPageFeature.State()))
                 case .userInfoRequest:
-                    state.routes.push(.userInfoRequestView(AuthRequestFeature.State()))
+                    state.path.append(.userInfoRequestView(AuthRequestFeature.State()))
                 case .analysis:
-                    state.routes.push(.analysisView(AnalysisFeature.State()))
+                    state.path.append(.analysisView(AnalysisFeature.State()))
                 case .shoppingListView:
-                    state.routes.push(.shoppingCheckListView(ShoppingCheckListViewFeature.State()))
+                    state.path.append(.shoppingCheckListView(ShoppingCheckListViewFeature.State()))
                 case .habitView:
-                    state.routes.push(.habitCheckView(ComsumptionHabitsViewFeature.State()))
+                    state.path.append(.habitCheckView(ComsumptionHabitsViewFeature.State()))
                 case .expressExpenditureDateView:
-                    state.routes.push(.dayTimeCheckView(ExpressExpenditureDateViewFeature.State()))
+                    state.path.append(.dayTimeCheckView(ExpressExpenditureDateViewFeature.State()))
                 case .analyzingConsumption:
-                    state.routes.push(.analyzingConsumption(AnalyzingConsumptionFeature.State()))
+                    state.path.append(.analyzingConsumption(AnalyzingConsumptionFeature.State()))
                 case .challengeAdd:
-                    state.routes.push(.challengeAdd(ChallengeAddViewFeature.State(dismissButtonHidden: true)))
+                    state.path.append(.challengeAdd(ChallengeAddViewFeature.State(dismissButtonHidden: true)))
                 }
                 
             case let .checkToMoveScreen(caseOf):
@@ -187,10 +204,6 @@ extension SplashLoginCoordinator {
             }
             return .none
         }
-        .forEachRoute(
-            \.routes,
-             action: \.router
-        )
     }
 }
 
@@ -202,7 +215,8 @@ extension SplashLoginCoordinator {
             // accessToken 이 존재한다면 재 갱신 시도
             return .send(.checkToRefresh)
         } else {
-            state.routes.push(.login(LoginViewFeature.State()))
+            state.path.removeAll()
+            state.path.append(.login(LoginViewFeature.State()))
         }
         return .none
     }

@@ -7,141 +7,88 @@
 
 import Foundation
 import ComposableArchitecture
-@preconcurrency import TCACoordinators
-
-@Reducer(state: .hashable)
-public enum ChallengeTabScreen {
-    case home(ChallengeTabFeature)
-    case groupChallengeCreate(GroupChallengeCreateViewFeature)
-    case groupChallengeDetail(ChallengeGroupDetailViewFeature)
-    case groupChallengeSetting(ChallengeGroupSettingViewFeature)
-    case groupChallengeModify(GroupChallengeCreateViewFeature)
-    case groupChallengeSearch(ChallengeGroupSearchViewFeature)
-}
+import FeatureCommon
 
 @Reducer
 public struct ChallengeTabCoordinator {
     public init () {}
-    
+
     @ObservableState
-    public struct State: Equatable, Hashable {
-        
-        public static let initialState = State(routes: [.root(.home(ChallengeTabFeature.State()), embedInNavigationView: true)])
-        
-        var routes: IdentifiedArrayOf<Route<ChallengeTabScreen.State>>
+    public struct State: Equatable {
+        public static let initialState = State()
+
+        var home = ChallengeTabFeature.State()
+        var groupChallengeCreate: GroupChallengeCreateViewFeature.State?
+        var groupChallengeSearch: ChallengeGroupSearchViewFeature.State?
     }
 
     public enum Action {
-        case router(IdentifiedRouterActionOf<ChallengeTabScreen>)
+        case home(ChallengeTabFeature.Action)
+        case groupChallengeCreate(GroupChallengeCreateViewFeature.Action)
+        case groupChallengeSearch(ChallengeGroupSearchViewFeature.Action)
         case delegate(Delegate)
-        
+
         public enum Delegate {
             case tabbarHidden
             case showTabbar
+            case moveToChallengeAdd
+            case moveToChallengeDetail(String)
+            case moveToGroupChallengeDetail(String)
         }
     }
-    
+
     public var body: some ReducerOf<Self> {
+        Scope(state: \.home, action: \.home) {
+            ChallengeTabFeature()
+        }
         core
+            .ifLet(\.groupChallengeCreate, action: \.groupChallengeCreate) {
+                GroupChallengeCreateViewFeature()
+            }
+            .ifLet(\.groupChallengeSearch, action: \.groupChallengeSearch) {
+                ChallengeGroupSearchViewFeature()
+            }
     }
 }
 
 extension ChallengeTabCoordinator {
     private var core: some ReducerOf<Self> {
-        Reduce {
-            state,
-            action in
+        Reduce { state, action in
             switch action {
-            case .router(.routeAction(id: .home, action: .home(.delegate(.moveToGroupChallengeCreate)))):
-                
-                state.routes.presentCover(
-                    .groupChallengeCreate(
-                        GroupChallengeCreateViewFeature.State()
-                    )
-                )
-            case .router(.routeAction(id: .home, action: .home(.delegate(.moveToGroupChallengeSearchView)))):
-                
-                state.routes.presentCover(
-                    .groupChallengeSearch(
-                        ChallengeGroupSearchViewFeature.State()
-                    )
-                )
-                
-            case let .router(.routeAction(id: .home, action: .home(.delegate(.moveToGroupChallengeDetail(groupID))))):
-                state.routes.presentCover(
-                    .groupChallengeDetail(
-                        ChallengeGroupDetailViewFeature.State(groupID: groupID)
-                    ),
-                    embedInNavigationView: true
-                )
-                // MARK: GroupChallenge
-            case .router(.routeAction(id: .groupChallengeCreate, action: .groupChallengeCreate(.delegate(.dismiss)))):
-                
-                state.routes.dismiss()
-                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadGroupData)))))
-                
-            case .router(.routeAction(id: .groupChallengeCreate, action: .groupChallengeCreate(.delegate(.createSuccess)))):
-                
-                state.routes.dismiss()
-                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadGroupData)))))
-                
-                // MARK: GroupChallengeDetail
-            case .router(.routeAction(id: .groupChallengeDetail, action: .groupChallengeDetail(.delegate(.back)))):
-                state.routes.dismiss()
-                
-            case let .router(.routeAction(id: .groupChallengeDetail, action: .groupChallengeDetail(.delegate(.goSettingView(ifOwner, roomID))))):
-                
-                state.routes.push(.groupChallengeSetting(ChallengeGroupSettingViewFeature.State(ifOwner: ifOwner, roomID: roomID)))
-                
-                
-                
-                // MARK: GroupChallengeSetting
-            case .router(.routeAction(id: .groupChallengeSetting, action: .groupChallengeSetting(.delegate(.removeSuccess)))):
-                state.routes.dismiss()
-                
-                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadGroupData)))))
-                
-            case .router(.routeAction(id: .groupChallengeSetting, action: .groupChallengeSetting(.delegate(.back)))):
-                state.routes.pop()
-                
-            case let .router(.routeAction(id: .groupChallengeSetting, action: .groupChallengeSetting(.delegate(.modifyTapped(groupID))))):
-                state.routes
-                    .push(
-                        .groupChallengeModify(
-                            GroupChallengeCreateViewFeature.State(
-                                mode: .modify,
-                                ifModifyRoomID: groupID
-                            )
-                        )
-                    )
-                
-            case .router(.routeAction(id: .groupChallengeSetting, action: .groupChallengeSetting(.delegate(.exitSuccess)))):
-                state.routes.dismiss()
-                
-                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadGroupData)))))
-                
-            case .router(.routeAction(id: .groupChallengeModify, action: .groupChallengeModify(.delegate(.dismiss)))):
-                state.routes.pop()
-                
-            case .router(.routeAction(id: .groupChallengeModify, action: .groupChallengeModify(.delegate(.modifySuccess)))):
-                state.routes.dismiss()
-                
-                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadGroupData)))))
-                
-            // MARK: GroupChallenge Search
-            case .router(.routeAction(id: .groupChallengeSearch, action: .groupChallengeSearch(.delegate(.backButtonTapped)))):
-                state.routes.dismiss()
-                
-            case .router(.routeAction(id: .groupChallengeSearch, action: .groupChallengeSearch(.delegate(.backAndReload)))):
-                state.routes.dismiss()
-                
-                return .send(.router(.routeAction(id: .home, action: .home(.parentEvent(.reloadGroupData)))))
-                
+            case .home(.delegate(.moveToChallengeAdd)):
+                return .send(.delegate(.moveToChallengeAdd))
+
+            case let .home(.delegate(.moveToDetail(itemID))):
+                return .send(.delegate(.moveToChallengeDetail(itemID)))
+
+            case .home(.delegate(.moveToGroupChallengeCreate)):
+                state.groupChallengeCreate = GroupChallengeCreateViewFeature.State()
+
+            case .home(.delegate(.moveToGroupChallengeSearchView)):
+                state.groupChallengeSearch = ChallengeGroupSearchViewFeature.State()
+
+            case let .home(.delegate(.moveToGroupChallengeDetail(groupID))):
+                return .send(.delegate(.moveToGroupChallengeDetail(groupID)))
+
+            case .groupChallengeCreate(.delegate(.dismiss)):
+                state.groupChallengeCreate = nil
+                return .send(.home(.parentEvent(.reloadGroupData)))
+
+            case .groupChallengeCreate(.delegate(.createSuccess)):
+                state.groupChallengeCreate = nil
+                return .send(.home(.parentEvent(.reloadGroupData)))
+
+            case .groupChallengeSearch(.delegate(.backButtonTapped)):
+                state.groupChallengeSearch = nil
+
+            case .groupChallengeSearch(.delegate(.backAndReload)):
+                state.groupChallengeSearch = nil
+                return .send(.home(.parentEvent(.reloadGroupData)))
+
             default:
                 break
             }
             return .none
         }
-        .forEachRoute(\.routes, action: \.router)
     }
 }

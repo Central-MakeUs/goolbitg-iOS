@@ -13,6 +13,7 @@ import Data
 
 @Reducer
 public struct ChallengeGroupSettingViewFeature: GBReducer {
+    public init() {}
     
     @ObservableState
     public struct State: Equatable, Hashable {

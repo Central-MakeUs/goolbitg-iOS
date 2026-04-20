@@ -32,7 +32,6 @@ let tabFremeWork = Project.create(
         customTargets: [tabTestTarget],
         dependencies: [
             .tca,
-            .tcaCoordinator,
             Module.Data.projectTarget
         ] + Module.tabNeedModules.map(\.projectTarget),
         sources: [

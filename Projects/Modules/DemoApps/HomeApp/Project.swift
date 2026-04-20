@@ -19,7 +19,6 @@ let onlyHomeProject = Project.create(
             Module.utils.projectTarget,
             Module.Data.projectTarget,
             .tca,
-            .tcaCoordinator,
 //            .firebaseCore,
 //            .firebaseMessaging,
             .popupView

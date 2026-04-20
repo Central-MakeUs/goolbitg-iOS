@@ -13,7 +13,8 @@ import Data
 
 @Reducer
 public struct GroupChallengeCreateViewFeature {
-    
+    public init() {}
+     
     @ObservableState
     public struct State: Equatable, Hashable {
         @ObservationStateIgnored

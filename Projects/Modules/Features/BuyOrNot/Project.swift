@@ -18,7 +18,6 @@ let buyOrNotFremeWork = Project.create(
             Module.Data.projectTarget,
             Module.utils.projectTarget,
             .tca,
-            .tcaCoordinator,
             .popupView
         ],
         sources: [

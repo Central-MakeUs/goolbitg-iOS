@@ -11,7 +11,7 @@ import Utils
 import Data
 import FeatureCommon
 
-struct ChallengeGroupDetailView: View {
+public struct ChallengeGroupDetailView: View {
     
     // MARK: UI Member
     @Environment(\.safeAreaInsets) private var safeArea
@@ -23,6 +23,10 @@ struct ChallengeGroupDetailView: View {
     // MARK: Feature
     @Perception.Bindable var store: StoreOf<ChallengeGroupDetailViewFeature>
     
+    public init(store: StoreOf<ChallengeGroupDetailViewFeature>) {
+        self.store = store
+    }
+
     public var body: some View {
         WithPerceptionTracking {
             contentView

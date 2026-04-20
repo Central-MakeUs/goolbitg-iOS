@@ -7,7 +7,6 @@
 
 import SwiftUI
 import ComposableArchitecture
-import TCACoordinators
 import PopupView
 import Utils
 import FeatureCommon
@@ -87,6 +86,7 @@ extension RootCoordinatorView {
                             action: \.splashLoginAction
                         )
                     )
+                    .id(RootCoordinator.ChangeRootView.splashLogin)
                     
                 case .mainTab:
                     TabNavigationCoordinatorView(
@@ -95,6 +95,7 @@ extension RootCoordinatorView {
                             action: \.tabAction
                         )
                     )
+                    .id(RootCoordinator.ChangeRootView.mainTab)
                 }
             }
             

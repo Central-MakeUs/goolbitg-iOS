@@ -37,7 +37,7 @@ public enum TabCase: Hashable, CaseIterable {
 public struct GBTabBarCoordinator {
     
     @ObservableState
-    public struct State: Equatable, Hashable {
+    public struct State: Equatable {
         public static let initialState = State()
         
         var currentTab: TabCase = .homeTab
@@ -102,15 +102,17 @@ extension GBTabBarCoordinator {
             case .challengeTabAction(.delegate(.showTabbar)):
                 state.tabbarHidden = false
                 
-            case .challengeTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.hiddenTabBar))))):
+            case .challengeTabAction(.home(.delegate(.hiddenTabBar))):
                 state.tabbarHidden = true
-            case .challengeTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.showTabBar))))):
+            case .challengeTabAction(.home(.delegate(.showTabBar))):
                 state.tabbarHidden = false
-                
+                 
             case .homeTabAction(.delegate(.hiddenTabbar)):
                 state.tabbarHidden = true
             case .homeTabAction(.delegate(.showTabbar)):
                 state.tabbarHidden = false
+            case .homeTabAction(.delegate(.reloadChallengeData)):
+                return .send(.challengeTabAction(.home(.parentEvent(.reloadData))))
                 
             case .myPageTabAction(.delegate(.tabViewHidden)):
                 state.tabbarHidden = true

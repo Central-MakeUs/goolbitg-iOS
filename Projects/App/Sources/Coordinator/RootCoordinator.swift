@@ -7,7 +7,6 @@
 
 import Foundation
 import ComposableArchitecture
-@preconcurrency import TCACoordinators
 @preconcurrency import Data
 import Utils
 import FeatureTab
@@ -18,7 +17,7 @@ import FeatureIntro
 struct RootCoordinator {
     
     @ObservableState
-    struct State: Equatable, Sendable, Hashable {
+    struct State: Equatable {
         var currentView: ChangeRootView = .splashLogin
         
         var alertItem: GBAlertViewComponents? = nil
@@ -108,16 +107,16 @@ extension RootCoordinator {
                 
             case .splashLoginAction(.delegate(.moveToHome)):
                 state.currentView = .mainTab
-                return .send(.tabAction(.router(.routeAction(id: .tabView, action: .tabView(.currentTab(.homeTab))))))
+                return .send(.tabAction(.tabView(.currentTab(.homeTab))))
                 
-            case .tabAction(.router(.routeAction(id: .tabView, action: .tabView(.myPageTabAction(.router(.routeAction(id: .home, action: .home(.delegate(.logOutEvent))))))))):
-                state.splashLogin.routes.popToRoot()
+            case .tabAction(.tabView(.myPageTabAction(.home(.delegate(.logOutEvent))))):
+                state.splashLogin.path.removeAll()
                 state.currentView = .splashLogin
                 
-            case .tabAction(.router(.routeAction(id: .tabView, action: .tabView(.myPageTabAction(.router(.routeAction(id: .revokePage, action: .revokePage(.delegate(.revokedEvent))))))))):
+            case .tabAction(.tabView(.myPageTabAction(.home(.delegate(.revokedEvent))))):
                 
                 state.currentView = .splashLogin
-                state.splashLogin.routes.popToRoot()
+                state.splashLogin.path.removeAll()
                 return .run { send in
                     try await Task.sleep(for: .seconds(2))
                     await send(.resetTab)
@@ -137,19 +136,19 @@ extension RootCoordinator {
                     
                 case .refreshFailGoRoot:
                     UserDefaultsManager.resetUser()
-                    state.splashLogin.routes.popToRoot()
+                    state.splashLogin.path.removeAll()
                     state.currentView = .splashLogin
                     return .none
-                    
+                     
                 case .serverMessage(let entity):
                     if entity == .tokenExpiration || entity == .noCredentials || entity == .notRegisteredMember {
                         state.currentView = .splashLogin
-                        state.splashLogin.routes.push(.login(LoginViewFeature.State()))
+                        return .send(.splashLoginAction(.showLogin))
                     }
                     
                 default:
                     UserDefaultsManager.resetUser()
-                    state.splashLogin.routes.popToRoot()
+                    state.splashLogin.path.removeAll()
                     state.currentView = .splashLogin
                 }
                 
@@ -196,7 +195,7 @@ extension RootCoordinator {
     private func deepLinkAction(_ deepLink: DeepLinkCase, state: inout State) {
         switch deepLink {
         case .userInfo:
-            state.splashLogin.routes.push(.userInfoRequestView(AuthRequestFeature.State()))
+            state.splashLogin.path.append(.userInfoRequestView(AuthRequestFeature.State()))
         }
     }
 }

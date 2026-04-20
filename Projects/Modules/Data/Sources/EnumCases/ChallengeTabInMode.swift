@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum ChallengeTabInMode {
+public enum ChallengeTabInMode: Equatable {
     case individuals
     case groups
     

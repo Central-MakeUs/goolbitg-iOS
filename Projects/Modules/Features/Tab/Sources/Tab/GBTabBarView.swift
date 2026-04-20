@@ -101,21 +101,25 @@ extension GBTabBarView {
             HomeTabCoordinatorView(
                 store: store.scope(state: \.homeTabState, action: \.homeTabAction)
             )
+            .id(TabCase.homeTab)
             .tag(TabCase.homeTab)
             
             ChallengeTabCoordinatorView(
                 store: store.scope(state: \.chalengeTabState, action: \.challengeTabAction)
             )
+            .id(TabCase.ChallengeTab)
             .tag(TabCase.ChallengeTab)
             
             BuyOrNotTabCoordinatorView(
                 store: store.scope(state: \.buyOrNotTabState, action: \.buyOrNotTabAction)
             )
+            .id(TabCase.buyOrNotTab)
             .tag(TabCase.buyOrNotTab)
             
             MyPageViewCoordinatorView(
                 store: store.scope(state: \.myPageTabState, action: \.myPageTabAction)
             )
+            .id(TabCase.myPageTab)
             .tag(TabCase.myPageTab)
         }
     }

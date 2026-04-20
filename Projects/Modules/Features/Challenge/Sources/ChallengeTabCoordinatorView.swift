@@ -7,8 +7,8 @@
 
 import SwiftUI
 import ComposableArchitecture
-import TCACoordinators
 import Utils
+import FeatureCommon
 
 public struct ChallengeTabCoordinatorView: View {
     
@@ -27,71 +27,38 @@ public struct ChallengeTabCoordinatorView: View {
 
 extension ChallengeTabCoordinatorView {
     private var content: some View {
-        VStack(spacing:0) {
-            TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
-                switch screen.case {
-                case let .home(store):
-                    ChallengeTabView(store: store)
-                        .disableBackGesture(false)
-                    
-                case let .groupChallengeCreate(store):
-                    ChallengeGroupCreateView(store: store)
-                        .disableBackGesture(false)
-                    
-                case let .groupChallengeDetail(store):
-                    ChallengeGroupDetailView(store: store)
-                        .disableBackGesture(false)
-                        .navigationBarBackButtonHidden()
-                    
-                case let .groupChallengeSetting(store):
-                    
-                    ChallengeGroupSettingView(store: store)
-                        .disableBackGesture(false)
-                        .navigationBarBackButtonHidden()
-                    
-                case let .groupChallengeModify(store):
-                    ChallengeGroupCreateView(store: store)
-                        .disableBackGesture(false)
-                        .navigationBarBackButtonHidden()
-                    
-                case let .groupChallengeSearch(store):
-                    ChallengeGroupSearchView(store: store)
-                        .disableBackGesture(false)
-                        .navigationBarBackButtonHidden()
+        ChallengeTabView(store: store.scope(state: \.home, action: \.home))
+            .disableBackGesture(false)
+        .fullScreenCover(
+            isPresented: Binding(
+                get: { store.groupChallengeCreate != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        store.send(.groupChallengeCreate(.delegate(.dismiss)))
+                    }
                 }
+            )
+        ) {
+            if let createStore = store.scope(state: \.groupChallengeCreate, action: \.groupChallengeCreate) {
+                ChallengeGroupCreateView(store: createStore)
+                    .disableBackGesture(false)
             }
         }
-    }
-}
-
-extension ChallengeTabScreen.State: Identifiable {
-    public var id: ID {
-        switch self {
-        case .home:
-            return .home
-        case .groupChallengeCreate:
-            return .groupChallengeCreate
-        case .groupChallengeDetail:
-            return .groupChallengeDetail
-        case .groupChallengeSetting:
-            return .groupChallengeSetting
-        case .groupChallengeModify:
-            return .groupChallengeModify
-        case .groupChallengeSearch:
-            return .groupChallengeSearch
-        }
-    }
-    
-    public enum ID: Identifiable {
-        case home
-        case groupChallengeCreate
-        case groupChallengeDetail
-        case groupChallengeSetting
-        case groupChallengeModify
-        case groupChallengeSearch
-        
-        public var id: ID {
-            return self
+        .fullScreenCover(
+            isPresented: Binding(
+                get: { store.groupChallengeSearch != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        store.send(.groupChallengeSearch(.delegate(.backButtonTapped)))
+                    }
+                }
+            )
+        ) {
+            if let searchStore = store.scope(state: \.groupChallengeSearch, action: \.groupChallengeSearch) {
+                ChallengeGroupSearchView(store: searchStore)
+                    .disableBackGesture(false)
+                    .navigationBarBackButtonHidden()
+            }
         }
     }
 }
