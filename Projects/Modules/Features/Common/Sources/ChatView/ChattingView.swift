@@ -186,6 +186,7 @@ extension ChattingView {
         
         let dummyTitle = "Dummy Product Name"
         let dummyPrice = "10,000원"
+        let canEditProduct = store.model.userID == store.userID
         
         return HStack(spacing: 0) {
             if (isLoading) {
@@ -213,19 +214,21 @@ extension ChattingView {
             
             Spacer()
             
-            6.widthBox
-            
-            Text(store.product?.editButtonTitle ?? "")
-                .font(FontHelper.btn4.font)
-                .foregroundStyle(GBColor.black.asColor)
-                .padding(.horizontal, .md)
-                .padding(.vertical, .sm)
-                .background(GBColor.white.asColor)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-                .asButton {
-                    store.send(.viewEvent(.productEditTapped))
-                }
-            4.widthBox
+            if canEditProduct {
+                6.widthBox
+                
+                Text(store.product?.editButtonTitle ?? "")
+                    .font(FontHelper.btn4.font)
+                    .foregroundStyle(GBColor.black.asColor)
+                    .padding(.horizontal, .md)
+                    .padding(.vertical, .sm)
+                    .background(GBColor.white.asColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .asButton {
+                        store.send(.viewEvent(.productEditTapped))
+                    }
+                4.widthBox
+            }
         }
         .padding(.horizontal, .lg)
         .padding(.vertical, .sm)
