@@ -15,6 +15,14 @@ import Data
 class GBAppDelegate: NSObject, UIApplicationDelegate {
     
     @Dependency(\.pushNotiManager) var pushManager
+    private var requestRemoteNotificationObserver: NSObjectProtocol?
+    
+    @MainActor
+    deinit {
+        if let requestRemoteNotificationObserver {
+            NotificationCenter.default.removeObserver(requestRemoteNotificationObserver)
+        }
+    }
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         FireBaseManager.config()
@@ -22,7 +30,7 @@ class GBAppDelegate: NSObject, UIApplicationDelegate {
         let token = FireBaseManager.getFCMToken()
         UserDefaultsManager.fcmRegistrationToken = token
         UserDefaultsManager.rootLoginUser = false
-        NotificationCenter.default.addObserver(
+        requestRemoteNotificationObserver = NotificationCenter.default.addObserver(
             forName: .requestRemoteNotification,
             object: nil,
             queue: .main

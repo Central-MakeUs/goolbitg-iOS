@@ -23,7 +23,12 @@ public final class AppleLoginManager: Sendable {
             
             let controller = ASAuthorizationController(authorizationRequests: [request])
             
-            let delegate = AppleSignDelegate(continuation: continuation)
+            let delegate = AppleSignDelegate(
+                continuation: continuation,
+                cleanup: {
+                    AppleSignInDelegateStore.shared.delegate = nil
+                }
+            )
             
             controller.delegate = delegate
             
@@ -99,16 +104,23 @@ extension DependencyValues {
 final class AppleSignDelegate: NSObject, ASAuthorizationControllerDelegate {
     
     let continuation: CheckedContinuation<ASAuthorization, Error>
+    private let cleanup: @Sendable () -> Void
     
-    init(continuation: CheckedContinuation<ASAuthorization, Error>) {
+    init(
+        continuation: CheckedContinuation<ASAuthorization, Error>,
+        cleanup: @escaping @Sendable () -> Void
+    ) {
         self.continuation = continuation
+        self.cleanup = cleanup
     }
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        cleanup()
         continuation.resume(returning: authorization)
     }
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        cleanup()
         continuation.resume(throwing: error)
     }
 }
