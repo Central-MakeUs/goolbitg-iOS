@@ -79,6 +79,7 @@ extension ChallengeBeforeView {
                     switch caseOf {
                     case .success:
                         Text(model.status?.buttonTitle ?? "")
+                            .frame()
                             .font(FontHelper.body5.font)
                             .foregroundStyle(GBColor.main.asColor)
                             .padding(.vertical, SpacingHelper.xs.pixel)

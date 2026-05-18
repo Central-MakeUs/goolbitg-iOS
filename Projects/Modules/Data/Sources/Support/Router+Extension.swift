@@ -14,7 +14,8 @@ extension Router {
     
     public var baseURL: String {
         #if DEV
-        return SecretKeys.devBaseURL + version
+        // MARK: FIXME
+        return SecretKeys.baseURL + version
         #else
         return SecretKeys.baseURL + version
         #endif
