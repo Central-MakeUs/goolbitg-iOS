@@ -141,7 +141,7 @@ extension RootCoordinator {
                     return .none
                      
                 case .serverMessage(let entity):
-                    if entity == .tokenExpiration || entity == .noCredentials || entity == .notRegisteredMember {
+                    if entity == .tokenExpiration || entity == .noCredentials || entity == .notRegisteredMember || entity == .logoutCase {
                         state.currentView = .splashLogin
                         return .send(.splashLoginAction(.showLogin))
                     }

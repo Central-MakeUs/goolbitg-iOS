@@ -247,6 +247,12 @@ extension SplashLoginCoordinator {
             } else {
                 await send(.checkToMoveScreen(caseOf:.registEnd))
             }
+        } catch: { error, send in
+            guard let error = error as? RouterError else { return }
+
+            if case .serverMessage(.logoutCase) = error {
+                await send(.showLogin)
+            }
         }
     }
 }
