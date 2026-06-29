@@ -84,10 +84,16 @@ extension RevokeFeature {
                 }
                 
                 return .run { [text] send in
+                    Logger.debug("🍎 [Revoke] Apple revoke start, reason: \(text)")
                     let result = try await appleLoginManager.getASAuthorization()
+                    Logger.debug("🍎 [Revoke] Apple authorization completed")
                     let (auth, _) = appleLoginManager.handleAuthorization(result)
                     
-                    guard let auth else { return }
+                    guard let auth else {
+                        Logger.error("🍎 [Revoke] authorizationCode is nil. Stop revoke request.")
+                        return
+                    }
+                    Logger.debug("🍎 [Revoke] authorizationCode exists. Request signOut")
                     
                     let requestModel = RevokeRequestDTO(
                         reason: text,
@@ -95,13 +101,15 @@ extension RevokeFeature {
                     )
                     
                     try await networkManager.requestNotDtoNetwork(router: AuthRouter.signOut(requestModel), ifRefreshNeed: true)
+                    Logger.debug("🍎 [Revoke] signOut request succeeded")
                     
                     UserDefaultsManager.resetUser()
+                    Logger.debug("🍎 [Revoke] user reset completed. Send revokedEvent")
                     
                     await send(.delegate(.revokedEvent))
                     
                 } catch: { error, send in
-                    Logger.error(error)
+                    Logger.error("🍎 [Revoke] Apple revoke failed: \(error)")
                 }
                 
             case .featureEvent(.normalRevoke):

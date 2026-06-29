@@ -60,8 +60,11 @@ extension MyPageTabCoordinator {
             case .pushList(.delegate(.dismiss)):
                 state.pushList = nil
                 
-            case .home(.delegate(.revokedEvent)):
+            case .home(.delegate(.revokePageOpenRequested)):
                 state.revokePage = RevokeFeature.State()
+                
+            case .revokePage(.delegate(.revokedEvent)):
+                return .send(.home(.delegate(.revokedEvent)))
                 
             case .home(.delegate(.pushButtonTapped)):
                 state.pushList = PushListViewFeature.State()

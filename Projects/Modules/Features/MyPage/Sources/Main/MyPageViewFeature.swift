@@ -29,6 +29,7 @@ public struct MyPageViewFeature: GBReducer {
         
         public enum Delegate {
             case logOutEvent
+            case revokePageOpenRequested
             case revokedEvent
             case pushButtonTapped
             case habitChartMoveTapped
@@ -171,7 +172,7 @@ extension MyPageViewFeature {
                 }
                 
             case .viewEvent(.revokeButtonTapped):
-                return .send(.delegate(.revokedEvent))
+                return .send(.delegate(.revokePageOpenRequested))
                 
             case .viewEvent(.alertButtonTapped):
                 return .send(.delegate(.pushButtonTapped))

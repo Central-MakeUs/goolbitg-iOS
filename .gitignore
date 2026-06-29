@@ -117,6 +117,7 @@ iOSInjectionProject/
 
 # OMC (oh-my-claudecode) local runtime state
 .omc/
+.omo/
 
 # Sisyphus runtime state
 /.sisyphus/
