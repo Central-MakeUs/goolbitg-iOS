@@ -251,6 +251,7 @@ extension ChattingView {
                 ),
                 placeholder: "메세지를 입력하세요",
                 placeholderColor: GBColor.grey300.asColor,
+                isPasteDisabled: false,
                 edge: UIEdgeInsets(
                     top: 11,
                     left: 16,

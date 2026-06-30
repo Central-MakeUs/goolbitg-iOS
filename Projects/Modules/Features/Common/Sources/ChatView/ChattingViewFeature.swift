@@ -110,6 +110,7 @@ public struct ChattingViewFeature: GBReducer {
     }
 
     @Dependency(\.chatRepository) var chatRepository
+    @Dependency(\.textValidManager) var textValidManager
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -350,7 +351,10 @@ public struct ChattingViewFeature: GBReducer {
                 return .send(.delegate(.backTapped))
 
             case let .viewEvent(.bindingSendText(text)):
-                state.sendText = text
+                state.sendText = textValidManager.normalizedText(
+                    normalizeMode: .chatMessage,
+                    text: text
+                )
                 return .none
 
             case let .viewEvent(.loadMoreIfNeeded(index)):
@@ -375,7 +379,11 @@ public struct ChattingViewFeature: GBReducer {
                 }
 
             case .viewEvent(.sendTapped):
-                let trimmed = state.sendText.trimmingCharacters(in: .whitespacesAndNewlines)
+                let trimmed = textValidManager.normalizedText(
+                    normalizeMode: .chatMessage,
+                    text: state.sendText
+                )
+                .trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !trimmed.isEmpty else { return .none }
                 guard state.isSocketConnected, !state.isReconnecting else {
                     return .send(.showErrorMessage(message: "채팅 연결을 복구하는 중입니다. 잠시 후 다시 시도해 주세요."))

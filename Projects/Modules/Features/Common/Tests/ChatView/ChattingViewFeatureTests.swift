@@ -122,6 +122,41 @@ final class ChattingViewFeatureTests: XCTestCase {
         XCTAssertEqual(state.roomTitle, "작성자님의 토론방")
     }
 
+    @MainActor
+    func testBindingSendTextNormalizesUnsafePastedText() async {
+        let store = TestStore(
+            initialState: ChattingViewFeature.State(
+                userName: "tester",
+                userID: "user-1",
+                model: makeModel(id: "101")
+            )
+        ) {
+            ChattingViewFeature()
+        }
+
+        await store.send(.viewEvent(.bindingSendText("안녕\u{202E}\n1\n2\n3\n4\n5"))) {
+            $0.sendText = "안녕\n1\n2\n3\n4"
+        }
+    }
+
+    @MainActor
+    func testBindingSendTextLimitsLongPastedText() async {
+        let store = TestStore(
+            initialState: ChattingViewFeature.State(
+                userName: "tester",
+                userID: "user-1",
+                model: makeModel(id: "101")
+            )
+        ) {
+            ChattingViewFeature()
+        }
+        let pastedText = String(repeating: "가", count: 600)
+
+        await store.send(.viewEvent(.bindingSendText(pastedText))) {
+            $0.sendText = String(repeating: "가", count: 500)
+        }
+    }
+
     func testBuildListItemsAssignsRightForCurrentUser() {
         let entity = ChatMessageEntity(
             id: 1,
