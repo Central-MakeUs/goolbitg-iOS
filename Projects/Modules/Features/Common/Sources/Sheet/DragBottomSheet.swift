@@ -18,6 +18,7 @@ struct DragBottomSheet<PopupContent: View>: ViewModifier {
     
     private let popupContent: PopupContent
     private let collapsedHeight: CGFloat
+    private let isBackgroundBlurEnabled: Bool
     
     
     let currentOffsetPercent: ((CGFloat) -> Void)?
@@ -27,12 +28,14 @@ struct DragBottomSheet<PopupContent: View>: ViewModifier {
         isDraging: Binding<Bool>,
         popupContent: PopupContent,
         collapsedHeight: CGFloat,
+        isBackgroundBlurEnabled: Bool = true,
         currentOffsetPercent: ((CGFloat) -> Void)? = nil
     ) {
         self._isExpanded = isExpanded
         self._isDragging = isDraging
         self.popupContent = popupContent
         self.collapsedHeight = collapsedHeight
+        self.isBackgroundBlurEnabled = isBackgroundBlurEnabled
         self.currentOffsetPercent = currentOffsetPercent
     }
 
@@ -81,12 +84,16 @@ struct DragBottomSheet<PopupContent: View>: ViewModifier {
             .frame(maxHeight: .infinity)
             .background {
                 let percent = calcPercent(offsetY)
-                BlurView(style: .systemUltraThinMaterialDark)
-                    .opacity(percent)
-                    .animation(.easeInOut(duration: 0.15), value: isExpanded)
-                    .onChange(of: percent) { newValue in
-                        currentOffsetPercent?(newValue)
+                ZStack {
+                    if isBackgroundBlurEnabled {
+                        BlurView(style: .systemUltraThinMaterialDark)
+                            .opacity(percent)
+                            .animation(.easeInOut(duration: 0.15), value: isExpanded)
                     }
+                }
+                .onChange(of: percent) { newValue in
+                    currentOffsetPercent?(newValue)
+                }
             }
         }
         .ignoresSafeArea()
@@ -126,6 +133,7 @@ extension View {
         collapsedHeight: CGFloat = 0,
         isExpanded: Binding<Bool>,
         isDraging: Binding<Bool>,
+        isBackgroundBlurEnabled: Bool = true,
         @ViewBuilder content: () -> Content,
         currentOffsetPercent: ((CGFloat) -> Void)? = nil
     ) -> some View {
@@ -135,6 +143,7 @@ extension View {
                 isDraging: isDraging,
                 popupContent: content(),
                 collapsedHeight: collapsedHeight,
+                isBackgroundBlurEnabled: isBackgroundBlurEnabled,
                 currentOffsetPercent: currentOffsetPercent
             )
         )

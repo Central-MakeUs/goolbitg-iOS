@@ -51,6 +51,13 @@ public struct ChattingView: View {
                     store.send(.showErrorMessage(message: nil))
                 }
             }
+            .popup(item: $store.leaveAlert.sending(\.leaveAlert)) { component in
+                GBAlertView(model: component) {
+                    store.send(.viewEvent(.leaveAlertCancelTapped))
+                } okTouch: {
+                    store.send(.viewEvent(.leaveAlertOkTapped))
+                }
+            }
         }
     }
     
@@ -165,7 +172,7 @@ extension ChattingView {
     /// Nav
     private var navigationBar: some View {
         ZStack(alignment: .center) {
-            Text(store.userName) // TODO API 변경 해줘야 반영함
+            Text(store.roomTitle)
                 .font(FontHelper.h3.font)
                 .foregroundStyle(GBColor.white.asColor)
             

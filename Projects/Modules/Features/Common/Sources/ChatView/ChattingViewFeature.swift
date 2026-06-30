@@ -32,6 +32,7 @@ public struct ChattingViewFeature: GBReducer {
         var sendText: String = ""
         var product: Product? = nil
         var showErrorMessage: String? = nil
+        var leaveAlert: GBAlertViewComponents? = nil
 
         var listItems: [ChatListItem] {
             ChattingViewFeature.buildListItems(
@@ -39,6 +40,10 @@ public struct ChattingViewFeature: GBReducer {
                 currentUserId: userID,
                 currentUserName: userName
             )
+        }
+
+        var roomTitle: String {
+            "\(model.userName ?? "작성자")님의 토론방"
         }
 
         public init(
@@ -61,6 +66,7 @@ public struct ChattingViewFeature: GBReducer {
         case featureEvent(FeatureEvent)
         case delegate(Delegate)
         case showErrorMessage(message: String?)
+        case leaveAlert(GBAlertViewComponents?)
     }
 
     public enum ViewCycle {
@@ -75,6 +81,8 @@ public struct ChattingViewFeature: GBReducer {
         case loadMoreIfNeeded(Int)
         case sendTapped
         case productEditTapped
+        case leaveAlertCancelTapped
+        case leaveAlertOkTapped
     }
 
     public enum Delegate {
@@ -316,10 +324,29 @@ public struct ChattingViewFeature: GBReducer {
                 state.showErrorMessage = message
                 return .none
 
+            case let .leaveAlert(component):
+                state.leaveAlert = component
+                return .none
+
             case .delegate:
                 return .none
 
             case .viewEvent(.backTapped):
+                state.leaveAlert = GBAlertViewComponents(
+                    title: "토론방 나가기",
+                    message: "작심삼일 토론방을\n정말 나가시겠어요?",
+                    cancelTitle: "취소",
+                    okTitle: "확인",
+                    alertStyle: .warning
+                )
+                return .none
+
+            case .viewEvent(.leaveAlertCancelTapped):
+                state.leaveAlert = nil
+                return .none
+
+            case .viewEvent(.leaveAlertOkTapped):
+                state.leaveAlert = nil
                 return .send(.delegate(.backTapped))
 
             case let .viewEvent(.bindingSendText(text)):

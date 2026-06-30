@@ -13,7 +13,7 @@ import ComposableArchitecture
 final class ChattingViewFeatureTests: XCTestCase {
 
     @MainActor
-    func testBackTappedEmitsDelegate() async {
+    func testBackTappedShowsLeaveAlertThenConfirmEmitsDelegate() async {
         let store = TestStore(
             initialState: ChattingViewFeature.State(
                 userName: "tester",
@@ -24,8 +24,45 @@ final class ChattingViewFeatureTests: XCTestCase {
             ChattingViewFeature()
         }
 
-        await store.send(.viewEvent(.backTapped))
-        await store.receive(.delegate(.backTapped))
+        await store.send(.viewEvent(.backTapped)) {
+            $0.leaveAlert = GBAlertViewComponents(
+                title: "토론방 나가기",
+                message: "작심삼일 토론방을\n정말 나가시겠어요?",
+                cancelTitle: "취소",
+                okTitle: "확인",
+                alertStyle: .warning
+            )
+        }
+        await store.send(.viewEvent(.leaveAlertOkTapped)) {
+            $0.leaveAlert = nil
+        }
+        await store.receive(\.delegate)
+    }
+
+    @MainActor
+    func testLeaveAlertCancelClearsAlertWithoutDelegate() async {
+        let store = TestStore(
+            initialState: ChattingViewFeature.State(
+                userName: "tester",
+                userID: "user-1",
+                model: makeModel(id: "101")
+            )
+        ) {
+            ChattingViewFeature()
+        }
+
+        await store.send(.viewEvent(.backTapped)) {
+            $0.leaveAlert = GBAlertViewComponents(
+                title: "토론방 나가기",
+                message: "작심삼일 토론방을\n정말 나가시겠어요?",
+                cancelTitle: "취소",
+                okTitle: "확인",
+                alertStyle: .warning
+            )
+        }
+        await store.send(.viewEvent(.leaveAlertCancelTapped)) {
+            $0.leaveAlert = nil
+        }
     }
 
     func testBuildListItemsInsertsDateDividers() {
@@ -63,6 +100,26 @@ final class ChattingViewFeatureTests: XCTestCase {
         if case .chat = items[1] {} else { XCTFail("expected chat") }
         if case .date = items[2] {} else { XCTFail("expected date") }
         if case .chat = items[3] {} else { XCTFail("expected chat") }
+    }
+
+    func testRoomTitleUsesPostWriterName() {
+        let state = ChattingViewFeature.State(
+            userName: "현재유저",
+            userID: "user-1",
+            model: makeModel(id: "101", writerName: "굴비왕")
+        )
+
+        XCTAssertEqual(state.roomTitle, "굴비왕님의 토론방")
+    }
+
+    func testRoomTitleFallsBackWhenWriterNameIsMissing() {
+        let state = ChattingViewFeature.State(
+            userName: "현재유저",
+            userID: "user-1",
+            model: makeModel(id: "101", writerName: nil)
+        )
+
+        XCTAssertEqual(state.roomTitle, "작성자님의 토론방")
     }
 
     func testBuildListItemsAssignsRightForCurrentUser() {
@@ -222,11 +279,11 @@ final class ChattingViewFeatureTests: XCTestCase {
         XCTAssertTrue(content.contains("return .send(.delegate(.backTapped))"))
     }
 
-    private func makeModel(id: String) -> BuyOrNotCardViewEntity {
+    private func makeModel(id: String, writerName: String? = "owner") -> BuyOrNotCardViewEntity {
         BuyOrNotCardViewEntity(
             id: id,
             userID: "owner",
-            userName: "owner",
+            userName: writerName,
             imageUrl: nil,
             itemName: "item",
             priceString: "10,000원",

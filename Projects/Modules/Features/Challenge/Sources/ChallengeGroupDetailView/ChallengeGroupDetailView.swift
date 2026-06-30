@@ -16,7 +16,7 @@ public struct ChallengeGroupDetailView: View {
     // MARK: UI Member
     @Environment(\.safeAreaInsets) private var safeArea
     @State private var currentOffset: CGFloat = 0
-    @State private var bottomSheetExpended: Bool = false
+    @State private var bottomSheetExpended: Bool = true
     @State private var bottomSheetIsDragging: Bool = false
     @State private var navHeight: CGFloat = 0
     
@@ -34,7 +34,12 @@ public struct ChallengeGroupDetailView: View {
                     currentOffset = offsetY
                 }
                 .background(GBColor.main.asColor)
-                .dragBottomSheet(collapsedHeight: 30 + safeArea.bottom, isExpanded: $bottomSheetExpended, isDraging: $bottomSheetIsDragging) {
+                .dragBottomSheet(
+                    collapsedHeight: 30 + safeArea.bottom,
+                    isExpanded: $bottomSheetExpended,
+                    isDraging: $bottomSheetIsDragging,
+                    isBackgroundBlurEnabled: false
+                ) {
                     bottomSheetView()
                 }
                 .onFirstAppear {
