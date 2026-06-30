@@ -19,12 +19,7 @@ public struct ChallengeGroupCreateView: View {
     @State private var categoryText: String = ""
     
     @State private var focusedField: Int? = nil
-    @State private var hashTextFieldHeight: CGFloat = 0
-    
     @State private var upKeyBoardState = false
-    @State private var downKeyBoardState = true
-    @State private var scrollOffsetBefore: CGFloat = 0
-    @State private var scrollOffset: CGFloat = 0
     
     public init(store: StoreOf<GroupChallengeCreateViewFeature>) {
         self.store = store
@@ -66,6 +61,7 @@ extension ChallengeGroupCreateView {
         VStack(spacing: 0) {
             navigationBar
                 .padding(.horizontal ,SpacingHelper.md.pixel)
+                .padding(.top, .sm)
             Spacer()
             scrollViewSection
         }
@@ -99,18 +95,15 @@ extension ChallengeGroupCreateView {
         ScrollViewReader { proxy in
             WithPerceptionTracking {
                 ScrollView {
-                    ScrollViewOffsetPreference { offset in
-                        scrollOffsetBefore = offset
-                        scrollOffset = offset
-                    }
                     challengeNameSectionView
                         .padding(.top, 14)
                         .padding(.horizontal, SpacingHelper.md.pixel + SpacingHelper.sm.pixel)
-                        .tag(1)
+                        .id(1)
                     
                     challengePriceSectionView
                         .padding(.top, 50)
                         .padding(.horizontal, SpacingHelper.md.pixel + SpacingHelper.sm.pixel)
+                        .id(2)
                     /*
                     categorySelectedSectionView
                         .padding(.top, 50)
@@ -119,6 +112,7 @@ extension ChallengeGroupCreateView {
                     hashTagsSectionView
                         .padding(.top, 50)
                         .padding(.horizontal, SpacingHelper.md.pixel + SpacingHelper.sm.pixel)
+                        .id(3)
                     
                     maxPeopleSettingSectionView
                         .padding(.top, SpacingHelper.lg.pixel)
@@ -131,6 +125,7 @@ extension ChallengeGroupCreateView {
                     secretRoomPasswordSectionView
                         .padding(.top, SpacingHelper.lg.pixel)
                         .padding(.horizontal, SpacingHelper.md.pixel + SpacingHelper.sm.pixel)
+                        .id(4)
                     
                     if store.currentState {
                         VStack {
@@ -158,6 +153,7 @@ extension ChallengeGroupCreateView {
                         }
                     }
                 }
+                .scrollDismissesKeyboard(.interactively)
                 .onChange(of: focusedField) { number in
                     guard let number,
                           upKeyBoardState == false else {
@@ -167,26 +163,6 @@ extension ChallengeGroupCreateView {
                     
                     scrollToFocusedField(proxy, filedNumber: number) {
                         upKeyBoardState = false
-                    }
-                }
-                .onPreferenceChange(ScrollOffsetKey.self) { offset in
-                    scrollOffset = offset
-                }
-                .onChange(of: scrollOffset) { newValue in
-                    let before = abs(scrollOffsetBefore)
-                    let current = abs(newValue)
-                    scrollOffsetBefore = newValue
-                    if (abs(current - before) > 10 ){
-                        downKeyBoardState = false
-                        endTextEditing()
-                    }
-                }
-                .onChange(of: downKeyBoardState) { newValue in
-                    if newValue == false {
-                        Task {
-                            try? await Task.sleep(for: .seconds(1))
-                            downKeyBoardState = true
-                        }
                     }
                 }
             }
@@ -443,6 +419,9 @@ extension ChallengeGroupCreateView {
                     RoundedRectangle(cornerRadius: 6)
                         .stroke(GBColor.grey500.asColor.opacity(0.5), lineWidth: 1)
                 )
+            }
+            .onTapGesture {
+                focusedField = 4
             }
         }
         else {
