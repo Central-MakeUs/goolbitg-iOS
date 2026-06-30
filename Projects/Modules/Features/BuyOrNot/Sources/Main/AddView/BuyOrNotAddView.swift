@@ -104,6 +104,7 @@ public struct BuyOrNotAddView: View {
                     }
                     .onChange(of: viewImage) { image in
                         if let image {
+                            store.send(.viewEvent(.imageProcessing(true)))
                             Task {
                                 let imageData = await imageCompressionManager.compressImageAsync(
                                     image,
@@ -112,6 +113,7 @@ public struct BuyOrNotAddView: View {
                                 store.send(.viewEvent(.imageResults(imageData)))
                             }
                         } else {
+                            store.send(.viewEvent(.imageProcessing(false)))
                             store.send(.viewEvent(.imageResults(nil)))
                         }
                     }
@@ -129,7 +131,7 @@ public struct BuyOrNotAddView: View {
                     }
                     .overlay {
                         Group {
-                            if store.loading {
+                            if store.loading || store.isImageProcessing {
                                 GBLoadingView()
                             }
                         }
@@ -199,7 +201,7 @@ extension BuyOrNotAddView {
                     }
                 }
             }
-            if store.currentOkButtonState {
+            if store.currentOkButtonState && !store.isImageProcessing {
                 GBButtonV2(title: store.stateMode.endTitle) {
                     store.send(.viewEvent(.okButtonTapped))
                 }

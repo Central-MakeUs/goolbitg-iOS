@@ -148,6 +148,11 @@ public struct CropBoxView: View {
         frameSize: CGSize,
         translation: CGSize
     ) -> CGRect {
+        guard frameSize.width > 0,
+              frameSize.height > 0 else {
+            return initialRect
+        }
+
         var offX = 1.0
         var offY = 1.0
 
@@ -163,7 +168,8 @@ public struct CropBoxView: View {
         let idealHeight = initialRect.size.height + offY * translation.height
 
         // 정사각형 유지: 너비와 높이를 더 작은 값으로 동기화
-        let newSize = max(min(idealWidth, idealHeight), minSize.width)
+        let maxSize = min(frameSize.width, frameSize.height)
+        let newSize = min(max(min(idealWidth, idealHeight), minSize.width), maxSize)
 
         var newX = initialRect.minX
         var newY = initialRect.minY
@@ -172,14 +178,14 @@ public struct CropBoxView: View {
             let sizeChange = newSize - initialRect.width
             newX = max(newX - sizeChange, 0)
         } else {
-            newX = min(newX, frameSize.width - newSize)
+            newX = min(max(newX, 0), max(0, frameSize.width - newSize))
         }
 
         if offY < 0 {
             let sizeChange = newSize - initialRect.height
             newY = max(newY - sizeChange, 0)
         } else {
-            newY = min(newY, frameSize.height - newSize)
+            newY = min(max(newY, 0), max(0, frameSize.height - newSize))
         }
 
         return .init(origin: .init(x: newX, y: newY), size: .init(width: newSize, height: newSize))
@@ -187,9 +193,9 @@ public struct CropBoxView: View {
 
 
     private func drag(initialRect: CGRect, frameSize: CGSize, translation: CGSize) -> CGRect {
-        let maxX = frameSize.width - initialRect.width
+        let maxX = max(0, frameSize.width - initialRect.width)
         let newX = min(max(initialRect.origin.x + translation.width, 0), maxX)
-        let maxY = frameSize.height - initialRect.height
+        let maxY = max(0, frameSize.height - initialRect.height)
         let newY = min(max(initialRect.origin.y + translation.height, 0), maxY)
 
         return .init(origin: .init(x: newX, y: newY), size: initialRect.size)

@@ -36,10 +36,10 @@ public struct ImageCropView: View {
                     GeometryReader { geometry in
                         CropBoxView(rect: $cropArea, boxColor: GBColor.white.asColor)
                             .onAppear {
-                                imageViewSize = geometry.size
+                                updateImageViewSize(geometry.size)
                             }
                             .onChange(of: geometry.size) {
-                                imageViewSize = $0
+                                updateImageViewSize($0)
                             }
                     }
                 }
@@ -81,22 +81,64 @@ public struct ImageCropView: View {
     }
     
     private func crop(image: UIImage, cropArea: CGRect, imageViewSize: CGSize) -> UIImage? {
-        let scaleX = image.size.width / imageViewSize.width * image.scale
-        let scaleY = image.size.height / imageViewSize.height * image.scale
+        guard imageViewSize.width > 0,
+              imageViewSize.height > 0 else {
+            return image.fixedOrientation()
+        }
+
+        let normalizedImage = image.fixedOrientation()
+        guard let cgImage = normalizedImage.cgImage else {
+            return normalizedImage
+        }
+
+        let imageBounds = CGRect(
+            x: 0,
+            y: 0,
+            width: CGFloat(cgImage.width),
+            height: CGFloat(cgImage.height)
+        )
+        let scaleX = imageBounds.width / imageViewSize.width
+        let scaleY = imageBounds.height / imageViewSize.height
         let scaledCropArea = CGRect(
             x: cropArea.origin.x * scaleX,
             y: cropArea.origin.y * scaleY,
             width: cropArea.size.width * scaleX,
             height: cropArea.size.height * scaleY
-        )
+        ).integral
+        let boundedCropArea = scaledCropArea.intersection(imageBounds)
         
-        guard let cutImageRef: CGImage = image.cgImage?.cropping(to: scaledCropArea) else {
-            return nil
+        guard !boundedCropArea.isNull,
+              !boundedCropArea.isEmpty,
+              let cutImageRef = cgImage.cropping(to: boundedCropArea) else {
+            return normalizedImage
         }
         
-        let croppedImage = UIImage(cgImage: cutImageRef, scale: image.scale, orientation: image.imageOrientation)
+        let croppedImage = UIImage(cgImage: cutImageRef, scale: normalizedImage.scale, orientation: .up)
         
-        return croppedImage.fixedOrientation()
+        return croppedImage
+    }
+
+    private func updateImageViewSize(_ size: CGSize) {
+        imageViewSize = size
+        cropArea = cropArea.constrained(to: size, minSize: 100)
+    }
+}
+
+private extension CGRect {
+    func constrained(to frameSize: CGSize, minSize: CGFloat) -> CGRect {
+        guard frameSize.width > 0,
+              frameSize.height > 0 else {
+            return self
+        }
+
+        let maxSize = max(1, min(frameSize.width, frameSize.height))
+        let side = min(max(width, min(minSize, maxSize)), maxSize)
+        let maxX = max(0, frameSize.width - side)
+        let maxY = max(0, frameSize.height - side)
+        let x = min(max(origin.x, 0), maxX)
+        let y = min(max(origin.y, 0), maxY)
+
+        return CGRect(x: x, y: y, width: side, height: side)
     }
 }
 

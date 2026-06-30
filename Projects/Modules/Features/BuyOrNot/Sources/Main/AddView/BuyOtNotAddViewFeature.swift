@@ -56,6 +56,7 @@ public struct BuyOrNotAddViewFeature: GBReducer {
         
         var currentOkButtonState = false
         var loading = false
+        var isImageProcessing = false
         
         @ObservationStateIgnored
         var modiferModel: BuyOrNotCardViewEntity? = nil
@@ -93,6 +94,7 @@ public struct BuyOrNotAddViewFeature: GBReducer {
     
     public enum ViewEvent {
         case imageResults(Data?)
+        case imageProcessing(Bool)
         case alertOkTap(GBAlertViewComponents)
         case okButtonTapped
         case dismiss
@@ -148,7 +150,13 @@ extension BuyOrNotAddViewFeature {
                 
             case let .viewEvent(.imageResults(data)):
                 state.ifImageURL = nil
-                state.currentImageData = data
+                state.currentImageData = data?.isEmpty == true ? nil : data
+                state.isImageProcessing = false
+
+                return checkAll(state: state)
+
+            case let .viewEvent(.imageProcessing(isProcessing)):
+                state.isImageProcessing = isProcessing
                 
                 return checkAll(state: state)
                 
@@ -373,6 +381,7 @@ extension BuyOrNotAddViewFeature {
         let notBuyText = state.notBuyText
         let currentImageData = state.currentImageData
         let ifImageURL = state.ifImageURL
+        let isImageProcessing = state.isImageProcessing
         
         return {
             guard
@@ -380,6 +389,7 @@ extension BuyOrNotAddViewFeature {
                 let _ = (priceText.isEmpty ? nil : priceText),
                 let _ = (buyText.isEmpty ? nil : buyText),
                 let _ = (notBuyText.isEmpty ? nil : notBuyText),
+                !isImageProcessing,
                 (currentImageData != nil || ifImageURL != nil)
             else {
                 return false
