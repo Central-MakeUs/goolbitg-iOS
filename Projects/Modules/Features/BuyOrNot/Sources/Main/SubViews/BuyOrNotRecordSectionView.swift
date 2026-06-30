@@ -40,9 +40,6 @@ struct BuyOrNotRecordSectionView: View {
             .background(GBColor.grey500.asColor)
             .clipShape(Capsule())
             .frame(width: 247, height: 41)
-            .onChange(of: currentRecordIdx) { newValue in
-                currentRecordType = RecordType.allCases[newValue]
-            }
 
             switch currentRecordType {
             case .writePost:

@@ -23,38 +23,30 @@ public struct ImageCropView: View {
     }
     
     public var body: some View {
-        ZStack(alignment: .top) {
+        VStack(spacing: 0) {
             navigationBar
-                .padding(.top, safeAreaInsets.top)
                 .padding(.bottom, 14)
-            
-            VStack(spacing: 0) {
-                navigationBar
-                    .padding(.top, safeAreaInsets.top)
-                    .hidden()
-                
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .clipped()
-                    .overlay(alignment: .topLeading) {
-                        GeometryReader { geometry in
-                            CropBoxView(rect: $cropArea, boxColor: GBColor.white.asColor)
-                                .onAppear {
-                                    imageViewSize = geometry.size
-                                }
-                                .onChange(of: geometry.size) {
-                                    imageViewSize = $0
-                                }
-                        }
+                .padding(.top, safeAreaInsets.top)
+
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFit()
+                .clipped()
+                .overlay(alignment: .topLeading) {
+                    GeometryReader { geometry in
+                        CropBoxView(rect: $cropArea, boxColor: GBColor.white.asColor)
+                            .onAppear {
+                                imageViewSize = geometry.size
+                            }
+                            .onChange(of: geometry.size) {
+                                imageViewSize = $0
+                            }
                     }
-                
-                Spacer()
-                Color.clear
-                    .frame(height: safeAreaInsets.bottom)
-            }
+                }
+
+            Spacer()
         }
-        .background(GBColor.background1.asColor)
+        .background(GBColor.background1.asColor.ignoresSafeArea())
     }
     
     private var navigationBar: some View {

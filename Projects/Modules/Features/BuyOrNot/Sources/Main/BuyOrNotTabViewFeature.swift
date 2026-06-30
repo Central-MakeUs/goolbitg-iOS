@@ -457,10 +457,18 @@ extension BuyOrNotTabViewFeature {
 
             case let .bindingCurrentRecordIndex(currentRecordIndex):
                 state.currentRecordIndex = currentRecordIndex
+                guard RecordType.allCases.indices.contains(currentRecordIndex) else {
+                    return .none
+                }
+                state.currentRecordType = RecordType.allCases[currentRecordIndex]
+                return requestCurrentRecordContent(state: &state)
 
             case let .bindingCurrentRecordType(currentRecordType):
                 state.currentRecordType = currentRecordType
-                return requestCurrentRecordContentIfNeeded(state: &state)
+                if let currentRecordIndex = RecordType.allCases.firstIndex(of: currentRecordType) {
+                    state.currentRecordIndex = currentRecordIndex
+                }
+                return requestCurrentRecordContent(state: &state)
 
             case let .bindingAlert(model):
                 state.errorAlert = model
@@ -613,6 +621,17 @@ extension BuyOrNotTabViewFeature {
         switch state.currentRecordType {
         case .writePost:
             guard !state.hasLoadedRecordList else { return .none }
+
+        case .joinChat:
+            guard !state.hasLoadedChatRoomList else { return .none }
+        }
+
+        return requestCurrentRecordContent(state: &state)
+    }
+
+    private func requestCurrentRecordContent(state: inout State) -> Effect<Action> {
+        switch state.currentRecordType {
+        case .writePost:
             let paging = BuyOrNotPagingObj(page: 0, created: true)
             state.buyOrNotRecordPagingObj = paging
             state.userListPagingTrigger = false
@@ -620,7 +639,6 @@ extension BuyOrNotTabViewFeature {
             return .send(.featureEvent(.requestUserRecordList(paging)))
 
         case .joinChat:
-            guard !state.hasLoadedChatRoomList else { return .none }
             let paging = BuyOrNotPagingObj(page: 0, created: false)
             state.buyOrNotChatPagingObj = paging
             state.chatRoomListPagingTrigger = false
